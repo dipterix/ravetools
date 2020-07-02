@@ -1,0 +1,42 @@
+Package: raveutils
+Type: Package
+Title: Utility Toolbox for RAVE package
+Version: 0.5
+Language: en-US
+Authors@R: c(
+    person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre")),
+    person("John", "Magnotti", role = c("aut")),
+    person("Xiang", "Zhang", role = c("aut")),
+    person("Michael S.", "Beauchamp", role = c("aut", "fnd")),
+    person("Beauchamp lab", email = "beauchamplab@gmail.com", role = c("cph", "fnd"))
+    )
+Description: Includes multiple cross-platform read/write interfaces for
+  RAVE project: R analysis and visualization of human intracranial 
+  electroencephalography data. Provides hybrid tensor array classes that 
+  stores 10 GB level big array on solid state drives and load
+  on demand within seconds. Defines RAVE context that are massively 
+  used through out RAVE core package. Re-writes functions from other
+  packages with more stable behavior and backward compatibility.
+BugReports: https://github.com/beauchamplab/rave/issues
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+Depends: R (>= 3.6.0)
+Imports:
+    utils,
+    data.table,
+    yaml,
+    hdf5r,
+    fst,
+    dipsaus,
+    R.matlab,
+    glue,
+    stringr,
+    rstudioapi,
+    rlang
+Suggests:
+    pryr,
+    shiny,
+    spelling
+
