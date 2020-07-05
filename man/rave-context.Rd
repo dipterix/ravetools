@@ -6,7 +6,13 @@
 \alias{from_rave_context}
 \title{Set or Get RAVE context}
 \usage{
-rave_context(context, package = NULL, module_id = NULL, instance = NULL)
+rave_context(
+  context,
+  package = NULL,
+  module_id = NULL,
+  instance = NULL,
+  .force = FALSE
+)
 
 from_rave_context(info = c("context", "package", "module_id", "instance"))
 }
@@ -19,6 +25,8 @@ this is required for \code{rave_module_debug} and above}
 
 \item{module_id, instance}{RAVE module ID and instance object,
 required for context \code{rave_running} and \code{rave_running_local}.}
+
+\item{.force}{internally used, do not use}
 
 \item{info}{which context information to obtain}
 }

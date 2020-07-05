@@ -11,17 +11,17 @@
 \alias{with_rave_handlers}
 \title{RAVE Internal condition classes}
 \usage{
-rave_condition(..., class = NULL, call = NULL, immediate. = TRUE)
+rave_condition(..., class = NULL, call = NULL, immediate. = TRUE, style = NULL)
 
-rave_warn(..., class = NULL, call = NULL, immediate. = TRUE)
+rave_warn(..., class = NULL, call = NULL, immediate. = TRUE, style = "warn")
 
-rave_error(..., class = NULL, call = NULL, immediate. = TRUE)
+rave_error(..., class = NULL, call = NULL, immediate. = TRUE, style = "error")
 
-rave_fatal(..., class = NULL, call = NULL, immediate. = TRUE)
+rave_fatal(..., class = NULL, call = NULL, immediate. = TRUE, style = "fatal")
 
-rave_info(..., class = NULL, call = NULL, immediate. = TRUE)
+rave_info(..., class = NULL, call = NULL, immediate. = TRUE, style = "info")
 
-rave_debug(..., class = NULL, call = NULL, immediate. = TRUE)
+rave_debug(..., class = NULL, call = NULL, immediate. = TRUE, style = "debug")
 
 with_rave_handlers(expr, debug, info, warn, error, fatal, ...)
 }
@@ -36,6 +36,9 @@ with_rave_handlers(expr, debug, info, warn, error, fatal, ...)
 \item{call}{call expression}
 
 \item{immediate.}{whether to fire condition immediately}
+
+\item{style}{styles to apply to text; choices are \code{debug}, \code{info},
+\code{warn}, \code{error}, \code{fatal}, \code{default}, or a function}
 
 \item{expr}{expression to evaluate}
 

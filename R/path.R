@@ -143,3 +143,67 @@ dir_create <- function(x, showWarnings = FALSE, recursive = TRUE, check = TRUE, 
 }
 
 
+#' Print Directory Tree
+#' @param target target directory path, relative to \code{root}
+#' @param root root directory, default is \code{'~'}
+#' @param child child files in target; is missing, then list all files
+#' @param dir_only whether to display directory children only
+#' @param ... pass to \code{\link[base]{list.files}} when list all files
+#' @return Print-friendly directory tree
+#' @export
+print_directory_tree <- function(target, root = '~', child, dir_only = FALSE, ...){
+  root <- normalizePath(root, winslash = '/', mustWork = FALSE)
+  target <- file.path(root, target)
+  target <- stringr::str_replace_all(target, '\\\\', '/')
+  target <- normalizePath(target, mustWork = FALSE, winslash = '/')
+
+  paths <- stringr::str_split(target, '\\\\|/', simplify = TRUE)
+  rpath <- stringr::str_split(root, '\\\\|/', simplify = TRUE)
+
+  tree_id <- cbind(paste(rpath, collapse = '/'), paths[, -seq_along(rpath)])
+
+  df <- list('...' = character(0))
+
+  for(i in seq_len(nrow(tree_id))){
+
+    if(i == 1){
+      if( missing(child) ){
+        # child is only for the first target
+        dir <- target[[i]]
+        if( dir.exists(dir) ){
+          child <- list.dirs(dir, full.names = FALSE, recursive = FALSE)
+          if(!dir_only){
+            child <- c(child, list.files(dir, full.names = FALSE, include.dirs = FALSE, ...))
+          }
+          df[child] <- lapply(child, function(o){ character(0) })
+        } else {
+          child <- '...'
+        }
+      } else if(!length(child)){
+        child <- character(0)
+      } else {
+        df[child] <- lapply(child, function(o){ character(0) })
+      }
+    } else {
+      child = '...'
+    }
+
+    x <- c(as.list(tree_id[i, ]), list(child), list(''))
+    Reduce(function(a,b){
+      if(a != '' && length(a) == 1){
+        df[[a]] <<- c(df[[a]], b)
+      }
+      b
+    }, x)
+  }
+
+  cli::tree(data.frame(names(df), I(unname(lapply(df, function(x){
+    x <- x[x!='']
+    if(!length(x)){
+      x <- character(0)
+    }else {
+      x <- unique(x)
+    }
+    x
+  })))), root = root)
+}
