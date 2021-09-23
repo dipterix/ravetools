@@ -1,58 +1,24 @@
-#' A dummy function that literally does nothing
-#' @param ... nothing
-#' @export
-do_nothing <- function(...){
-
-}
-
-#' Function to clear all elements within environment
-#'
-#' @param env environment to clean, can be R environment, or
-#' \code{\link[dipsaus]{fastmap2}}
-#' @param ... ignored
-#'
-#' @examples
-#' \dontrun{
-#' env = new.env()
-#' env$a = 1
-#' print(as.list(env))
-#'
-#' clear_env(env)
-#' print(as.list(env))
-#' }
-#' @export
-clear_env <- function(env, ...){
-  if(is.environment(env)){
-    if(environmentIsLocked(env)){
-      return(invisible())
-    }
-    nms = names(env)
-    nms = nms[!stringr::str_detect(nms, '^\\.__rave')]
-    if(isNamespace(env)){
-      nms = nms[!nms %in% c(".__NAMESPACE__.", ".__S3MethodsTable__.")]
-    }
-    rm(list = nms, envir = env)
-  } else if(inherits(env, 'fastmap2')){
-    .subset2(env, 'remove')(names(env))
+detrend_naive <- function (x, y) {
+  if (missing(y)) {
+    y = x
+    x = seq_along(y)
   }
-  return(invisible())
-}
-
-
-#' @export
-add_to_session <- function(
-  session, key = 'rave_id',
-  val = paste(sample(c(letters, LETTERS, 0:9), 20), collapse = ''),
-  override = FALSE
-){
-  if(!is.null(session)){
-    if(override || !exists(key, envir = session$userData)){
-      assign(key, val, envir = session$userData)
-    }
-    return(get(key, envir = session$userData))
+  else {
+    stopifnot2(length(x) == length(y), msg = "x and y must have the same length.")
   }
-  return(NULL)
+  n = length(y)
+  b = (y[n] - y[1])/(x[n] - x[1])
+  a = y[1] - b * x[1]
+  list(Y = y - (a + b * x), a = a, b = b)
 }
 
 
-
+postpad <- function (x, n) {
+  x_len <- length(x)
+  if (n > x_len) {
+    return(c(x, rep(0, n - x_len)))
+  }
+  else {
+    return(x[seq_len(n)])
+  }
+}

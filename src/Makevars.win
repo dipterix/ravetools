@@ -1,0 +1,6 @@
+# Rtools contains fftw3, use that version
+
+PKG_CPPFLAGS=
+PKG_LIBS= -lfftw3 -lm
+
+all: $(SHLIB)

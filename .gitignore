@@ -2,3 +2,13 @@
 .Rhistory
 .RData
 .Ruserdata
+autom4te.cache
+config.log
+config.status
+src/Makevars
+checkbashisms
+revdep
+Rprof.out
+derby.log
+logs
+*.DS_Store
