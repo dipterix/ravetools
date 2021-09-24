@@ -25,7 +25,8 @@ Imports:
     dipsaus,
     fftwtools,
     filearray (>= 0.1.1),
-    Rcpp
+    Rcpp,
+    digest (>= 0.6.27)
 LinkingTo: 
     Rcpp
 Suggests: 

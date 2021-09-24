@@ -1,20 +1,28 @@
-#' Plot 'Welch' Periodogram
-#' @param x numerical signal vector
-#' @param fs sample rate
-#' @param window window length, default size is \code{64}
-#' @param nfft number of basis functions
-#' @param noverlap overlap between two adjacent windows, by default is \code{8}
-#' @param log indicates which axis should be \code{\link{log10}} transformed; options are \code{''}, \code{'x'}, \code{'y'}, \code{'xy'}.
+#' Calculate 'Welch Periodogram'
+#' @param x numerical vector, analog voltage signal
+#' @param fs sample rate, average number of time points per second
+#' @param window window length in time points, default size is \code{64}
+#' @param nfft number of basis functions to apply
+#' @param noverlap overlap between two adjacent windows, measured in time points; default is \code{8}
+#' @param log indicates which axis should be \code{log10}-transformed, used by the plot function. For \code{'x'} axis, it's \code{log10}-transform; for \code{'y'} axis, it's \code{10log10}-transform (decibel unit). Choices are \code{"xy"}, \code{"x"}, \code{"y"}, and \code{""}.
 #' @param plot integer, whether to plot the result or not; choices are \code{0}, no plot; \code{1} plot on a new canvas; \code{2} add to existing canvas
 #' @param add logical, whether the plot should be added to existing canvas
 #' @param ... will be passed to \code{plot.pwelch} or ignored
 #' @param x \code{'pwelch'} instance returned by \code{pwelch} function
 #' @param col,xlim,ylim,main,type,cex,cex.main,cex.sub,cex.lab,cex.axis,las,xlab,ylab parameters passed to \code{\link[graphics]{plot.default}}
+#' @examples
+#'
+#' x <- rnorm(1000)
+#' pwel <- pwelch(x, 100)
+#' pwel
+#'
+#' plot(pwel, log = "xy")
+#'
 #' @export
 pwelch <- function (
   x, fs, window = 64, noverlap = 8, nfft = 256,
   col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
-  plot = FALSE, log = 'xy', ...) {
+  plot = 0, log = c("xy", "", "x", "y"), ...) {
 
 
   # list2env(list(window = 64, noverlap = 8, nfft = 256,
@@ -67,6 +75,9 @@ pwelch <- function (
   ), class = c("raveutils-pwelch", "pwelch"))
 
   if( plot ) {
+    if(!is.null(log)){
+      log <- match.arg(log)
+    }
     plot(res, col = col, xlim = xlim, ylim = ylim, main = main,
          add = plot >= 2, log = log, ...)
     return(invisible(res))

@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+adhoc/
 aclocal.log
 autom4te.cache/
 ^config.log
 ^config.status
-^clean$

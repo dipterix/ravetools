@@ -4,7 +4,7 @@
 \alias{pwelch}
 \alias{print.pwelch}
 \alias{plot.pwelch}
-\title{Plot 'Welch' Periodogram}
+\title{Calculate 'Welch Periodogram'}
 \usage{
 pwelch(
   x,
@@ -16,9 +16,8 @@ pwelch(
   xlim = NULL,
   ylim = NULL,
   main = "Welch periodogram",
-  plot = TRUE,
-  log = "xy",
-  cex = 1,
+  plot = 0,
+  log = c("xy", "", "x", "y"),
   ...
 )
 
@@ -47,24 +46,33 @@ pwelch(
 \arguments{
 \item{x}{\code{'pwelch'} instance returned by \code{pwelch} function}
 
-\item{fs}{sample rate}
+\item{fs}{sample rate, average number of time points per second}
 
-\item{window}{window length, default size is \code{64}}
+\item{window}{window length in time points, default size is \code{64}}
 
-\item{noverlap}{overlap between two adjacent windows, by default is \code{8}}
+\item{noverlap}{overlap between two adjacent windows, measured in time points; default is \code{8}}
 
-\item{nfft}{number of basis functions}
+\item{nfft}{number of basis functions to apply}
 
 \item{col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab}{parameters passed to \code{\link[graphics]{plot.default}}}
 
 \item{plot}{integer, whether to plot the result or not; choices are \code{0}, no plot; \code{1} plot on a new canvas; \code{2} add to existing canvas}
 
-\item{log}{indicates which axis should be \code{\link{log10}} transformed; options are \code{''}, \code{'x'}, \code{'y'}, \code{'xy'}.}
+\item{log}{indicates which axis should be \code{log10}-transformed, used by the plot function. For \code{'x'} axis, it's \code{log10}-transform; for \code{'y'} axis, it's \code{10log10}-transform (decibel unit). Choices are \code{"xy"}, \code{"x"}, \code{"y"}, and \code{""}.}
 
 \item{...}{will be passed to \code{plot.pwelch} or ignored}
 
 \item{add}{logical, whether the plot should be added to existing canvas}
 }
 \description{
-Plot 'Welch' Periodogram
+Calculate 'Welch Periodogram'
+}
+\examples{
+
+x <- rnorm(1000)
+pwel <- pwelch(x, 100)
+pwel
+
+plot(pwel, log = "xy")
+
 }

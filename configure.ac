@@ -42,9 +42,8 @@ AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT
 
 echo "
-${PACKAGE_NAME}
-================
-
+================================
 compiler flags: ${PKG_CFLAGS}
 link argument:  ${PKG_LIBS}
+================================
 "

@@ -5211,10 +5211,9 @@ fi
 
 
 echo "
-${PACKAGE_NAME}
-================
-
+================================
 compiler flags: ${PKG_CFLAGS}
 link argument:  ${PKG_LIBS}
+================================
 "
 

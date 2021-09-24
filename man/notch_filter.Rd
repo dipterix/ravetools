@@ -2,7 +2,7 @@
 % Please edit documentation in R/notch.R
 \name{notch_filter}
 \alias{notch_filter}
-\title{Apply Notch Filter to Analog Trace Data}
+\title{Apply 'Notch' filter}
 \usage{
 notch_filter(
   s,
@@ -13,22 +13,42 @@ notch_filter(
 )
 }
 \arguments{
-\item{s}{signal in time or frequency domain}
+\item{s}{numerical vector if \code{domain=1} (voltage
+signals), or complex vector if \code{domain=0}}
 
-\item{sample_rate}{signal sample rate}
+\item{sample_rate}{sample rate}
 
-\item{lb}{filter lower bound (Hz)}
+\item{lb}{filter lower bound of the frequencies to remove}
 
-\item{ub}{filter upper bound (Hz)}
+\item{ub}{filter upper bound of the frequencies to remove;
+shares the same length as \code{lb}}
 
-\item{domain}{1 if the input signal is in the time domain, 0 if it is in the frequency domain}
+\item{domain}{\code{1} if the input signal is in the
+time domain, \code{0} if it is in the frequency domain}
 }
 \value{
-filtered signal in time domain
+filtered signal in time domain (real numerical
+vector)
 }
 \description{
-Apply Notch Filter to Analog Trace Data
+Apply 'Notch' filter
 }
 \details{
-This function is alternative R version of notch filter
+Mainly used to remove electric line noise caused
+at 60, 120, and 180 \code{Hz}.
+}
+\examples{
+
+
+time <- seq(0, 3, 0.005)
+s <- sin(120 * pi * time) + rnorm(length(time))
+
+# Welch periodogram shows a peak at 60Hz
+pwelch(s, 200, plot = 1, log = "y")
+
+# notch filter to remove 60Hz
+s1 <- notch_filter(s, 200, lb = 59, ub = 61)
+pwelch(s1, 200, plot = 2, log = "y", col = "red")
+
+
 }

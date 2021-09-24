@@ -1,7 +1,53 @@
-#' Returns wavelets to be used for wavelet function
-#' @param freqs vector of center frequencies for decomposition
-#' @param srate sample rate (in Hz)
-#' @param wave_num desired number of cycles in wavelet (typically 3-20 for frequencies 2-200).
+#' @title 'Morlet' wavelet transform (Discrete)
+#' @name wavelet
+#' @description Transform analog voltage signals with 'Morlet'
+#' wavelets: complex wavelet kernels with \eqn{\pi/2} phase
+#' differences.
+#' @param data numerical vector such as analog voltage signals
+#' @param freqs frequency in which \code{data} will be projected on
+#' @param srate sample rate, number of time points per second
+#' @param wave_num desired number of cycles in wavelet kernels to
+#' balance the precision in time and amplitude (control the
+#' smoothness); positive integers are strongly suggested
+#' @param demean whether to centralize the data first
+#' @return \code{wavelet_kernels} returns wavelet kernels to be
+#' used for wavelet function
+#'
+#' @examples
+#'
+#'
+#' # generate sine waves
+#' time <- seq(0, 3, by = 0.01)
+#' x <- sin(time * 20*pi) + exp(-time^2) * cos(time * 10*pi)
+#'
+#' plot(time, x, type = 'l')
+#'
+#' # freq from 1 - 15 Hz
+#' freq <- seq(1, 15, 0.2)
+#' coef <- morlet_wavelet(x, freq, 100, c(2,3))
+#'
+#' # to get coefficients in complex number from 1-10 time points
+#' coef[1:10, ]
+#'
+#' # power
+#' power <- Mod(coef[])^2
+#'
+#' # Power peaks at 5Hz and 10Hz at early stages
+#' # After 1.0 second, 5Hz component fade away
+#' image(power, x = time, y = freq, ylab = "frequency")
+#'
+#' # display kernels
+#'
+#' freq <- seq(1, 15, 1)
+#' kern <- wavelet_kernels(freq, 100, c(2,3))
+#' print(kern)
+#'
+#' plot(kern)
+#'
+NULL
+
+#' @rdname wavelet
+#' @export
 wavelet_kernels <- function(freqs, srate, wave_num){
   # calculate wavelet cycles for each frequencies
   if(length(wave_num) != length(freqs)){
@@ -53,6 +99,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   ), class = "raveutils-wavelet-kernels")
 }
 
+#' @export
 `print.raveutils-wavelet-kernels` <- function(x, plot = FALSE, ...){
   cat("Discrete wavelet kernels\n")
   cat("  number of kernels/frequencies:", length(x$kernels), "\n")
@@ -61,6 +108,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   invisible(x)
 }
 
+#' @export
 `plot.raveutils-wavelet-kernels` <- function(
   x, cex = 1.2, cex.lab = cex * 1.2, cex.main = cex * 1.33,
   cex.axis = cex, ...){
@@ -188,21 +236,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
   return(arr)
 }
 
-#' @title Wavelet Transformation With Phase
-#' @description The code was translated from Matlab script written by
-#' Brett Foster, Stanford Memory Lab, 2015 with permission to use in `RAVE`.
-#' @param data - vector of time series to be decomposed
-#' @param freqs - vector of center frequencies for decomposition
-#' @param srate - sample rate (in Hz)
-#' @param wave_num - desired number of cycles in wavelet (typically 3-20 for
-#' frequencies 2-200).
-#' @param demean - whether to remove the mean of data first?
-#' @details
-#' Decompose time series data into time-frequency
-#' representation (spectral decomposition) using wavelet transform. Employs
-#' "Morlet" wavelet method (gaussian taper sine wave) to obtain the analytic
-#' signal for specified frequencies (via convolution).
-#'
+#' @rdname wavelet
 #' @export
 morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
 
