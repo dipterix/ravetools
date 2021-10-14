@@ -1,12 +1,3 @@
-## This file is part of fftwtools
-## Note this file was copied from the file used in the R FFTW package
-## As was the general build principle, and I am indebted to the authors of that
-## package.
-##
-## Process this file with autoconf to produce a configure script.
-
-## Rewritten on Jan/30 2021 by Zhengjia Wang and released under GPL-2 or later: https://github.com/krahim/fftwtools/commit/593c9eb3b31847231844ea6dd2840b9da22312d7#diff-49473dca262eeab3b4a43002adb08b4db31020d190caaad1594b47f1d5daa810
-## Edited on Oct/01 2021 to build with raveutils
 
 AC_PREREQ(2.61)
 

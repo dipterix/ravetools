@@ -27,6 +27,8 @@ Imports:
     filearray (>= 0.1.1),
     Rcpp,
     signal,
+    waveslim,
+    pracma,
     digest (>= 0.6.27),
     raveio (>= 0.0.5)
 LinkingTo: 

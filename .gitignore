@@ -12,3 +12,5 @@ Rprof.out
 derby.log
 logs
 *.DS_Store
+configure~
+.lineno
