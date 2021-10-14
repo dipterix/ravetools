@@ -4,6 +4,7 @@
 \alias{pwelch}
 \alias{print.pwelch}
 \alias{plot.pwelch}
+\alias{mv_pwelch}
 \title{Calculate 'Welch Periodogram'}
 \usage{
 pwelch(
@@ -42,6 +43,8 @@ pwelch(
   ylim = NULL,
   ...
 )
+
+mv_pwelch(x, margin, fs, nfft)
 }
 \arguments{
 \item{x}{\code{'pwelch'} instance returned by \code{pwelch} function}
@@ -63,9 +66,13 @@ pwelch(
 \item{...}{will be passed to \code{plot.pwelch} or ignored}
 
 \item{add}{logical, whether the plot should be added to existing canvas}
+
+\item{margin}{the margin in which \code{pwelch} should be applied to}
 }
 \description{
-Calculate 'Welch Periodogram'
+\code{pwelch} is for single signal trace only; \code{mv_pwelch}
+is for multiple traces. Currently \code{mv_pwelch} is experimental and
+should not be called directly.
 }
 \examples{
 

@@ -1,3 +1,15 @@
+#' High-performance 'Morlet'-wavellet on 'RAVE' subject
+#' @description This function is intended to be called within builtin
+#' pipelines. Please check \url{https://rave.wiki} to see details.
+#' @param subject character of subject ID or \code{\link[raveio]{RAVESubject}}
+#' instance
+#' @param electrode length of one, which electrode should be applied
+#' @param frequencies,kernel_cycles,demean see \code{\link{morlet_wavelet}}
+#' @param downsample_rate down-sample rate after wavelet
+#' @param signal_source which 'HDF5' name should be used. Current default is
+#' \code{"/notch/{block}"} for 'Notch' filtered signals
+#' @return Current time-stamp. The wavelet power and phase will be saved to
+#' 'RAVE' structure automatically
 #' @export
 wavelet_rave_subject <- function(
   subject, electrode, frequencies, kernel_cycles,

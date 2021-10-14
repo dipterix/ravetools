@@ -69,6 +69,7 @@ multitaper_spectrogram_R <- function(data, fs, frequency_range=NULL, time_bandwi
 
   # Split data into window segments
   data_segments <- t(sapply(window_idxs, split_data_helper, data=data))
+  dim(data_segments) <- c(length(window_idxs), length(data_segments) / length(window_idxs))
 
   # COMPUTE THE MULTITAPER SPECTROGRAM
   #     STEP 1: Compute DPSS tapers based on desired spectral properties

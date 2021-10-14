@@ -1,3 +1,29 @@
+#' Export diagnostic plot (\code{\link{pwelch}}) for 'RAVE' subjects
+#' @param subject character, or \code{\link[raveio]{RAVESubject}}
+#' @param electrodes electrodes to generate plots
+#' @param blocks the session block number
+#' @param h5_names the 'HDF5' data names used
+#' @param save_dir where to save the 'PDF' files
+#' @param width,height,useDingbats,onefile,... passed to \code{\link[grDevices]{pdf}}
+#' @param winlens,freq_lims see \code{\link{pwelch}}
+#' @param nclass number of bins in the histogram
+#' @param cex font size
+#' @param col,fore_col,back_col the color to use for different types of signals;
+#' by default signals after the 'Notch' filters uses \code{fore_col} color
+#' (black), and original trace uses \code{back_col} (grey) color
+#' @return Nothing, however, one or multiple 'PDF' files will be generated at
+#' \code{save_dir} directory.
+#' @examples
+#'
+#' # Please download RAVE demo subject first
+#' if(interactive()){
+#'   export_path <- tempfile()
+#'   export_diagnose_voltage("demo/DemoSubject", 13:16,
+#'                           "008", save_dir = export_path)
+#'   # open the following path
+#'   normalizePath(export_path)
+#' }
+#'
 #' @export
 export_diagnose_voltage <- function(
   subject, electrodes, blocks,
@@ -58,7 +84,7 @@ export_diagnose_voltage <- function(
           diagnose_signal(
             s1 = s[[1]], s2 = s[[2]], col = col,
             name = name,
-            xlim = c(0, freq_lim),
+            max_freq = freq_lim,
             srate = srate,
             window = winlen,
             noverlap = winlen / 2,

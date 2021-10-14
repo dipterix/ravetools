@@ -1,3 +1,63 @@
+#' @title Compute multitaper spectrogram of time-series data
+#' @name multitaper
+#'
+#' @param data numerical vector, signal traces
+#' @param data_length length of data
+#' @param fs sampling frequency in 'Hz'
+#' @param frequency_range frequency range to look at; length of two
+#' @param time_bandwidth a number indicating time-half bandwidth product; i.e.
+#' the window duration times the half bandwidth of main lobe; default is
+#' \code{5}
+#' @param num_tapers number of 'DPSS' tapers to use; default is \code{NULL} and
+#' will be automatically computed from \code{floor(2*time_bandwidth - 1)}
+#' @param window_params vector of two numbers; the first number is the
+#' window size in seconds; the second number if the step size; default is
+#' \code{c(5, 1)}
+#' @param detrend_opt how you want to remove the trend from data window; options
+#' are \code{'linear'} (default), \code{'constant'}, and \code{'off'}
+#' @param nfft 'NFFT' size, positive; see 'Details'
+#' @return \code{multitaper_config} returns a list of configuration parameters
+#' for the filters; \code{multitaper} also returns the time, frequency and
+#' corresponding spectrogram.
+#'
+#' @details The original source code comes from 'Prerau' Lab (see 'Github'
+#' repository \code{'multitaper_toolbox'} under user \code{'preraulab'}).
+#' The results tend to agree with their 'Python' implementation with precision
+#' on the order of at \code{1E-7} with standard deviation at most \code{1E-5}.
+#' The original copy was licensed under a Creative Commons Attribution
+#' 'NC'-'SA' 4.0 International License
+#' (\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}).
+#'
+#' This package (\code{'raveutils'}) redistributes the \code{multitaper}
+#' function under minor modifications on \code{nfft}. In the original copy
+#' there is no parameter to control the exact numbers of \code{nfft}, and
+#' the \code{nfft} is always the power of 2. While choosing
+#' \code{nfft} to be the power of 2 is always recommended, the modified code
+#' allows other choices.
+#'
+#' @examples
+#'
+#' time <- seq(0, 3, by = 0.001)
+#' x <- sin(time * 20*pi) + exp(-time^2) * cos(time * 10*pi)
+#'
+#' res <- multitaper(
+#'   x, 1000, frequency_range = c(0,15),
+#'   time_bandwidth=1.5,
+#'   window_params=c(2,0.01)
+#' )
+#'
+#'
+#' image(
+#'   x = res$time,
+#'   y = res$frequency,
+#'   z = 10 * log10(res$spec),
+#'   xlab = "Time (s)",
+#'   ylab = 'Frequency (Hz)',
+#'   col = matlab_palette()
+#' )
+#'
+NULL
+
 multitaper_process_input <- function(
   len_data, fs, frequency_range=NULL, time_bandwidth=5,
   num_tapers=NULL, window_params=c(5,1), nfft=NA,
@@ -79,11 +139,11 @@ multitaper_process_input <- function(
 
   # Get num points in FFT
   nfft <- as.integer(nfft)
-  if(nfft < 1){
+  if(!is.na(nfft) && nfft < 1){
     stop("Invalid nfft")
   }
   if(is.na(nfft)){
-    nfft = max(max(2^ceiling(log2(abs(winsize_samples))), winsize_samples), 2^ceiling(log2(abs(min_nfft))))
+    nfft = max(2^ceiling(log2(abs(winsize_samples))), winsize_samples)
   }
 
 
@@ -134,6 +194,7 @@ multitaper_process_spectrogram_params <- function(
 
 }
 
+#' @rdname multitaper
 #' @export
 multitaper_config <- function(
   data_length, fs, frequency_range=NULL, time_bandwidth=5,
@@ -252,36 +313,13 @@ multitaper_calc_mts_segment <- function(data_segment, dpss_tapers, nfft, freq_in
   return(mt_spectrum)
 }
 
+#' @rdname multitaper
 #' @export
 multitaper <- function(
   data, fs, frequency_range=NULL, time_bandwidth=5,
   num_tapers=NULL, window_params=c(5,1),
-  nfft = NA, detrend_opt='linear', plot_on=TRUE, verbose=TRUE
+  nfft = NA, detrend_opt='linear'
 ){
-  # Compute multitaper spectrogram of timeseries data
-  #
-  # Results tend to agree with Prerau Lab python implementation of multitaper spectrogram with precision on the order of at most
-  # 10^-7 with SD of at most 10^-5
-  #
-  # params:
-  #         data (numeric vector): time series data -- required
-  #         fs (numeric): sampling frequency in Hz  -- required
-  #         frequency_range (numeric vector): c(<min frequency>, <max frequency>) (default: NULL, adjusted to
-  #                                           c(0, nyquist) later)
-  #         time_bandwidth (numeric): time-half bandwidth product (window duration*half bandwidth of main lobe)
-  #                                   (default: 5 Hz*s)
-  #         num_tapers (numeric): number of DPSS tapers to use (default: NULL [will be computed
-  #                                                               as floor(2*time_bandwidth - 1)])
-  #         window_params (numeric vector): c(window size (seconds), step size (seconds)) (default: [5 1])
-  #         detrend_opt (char): detrend data window ('linear' (default), 'constant', 'off')
-  #         min_nfft (numeric): minimum allowable NFFT size, adds zero padding for interpolation (closest 2^x) (default: 0)
-  #         plot_on (logical): plot results (default: TRUE)
-  #         verbose (logical): display spectrogram properties (default: TRUE)
-  #
-  # returns:
-  #         mt_spectrogram (matrix): spectral power matrix
-  #         stimes (numeric vector): timepoints (s) in mt_spectrogram
-  #         sfreqs (numeric vector): frequency values (Hz) in mt_spectrogram
 
   # Make sure data is 1D atomic vector
   if((is.atomic(data) == FALSE) || is.list(data)){
@@ -295,10 +333,11 @@ multitaper <- function(
     window_params, nfft, detrend_opt
   )
 
-  if( verbose ){
-    print(conf)
-  }
-
+  window_idxs <- conf$window_idxs
+  winsize_samples <- conf$winsize_samples
+  freq_inds <- conf$freq_inds
+  stimes <- conf$stimes
+  sfreqs <- conf$sfreqs
   list2env(conf, envir = environment())
 
 
@@ -337,5 +376,5 @@ multitaper <- function(
     #            ylab='Frequency (Hz)')
   # }
 
-  return(list(spec = mt_spectrogram, time = stimes, frequency = sfreqs))
+  return(list(spec = mt_spectrogram, time = stimes, frequency = sfreqs, configuration = conf))
 }

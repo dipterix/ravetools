@@ -1,4 +1,7 @@
 #' Calculate 'Welch Periodogram'
+#' @description \code{pwelch} is for single signal trace only; \code{mv_pwelch}
+#' is for multiple traces. Currently \code{mv_pwelch} is experimental and
+#' should not be called directly.
 #' @param x numerical vector, analog voltage signal
 #' @param fs sample rate, average number of time points per second
 #' @param window window length in time points, default size is \code{64}
@@ -10,6 +13,7 @@
 #' @param ... will be passed to \code{plot.pwelch} or ignored
 #' @param x \code{'pwelch'} instance returned by \code{pwelch} function
 #' @param col,xlim,ylim,main,type,cex,cex.main,cex.sub,cex.lab,cex.axis,las,xlab,ylab parameters passed to \code{\link[graphics]{plot.default}}
+#' @param margin the margin in which \code{pwelch} should be applied to
 #' @examples
 #'
 #' x <- rnorm(1000)
@@ -172,6 +176,7 @@ plot.pwelch <- function(x, log = c("xy", "x", "y", ""), type = 'l', add = FALSE,
 
 
 
+#' @rdname pwelch
 #' @export
 mv_pwelch <- function(x, margin, fs, nfft){
   xlen <- length(x) / dim(x)[[margin]]
