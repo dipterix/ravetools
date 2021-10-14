@@ -30,9 +30,9 @@ pwelch <- function (
   #               plot = TRUE, log = 'xy', spec_func = stats::spectrum, cex = 1), .GlobalEnv)
 
   x <- as.vector(x)
-  x_len = length(x)
+  x_len <- length(x)
 
-  nfft = max(min(nfft, length(x)), window)
+  nfft <- max(min(nfft, length(x)), window)
 
   window <- hanning(window)
 
@@ -44,12 +44,12 @@ pwelch <- function (
   step <- max(floor(window_len - noverlap + 0.99), 1)
 
   ## Average the slices
-  offset = seq(1, x_len-window_len+1, by = step)
+  offset <- seq(1, x_len-window_len+1, by = step)
 
-  N = length(offset);
+  N <- length(offset)
 
   re <- sapply(seq_len(N), function(i){
-    a = detrend_naive(x[offset[i] - 1 + seq_len(window_len)])
+    a <- detrend_naive(x[offset[i] - 1 + seq_len(window_len)])
     postpad(a$Y * window, nfft)
     # # HermConj = 0 : without the "Hermitian" redundancy
     # a = fftwtools::fftw_r2c(postpad(a$Y * window, nfft), HermConj = 0)
@@ -58,10 +58,10 @@ pwelch <- function (
 
   re <- Mod(mvfftw_r2c(re))^2
 
-  NN = floor((nfft + 1)/2)
+  NN <- floor((nfft + 1)/2)
   spec <- rowMeans(re) / (window_len / 2)^2
   spec <- spec[seq_len(NN)]
-  freq = seq(1, fs / 2, length.out = NN)
+  freq <- seq(1, fs / 2, length.out = NN)
 
   res <- structure(list(
     freq = freq,
@@ -105,42 +105,100 @@ plot.pwelch <- function(x, log = c("xy", "x", "y", ""), type = 'l', add = FALSE,
   if(!is.null(log)){
     log <- match.arg(log)
   } else {
-    log = ''
+    log <- ''
   }
   freq <- x$freq
   spec <- x$spec
+
+  if(!length(xlim)){
+    xlim <- range(freq)
+  }
+
   switch (
     log,
     "xy" = {
       xlab %?<-% 'Log10(Frequency)'
       ylab %?<-% 'Power (dB)'
-      freq = log10(freq)
-      spec = log10(spec) * 10
+      freq <- log10(freq)
+      spec <- log10(spec) * 10
+      xlabel <- pretty(10^xlim)
+      xat <- xlabel
+      xat[xat <= 0 ] <- 1
+      xat <- log10(xat)
+      xlim <- range(xat)
     },
     "x" = {
       xlab %?<-% 'Log10(Frequency)'
       ylab %?<-% 'Power'
-      freq = log10(freq)
+      freq <- log10(freq)
+      xlabel <- pretty(10^xlim)
+      xat <- xlabel
+      xat[xat <= 0 ] <- 1
+      xat <- log10(xat)
+      xlim <- range(xat)
     },
     "y" = {
       xlab %?<-% 'Frequency'
       ylab %?<-% 'Power (dB)'
-      spec = log10(spec) * 10
+      spec <- log10(spec) * 10
+      xlabel <- pretty(xlim)
+      xat <- xlabel
     },
     {
       xlab %?<-% 'Frequency'
       ylab %?<-% 'Power'
+      xlabel <- pretty(xlim)
+      xat <- xlabel
     }
   )
+  if(!length(ylim)){
+    ylim <- range(spec)
+  }
+
   if(add){
     graphics::points(freq, spec, type = type, col = col, ...)
   } else {
+
     graphics::plot(
       freq, spec, type = type, col = col, xlab = xlab, ylab = ylab,
       xlim = xlim, ylim = ylim, main = main, las = las,
       cex.axis = cex.axis, cex.lab = cex.lab, cex.main = cex.main,
-      cex.sub = cex.sub, ...)
+      cex.sub = cex.sub, axes = FALSE, ...)
+    graphics::axis(1, at = xat, labels = xlabel)
+    graphics::axis(2, at = pretty(ylim), las = 1)
   }
   invisible()
 }
 
+
+
+#' @export
+mv_pwelch <- function(x, margin, fs, nfft){
+  xlen <- length(x) / dim(x)[[margin]]
+  window_len <- xlen
+  window <- hanning(xlen)
+  if(missing(nfft)){
+    nfft <- 2^ceiling(log2(xlen))
+  }
+  re <- apply(x, margin, function(s){
+    a <- detrend_naive(s)
+    postpad(a$Y * window, nfft)
+  })
+  re <- Mod(mvfftw_r2c(re))^2
+
+  NN <- floor((nfft + 1)/2)
+  spec <- rowMeans(re) / (window_len / 2)^2
+  spec <- spec[seq_len(NN)]
+  freq <- seq(1, fs / 2, length.out = NN)
+
+  res <- structure(list(
+    freq = freq,
+    spec = spec,
+    window = window,
+    noverlap = NA,
+    nfft = nfft,
+    fs = fs,
+    x_len = xlen,
+    method = "Welch"
+  ), class = c("raveutils-pwelch", "pwelch"))
+}

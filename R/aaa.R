@@ -1,4 +1,6 @@
 ## usethis namespace: start
+#' @importFrom stats approx
+#' @importFrom Rcpp sourceCpp
 #' @importFrom dipsaus %?<-%
 #' @useDynLib raveutils, .registration = TRUE
 ## usethis namespace: end

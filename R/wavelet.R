@@ -52,12 +52,12 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   # calculate wavelet cycles for each frequencies
   if(length(wave_num) != length(freqs)){
     # calculate wavelet cycles for each frequencies
-    ratio = (log(max(wave_num)) - log(min(wave_num))) / (log(max(freqs)) - log(min(freqs)))
-    wavelet_cycles = round(exp((log(freqs) - log(min(freqs))) * ratio + log(min(wave_num))))
+    ratio <- (log(max(wave_num)) - log(min(wave_num))) / (log(max(freqs)) - log(min(freqs)))
+    wavelet_cycles <- round(exp((log(freqs) - log(min(freqs))) * ratio + log(min(wave_num))))
   }else{
-    wavelet_cycles = wave_num
+    wavelet_cycles <- wave_num
   }
-  f_l = length(freqs)
+  f_l <- length(freqs)
 
 
   # wavelet window calc - each columns of final wave is a wavelet kernel (after fft)
@@ -65,28 +65,28 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   # wavelet_wins = cbind(-3 * sts, 3 * sts)
 
   fft_waves <- lapply(seq_len(f_l), function(ii){
-    fq = freqs[ii]
-    cycles = wavelet_cycles[ii]
+    fq <- freqs[ii]
+    cycles <- wavelet_cycles[ii]
     # standard error
-    st = cycles / (2 * pi * fq)
+    st <- cycles / (2 * pi * fq)
 
     # calculate window size
-    wavelet_win = seq(-3 * st, 3 * st, by = 1/srate)
+    wavelet_win <- seq(-3 * st, 3 * st, by = 1/srate)
 
     # half of window length
-    w_l_half = (length(wavelet_win) - 1) / 2
+    w_l_half <- (length(wavelet_win) - 1) / 2
 
     # wavelet 1: calc sinus in complex domain
-    tmp_sine = exp((0+1i) * 2 * pi * fq / srate * (-w_l_half:w_l_half))
+    tmp_sine <- exp((0+1i) * 2 * pi * fq / srate * (-w_l_half:w_l_half))
 
     # Gaussian normalization part
-    A = 1/sqrt(st*sqrt(pi))
+    A <- 1/sqrt(st*sqrt(pi))
 
     # wavelet 2: calc gaussian wrappers
-    tmp_gaus_win = A * exp(-wavelet_win^2/(2 * (cycles/(2 * pi * fq))^2))
+    tmp_gaus_win <- A * exp(-wavelet_win^2/(2 * (cycles/(2 * pi * fq))^2))
 
     # wave kernel
-    tmp_wavelet = tmp_sine * tmp_gaus_win
+    tmp_wavelet <- tmp_sine * tmp_gaus_win
 
     tmp_wavelet
   })
@@ -117,27 +117,27 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   srate <- x$sample_rate
   freqs <- x$frequencies
   wavelet_cycles <- x$wavelet_cycles
-  max_l = as.integer(max(sapply(fft_waves, length)) + 0.1 * srate)
+  max_l <- as.integer(max(sapply(fft_waves, length)) + 0.1 * srate)
   s <- sapply(fft_waves, function(s){
-    l = (max_l - length(s))
-    pre = floor(l / 2)
-    post = ceiling(l / 2)
+    l <- (max_l - length(s))
+    pre <- floor(l / 2)
+    post <- ceiling(l / 2)
     c(rep(NA, pre), s, rep(NA, post))
   })
-  s_re = Re(s)
-  s_im = Im(s)
+  s_re <- Re(s)
+  s_im <- Im(s)
   ind <- exp(seq(log(min(freqs)), log(max(freqs)), length.out = 10))
   ind <- sapply(ind, function(i){
     which.min(abs(i - freqs))[[1]]
   })
-  ind = unique(sort(ind))
-  gap = seq_along(ind) * 1.8 * max(abs(s_re), na.rm = T)
-  tmp_re = t(t(s_re[, ind]) + gap)
-  tmp_im = t(t(s_im[, ind]) + gap)
-  tmp = rbind(tmp_re)
-  x_all = seq_len(max_l) / srate
-  x_re = x_all
-  x_im = x_re + max(x_all)
+  ind <- unique(sort(ind))
+  gap <- seq_along(ind) * 1.8 * max(abs(s_re), na.rm = TRUE)
+  tmp_re <- t(t(s_re[, ind]) + gap)
+  tmp_im <- t(t(s_im[, ind]) + gap)
+  tmp <- rbind(tmp_re)
+  x_all <- seq_len(max_l) / srate
+  x_re <- x_all
+  x_im <- x_re + max(x_all)
   # grid::grid.newpage()
   lay <- rbind(c(1,1), c(2,3))
 
@@ -148,41 +148,43 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   # })
   # par(mar = c(5.1, 4.1, 4.1, 2.1) * (cex / 2 + 0.5))
   graphics::matplot(y = tmp_re, x = x_re, type='l', col = 'red',
-                    xlim = c(0, max(x_im)), ylim = c(min(tmp_re, na.rm = T), max(gap) + 1.5 * min(gap)),
+                    xlim = c(0, max(x_im)), ylim = c(min(tmp_re, na.rm = TRUE), max(gap) + 1.5 * min(gap)),
                     lty = 1, cex.lab = cex.lab, cex.main = cex.main, xlab = 'Wavelet Length (seconds)', cex.axis = cex.axis,
                     ylab = 'Frequency (Hz)', main = 'Wavelet Kernels (Real & Imaginary)', yaxt="n", xaxt="n")
 
   graphics::matlines(y = tmp_im, x = x_im, type='l', col = 'red', lty = 1)
 
-  n_halftickers = 7
-  x_actual = c(x_re, x_im)
-  x_label = c(x_all, x_all) - mean(x_all)
-  xind = seq(1, length(x_re), length.out = n_halftickers); xind = c(xind, xind + length(x_re))
-  xind = as.integer(xind[-n_halftickers])
-  x_label = x_label[xind]; x_label[n_halftickers] = abs(x_label[n_halftickers])
-  x_label = sprintf('%.2f', x_label)
-  x_label[n_halftickers] = paste0('\u00B1', x_label[n_halftickers])
-  x_text = stats::median(x_actual)
+  n_halftickers <- 7
+  x_actual <- c(x_re, x_im)
+  x_label <- c(x_all, x_all) - mean(x_all)
+  xind <- seq(1, length(x_re), length.out = n_halftickers)
+  xind <- c(xind, xind + length(x_re))
+  xind <- as.integer(xind[-n_halftickers])
+  x_label <- x_label[xind]
+  x_label[n_halftickers] <- abs(x_label[n_halftickers])
+  x_label <- sprintf('%.2f', x_label)
+  x_label[n_halftickers] <- paste0('\u00B1', x_label[n_halftickers])
+  x_text <- stats::median(x_actual)
 
   graphics::axis(1, at=x_actual[xind], x_label, cex.axis = cex.axis)
   graphics::axis(2, at=gap, freqs[ind], cex.axis = cex.axis, las = 1)
   graphics::abline(h = gap, col = 'grey80', lty = 2)
-  leading_mod = sapply(ind, function(ii){
-    x = s[,ii]
-    cycles = wavelet_cycles[ii]
-    x = x[!is.na(x)] #Mod(x[1]) / max(Mod(x)) * 100  #= 1.111%
+  leading_mod <- sapply(ind, function(ii){
+    x <- s[,ii]
+    cycles <- wavelet_cycles[ii]
+    x <- x[!is.na(x)] #Mod(x[1]) / max(Mod(x)) * 100  #= 1.111%
     c(length(x) / srate, cycles)
   })
   graphics::text(x = x_text, y = gap, '|', cex = cex)
   graphics::text(x = x_text, y = gap, sprintf('%.3f', leading_mod[1,]), cex = cex, pos = 2)
   graphics::text(x = x_text, y = gap, sprintf('%.2f', leading_mod[2,]), cex = cex, pos = 4)
-  y_mini_title = min(gap) + max(gap)
+  y_mini_title <- min(gap) + max(gap)
   graphics::text(x = x_text, y = y_mini_title, '|', cex = cex.lab)
   graphics::text(x = x_text, y = y_mini_title, 'Wave Length', cex = cex.lab, pos = 2)
   graphics::text(x = x_text, y = y_mini_title, '# of Cycles', cex = cex.lab, pos = 4)
 
   # plot freq over wavelength and wave cycles
-  wave_len = sapply(fft_waves, length) / srate
+  wave_len <- sapply(fft_waves, length) / srate
   graphics::plot(freqs, wave_len, type = 'l', ylab = 'Wavelet Length (seconds)',
                  xlab = 'Frequency (Hz)', main = 'Wavelet Length | Frequency',
                  las = 1, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, col = 'grey80')
@@ -220,9 +222,9 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
   tmp <- complex(data_length)
   lapply(seq_along(kernel_info$kernels), function(ii){
     tmp_wavelet <- kernel_info$kernels[[ii]]
-    w_l = length(tmp_wavelet)
-    n_pre  = ceiling(data_length / 2) - floor(w_l/2)
-    n_post = data_length - n_pre - w_l
+    w_l <- length(tmp_wavelet)
+    n_pre  <- ceiling(data_length / 2) - floor(w_l/2)
+    n_post <- data_length - n_pre - w_l
     x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
     # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
     fftw_c2c(data = x, inverse = 0L, ret = tmp)
@@ -245,8 +247,8 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   # wavelet_cycles = wave_num;
   # lowest_freq = freqs[1];
 
-  f_l = length(freqs)
-  d_l = length(data)
+  f_l <- length(freqs)
+  d_l <- length(data)
 
   # calculate kernel, transform and store
   fft_waves <- wavelet_kernels2(freqs, srate, wave_num, d_l)
@@ -255,13 +257,13 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   if(demean){
     data <- data - mean(data)
   }
-  fft_data = fftw_r2c(data)
+  fft_data <- fftw_r2c(data)
 
   # Convolution Notice that since we don't pad zeros to data
   # d_l is nrows of wave_spectrum. However, if wave_spectrum is changed
   # we should not use d_l anymore. instead, use nrow(fft_waves)
-  wave_len = nrow(fft_waves)
-  ind = seq_len(ceiling(wave_len / 2))
+  wave_len <- nrow(fft_waves)
+  ind <- seq_len(ceiling(wave_len / 2))
 
   output <- filearray::filearray_create(filebase = tempfile2(), dimension = dim(fft_waves), type = "complex", partition_size = 1)
 

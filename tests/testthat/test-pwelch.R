@@ -4,22 +4,22 @@ test_that("pwelch", {
                            log = "xy", spec_func = stats::spectrum, cex = 1, ...)
   {
     x <- as.vector(x)
-    x_len = length(x)
-    nfft = max(min(nfft, length(x)), window)
+    x_len <- length(x)
+    nfft <- max(min(nfft, length(x)), window)
     window <- hanning(window)
     window_len <- length(window)
     step <- max(floor(window_len - noverlap + 0.99), 1)
-    offset = seq(1, x_len - window_len + 1, by = step)
-    N = length(offset)
+    offset <- seq(1, x_len - window_len + 1, by = step)
+    N <- length(offset)
     re <- sapply(seq_len(N), function(i) {
-      a = detrend_naive(x[offset[i] - 1 + seq_len(window_len)])
-      a = fftwtools::fftw_r2c(postpad(a$Y * window, nfft))
+      a <- detrend_naive(x[offset[i] - 1 + seq_len(window_len)])
+      a <- fftwtools::fftw_r2c(postpad(a$Y * window, nfft))
       Mod(a)^2
     })
-    NN = floor((nfft + 1)/2)
-    freq = seq(1, fs/2, length.out = NN)
-    spec = rowMeans(re[seq_len(NN), , drop = F])/(window_len/2)^2
-    res = list(freq = freq, spec = spec, method = "Welch")
+    NN <- floor((nfft + 1)/2)
+    freq <- seq(1, fs/2, length.out = NN)
+    spec <- rowMeans(re[seq_len(NN), , drop = F])/(window_len/2)^2
+    res <- list(freq = freq, spec = spec, method = "Welch")
     return(invisible(res))
   }
 

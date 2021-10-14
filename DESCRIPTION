@@ -1,7 +1,7 @@
 Package: raveutils
 Type: Package
-Title: Utility Toolbox for RAVE package
-Version: 0.1.0
+Title: Utility Toolbox for RAVE Project
+Version: 0.0.1
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre")),
@@ -18,17 +18,20 @@ BugReports: https://github.com/beauchamplab/rave/issues
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Depends: R (>= 3.6.0)
 Imports:
-    utils,
+    graphics,
+    stats,
     dipsaus,
-    fftwtools,
     filearray (>= 0.1.1),
     Rcpp,
-    digest (>= 0.6.27)
+    signal,
+    digest (>= 0.6.27),
+    raveio (>= 0.0.5)
 LinkingTo: 
     Rcpp
 Suggests: 
+    fftwtools,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
