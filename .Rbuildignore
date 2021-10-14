@@ -5,3 +5,4 @@ aclocal.log
 autom4te.cache/
 ^config.log
 ^config.status
+^\.github$
