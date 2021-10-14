@@ -57,7 +57,7 @@ wavelet_rave_subject <- function(
   chunk_size <- c(nfreq, chunk_size)
 
   lapply(blocks, function(block){
-    result <- raveutils::morlet_wavelet(
+    result <- ravetools::morlet_wavelet(
       data = signals[[block]],
       freqs = frequencies,
       srate = srate_volt,

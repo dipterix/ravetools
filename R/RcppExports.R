@@ -2,22 +2,22 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 fftw_r2c <- function(data, HermConj = 1L, ret = NULL) {
-    .Call(`_raveutils_fftw_r2c`, data, HermConj, ret)
+    .Call(`_ravetools_fftw_r2c`, data, HermConj, ret)
 }
 
 mvfftw_r2c <- function(data, fftwplanopt = 0L, ret = NULL) {
-    .Call(`_raveutils_mvfftw_r2c`, data, fftwplanopt, ret)
+    .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, ret)
 }
 
 fftw_c2c <- function(data, inverse = 0L, ret = NULL) {
-    .Call(`_raveutils_fftw_c2c`, data, inverse, ret)
+    .Call(`_ravetools_fftw_c2c`, data, inverse, ret)
 }
 
 fftw_c2r <- function(data, HermConj = 1L, ret = NULL) {
-    .Call(`_raveutils_fftw_c2r`, data, HermConj, ret)
+    .Call(`_ravetools_fftw_c2r`, data, HermConj, ret)
 }
 
 conjugate <- function(data) {
-    .Call(`_raveutils_conjugate`, data)
+    .Call(`_ravetools_conjugate`, data)
 }
 

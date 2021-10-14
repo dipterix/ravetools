@@ -1,4 +1,4 @@
 library(testthat)
-library(raveutils)
+library(ravetools)
 
-test_check("raveutils")
+test_check("ravetools")

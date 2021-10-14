@@ -1,4 +1,4 @@
-require(raveutils)
+require(ravetools)
 x <- rnorm(2000*60*5)
 
 list2env(list(freqs = seq(2,200,4), srate = 2000, wave_num = c(2,20), demean = TRUE), .GlobalEnv)
@@ -32,7 +32,7 @@ b[idx]
 # wavelet_cycles = round(exp((log(freqs) - log(min(freqs))) * ratio + log(min(wave_num))))
 # d_l <- length(x)
 #
-# k1 <- raveutils:::wavelet_kernels(freqs, srate, wavelet_cycles)
+# k1 <- ravetools:::wavelet_kernels(freqs, srate, wavelet_cycles)
 # k2 <- rave:::wavelet_kernels(freqs, srate, wavelet_cycles)
 # dev.off()
 # sapply(1:length(k1$kernels), function(i){
@@ -43,7 +43,7 @@ b[idx]
 # length(k2[[2]])
 #
 # wave_num <- wavelet_cycles
-# k1 <- raveutils::wavelet_kernels2(freqs, srate, wave_num, d_l)
+# k1 <- ravetools::wavelet_kernels2(freqs, srate, wave_num, d_l)
 # rk <- function(data){
 #   srate = round(srate);
 #   if(length(wave_num) != length(freqs)){

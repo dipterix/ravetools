@@ -21,10 +21,10 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue) {
     nprot++;
   } else {
     if( TYPEOF(ret) != CPLXSXP ){
-      stop("raveutils `fftw_r2c`: `ret` should be complex");
+      stop("ravetools `fftw_r2c`: `ret` should be complex");
     }
     if( Rf_xlength(ret) < retlen ){
-      stop("raveutils `fftw_r2c`: `ret` length should be at least " + std::to_string(retlen));
+      stop("ravetools `fftw_r2c`: `ret` length should be at least " + std::to_string(retlen));
     }
   }
 
@@ -57,10 +57,10 @@ SEXP mvfftw_r2c(SEXP data,
     nprot++;
   } else {
     if( TYPEOF(ret) != CPLXSXP ){
-      stop("raveutils `fftw_r2c`: `ret` should be complex");
+      stop("ravetools `fftw_r2c`: `ret` should be complex");
     }
     if( Rf_xlength(ret) != retrows * ncols ){
-      stop("raveutils `fftw_r2c`: `ret` length should be " + std::to_string(retrows * ncols));
+      stop("ravetools `fftw_r2c`: `ret` length should be " + std::to_string(retrows * ncols));
     }
   }
 
@@ -103,10 +103,10 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue)
     nprot++;
   } else {
     if(TYPEOF(ret) != CPLXSXP){
-      stop("raveutils `fftw_c2c`: `ret` must be complex");
+      stop("ravetools `fftw_c2c`: `ret` must be complex");
     }
     if(Rf_length(ret) != xlen) {
-      stop("raveutils `fftw_c2c`: `ret` must have length of " + std::to_string(xlen));
+      stop("ravetools `fftw_c2c`: `ret` must have length of " + std::to_string(xlen));
     }
   }
   cfft_c2c(
@@ -139,10 +139,10 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue){
     nprot++;
   } else {
     if( TYPEOF(ret) != REALSXP ){
-      stop("raveutils `fftw_c2r`: `ret` should be double");
+      stop("ravetools `fftw_c2r`: `ret` should be double");
     }
     if( Rf_xlength(ret) < retlen ){
-      stop("raveutils `fftw_c2r`: `ret` length should be at least " + std::to_string(retlen));
+      stop("ravetools `fftw_c2r`: `ret` length should be at least " + std::to_string(retlen));
     }
     if( Rf_xlength(ret) > retlen ){
       retlen++;

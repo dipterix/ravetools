@@ -3,7 +3,7 @@ AC_PREREQ([2.61])
 
 ## Update this version number along with DESCRIPTION
 AC_INIT
-AC_CONFIG_SRCDIR([raveutils])
+AC_CONFIG_SRCDIR([ravetools])
 
 # Find R home
 : ${R_HOME=`R RHOME`}

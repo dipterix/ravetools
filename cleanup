@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm -rf raveutils.Rcheck/ \
+rm -rf ravetools.Rcheck/ \
    autom4te.cache/ \
    config.log \
    config.status \

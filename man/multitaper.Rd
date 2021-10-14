@@ -69,7 +69,7 @@ The original copy was licensed under a Creative Commons Attribution
 'NC'-'SA' 4.0 International License
 (\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}).
 
-This package (\code{'raveutils'}) redistributes the \code{multitaper}
+This package (\code{'ravetools'}) redistributes the \code{multitaper}
 function under minor modifications on \code{nfft}. In the original copy
 there is no parameter to control the exact numbers of \code{nfft}, and
 the \code{nfft} is always the power of 2. While choosing

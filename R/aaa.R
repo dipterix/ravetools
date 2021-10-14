@@ -2,7 +2,7 @@
 #' @importFrom stats approx
 #' @importFrom Rcpp sourceCpp
 #' @importFrom dipsaus %?<-%
-#' @useDynLib raveutils, .registration = TRUE
+#' @useDynLib ravetools, .registration = TRUE
 ## usethis namespace: end
 NULL
 
@@ -18,7 +18,7 @@ stopifnot2 <- function(..., msg = 'Condition not satisfied'){
 }
 
 tempfile2 <- function(
-  pattern = "ravetmp-", tmpdir = file.path(tempdir(check = TRUE), "raveutils"), fileext = ""){
+  pattern = "ravetmp-", tmpdir = file.path(tempdir(check = TRUE), "ravetools"), fileext = ""){
   if(!dir.exists(tmpdir)){
     dir.create(tmpdir, showWarnings = FALSE, recursive = TRUE)
   }
