@@ -612,7 +612,7 @@ PACKAGE_STRING=''
 PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
-ac_unique_file="raveutils"
+ac_unique_file="ravetools"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 PKG_LIBS

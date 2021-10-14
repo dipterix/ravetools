@@ -96,11 +96,11 @@ wavelet_kernels <- function(freqs, srate, wave_num){
     wavelet_cycles = wavelet_cycles,
     sample_rate = srate,
     frequencies = freqs
-  ), class = "raveutils-wavelet-kernels")
+  ), class = "ravetools-wavelet-kernels")
 }
 
 #' @export
-`print.raveutils-wavelet-kernels` <- function(x, plot = FALSE, ...){
+`print.ravetools-wavelet-kernels` <- function(x, plot = FALSE, ...){
   cat("Discrete wavelet kernels\n")
   cat("  number of kernels/frequencies:", length(x$kernels), "\n")
   cat(sprintf("  frequency range: %.2f Hz - %.2f Hz\n", min(x$frequencies), max(x$frequencies)))
@@ -109,7 +109,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
 }
 
 #' @export
-`plot.raveutils-wavelet-kernels` <- function(
+`plot.ravetools-wavelet-kernels` <- function(
   x, cex = 1.2, cex.lab = cex * 1.2, cex.main = cex * 1.33,
   cex.axis = cex, ...){
 
@@ -203,7 +203,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
                              data_length){
   kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
   digest <- digest::digest(list(freqs, srate, wave_num, data_length))
-  root_dir <- file.path(tempdir(check = TRUE), "raveutils")
+  root_dir <- file.path(tempdir(check = TRUE), "ravetools")
   if(!dir.exists(root_dir)){
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }

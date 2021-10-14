@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // fftw_r2c
 SEXP fftw_r2c(SEXP data, int HermConj, SEXP ret);
-RcppExport SEXP _raveutils_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP) {
+RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,7 +25,7 @@ END_RCPP
 }
 // mvfftw_r2c
 SEXP mvfftw_r2c(SEXP data, int fftwplanopt, SEXP ret);
-RcppExport SEXP _raveutils_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+RcppExport SEXP _ravetools_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -38,7 +38,7 @@ END_RCPP
 }
 // fftw_c2c
 SEXP fftw_c2c(SEXP data, int inverse, SEXP ret);
-RcppExport SEXP _raveutils_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEXP) {
+RcppExport SEXP _ravetools_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -51,7 +51,7 @@ END_RCPP
 }
 // fftw_c2r
 SEXP fftw_c2r(SEXP data, int HermConj, SEXP ret);
-RcppExport SEXP _raveutils_fftw_c2r(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP) {
+RcppExport SEXP _ravetools_fftw_c2r(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,7 +64,7 @@ END_RCPP
 }
 // conjugate
 SEXP conjugate(SEXP data);
-RcppExport SEXP _raveutils_conjugate(SEXP dataSEXP) {
+RcppExport SEXP _ravetools_conjugate(SEXP dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -75,15 +75,15 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_raveutils_fftw_r2c", (DL_FUNC) &_raveutils_fftw_r2c, 3},
-    {"_raveutils_mvfftw_r2c", (DL_FUNC) &_raveutils_mvfftw_r2c, 3},
-    {"_raveutils_fftw_c2c", (DL_FUNC) &_raveutils_fftw_c2c, 3},
-    {"_raveutils_fftw_c2r", (DL_FUNC) &_raveutils_fftw_c2r, 3},
-    {"_raveutils_conjugate", (DL_FUNC) &_raveutils_conjugate, 1},
+    {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 3},
+    {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 3},
+    {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 3},
+    {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 3},
+    {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_raveutils(DllInfo *dll) {
+RcppExport void R_init_ravetools(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

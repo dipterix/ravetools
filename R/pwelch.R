@@ -76,7 +76,7 @@ pwelch <- function (
     fs = fs,
     x_len = length(x),
     method = "Welch"
-  ), class = c("raveutils-pwelch", "pwelch"))
+  ), class = c("ravetools-pwelch", "pwelch"))
 
   if( plot ) {
     if(!is.null(log)){
@@ -205,5 +205,5 @@ mv_pwelch <- function(x, margin, fs, nfft){
     fs = fs,
     x_len = xlen,
     method = "Welch"
-  ), class = c("raveutils-pwelch", "pwelch"))
+  ), class = c("ravetools-pwelch", "pwelch"))
 }

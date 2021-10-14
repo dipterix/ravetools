@@ -37,7 +37,7 @@ test_that("pwelch", {
   #     rave = {
   #       rave_pwelch(x, 2000, log = '')
   #     },
-  #     raveutils = {
+  #     ravetools = {
   #       pwelch(x, 2000, plot = FALSE)
   #     }, times = 20
   #   )
