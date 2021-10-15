@@ -69,7 +69,7 @@ SEXP mvfftw_r2c(SEXP data,
     nprot++;
   }
 
-  if(fftwplanopt){
+  if(fftwplanopt != 0){
     fftwplanopt = 1;
   }
 

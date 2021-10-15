@@ -64,17 +64,12 @@ void cmvfft_r2c(int *n, int *m, double* data,
   fftw_plan p;
 
   if(*fftwplanopt == 1 ) {
-    *fftwplanopt = FFTW_MEASURE;
+    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
+                               *n, res, NULL, 1, nc, FFTW_MEASURE);
   } else {
-    *fftwplanopt = FFTW_ESTIMATE;
+    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
+                               *n, res, NULL, 1, nc, FFTW_ESTIMATE);
   }
-
-  p = fftw_plan_many_dft_r2c(1, n,
-                             *m, data,
-                             NULL, 1,
-                             *n, res,
-                             NULL, 1,
-                             nc, *fftwplanopt);
 
   fftw_execute(p);
 
