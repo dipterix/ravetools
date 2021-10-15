@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://dipterix.org/ravetools/index.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/decimate.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/export_diagnose_voltage.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/matlab_palette.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/multitaper.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/notch_filter.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/pwelch.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/wavelet.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/wavelet_rave_subject.html</loc>
+  </url>
+</urlset>
