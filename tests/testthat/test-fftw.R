@@ -33,12 +33,12 @@ test_that("mvfftw_r2c", {
   set.seed(1)
   x <- rnorm(1000)
   dim(x) <- c(100,10)
-  a <- ravetools:::mvfftw_r2c(x)
+  a <- ravetools:::mvfftw_r2c(x, 0)
   b <- ravetools:::mvfftw_r2c(x, 1)
   # c <- fftwtools::mvfftw_r2c(x, 1)[1:51,]
   # d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
   c <- apply(x, 2, stats::fft)[1:51,]
-  # expect_equal(a, c)
+  expect_equal(a, b)
   expect_equal(b, c)
 
   e <- complex(length(a))

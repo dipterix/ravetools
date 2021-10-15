@@ -43,7 +43,7 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue) {
 
 // [[Rcpp::export]]
 SEXP mvfftw_r2c(SEXP data,
-               int fftwplanopt = 0,
+               int fftwplanopt = 1,
                SEXP ret = R_NilValue)
 {
   int nprot = 0;
