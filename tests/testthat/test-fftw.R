@@ -35,11 +35,11 @@ test_that("mvfftw_r2c", {
   dim(x) <- c(100,10)
   a <- ravetools:::mvfftw_r2c(x)
   b <- ravetools:::mvfftw_r2c(x, 1)
-  c <- fftwtools::mvfftw_r2c(x, 1)[1:51,]
-  d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
-  # c <- apply(x, 2, stats::fft)[1:51,]
+  # c <- fftwtools::mvfftw_r2c(x, 1)[1:51,]
+  # d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
+  c <- apply(x, 2, stats::fft)[1:51,]
   expect_equal(a, c)
-  expect_equal(b, d)
+  expect_equal(b, c)
 
   e <- complex(length(a))
   ravetools:::mvfftw_r2c(x, ret = e)
