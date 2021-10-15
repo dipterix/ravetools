@@ -9,6 +9,7 @@ Authors@R: c(
     )
 Description: Includes some signal processing tools for 'RAVE' project.
 BugReports: https://github.com/beauchamplab/rave/issues
+URL: http://dipterix.org/ravetools
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

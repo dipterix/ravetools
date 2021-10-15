@@ -6,3 +6,6 @@ autom4te.cache/
 ^config.log
 ^config.status
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
