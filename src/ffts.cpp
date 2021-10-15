@@ -63,13 +63,13 @@ void cmvfft_r2c(int *n, int *m, double* data,
   int nc = *n/2 +1;
   fftw_plan p;
 
-  if(*fftwplanopt == 1 ) {
-    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
-                               *n, res, NULL, 1, nc, FFTW_MEASURE);
-  } else {
-    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
-                               *n, res, NULL, 1, nc, FFTW_ESTIMATE);
+  int opt = FFTW_ESTIMATE;
+  if(*fftwplanopt != 0 ) {
+    opt = FFTW_MEASURE;
   }
+
+  p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
+                             *n, res, NULL, 1, nc, opt);
 
   fftw_execute(p);
 
@@ -83,10 +83,9 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
   int nc = *n/2 +1;
   fftw_plan p;
 
-  if(*fftwplanopt == 1 ) {
-    *fftwplanopt = FFTW_MEASURE;
-  } else {
-    *fftwplanopt = FFTW_ESTIMATE;
+  int opt = FFTW_ESTIMATE;
+  if(*fftwplanopt != 0 ) {
+    opt = FFTW_MEASURE;
   }
 
 
@@ -95,7 +94,7 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
                              NULL, 1,
                              nc, res,
                              NULL, 1,
-                             *n, *fftwplanopt);
+                             *n, opt);
 
   fftw_execute(p);
 
@@ -108,10 +107,9 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
   int sign;
   fftw_plan p;
 
-  if(*fftwplanopt == 1 ) {
-    *fftwplanopt = FFTW_MEASURE;
-  } else {
-    *fftwplanopt = FFTW_ESTIMATE;
+  int opt = FFTW_ESTIMATE;
+  if(*fftwplanopt != 0 ) {
+    opt = FFTW_MEASURE;
   }
 
   if(*inverse == 1) {
@@ -125,7 +123,7 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
                          NULL, 1,
                          *n, res,
                          NULL, 1,
-                         *n, sign, *fftwplanopt);
+                         *n, sign, opt);
 
   fftw_execute(p);
 
