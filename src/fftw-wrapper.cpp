@@ -31,7 +31,8 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue) {
   if( TYPEOF(data) != REALSXP ){
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
-  } else if (MAYBE_REFERENCED(data)) {
+  // } else if (MAYBE_REFERENCED(data)) {
+  } else {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
@@ -72,7 +73,8 @@ SEXP mvfftw_r2c(SEXP data,
   if( TYPEOF(data) != REALSXP ){
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
-  } else if (MAYBE_REFERENCED(data)) {
+  // } else if (MAYBE_REFERENCED(data)) {
+  } else {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
@@ -100,7 +102,8 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue)
   if(TYPEOF(data) != CPLXSXP){
     PROTECT(data = Rf_coerceVector(data, CPLXSXP));
     nprot++;
-  } else if (MAYBE_REFERENCED(data)) {
+  // } else if (MAYBE_REFERENCED(data)) {
+  } else {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
@@ -163,7 +166,8 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue){
   if( TYPEOF(data) != CPLXSXP ){
     PROTECT(data = Rf_coerceVector(data, CPLXSXP));
     nprot++;
-  } else if (MAYBE_REFERENCED(data)) {
+  // } else if (MAYBE_REFERENCED(data)) {
+  } else {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
