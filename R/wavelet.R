@@ -227,7 +227,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
     n_post <- data_length - n_pre - w_l
     x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
     # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
-    fftw_c2c(data = x, inverse = 0L, ret = tmp)
+    fftw_c2c(data = x, inverse = 0L, ret = tmp, inplace = TRUE)
     conjugate(tmp)
     arr[,ii] <- tmp
     NULL
@@ -256,8 +256,10 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   # normalize data, and fft
   if(demean){
     data <- data - mean(data)
+    fft_data <- fftw_r2c(data, inplace = TRUE)
+  } else {
+    fft_data <- fftw_r2c(data, inplace = FALSE)
   }
-  fft_data <- fftw_r2c(data)
 
   # Convolution Notice that since we don't pad zeros to data
   # d_l is nrows of wave_spectrum. However, if wave_spectrum is changed
@@ -271,7 +273,7 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   filearray::fmap(x = fft_waves, fun = function(input){
     # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
     fftw_c2c(data = input[[1]] * fft_data,
-             inverse = 1L, ret = tmp)
+             inverse = 1L, ret = tmp, inplace = TRUE)
     c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
   }, .y = output, .input_size = wave_len, .output_size = wave_len)
 

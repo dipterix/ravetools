@@ -4,7 +4,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue) {
+SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace = false) {
   int nprot = 0;
 
   // check HermConj and ret
@@ -32,7 +32,7 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue) {
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else {
+  } else if(!inplace) {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
@@ -48,7 +48,7 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue) {
 // [[Rcpp::export]]
 SEXP mvfftw_r2c(SEXP data,
                int fftwplanopt = 0,
-               SEXP ret = R_NilValue)
+               SEXP ret = R_NilValue, bool inplace = false)
 {
   int nprot = 0;
 
@@ -74,7 +74,7 @@ SEXP mvfftw_r2c(SEXP data,
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else {
+  } else if(!inplace) {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
@@ -95,7 +95,7 @@ SEXP mvfftw_r2c(SEXP data,
 }
 
 // [[Rcpp::export]]
-SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue)
+SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue, bool inplace = false)
 {
   int nprot = 0;
   int xlen = Rf_length(data);
@@ -103,7 +103,7 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue)
     PROTECT(data = Rf_coerceVector(data, CPLXSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else {
+  } else if(!inplace) {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
@@ -136,7 +136,7 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue)
 }
 
 // [[Rcpp::export]]
-SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue){
+SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace = false){
   int nprot = 0;
 
   // check HermConj and ret
@@ -167,7 +167,7 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue){
     PROTECT(data = Rf_coerceVector(data, CPLXSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else {
+  } else if(!inplace) {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }

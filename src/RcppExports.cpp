@@ -11,54 +11,58 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // fftw_r2c
-SEXP fftw_r2c(SEXP data, int HermConj, SEXP ret);
-RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP) {
+SEXP fftw_r2c(SEXP data, int HermConj, SEXP ret, bool inplace);
+RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type HermConj(HermConjSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    rcpp_result_gen = Rcpp::wrap(fftw_r2c(data, HermConj, ret));
+    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_r2c(data, HermConj, ret, inplace));
     return rcpp_result_gen;
 END_RCPP
 }
 // mvfftw_r2c
-SEXP mvfftw_r2c(SEXP data, int fftwplanopt, SEXP ret);
-RcppExport SEXP _ravetools_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+SEXP mvfftw_r2c(SEXP data, int fftwplanopt, SEXP ret, bool inplace);
+RcppExport SEXP _ravetools_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    rcpp_result_gen = Rcpp::wrap(mvfftw_r2c(data, fftwplanopt, ret));
+    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
+    rcpp_result_gen = Rcpp::wrap(mvfftw_r2c(data, fftwplanopt, ret, inplace));
     return rcpp_result_gen;
 END_RCPP
 }
 // fftw_c2c
-SEXP fftw_c2c(SEXP data, int inverse, SEXP ret);
-RcppExport SEXP _ravetools_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEXP) {
+SEXP fftw_c2c(SEXP data, int inverse, SEXP ret, bool inplace);
+RcppExport SEXP _ravetools_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type inverse(inverseSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    rcpp_result_gen = Rcpp::wrap(fftw_c2c(data, inverse, ret));
+    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_c2c(data, inverse, ret, inplace));
     return rcpp_result_gen;
 END_RCPP
 }
 // fftw_c2r
-SEXP fftw_c2r(SEXP data, int HermConj, SEXP ret);
-RcppExport SEXP _ravetools_fftw_c2r(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP) {
+SEXP fftw_c2r(SEXP data, int HermConj, SEXP ret, bool inplace);
+RcppExport SEXP _ravetools_fftw_c2r(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type HermConj(HermConjSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    rcpp_result_gen = Rcpp::wrap(fftw_c2r(data, HermConj, ret));
+    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_c2r(data, HermConj, ret, inplace));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -75,10 +79,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 3},
-    {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 3},
-    {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 3},
-    {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 3},
+    {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 4},
+    {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 4},
+    {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
+    {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
     {NULL, NULL, 0}
 };
