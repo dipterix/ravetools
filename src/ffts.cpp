@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "ffts.h"
 
 void cfft_r2c(int* n, double* data,
@@ -63,17 +65,38 @@ void cmvfft_r2c(int *n, int *m, double* data,
   int nc = *n/2 +1;
   fftw_plan p;
 
+  /*
+   * https://www.fftw.org/fftw3_doc/Planner-Flags.html
+   * Important: the planner overwrites the input array during planning unless
+   * a saved plan (see Wisdom) is available for that problem, so you should
+   * initialize your input data after creating the plan. The only exceptions
+   * to this are the FFTW_ESTIMATE and FFTW_WISDOM_ONLY flags
+   **/
   int opt = FFTW_ESTIMATE;
+  double* data_copy = NULL;
   if(*fftwplanopt != 0 ) {
     opt = FFTW_MEASURE;
-  }
 
-  p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
-                             *n, res, NULL, 1, nc, opt);
+    data_copy = (double*) malloc(*n * *m * sizeof(double));
+
+    p = fftw_plan_many_dft_r2c(1, n, *m, data_copy, NULL, 1,
+                               *n, res, NULL, 1, nc, opt);
+
+    memcpy(data_copy, data, *n * *m * sizeof(double));
+
+  } else {
+    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
+                               *n, res, NULL, 1, nc, opt);
+  }
 
   fftw_execute(p);
 
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 }
 
 

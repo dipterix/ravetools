@@ -1,7 +1,7 @@
 require(testthat)
 test_that("fftw_r2c", {
   set.seed(1)
-  x <- rnorm(1000)
+  x <- rnorm(1000) + 1
   c <- complex(1000)
 
   expect_error(ravetools:::fftw_r2c(x, 1, complex(999)))
@@ -19,7 +19,7 @@ test_that("fftw_r2c", {
   # make sure not edit in-place
   set.seed(1)
   xx <- rnorm(1000)
-  expect_equal(x, xx)
+  expect_equal(x, xx + 1)
 
   c <- complex(1000)
   ravetools:::fftw_r2c(x, 1, c)
