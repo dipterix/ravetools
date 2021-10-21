@@ -2,16 +2,37 @@
 #include <string.h>
 #include "ffts.h"
 
+static int fftw_efforts(int fftwplanopt) {
+  if (fftwplanopt <= 0) {
+    return FFTW_ESTIMATE;
+  } else if (fftwplanopt == 1) {
+    return FFTW_MEASURE;
+  } else if (fftwplanopt == 2) {
+    return FFTW_PATIENT;
+  } else {
+    return FFTW_EXHAUSTIVE;
+  }
+}
+
 void cfft_r2c(int* n, double* data,
-              fftw_complex* res, int* retHermConj) {
+              fftw_complex* res, int* retHermConj,
+              int* fftwplanopt) {
 
   int i, nc = *n/2 +1;
   fftw_plan p;
 
-  p = fftw_plan_dft_r2c_1d(*n, data, res, FFTW_ESTIMATE);
+  double* data_copy = NULL;
+
+  int effort = fftw_efforts(*fftwplanopt);
+  if( effort == FFTW_ESTIMATE ){
+    p = fftw_plan_dft_r2c_1d(*n, data, res, FFTW_DESTROY_INPUT | effort);
+  } else {
+    data_copy = (double*) malloc(*n * sizeof(double));
+    p = fftw_plan_dft_r2c_1d(*n, data_copy, res, FFTW_DESTROY_INPUT | effort);
+    memcpy(data_copy, data, *n * sizeof(double));
+  }
 
   fftw_execute(p);
-
   fftw_complex* resptr1;
   fftw_complex* resptr2;
   if(*retHermConj == 1) {
@@ -25,6 +46,10 @@ void cfft_r2c(int* n, double* data,
   }
 
   fftw_destroy_plan(p);
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 }
 
 void cfft_c2r(int* n, fftw_complex* data,
@@ -32,7 +57,7 @@ void cfft_c2r(int* n, fftw_complex* data,
 
   fftw_plan p;
 
-  p = fftw_plan_dft_c2r_1d(*n, data, res, FFTW_ESTIMATE);
+  p = fftw_plan_dft_c2r_1d(*n, data, res, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
@@ -51,7 +76,7 @@ void cfft_c2c(int* n, fftw_complex* data,
     sign = FFTW_FORWARD;
   }
 
-  p = fftw_plan_dft_1d(*n, data, res, sign, FFTW_ESTIMATE);
+  p = fftw_plan_dft_1d(*n, data, res, sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
@@ -74,14 +99,17 @@ void cmvfft_r2c(int *n, int *m, double* data,
    * to this are the FFTW_ESTIMATE and FFTW_WISDOM_ONLY flags
    **/
   double* data_copy = NULL;
-  if(*fftwplanopt != 0 ) {
+
+  int effort = fftw_efforts(*fftwplanopt);
+
+  if( effort == FFTW_ESTIMATE ){
+    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
+                               *n, res, NULL, 1, nc, FFTW_DESTROY_INPUT | effort);
+  } else {
     data_copy = (double*) malloc(*n * *m * sizeof(double));
     p = fftw_plan_many_dft_r2c(1, n, *m, data_copy, NULL, 1,
-                               *n, res, NULL, 1, nc, FFTW_MEASURE);
+                               *n, res, NULL, 1, nc, FFTW_DESTROY_INPUT | effort);
     memcpy(data_copy, data, *n * *m * sizeof(double));
-  } else {
-    p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
-                               *n, res, NULL, 1, nc, FFTW_ESTIMATE);
   }
 
   fftw_execute(p);
@@ -100,17 +128,18 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
   int nc = *n/2 +1;
   fftw_plan p;
 
+
   fftw_complex* data_copy = NULL;
-  if(*fftwplanopt != 0 ) {
-    data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
 
-    p = fftw_plan_many_dft_c2r(1, n, *m, data_copy, NULL, 1,
-                               nc, res, NULL, 1, *n, FFTW_MEASURE);
-
-    memcpy(data_copy, data, *n * sizeof(fftw_complex));
-  } else {
+  int effort = fftw_efforts(*fftwplanopt);
+  if(effort == FFTW_ESTIMATE) {
     p = fftw_plan_many_dft_c2r(1, n, *m, data, NULL, 1,
-                               nc, res, NULL, 1, *n, FFTW_ESTIMATE);
+                               nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
+  } else {
+    data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
+    p = fftw_plan_many_dft_c2r(1, n, *m, data_copy, NULL, 1,
+                               nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
+    memcpy(data_copy, data, *n * sizeof(fftw_complex));
   }
 
   fftw_execute(p);
@@ -137,14 +166,16 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
   }
 
   fftw_complex* data_copy = NULL;
-  if(*fftwplanopt != 0 ) {
+
+  int effort = fftw_efforts(*fftwplanopt);
+  if(effort == FFTW_ESTIMATE) {
+    p = fftw_plan_many_dft(1, n, *m, data, NULL, 1, *n, res,
+                           NULL, 1, *n, sign, FFTW_DESTROY_INPUT | effort);
+  } else {
     data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
     p = fftw_plan_many_dft(1, n, *m, data_copy, NULL, 1, *n, res,
-                           NULL, 1, *n, sign, FFTW_MEASURE);
+                           NULL, 1, *n, sign, FFTW_DESTROY_INPUT | effort);
     memcpy(data_copy, data, *n * sizeof(fftw_complex));
-  } else {
-    p = fftw_plan_many_dft(1, n, *m, data, NULL, 1, *n, res,
-                           NULL, 1, *n, sign, FFTW_ESTIMATE);
   }
 
   fftw_execute(p);
@@ -161,7 +192,7 @@ void cfft_r2c_2d(int* nx, int* ny, double* data, fftw_complex* res) {
   fftw_plan p;
 
   p = fftw_plan_dft_r2c_2d(*nx, *ny, data, res,
-                           FFTW_ESTIMATE);
+                           FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
@@ -182,7 +213,7 @@ void cfft_c2c_2d(int* nx, int* ny, fftw_complex* data,
   }
 
   p = fftw_plan_dft_2d(*nx, *ny, data, res,
-                       sign, FFTW_ESTIMATE);
+                       sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
@@ -194,7 +225,7 @@ void cfft_r2c_3d(int* nx, int* ny, int *nz, double* data, fftw_complex* res) {
   fftw_plan p;
 
   p = fftw_plan_dft_r2c_3d(*nx, *ny, *nz, data, res,
-                           FFTW_ESTIMATE);
+                           FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
@@ -215,7 +246,7 @@ void cfft_c2c_3d(int* nx, int* ny, int *nz, fftw_complex* data,
   }
 
   p = fftw_plan_dft_3d(*nx, *ny, *nz, data, res,
-                       sign, FFTW_ESTIMATE);
+                       sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
@@ -234,7 +265,7 @@ void cfft_c2c_xd(int* r, int* n, fftw_complex* data,
     sign = FFTW_FORWARD;
   }
 
-  p = fftw_plan_dft(*r, n, data, res, sign, FFTW_ESTIMATE);
+  p = fftw_plan_dft(*r, n, data, res, sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 

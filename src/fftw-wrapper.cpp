@@ -4,7 +4,10 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace = false) {
+SEXP fftw_r2c(SEXP data, int HermConj = 1,
+              int fftwplanopt = 0,
+              SEXP ret = R_NilValue,
+              bool inplace = false) {
   int nprot = 0;
 
   // check HermConj and ret
@@ -32,12 +35,13 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace =
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace) {
+  } else if(!inplace && fftwplanopt <= 0) {
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
 
-  cfft_r2c(&xlen, REAL(data), reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]), &HermConj);
+  cfft_r2c(&xlen, REAL(data), reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]), &HermConj,
+           &fftwplanopt);
 
   if(nprot > 0){
     UNPROTECT(nprot);
@@ -48,7 +52,8 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace =
 // [[Rcpp::export]]
 SEXP mvfftw_r2c(SEXP data,
                int fftwplanopt = 0,
-               SEXP ret = R_NilValue, bool inplace = false)
+               SEXP ret = R_NilValue,
+               bool inplace = false)
 {
   int nprot = 0;
 
@@ -74,13 +79,12 @@ SEXP mvfftw_r2c(SEXP data,
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace) {
+  } else if(!inplace && fftwplanopt <= 0) {
+    // data need to be copied
+    // however fftwplanopt > 0 will copy eventually, so only
+    // copy when fftwplanopt <= 0
     data = PROTECT(Rf_duplicate(data));
     nprot++;
-  }
-
-  if(fftwplanopt != 0){
-    fftwplanopt = 1;
   }
 
   cmvfft_r2c(&nrows, &ncols, REAL(data),

@@ -5,7 +5,8 @@
 
 /* real to complex forward */
 void cfft_r2c(int* n, double* data,
-              fftw_complex* res, int* retHermConj);
+              fftw_complex* res, int* retHermConj,
+              int* fftwplanopt);
 
 /* complex to real backward */
 void cfft_c2r(int* n, fftw_complex* data,

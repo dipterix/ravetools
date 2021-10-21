@@ -4,16 +4,16 @@ test_that("fftw_r2c", {
   x <- rnorm(1000) + 1
   c <- complex(1000)
 
-  expect_error(ravetools:::fftw_r2c(x, 1, complex(999)))
-  expect_error(ravetools:::fftw_r2c(x, 0, complex(500)))
+  expect_error(ravetools:::fftw_r2c(data = x, HermConj = 1, ret = complex(999)))
+  expect_error(ravetools:::fftw_r2c(data = x, HermConj = 0, ret = complex(500)))
 
   expect_equal(
-    ravetools:::fftw_r2c(x, 1),
-    fftwtools::fftw_r2c(x, 1)
+    ravetools:::fftw_r2c(x, HermConj = 1),
+    stats::fft(x)
   )
   expect_equal(
-    ravetools:::fftw_r2c(x, 0),
-    fftwtools::fftw_r2c(x, 0)
+    ravetools:::fftw_r2c(x, HermConj = 0, fftwplanopt = 1),
+    stats::fft(x)[1:501]
   )
 
   # make sure not edit in-place
@@ -22,10 +22,10 @@ test_that("fftw_r2c", {
   expect_equal(x, xx + 1)
 
   c <- complex(1000)
-  ravetools:::fftw_r2c(x, 1, c)
+  ravetools:::fftw_r2c(data = x, HermConj = 1, ret = c)
   expect_equal(
     c,
-    fftwtools::fftw_r2c(x, 1)
+    stats::fft(x)
   )
 
   expect_equal(
@@ -58,9 +58,9 @@ test_that("mvfftw_r2c", {
   x <- rnorm(1000)
   dim(x) <- c(100,10)
   b <- ravetools:::mvfftw_r2c(x, 1L)
-  d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
+  # d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
   expect_equal(b, c)
-  expect_equal(b, d)
+  # expect_equal(b, d)
 
   set.seed(1)
   xx <- rnorm(1000)
