@@ -41,8 +41,9 @@ test_that("mvfftw_r2c", {
   dim(x) <- c(100,10)
   c <- apply(x, 2, stats::fft)[1:51,]
   a <- ravetools:::mvfftw_r2c(x, 0)
-  # c <- fftwtools::mvfftw_r2c(x, 1)[1:51,]
+  cc <- fftwtools::mvfftw_r2c(x, 1)[1:51,]
   expect_equal(a, c)
+  expect_equal(a, cc)
 
   set.seed(1)
   xx <- rnorm(1000)
@@ -57,9 +58,9 @@ test_that("mvfftw_r2c", {
   x <- rnorm(1000)
   dim(x) <- c(100,10)
   b <- ravetools:::mvfftw_r2c(x, 1L)
-  # d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
-  # expect_equal(b, d)
+  d <- fftwtools::mvfftw_r2c(x, 1, 1)[1:51,]
   expect_equal(b, c)
+  expect_equal(b, d)
 
   set.seed(1)
   xx <- rnorm(1000)

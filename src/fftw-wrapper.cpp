@@ -83,13 +83,9 @@ SEXP mvfftw_r2c(SEXP data,
     fftwplanopt = 1;
   }
 
-  Rcout << REAL(data)[0] << " ----=-=-=-=-=-=-=-\n";
-
   cmvfft_r2c(&nrows, &ncols, REAL(data),
              reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]),
              &fftwplanopt);
-
-  Rcout << REAL(data)[0] << " ----=-=-=-=-=-=-=-\n";
 
   if(nprot > 0){
     UNPROTECT(nprot);

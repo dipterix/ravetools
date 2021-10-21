@@ -56,6 +56,7 @@ void cfft_c2c(int* n, fftw_complex* data,
   fftw_execute(p);
 
   fftw_destroy_plan(p);
+
 }
 
 void cmvfft_r2c(int *n, int *m, double* data,
@@ -72,25 +73,18 @@ void cmvfft_r2c(int *n, int *m, double* data,
    * initialize your input data after creating the plan. The only exceptions
    * to this are the FFTW_ESTIMATE and FFTW_WISDOM_ONLY flags
    **/
-  int opt = FFTW_ESTIMATE;
   double* data_copy = NULL;
   if(*fftwplanopt != 0 ) {
-    opt = FFTW_MEASURE;
-
     data_copy = (double*) malloc(*n * *m * sizeof(double));
-
     p = fftw_plan_many_dft_r2c(1, n, *m, data_copy, NULL, 1,
-                               *n, res, NULL, 1, nc, opt);
-
+                               *n, res, NULL, 1, nc, FFTW_MEASURE);
     memcpy(data_copy, data, *n * *m * sizeof(double));
-
   } else {
     p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
-                               *n, res, NULL, 1, nc, opt);
+                               *n, res, NULL, 1, nc, FFTW_ESTIMATE);
   }
 
   fftw_execute(p);
-
   fftw_destroy_plan(p);
 
   if(data_copy != NULL){
@@ -106,22 +100,28 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
   int nc = *n/2 +1;
   fftw_plan p;
 
-  int opt = FFTW_ESTIMATE;
+  fftw_complex* data_copy = NULL;
   if(*fftwplanopt != 0 ) {
-    opt = FFTW_MEASURE;
+    data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
+
+    p = fftw_plan_many_dft_c2r(1, n, *m, data_copy, NULL, 1,
+                               nc, res, NULL, 1, *n, FFTW_MEASURE);
+
+    memcpy(data_copy, data, *n * sizeof(fftw_complex));
+  } else {
+    p = fftw_plan_many_dft_c2r(1, n, *m, data, NULL, 1,
+                               nc, res, NULL, 1, *n, FFTW_ESTIMATE);
   }
-
-
-  p = fftw_plan_many_dft_c2r(1, n,
-                             *m, data,
-                             NULL, 1,
-                             nc, res,
-                             NULL, 1,
-                             *n, opt);
 
   fftw_execute(p);
 
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
+
 }
 
 void cmvfft_c2c(int *n, int *m, fftw_complex* data,
@@ -130,27 +130,30 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
   int sign;
   fftw_plan p;
 
-  int opt = FFTW_ESTIMATE;
-  if(*fftwplanopt != 0 ) {
-    opt = FFTW_MEASURE;
-  }
-
   if(*inverse == 1) {
     sign = FFTW_BACKWARD;
   } else {
     sign = FFTW_FORWARD;
   }
 
-  p = fftw_plan_many_dft(1, n,
-                         *m, data,
-                         NULL, 1,
-                         *n, res,
-                         NULL, 1,
-                         *n, sign, opt);
+  fftw_complex* data_copy = NULL;
+  if(*fftwplanopt != 0 ) {
+    data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
+    p = fftw_plan_many_dft(1, n, *m, data_copy, NULL, 1, *n, res,
+                           NULL, 1, *n, sign, FFTW_MEASURE);
+    memcpy(data_copy, data, *n * sizeof(fftw_complex));
+  } else {
+    p = fftw_plan_many_dft(1, n, *m, data, NULL, 1, *n, res,
+                           NULL, 1, *n, sign, FFTW_ESTIMATE);
+  }
 
   fftw_execute(p);
-
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 }
 
 void cfft_r2c_2d(int* nx, int* ny, double* data, fftw_complex* res) {
