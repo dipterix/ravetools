@@ -3,20 +3,24 @@ time <- seq(0, 3, by = 0.001)
 x <- sin(time * 20*pi) + exp(-time^2) * cos(time * 10*pi)
 
 res <- multitaper(
-  x, 1000, frequency_range = c(0,15),
-  time_bandwidth=1.5,
-  window_params=c(2,0.01)
+  data = x, fs = 1000, frequency_range = c(0,15),
+  time_bandwidth=1,
+  window_params=c(0.5,0.01), num_tapers = 1, nfft = 500
 )
-
+res$frequency
+wave <- morlet_wavelet(data = x, freqs = res$frequency, srate = 1000, wave_num = c(5,8), demean = TRUE)
 
 image(
   x = res$time,
   y = res$frequency,
-  z = 10 * log10(res$spec),
+  z = res$spec,
+  # z = 10 * log10(res$spec),
   xlab = "Time (s)",
   ylab = 'Frequency (Hz)',
   col = matlab_palette()
 )
+image(Mod(wave[seq(1, 3001, by = 10),])^2)
+plot(rowMeans(Mod(wave[seq(1, 3001, by = 10),])^2), type='l')
 
 fields::image.plot(
   x = res$time,

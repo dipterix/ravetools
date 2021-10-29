@@ -6,13 +6,24 @@ ratio = (log(max(wave_num)) - log(min(wave_num))) / (log(max(freqs)) - log(min(f
 wave_num = round(exp((log(freqs) - log(min(freqs))) * ratio + log(min(wave_num))))
 
 gc()
-profile <- system.time
-# profile <- profvis::profvis
+profile <- function(expr){
+  expr <- substitute(expr)
+  gc()
+  m1 <- lobstr::mem_used()
+  re <- system.time({
+    eval(expr)
+  }, gcFirst = FALSE)
+  m2 <- lobstr::mem_used()
+  gettextf("Total elapsed time: %.2f, memory changed: %.2f MB", re["elapsed"], (m2 - m1) / 1024^2)
+}
+profile <- profvis::profvis
+
+gctorture2(1000, inhibit_release = TRUE); gc()
 profile({
   y2 <- morlet_wavelet(x, freqs, srate, wave_num, demean)
+  gc()
 })
 
-gc()
 profile({
   y1 <- rave::wavelet(x, freqs, srate, wave_num, demean)
 })
@@ -21,6 +32,7 @@ a <- y2[]
 b <- t(y1$coef * exp(1i*y1$phase))
 
 dif <- Mod(a-b)# / Mod(a)
+max(dif)
 idx <- which.max(dif)
 a[idx]
 b[idx]

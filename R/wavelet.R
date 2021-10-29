@@ -218,6 +218,13 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
     type = "complex",
     partition_size = 1
   )
+  is_ok <- FALSE
+  on.exit({
+    if(!is_ok){
+      arr$.mode <- "readwrite"
+      arr$delete()
+    }
+  })
 
   tmp <- complex(data_length)
   lapply(seq_along(kernel_info$kernels), function(ii){
@@ -234,6 +241,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
   })
 
   arr$.mode <- "readonly"
+  is_ok <- TRUE
 
   return(arr)
 }
@@ -268,6 +276,13 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   ind <- seq_len(ceiling(wave_len / 2))
 
   output <- filearray::filearray_create(filebase = tempfile2(), dimension = dim(fft_waves), type = "complex", partition_size = 1)
+  is_ok <- FALSE
+  on.exit({
+    if(!is_ok){
+      output$.mode <- "readwrite"
+      output$delete()
+    }
+  })
 
   tmp <- complex(length(fft_data))
   filearray::fmap(x = fft_waves, fun = function(input){
@@ -281,6 +296,9 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   #   wave_spectrum = fftwtools::fftw_c2c(x * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
   #   c(wave_spectrum[-ind], wave_spectrum[ind])
   # })
+
+  is_ok <- TRUE
+
   output
 }
 

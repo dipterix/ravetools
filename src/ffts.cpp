@@ -1,13 +1,23 @@
+/**
+ * The ffts.h and ffts.cpp are modified from R package `fftwtools`
+ * distributed by Karim Rahim under GPL (>= 2) license as of 22 Oct 2021
+ *
+ * The goal of this modification is to
+ * 1. allow in-place FFT transform when flag == FFTW_ESTIMATE
+ * 2. add other FFTW flags
+ * 3. fix https://github.com/krahim/fftwtools/issues/15 when flag != FFTW_ESTIMATE
+ *
+ */
 #include <stdlib.h>
 #include <string.h>
 #include "ffts.h"
 
-static int fftw_efforts(int fftwplanopt) {
-  if (fftwplanopt <= 0) {
+static int fftw_efforts(const int *fftwplanopt) {
+  if (*fftwplanopt <= 0) {
     return FFTW_ESTIMATE;
-  } else if (fftwplanopt == 1) {
+  } else if (*fftwplanopt == 1) {
     return FFTW_MEASURE;
-  } else if (fftwplanopt == 2) {
+  } else if (*fftwplanopt == 2) {
     return FFTW_PATIENT;
   } else {
     return FFTW_EXHAUSTIVE;
@@ -23,7 +33,7 @@ void cfft_r2c(int* n, double* data,
 
   double* data_copy = NULL;
 
-  int effort = fftw_efforts(*fftwplanopt);
+  int effort = fftw_efforts(fftwplanopt);
   if( effort == FFTW_ESTIMATE ){
     p = fftw_plan_dft_r2c_1d(*n, data, res, FFTW_DESTROY_INPUT | effort);
   } else {
@@ -100,7 +110,7 @@ void cmvfft_r2c(int *n, int *m, double* data,
    **/
   double* data_copy = NULL;
 
-  int effort = fftw_efforts(*fftwplanopt);
+  int effort = fftw_efforts(fftwplanopt);
 
   if( effort == FFTW_ESTIMATE ){
     p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
@@ -131,7 +141,7 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
 
   fftw_complex* data_copy = NULL;
 
-  int effort = fftw_efforts(*fftwplanopt);
+  int effort = fftw_efforts(fftwplanopt);
   if(effort == FFTW_ESTIMATE) {
     p = fftw_plan_many_dft_c2r(1, n, *m, data, NULL, 1,
                                nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
@@ -167,7 +177,7 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
 
   fftw_complex* data_copy = NULL;
 
-  int effort = fftw_efforts(*fftwplanopt);
+  int effort = fftw_efforts(fftwplanopt);
   if(effort == FFTW_ESTIMATE) {
     p = fftw_plan_many_dft(1, n, *m, data, NULL, 1, *n, res,
                            NULL, 1, *n, sign, FFTW_DESTROY_INPUT | effort);

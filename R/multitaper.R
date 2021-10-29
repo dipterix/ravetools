@@ -272,14 +272,26 @@ multitaper_calc_mts_segment <- function(data_segment, dpss_tapers, nfft, freq_in
   }
 
   # Multiply data by dpss tapers (STEP 2)
-  tapered_data <- sweep(dpss_tapers, 1, data_segment, '*',
-                        check.margin = FALSE)
+  if(is.matrix(dpss_tapers)){
+    tapered_data <- sweep(dpss_tapers, 1, data_segment, '*',
+                          check.margin = FALSE)
+  } else {
+    tapered_data <- matrix(data_segment * dpss_tapers, ncol = 1L)
+  }
+
 
   # Manually add nfft zero-padding (R's fft function does not support)
+  npad <- nfft-nrow(tapered_data)
+  # npad_left <- ceiling(npad / 2)
+  # npad_right <- npad - npad_left
   tapered_padded_data <- rbind(
+    # array(0, c(
+    #   npad_left,
+    #   ncol(tapered_data)
+    # )),
     tapered_data,
     array(0, c(
-      nfft-nrow(tapered_data),
+      npad,
       ncol(tapered_data)
     ))
   )
@@ -358,7 +370,6 @@ multitaper <- function(
   # Compute DPSS tapers (STEP 1)
   dpss_tapers <- waveslim::dpss.taper(winsize_samples, num_tapers, time_bandwidth) * sqrt(fs)
 
-  tic <- proc.time() # start timer for multitaper
   # Compute multitaper
   mt_spectrogram = apply(
     data_segments, 1, multitaper_calc_mts_segment,
