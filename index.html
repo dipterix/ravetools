@@ -12,13 +12,18 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Signal Processing Toolbox for RAVE Project">
-<meta property="og:description" content="Includes some signal processing tools for RAVE project. ">
+<meta property="og:description" content="Implemented fast and memory-efficient Notch-filter, Welch 
+    periodogram, and discrete wavelet transform algorithm for hours of 
+    high-resolution signals; providing fundamental toolbox
+    for iEEG preprocessing pipelines.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,25 +36,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/beauchamplab/rave/">
+  <a href="https://github.com/dipterix/ravetools/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -66,57 +65,189 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="signal-processing-toolbox-for-rave" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#signal-processing-toolbox-for-rave" class="anchor"></a>Signal Processing Toolbox for <code>RAVE</code>
+<div class="section level1">
+<div class="page-header"><h1 id="ravetools">ravetools<a class="anchor" aria-label="anchor" href="#ravetools"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>This package is under construction.</p>
+<p>The goal of <code>ravetools</code> is to provide memory-efficient signal processing toolbox for <code>intracranial-EEG</code> analyses. Highlighted features include:</p>
+<ul>
+<li>
+<a href="#"><code>Notch filter</code></a> (remove electric line noise)</li>
+<li>
+<a href="#"><code>Welch Periodogram</code></a> (averaged power over frequencies)</li>
+<li>
+<a href="#"><code>Wavelet</code></a> (frequency-time decomposition)</li>
+</ul>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>The package is available on <code>CRAN</code>. To install the compiled version, simply run:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ravetools"</span><span class="op">)</span></code></pre></div>
+<p>If you want to participate in the development of <code>ravetools</code>. Please make sure you have <a href="https://www.fftw.org/" class="external-link"><code>FFTW3</code></a> installed. On Windows, install <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link"><code>Rtools</code></a> and add it to system path; on MacOS, install <a href="https://docs.brew.sh/Installation" class="external-link"><code>HomeBrew</code></a> in your shell terminals, and run <code>brew install pkg-config fftw</code>; on Ubuntu-Linux, run bash command <code>sudo apt-get install libfftw3-dev</code>. Please search online about how to install <code>FFTW3</code> on other operating systems. Once <code>FFTW3</code> is installed, execute the following R command.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#!/usr/bin/env R</span>
+<span class="co"># install.packages("remotes")</span>
+<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"dipterix/ravetools"</span><span class="op">)</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="ieeg-preprocess-pipeline">
+<code>iEEG</code> preprocess pipeline<a class="anchor" aria-label="anchor" href="#ieeg-preprocess-pipeline"></a>
+</h2>
+<p>This is a basic example which shows you how to preprocess an <code>iEEG</code> signal. The goal here is to:</p>
+<ul>
+<li>Plot diagnostic graphs to inspect channels</li>
+<li>Apply Notch filters to remove electric line noise</li>
+<li>Frequency-time decomposition and show the power densities</li>
+</ul>
+<p><small>* Channel referencing is not included</small></p>
+<div class="section level3">
+<h3 id="1-generate-toy-examples">1. Generate toy examples:<a class="anchor" aria-label="anchor" href="#1-generate-toy-examples"></a>
+</h3>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ravetools">ravetools</a></span><span class="op">)</span>
+
+<span class="co"># Generate 20 second data at 2000 Hz</span>
+<span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2000</span><span class="op">)</span>
+<span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span>
+
+<span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, srate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-2-1.png" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="2-apply-notch-filters-and-inspect-periodograms">2. Apply <code>Notch</code> filters and inspect <code>Periodograms</code>
+<a class="anchor" aria-label="anchor" href="#2-apply-notch-filters-and-inspect-periodograms"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">## ------- Notch filter --------</span>
+<span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, sample_rate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>
+
+<span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,
+                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-3-1.png" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="3-frequency-time-decomposition">3. Frequency-time decomposition<a class="anchor" aria-label="anchor" href="#3-frequency-time-decomposition"></a>
+</h3>
+<p>Current version of <code>ravetools</code> provides two approaches: <code>Wavelet</code> and <code>Multi-taper</code>. <code>Wavelet</code> uses the <a href="https://en.wikipedia.org/wiki/Morlet_wavelet" class="external-link"><code>Morlet wavelet</code></a> and obtains both amplitude and phase data, while <code>Multi-taper</code> does not generate phase data. However, the amplitude obtained from <code>Multi-taper</code> is smoother than <code>Wavelet</code>.</p>
+<div class="section level4">
+<h4 id="using-wavelet">Using <code>Wavelet</code>:<a class="anchor" aria-label="anchor" href="#using-wavelet"></a>
+</h4>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">## ---------- Wavelet -----------</span>
+<span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span>
+  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>, 
+  srate <span class="op">=</span> <span class="fl">2000</span>, wave_num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>
+<span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+
+<span class="co"># For each frequency, decimate to 100 Hz</span>
+<span class="va">downsample_amp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">amplitude</span>, <span class="fl">2</span>, <span class="va">decimate</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
+<span class="va">downsample_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/decimate.html">decimate</a></span><span class="op">(</span><span class="va">time</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span>
+  z <span class="op">=</span> <span class="va">downsample_amp</span>,
+  x <span class="op">=</span> <span class="va">downsample_time</span>,
+  y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span>,
+  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,
+  ylab <span class="op">=</span> <span class="st">"Frequency (Hz)"</span>,
+  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>,
+  sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>, 
+  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+</div>
+<div class="section level4">
+<h4 id="multi-taper">
+<code>Multi-taper</code><a class="anchor" aria-label="anchor" href="#multi-taper"></a>
+</h4>
+<p>Alternatively you can use <code>Multi-tapers</code> to obtain amplitude data. The algorithm is modified from source code <a href="https://github.com/preraulab/multitaper_toolbox" class="external-link">here</a>. Please credit them as well if you adopt this approach.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">## ---------- Multitaper -----------</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/multitaper.html">multitaper</a></span><span class="op">(</span>
+  data <span class="op">=</span> <span class="va">signal2</span>,
+  fs <span class="op">=</span> <span class="fl">2000</span>,
+  frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>,
+  time_bandwidth <span class="op">=</span> <span class="fl">1.5</span>,
+  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.01</span><span class="op">)</span>
+<span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span>
+  x <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">time</span>,
+  y <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">frequency</span>,
+  z <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span>,
+  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,
+  ylab <span class="op">=</span> <span class="st">'Frequency (Hz)'</span>,
+  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>,
+  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>
+<span class="op">)</span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
+</div>
+</div>
+</div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/beauchamplab/rave/">https://​github.com/​beauchamplab/​rave/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/beauchamplab/rave/issues">https://​github.com/​beauchamplab/​rave/​issues</a>
-</li>
-</ul>
-</div>
-<div class="license">
-<h2>License</h2>
-<ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Zhengjia Wang <br><small class="roles"> Author, maintainer, copyright holder </small>  </li>
-<li>Beauchamp lab <br><small class="roles"> Copyright holder, funder </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="https://github.com/dipterix/ravetools/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/dipterix/ravetools/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="license">
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/dipterix/ravetools/actions"><img src="https://github.com/dipterix/ravetools/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing ravetools</a></li>
+</ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Zhengjia Wang <br><small class="roles"> Author, maintainer, copyright holder </small>  </li>
+<li> Beauchamp lab <br><small class="roles"> Copyright holder, funder </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><a href="https://CRAN.R-project.org/package=ravetools" class="external-link"><img src="https://www.r-pkg.org/badges/version/ravetools" alt="CRAN status"></a></li>
+<li><a href="https://github.com/dipterix/ravetools/actions" class="external-link"><img src="https://github.com/dipterix/ravetools/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Zhengjia Wang, Beauchamp lab.</p>
+  <p></p>
+<p>Developed by Zhengjia Wang, Beauchamp lab.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -124,6 +255,8 @@
 
   
 
+
+  
 
   </body>
 </html>
