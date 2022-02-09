@@ -9,12 +9,12 @@ Authors@R: c(
     person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph"), comment = "R package fftwtools"),
     person(family = "Prerau Lab", role = "cph", comment = "Multitaper Spectrogram Code")
     )
-Description: Implemented fast and memory-efficient 'Notch'-filter, 'Welch' 
-    periodogram, and discrete wavelet transform algorithm for hours of 
+Description: Implemented fast and memory-efficient 'Notch'-filter, 
+    'Welch-periodogram', and discrete wavelet transform algorithm for hours of 
     high-resolution signals; providing fundamental toolbox
-    for 'iEEG' preprocessing pipelines.
+    for 'iEEG' preprocess pipelines.
 BugReports: https://github.com/dipterix/ravetools/issues
-URL: http://dipterix.org/ravetools
+URL: http://dipterix.org/ravetools/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -35,8 +35,4 @@ Suggests:
     fftwtools,
     pracma,
     testthat (>= 3.0.0)
-Remotes: 
-    dipterix/filearray,
-    eddelbuettel/digest,
-    RcppCore/Rcpp
 Config/testthat/edition: 3
