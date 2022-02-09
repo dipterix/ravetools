@@ -9,11 +9,15 @@
 #' @param wave_num desired number of cycles in wavelet kernels to
 #' balance the precision in time and amplitude (control the
 #' smoothness); positive integers are strongly suggested
+#' @param precision the precision of computation; choices are
+#' \code{'float'} (default) and \code{'double'}.
 #' @param trend choices are \code{'constant'}: center the signal at zero;
 #' \code{'linear'}: remove the linear trend; \code{'none'} do nothing
 #' @param ... further passed to \code{\link{detrend}};
 #' @return \code{wavelet_kernels} returns wavelet kernels to be
-#' used for wavelet function
+#' used for wavelet function; \code{morlet_wavelet} returns a file-based array
+#' if \code{precision} is \code{'float'}, or a list of real and imaginary
+#' arrays if \code{precision} is \code{'double'}
 #'
 #' @examples
 #'
@@ -24,7 +28,7 @@
 #'
 #' plot(time, x, type = 'l')
 #'
-#' # freq from 1 - 15 Hz
+#' # freq from 1 - 15 Hz; wavelet using float precision
 #' freq <- seq(1, 15, 0.2)
 #' coef <- morlet_wavelet(x, freq, 100, c(2,3))
 #'
@@ -38,8 +42,16 @@
 #' # After 1.0 second, 5Hz component fade away
 #' image(power, x = time, y = freq, ylab = "frequency")
 #'
-#' # display kernels
+#' # wavelet using double precision
+#' coef2 <- morlet_wavelet(x, freq, 100, c(2,3), precision = "double")
+#' power2 <- (coef2$real[])^2 + (coef2$imag[])^2
 #'
+#' image(power2, x = time, y = freq, ylab = "frequency")
+#'
+#' # The maximum relative change of power with different precisions
+#' max(abs(power/power2 - 1))
+#'
+#' # display kernels
 #' freq <- seq(1, 15, 1)
 #' kern <- wavelet_kernels(freq, 100, c(2,3))
 #' print(kern)
@@ -208,7 +220,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
 }
 
 
-wavelet_kernels2 <- function(freqs, srate, wave_num,
+wavelet_kernels2_float <- function(freqs, srate, wave_num,
                              data_length){
   freqs <- as.double(freqs)
   srate <- as.double(srate)
@@ -228,7 +240,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
     return(filearray::filearray_checkload(
       filebase = path, mode = "readonly", symlink_ok = FALSE,
       freqs = freqs, srate = srate, wave_num = wave_num, data_length = data_length,
-      arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels"
+      arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels-float"
     ))
   }, error = function(e){
 
@@ -267,7 +279,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
   arr$.header$data_length <- data_length
   arr$.header$arr_dim <- arr_dim
   arr$.header$freqs <- freqs
-  arr$.header$rave_data_type <- "rave-wavelet-kernels"
+  arr$.header$rave_data_type <- "rave-wavelet-kernels-float"
   arr$.save_header()
 
   arr$.mode <- "readonly"
@@ -275,9 +287,7 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
   return(arr)
 }
 
-#' @rdname wavelet
-#' @export
-morlet_wavelet <- function(data, freqs, srate, wave_num,
+morlet_wavelet_float <- function(data, freqs, srate, wave_num,
                            trend = c("constant", "linear", "none"), ...){
 
   # Instead of using fixed wave_cycles, use flex cycles
@@ -295,7 +305,7 @@ morlet_wavelet <- function(data, freqs, srate, wave_num,
   d_l <- length(data)
 
   # calculate kernel, transform and store
-  fft_waves <- wavelet_kernels2(freqs, srate, wave_num, d_l)
+  fft_waves <- wavelet_kernels2_float(freqs, srate, wave_num, d_l)
 
   # normalize data, and fft
   if(trend != "none"){
@@ -320,7 +330,8 @@ morlet_wavelet <- function(data, freqs, srate, wave_num,
       freqs = freqs, srate = srate, wave_num = wave_num,
       data_digest = data_digest, trend = trend,
       more_args = more_args,
-      rave_data_type = "rave-wavelet-coefficients"
+      rave_data_type = "rave-wavelet-coefficients",
+      precision = "float"
     )
   }, error = function(e){
 
@@ -357,9 +368,246 @@ morlet_wavelet <- function(data, freqs, srate, wave_num,
   output$.header$trend <- trend
   output$.header$more_args <- more_args
   output$.header$rave_data_type <- "rave-wavelet-coefficients"
+  output$.header$precision <- 'float'
+  output$.save_header()
 
   output$.mode <- "readonly"
   output
+}
+
+wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length){
+  freqs <- as.double(freqs)
+  srate <- as.double(srate)
+  wave_num <- as.double(wave_num)
+  data_length <- as.integer(data_length)
+  kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
+  digest <- digest::digest(list(freqs, srate, wave_num, data_length))
+  root_dir <- file.path(tempdir(check = TRUE), "ravetools")
+  if(!dir.exists(root_dir)){
+    dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
+  }
+  real_path <- file.path(root_dir, sprintf("wavelet-real-%s", digest))
+  imag_path <- file.path(root_dir, sprintf("wavelet-imag-%s", digest))
+
+
+  arr_dim <- c(data_length, length(kernel_info$kernels))
+  tryCatch({
+    return(list(
+      real = filearray::filearray_checkload(
+        filebase = real_path, mode = "readonly", symlink_ok = FALSE,
+        freqs = freqs, srate = srate, wave_num = wave_num, data_length = data_length,
+        arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels-double-real"
+      ),
+      imag = filearray::filearray_checkload(
+        filebase = imag_path, mode = "readonly", symlink_ok = FALSE,
+        freqs = freqs, srate = srate, wave_num = wave_num, data_length = data_length,
+        arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels-double-imag"
+      )
+    ))
+  }, error = function(e){
+
+    if(dir.exists(real_path)){ unlink(real_path, recursive = TRUE) }
+    if(dir.exists(imag_path)){ unlink(imag_path, recursive = TRUE) }
+
+  })
+
+  arr_real <- filearray::filearray_create(
+    filebase = real_path,
+    dimension = arr_dim,
+    type = "double",
+    partition_size = 1
+  )
+  arr_imag <- filearray::filearray_create(
+    filebase = imag_path,
+    dimension = arr_dim,
+    type = "double",
+    partition_size = 1
+  )
+  arr_real$.mode <- "readwrite"
+  arr_imag$.mode <- "readwrite"
+
+  tmp <- complex(data_length)
+  lapply(seq_along(kernel_info$kernels), function(ii){
+    tmp_wavelet <- kernel_info$kernels[[ii]]
+    w_l <- length(tmp_wavelet)
+    n_pre  <- ceiling(data_length / 2) - floor(w_l/2)
+    n_post <- data_length - n_pre - w_l
+    x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
+    # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
+    fftw_c2c(data = x, inverse = 0L, ret = tmp, inplace = TRUE)
+    conjugate(tmp)
+    arr_real[,ii] <- Re(tmp)
+    arr_imag[,ii] <- Im(tmp)
+    # arr[,ii] <- tmp
+    NULL
+  })
+
+  arr_real$.header$freqs <- freqs
+  arr_real$.header$srate <- srate
+  arr_real$.header$wave_num <- wave_num
+  arr_real$.header$data_length <- data_length
+  arr_real$.header$arr_dim <- arr_dim
+  arr_real$.header$freqs <- freqs
+  arr_real$.header$rave_data_type <- "rave-wavelet-kernels-double-real"
+  arr_real$.save_header()
+
+  arr_imag$.header$freqs <- freqs
+  arr_imag$.header$srate <- srate
+  arr_imag$.header$wave_num <- wave_num
+  arr_imag$.header$data_length <- data_length
+  arr_imag$.header$arr_dim <- arr_dim
+  arr_imag$.header$freqs <- freqs
+  arr_imag$.header$rave_data_type <- "rave-wavelet-kernels-double-imag"
+  arr_imag$.save_header()
+
+
+  arr_real$.mode <- "readonly"
+  arr_imag$.mode <- "readonly"
+
+  return(list(
+    real = arr_real,
+    imag = arr_imag
+  ))
+}
+
+
+morlet_wavelet_double <- function(data, freqs, srate, wave_num,
+                                 trend = c("constant", "linear", "none"), ...){
+
+  # Instead of using fixed wave_cycles, use flex cycles
+  # lower num_cycle is good for low freq, higher num_cycle is good for high freq.
+  # wavelet_cycles = wave_num;
+  # lowest_freq = freqs[1];
+  trend <- match.arg(trend)
+  freqs <- as.double(freqs)
+  srate <- as.double(srate)
+  wave_num <- as.double(wave_num)
+  more_args <- list(...)
+  data_digest <- digest::digest(data)
+
+  f_l <- length(freqs)
+  d_l <- length(data)
+
+  # calculate kernel, transform and store
+  fft_waves <- wavelet_kernels2_double(freqs, srate, wave_num, d_l)
+
+  # normalize data, and fft
+  if(trend != "none"){
+    data <- as.vector(detrend(data, trend = trend, ...))
+    # data <- data - mean(data)
+    fft_data <- fftw_r2c(data, inplace = TRUE)
+  } else {
+    fft_data <- fftw_r2c(data, inplace = FALSE)
+  }
+
+  # Convolution Notice that since we don't pad zeros to data
+  # d_l is nrows of wave_spectrum. However, if wave_spectrum is changed
+  # we should not use d_l anymore. instead, use nrow(fft_waves)
+  wave_len <- nrow(fft_waves$real)
+  ind <- seq_len(ceiling(wave_len / 2))
+
+
+  real_path <- tempfile2(pattern = "wavelet-double-real-")
+  imag_path <- tempfile2(pattern = "wavelet-double-imag-")
+  output <- tryCatch({
+    list(
+      real = filearray::filearray_checkload(
+        filebase = real_path, symlink_ok = FALSE,
+        freqs = freqs, srate = srate, wave_num = wave_num,
+        data_digest = data_digest, trend = trend,
+        more_args = more_args,
+        rave_data_type = "rave-wavelet-coefficients-real",
+        precision = "double"
+      ),
+      imag = filearray::filearray_checkload(
+        filebase = imag_path, symlink_ok = FALSE,
+        freqs = freqs, srate = srate, wave_num = wave_num,
+        data_digest = data_digest, trend = trend,
+        more_args = more_args,
+        rave_data_type = "rave-wavelet-coefficients-imag",
+        precision = "double"
+      )
+    )
+  }, error = function(e){
+
+    if(dir.exists(real_path)){ unlink(real_path, recursive = TRUE) }
+    if(dir.exists(imag_path)){ unlink(imag_path, recursive = TRUE) }
+    NULL
+  })
+  if(length(output) == 2){ return(output) }
+
+  output_real <- filearray::filearray_create(
+    filebase = real_path, dimension = dim(fft_waves[[1]]),
+    type = "double", partition_size = 1
+  )
+  output_imag <- filearray::filearray_create(
+    filebase = imag_path, dimension = dim(fft_waves[[1]]),
+    type = "double", partition_size = 1
+  )
+  output_real$.mode <- "readwrite"
+  output_imag$.mode <- "readwrite"
+
+  tmp <- complex(length(fft_data))
+
+  ii <- 1
+  filearray::fmap2(x = fft_waves, fun = function(input){
+    # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
+    kernel = input[[1]] + 1i * input[[2]]
+    fftw_c2c(data = kernel * fft_data,
+             inverse = 1L, ret = tmp, inplace = TRUE)
+    tmp <- c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
+    output_real[,ii] <- Re(tmp)
+    output_imag[,ii] <- Im(tmp)
+    ii <<- ii + 1
+    NULL
+  }, .input_size = wave_len)
+
+  # output <- apply(fft_waves[], 2, function(x){
+  #   wave_spectrum = fftwtools::fftw_c2c(x * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
+  #   c(wave_spectrum[-ind], wave_spectrum[ind])
+  # })
+
+  output_real$.header$freqs <- freqs
+  output_real$.header$srate <- srate
+  output_real$.header$wave_num <- wave_num
+  output_real$.header$data_digest <- data_digest
+  output_real$.header$trend <- trend
+  output_real$.header$more_args <- more_args
+  output_real$.header$rave_data_type <- "rave-wavelet-coefficients-real"
+  output_real$.header$precision <- 'double'
+  output_real$.save_header()
+
+  output_imag$.header$freqs <- freqs
+  output_imag$.header$srate <- srate
+  output_imag$.header$wave_num <- wave_num
+  output_imag$.header$data_digest <- data_digest
+  output_imag$.header$trend <- trend
+  output_imag$.header$more_args <- more_args
+  output_imag$.header$rave_data_type <- "rave-wavelet-coefficients-imag"
+  output_imag$.header$precision <- 'double'
+  output_imag$.save_header()
+
+  output_real$.mode <- "readonly"
+  output_imag$.mode <- "readonly"
+  list(
+    real = output_real,
+    imag = output_imag
+  )
+}
+
+#' @rdname wavelet
+#' @export
+morlet_wavelet <- function(data, freqs, srate, wave_num, precision = c("float", "double"),
+                           trend = c("constant", "linear", "none"), ...) {
+  precision <- match.arg(precision)
+  if(precision == "float"){
+    re <- morlet_wavelet_float(data = data, freqs = freqs, srate = srate,
+                               wave_num = wave_num, trend = trend, ...)
+  } else {
+    re <- morlet_wavelet_double(data = data, freqs = freqs, srate = srate,
+                               wave_num = wave_num, trend = trend, ...)
+  }
+  return(re)
 }
 
 # x <- rnorm(10000)

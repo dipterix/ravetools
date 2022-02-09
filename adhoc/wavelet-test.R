@@ -1,7 +1,7 @@
 require(ravetools)
 x <- rnorm(2000*60*5)
 
-list2env(list(freqs = seq(2,200,4), srate = 2000, wave_num = c(2,20), demean = TRUE), .GlobalEnv)
+list2env(list(freqs = seq(2,200,4), srate = 2000, wave_num = c(2,20), trend = "constant"), .GlobalEnv)
 ratio = (log(max(wave_num)) - log(min(wave_num))) / (log(max(freqs)) - log(min(freqs)))
 wave_num = round(exp((log(freqs) - log(min(freqs))) * ratio + log(min(wave_num))))
 
@@ -20,15 +20,22 @@ profile <- function(expr, env = parent.frame()){
 
 # gctorture2(1000, inhibit_release = TRUE); gc()
 profile({
-  y2 <- morlet_wavelet(x, freqs, srate, wave_num, demean)
+  y2 <- morlet_wavelet(x, freqs, srate, wave_num, trend = trend, precision = "float")
   gc()
 })
 
 profile({
-  y1 <- rave::wavelet(x, freqs, srate, wave_num, demean)
+  y3 <- morlet_wavelet(x, freqs, srate, wave_num, trend = trend, precision = "double")
+  gc()
 })
 
-a <- y2[]
+
+profile({
+  y1 <- rave::wavelet(x, freqs, srate, wave_num, demean = TRUE)
+})
+
+# a <- y2[]
+a <- y3$real[] + y3$imag[] * 1i
 b <- t(y1$coef * exp(1i*y1$phase))
 
 dif <- Mod(a-b)# / Mod(a)

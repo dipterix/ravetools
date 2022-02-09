@@ -13,6 +13,7 @@ morlet_wavelet(
   freqs,
   srate,
   wave_num,
+  precision = c("float", "double"),
   trend = c("constant", "linear", "none"),
   ...
 )
@@ -28,6 +29,9 @@ smoothness); positive integers are strongly suggested}
 
 \item{data}{numerical vector such as analog voltage signals}
 
+\item{precision}{the precision of computation; choices are
+\code{'float'} (default) and \code{'double'}.}
+
 \item{trend}{choices are \code{'constant'}: center the signal at zero;
 \code{'linear'}: remove the linear trend; \code{'none'} do nothing}
 
@@ -35,7 +39,9 @@ smoothness); positive integers are strongly suggested}
 }
 \value{
 \code{wavelet_kernels} returns wavelet kernels to be
-used for wavelet function
+used for wavelet function; \code{morlet_wavelet} returns a file-based array
+if \code{precision} is \code{'float'}, or a list of real and imaginary
+arrays if \code{precision} is \code{'double'}
 }
 \description{
 Transform analog voltage signals with 'Morlet'
@@ -51,7 +57,7 @@ x <- sin(time * 20*pi) + exp(-time^2) * cos(time * 10*pi)
 
 plot(time, x, type = 'l')
 
-# freq from 1 - 15 Hz
+# freq from 1 - 15 Hz; wavelet using float precision
 freq <- seq(1, 15, 0.2)
 coef <- morlet_wavelet(x, freq, 100, c(2,3))
 
@@ -65,8 +71,16 @@ power <- Mod(coef[])^2
 # After 1.0 second, 5Hz component fade away
 image(power, x = time, y = freq, ylab = "frequency")
 
-# display kernels
+# wavelet using double precision
+coef2 <- morlet_wavelet(x, freq, 100, c(2,3), precision = "double")
+power2 <- (coef2$real[])^2 + (coef2$imag[])^2
 
+image(power2, x = time, y = freq, ylab = "frequency")
+
+# The maximum relative change of power with different precisions
+max(abs(power/power2 - 1))
+
+# display kernels
 freq <- seq(1, 15, 1)
 kern <- wavelet_kernels(freq, 100, c(2,3))
 print(kern)
