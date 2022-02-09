@@ -20,6 +20,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
 Depends: R (>= 4.0.0)
+SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
 Imports:
     graphics,
     stats,
@@ -34,8 +35,8 @@ Suggests:
     fftwtools,
     pracma,
     testthat (>= 3.0.0)
-Config/testthat/edition: 3
 Remotes: 
     dipterix/filearray,
     eddelbuettel/digest,
     RcppCore/Rcpp
+Config/testthat/edition: 3
