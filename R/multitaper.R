@@ -1,4 +1,4 @@
-#' @title Compute multitaper spectrogram of time-series data
+#' @title Compute 'multitaper' spectral densities of time-series data
 #' @name multitaper
 #'
 #' @param data numerical vector, signal traces
@@ -18,7 +18,7 @@
 #' @param nfft 'NFFT' size, positive; see 'Details'
 #' @return \code{multitaper_config} returns a list of configuration parameters
 #' for the filters; \code{multitaper} also returns the time, frequency and
-#' corresponding spectrogram.
+#' corresponding spectral power.
 #'
 #' @details The original source code comes from 'Prerau' Lab (see 'Github'
 #' repository \code{'multitaper_toolbox'} under user \code{'preraulab'}).
@@ -268,7 +268,7 @@ multitaper_calc_mts_segment <- function(data_segment, dpss_tapers, nfft, freq_in
 
   # Optionally detrend data to remove low freq DC component
   if(detrend_opt != 'off'){
-    data_segment <- pracma::detrend(data_segment, tt=detrend_opt)
+    data_segment <- detrend(data_segment, trend = detrend_opt)
   }
 
   # Multiply data by dpss tapers (STEP 2)

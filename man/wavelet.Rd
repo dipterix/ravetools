@@ -8,7 +8,14 @@
 \usage{
 wavelet_kernels(freqs, srate, wave_num)
 
-morlet_wavelet(data, freqs, srate, wave_num, demean = TRUE)
+morlet_wavelet(
+  data,
+  freqs,
+  srate,
+  wave_num,
+  trend = c("constant", "linear", "none"),
+  ...
+)
 }
 \arguments{
 \item{freqs}{frequency in which \code{data} will be projected on}
@@ -21,7 +28,10 @@ smoothness); positive integers are strongly suggested}
 
 \item{data}{numerical vector such as analog voltage signals}
 
-\item{demean}{whether to centralize the data first}
+\item{trend}{choices are \code{'constant'}: center the signal at zero;
+\code{'linear'}: remove the linear trend; \code{'none'} do nothing}
+
+\item{...}{further passed to \code{\link{detrend}};}
 }
 \value{
 \code{wavelet_kernels} returns wavelet kernels to be

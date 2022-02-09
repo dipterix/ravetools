@@ -3,7 +3,7 @@
 \name{multitaper}
 \alias{multitaper}
 \alias{multitaper_config}
-\title{Compute multitaper spectrogram of time-series data}
+\title{Compute 'multitaper' spectral densities of time-series data}
 \usage{
 multitaper_config(
   data_length,
@@ -55,10 +55,10 @@ are \code{'linear'} (default), \code{'constant'}, and \code{'off'}}
 \value{
 \code{multitaper_config} returns a list of configuration parameters
 for the filters; \code{multitaper} also returns the time, frequency and
-corresponding spectrogram.
+corresponding spectral power.
 }
 \description{
-Compute multitaper spectrogram of time-series data
+Compute 'multitaper' spectral densities of time-series data
 }
 \details{
 The original source code comes from 'Prerau' Lab (see 'Github'

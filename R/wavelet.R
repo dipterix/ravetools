@@ -9,7 +9,9 @@
 #' @param wave_num desired number of cycles in wavelet kernels to
 #' balance the precision in time and amplitude (control the
 #' smoothness); positive integers are strongly suggested
-#' @param demean whether to centralize the data first
+#' @param trend choices are \code{'constant'}: center the signal at zero;
+#' \code{'linear'}: remove the linear trend; \code{'none'} do nothing
+#' @param ... further passed to \code{\link{detrend}};
 #' @return \code{wavelet_kernels} returns wavelet kernels to be
 #' used for wavelet function
 #'
@@ -111,7 +113,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
 #' @export
 `plot.ravetools-wavelet-kernels` <- function(
   x, cex = 1.2, cex.lab = cex * 1.2, cex.main = cex * 1.33,
-  cex.axis = cex, ...){
+  cex.axis = cex, mai = c(0.8,0.5,0.4,0.1), ...){
 
   fft_waves <- x$kernels
   srate <- x$sample_rate
@@ -142,6 +144,13 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   lay <- rbind(c(1,1), c(2,3))
 
   graphics::layout(mat = lay)
+
+  old_mai <- graphics::par('mai')
+  graphics::par(mai = mai)
+  on.exit({
+    graphics::par(mai = old_mai)
+  }, add = TRUE)
+
   # old_mar <- par('mar')
   # on.exit({
   #   par(mar = old_mar)
@@ -201,6 +210,10 @@ wavelet_kernels <- function(freqs, srate, wave_num){
 
 wavelet_kernels2 <- function(freqs, srate, wave_num,
                              data_length){
+  freqs <- as.double(freqs)
+  srate <- as.double(srate)
+  wave_num <- as.double(wave_num)
+  data_length <- as.integer(data_length)
   kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
   digest <- digest::digest(list(freqs, srate, wave_num, data_length))
   root_dir <- file.path(tempdir(check = TRUE), "ravetools")
@@ -208,23 +221,30 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
   path <- file.path(root_dir, sprintf("wavelet-%s", digest))
-  if(dir.exists(path)){
-    arr <- filearray::filearray_load(path, mode = "readonly")
-    return(arr)
-  }
+
+
+  arr_dim <- c(data_length, length(kernel_info$kernels))
+  tryCatch({
+    return(filearray::filearray_checkload(
+      filebase = path, mode = "readonly", symlink_ok = FALSE,
+      freqs = freqs, srate = srate, wave_num = wave_num, data_length = data_length,
+      arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels"
+    ))
+  }, error = function(e){
+
+    if(dir.exists(path)){
+      unlink(path, recursive = TRUE)
+    }
+
+  })
+
   arr <- filearray::filearray_create(
     filebase = path,
-    dimension = c(data_length, length(kernel_info$kernels)),
+    dimension = arr_dim,
     type = "complex",
     partition_size = 1
   )
-  is_ok <- FALSE
-  on.exit({
-    if(!is_ok){
-      arr$.mode <- "readwrite"
-      arr$delete()
-    }
-  })
+  arr$.mode <- "readwrite"
 
   tmp <- complex(data_length)
   lapply(seq_along(kernel_info$kernels), function(ii){
@@ -240,20 +260,36 @@ wavelet_kernels2 <- function(freqs, srate, wave_num,
     NULL
   })
 
+
+  arr$.header$freqs <- freqs
+  arr$.header$srate <- srate
+  arr$.header$wave_num <- wave_num
+  arr$.header$data_length <- data_length
+  arr$.header$arr_dim <- arr_dim
+  arr$.header$freqs <- freqs
+  arr$.header$rave_data_type <- "rave-wavelet-kernels"
+  arr$.save_header()
+
   arr$.mode <- "readonly"
-  is_ok <- TRUE
 
   return(arr)
 }
 
 #' @rdname wavelet
 #' @export
-morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
+morlet_wavelet <- function(data, freqs, srate, wave_num,
+                           trend = c("constant", "linear", "none"), ...){
 
   # Instead of using fixed wave_cycles, use flex cycles
   # lower num_cycle is good for low freq, higher num_cycle is good for high freq.
   # wavelet_cycles = wave_num;
   # lowest_freq = freqs[1];
+  trend <- match.arg(trend)
+  freqs <- as.double(freqs)
+  srate <- as.double(srate)
+  wave_num <- as.double(wave_num)
+  more_args <- list(...)
+  data_digest <- digest::digest(data)
 
   f_l <- length(freqs)
   d_l <- length(data)
@@ -262,8 +298,9 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   fft_waves <- wavelet_kernels2(freqs, srate, wave_num, d_l)
 
   # normalize data, and fft
-  if(demean){
-    data <- data - mean(data)
+  if(trend != "none"){
+    data <- as.vector(detrend(data, trend = trend, ...))
+    # data <- data - mean(data)
     fft_data <- fftw_r2c(data, inplace = TRUE)
   } else {
     fft_data <- fftw_r2c(data, inplace = FALSE)
@@ -275,14 +312,30 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   wave_len <- nrow(fft_waves)
   ind <- seq_len(ceiling(wave_len / 2))
 
-  output <- filearray::filearray_create(filebase = tempfile2(), dimension = dim(fft_waves), type = "complex", partition_size = 1)
-  is_ok <- FALSE
-  on.exit({
-    if(!is_ok){
-      output$.mode <- "readwrite"
-      output$delete()
+
+  out_path <- tempfile2()
+  output <- tryCatch({
+    filearray::filearray_checkload(
+      filebase = out_path, symlink_ok = FALSE,
+      freqs = freqs, srate = srate, wave_num = wave_num,
+      data_digest = data_digest, trend = trend,
+      more_args = more_args,
+      rave_data_type = "rave-wavelet-coefficients"
+    )
+  }, error = function(e){
+
+    if(dir.exists(out_path)){
+      unlink(out_path, recursive = TRUE)
     }
+    NULL
   })
+  if(inherits(output, "FileArray")){ return(output) }
+
+  output <- filearray::filearray_create(
+    filebase = out_path, dimension = dim(fft_waves),
+    type = "complex", partition_size = 1
+  )
+  output$.mode <- "readwrite"
 
   tmp <- complex(length(fft_data))
   filearray::fmap(x = fft_waves, fun = function(input){
@@ -297,8 +350,15 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, demean = TRUE){
   #   c(wave_spectrum[-ind], wave_spectrum[ind])
   # })
 
-  is_ok <- TRUE
+  output$.header$freqs <- freqs
+  output$.header$srate <- srate
+  output$.header$wave_num <- wave_num
+  output$.header$data_digest <- data_digest
+  output$.header$trend <- trend
+  output$.header$more_args <- more_args
+  output$.header$rave_data_type <- "rave-wavelet-coefficients"
 
+  output$.mode <- "readonly"
   output
 }
 

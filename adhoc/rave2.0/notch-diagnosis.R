@@ -81,7 +81,7 @@ export_diagnose_voltage <- function(
           name = 'Notch'
           main = sprintf('Notch Filtered Signal - Block: %s, Electrode: %d', block, e)
 
-          diagnose_signal(
+          diagnose_channel(
             s1 = s[[1]], s2 = s[[2]], col = col,
             name = name,
             max_freq = freq_lim,
@@ -98,7 +98,7 @@ export_diagnose_voltage <- function(
           name = 'Notch'
           main = sprintf('Notch Filtered Signal - Block: %s, Electrode: %d', block, e)
 
-          diagnose_signal(
+          diagnose_channel(
             s1 = s[[1]],s2 = NULL,  col = col[[1]],
             name = name,
             max_freq = freq_lim,
@@ -115,7 +115,7 @@ export_diagnose_voltage <- function(
         } else {
           name = 'Raw'
           main = sprintf('Raw Voltage Signal - Block: %s, Electrode: %d', block, e)
-          diagnose_signal(
+          diagnose_channel(
             s1 = s[[2]],s2 = NULL,  col = col[[2]],
             name = name,
             max_freq = freq_lim,
