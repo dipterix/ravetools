@@ -32,12 +32,22 @@ stopifnot2 <- function(..., msg = 'Condition not satisfied'){
   }
 }
 
+rand_string <- function(length = 10){
+  paste(sample(c(letters, LETTERS, 0:9), length, replace = TRUE), collapse = '')
+}
+
 tempfile2 <- function(
-  pattern = "ravetmp-", tmpdir = file.path(tempdir(check = TRUE), "ravetools"), fileext = ""){
+  pattern = "ravetmp-", tmpdir = file.path(tempdir(check = TRUE), "ravetools"),
+  fileext = ""){
   if(!dir.exists(tmpdir)){
     dir.create(tmpdir, showWarnings = FALSE, recursive = TRUE)
   }
-  tempfile(pattern = pattern, tmpdir = tmpdir, fileext = fileext)
+  if(getOption("ravetools.debug", FALSE)){
+    file.path(tmpdir, sprintf("%s%s%s", pattern, rand_string(), fileext))
+  } else {
+    tempfile(pattern = pattern, tmpdir = tmpdir, fileext = fileext)
+  }
+
 }
 
 

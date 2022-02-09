@@ -19,11 +19,14 @@ profile <- function(expr, env = parent.frame()){
 # profile <- profvis::profvis
 
 # gctorture2(1000, inhibit_release = TRUE); gc()
+options("ravetools.debug" = F)
+set.seed(1)
 profile({
   y2 <- morlet_wavelet(x, freqs, srate, wave_num, trend = trend, precision = "float")
   gc()
 })
 
+set.seed(1)
 profile({
   y3 <- morlet_wavelet(x, freqs, srate, wave_num, trend = trend, precision = "double")
   gc()

@@ -244,6 +244,11 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
     ))
   }, error = function(e){
 
+    if(getOption("ravetools.debug", FALSE)){
+      print(path)
+      warning(e)
+    }
+
     if(dir.exists(path)){
       unlink(path, recursive = TRUE)
     }
@@ -334,6 +339,10 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
       precision = "float"
     )
   }, error = function(e){
+    if(getOption("ravetools.debug", FALSE)){
+      print(out_path)
+      warning(e)
+    }
 
     if(dir.exists(out_path)){
       unlink(out_path, recursive = TRUE)
@@ -405,6 +414,11 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length){
       )
     ))
   }, error = function(e){
+    if(getOption("ravetools.debug", FALSE)){
+      print(real_path)
+      print(imag_path)
+      warning(e)
+    }
 
     if(dir.exists(real_path)){ unlink(real_path, recursive = TRUE) }
     if(dir.exists(imag_path)){ unlink(imag_path, recursive = TRUE) }
@@ -529,6 +543,11 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
       )
     )
   }, error = function(e){
+    if(getOption("ravetools.debug", FALSE)){
+      print(real_path)
+      print(imag_path)
+      warning(e)
+    }
 
     if(dir.exists(real_path)){ unlink(real_path, recursive = TRUE) }
     if(dir.exists(imag_path)){ unlink(imag_path, recursive = TRUE) }
