@@ -10,3 +10,4 @@ autom4te.cache/
 ^docs$
 ^pkgdown$
 ^README\.Rmd$
+^cran-comments\.md$

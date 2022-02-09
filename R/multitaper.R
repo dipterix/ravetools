@@ -70,7 +70,7 @@ multitaper_process_input <- function(
   }
 
   # Set detrend method
-  detrend_opt = tolower(detrend_opt)
+  detrend_opt <- tolower(detrend_opt)
   if(detrend_opt != 'linear'){
     if(detrend_opt == 'const'){
       detrend_opt <- 'constant'
@@ -95,7 +95,7 @@ multitaper_process_input <- function(
   }
 
   # Set number of tapers if none provided
-  optimal_num_tapers = floor(2*time_bandwidth) - 1
+  optimal_num_tapers <- floor(2*time_bandwidth) - 1
   if(is.null(num_tapers)){
     num_tapers <- optimal_num_tapers
   }
@@ -134,8 +134,8 @@ multitaper_process_input <- function(
   }
 
   # Find window start indices and num of windows
-  window_start = seq(1, len_data-winsize_samples+1, by=winstep_samples)
-  num_windows = length(window_start)
+  window_start <- seq(1, len_data-winsize_samples+1, by=winstep_samples)
+  num_windows <- length(window_start)
 
   # Get num points in FFT
   nfft <- as.integer(nfft)
@@ -143,7 +143,7 @@ multitaper_process_input <- function(
     stop("Invalid nfft")
   }
   if(is.na(nfft)){
-    nfft = max(2^ceiling(log2(abs(winsize_samples))), winsize_samples)
+    nfft <- max(2^ceiling(log2(abs(winsize_samples))), winsize_samples)
   }
 
 
@@ -219,7 +219,7 @@ multitaper_config <- function(
   # display_spectrogram_properties(fs, time_bandwidth, num_tapers, c(winsize_samples, winstep_samples), frequency_range,
   #                                detrend_opt)
   data_window_params <- c(x$winsize_samples, x$winstep_samples)
-  data_window_params = data_window_params / x$fs
+  data_window_params <- data_window_params / x$fs
 
   # Print spectrogram properties
   cat(
@@ -319,8 +319,8 @@ multitaper_calc_mts_segment <- function(data_segment, dpss_tapers, nfft, freq_in
   fft_range <- fft_data[freq_inds,,drop = FALSE]
 
   # Take the FFT magnitude (STEP 4.1)
-  magnitude = Im(fft_range)^2 + Re(fft_range)^2
-  mt_spectrum = rowSums(magnitude)
+  magnitude <- Im(fft_range)^2 + Re(fft_range)^2
+  mt_spectrum <- rowSums(magnitude)
 
   return(mt_spectrum)
 }
@@ -355,7 +355,7 @@ multitaper <- function(
 
   # Split data into window segments
   split_data_helper <- function(indices, data){ # for sapply when splitting data into windows
-    data_seg = data[indices]
+    data_seg <- data[indices]
     return(data_seg)
   }
   data_segments <- t(sapply(window_idxs, split_data_helper, data=data))
@@ -371,13 +371,13 @@ multitaper <- function(
   dpss_tapers <- waveslim::dpss.taper(winsize_samples, num_tapers, time_bandwidth) * sqrt(fs)
 
   # Compute multitaper
-  mt_spectrogram = apply(
+  mt_spectrogram <- apply(
     data_segments, 1, multitaper_calc_mts_segment,
     dpss_tapers=dpss_tapers, nfft=nfft,
     freq_inds=freq_inds, detrend_opt=detrend_opt)
 
   # Compute mean fft magnitude (STEP 4.2)
-  mt_spectrogram = Conj(t(mt_spectrogram)) / fs^2 / num_tapers
+  mt_spectrogram <- Conj(t(mt_spectrogram)) / fs^2 / num_tapers
 
 
   # if(all(as.vector(mt_spectrogram) == 0)){

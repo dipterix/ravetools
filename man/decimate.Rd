@@ -25,8 +25,8 @@ Decimate with 'FIR' or 'IIR' filter
 }
 \details{
 This function is migrated from \code{signal} package,
-but with bugs fixed with 'FIR' filters. The result is now
-consistent with 'Matlab' \code{decimate} function. Under 'IIR'
+but with bugs fixed on 'FIR' filters. The result agrees with 'Matlab'
+\code{decimate} function with 'FIR' filters. Under 'IIR'
 filters, the function is identical with \code{signal::decimate},
 and is slightly different with 'Matlab' version.
 }

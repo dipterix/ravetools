@@ -56,24 +56,24 @@ diagnose_channel <- function(
 
   # is sc not specified, and srate is too high, compress s1
   if(try_compress && (is.null(sc) || (srate > 200 && length(s1) / srate > 300))){
-    sratec = 100
+    sratec <- 100
     sc <- s1[round(seq(1, length(s1), by = srate/sratec))]
   }else{
     sc %?<-% s1
-    sratec = srate / length(s1) * length(sc)
+    sratec <- srate / length(s1) * length(sc)
   }
-  max_freq = min(max_freq, floor(srate/ 2))
-  xlim = c(0, max_freq)
+  max_freq <- min(max_freq, floor(srate/ 2))
+  xlim <- c(0, max_freq)
 
   # Calculate boundary to draw
   if(is.null(boundary)){
-    boundary = std* stats::sd(s1)
+    boundary <- std* stats::sd(s1)
   }
-  ylim = max(abs(s1), boundary)
+  ylim <- max(abs(s1), boundary)
 
   # Grid layout
 
-  par_opt = graphics::par(c('mai', "mar"))
+  par_opt <- graphics::par(c('mai', "mar"))
   on.exit({graphics::par(par_opt)}, add = TRUE)
   graphics::par(mar = mar, mai = mai)
 
@@ -113,7 +113,7 @@ diagnose_channel <- function(
 
 
   if(length(which) == 0 || 3 %in% which){
-    log_xlim = log10(sapply(xlim, max, 1))
+    log_xlim <- log10(sapply(xlim, max, 1))
     if(!is.null(s2)){
       pwelch(s2, fs = srate, window = window,
              noverlap = noverlap, plot = 1, col = col[2], cex = cex, ylim = plim,
