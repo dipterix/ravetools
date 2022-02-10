@@ -1,6 +1,7 @@
 ## usethis namespace: start
 #' @importFrom stats approx
 #' @importFrom Rcpp sourceCpp
+#' @import RcppParallel
 #' @useDynLib ravetools, .registration = TRUE
 ## usethis namespace: end
 NULL
@@ -50,6 +51,8 @@ tempfile2 <- function(
 
 }
 
+
+.missing_arg <- alist(x = )
 
 .matlab_palette <- c("#00008F", "#00009F", "#0000AF", "#0000BF", "#0000CF",
           "#0000DF", "#0000EF", "#0000FF", "#0010FF", "#0020FF",

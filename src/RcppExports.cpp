@@ -10,6 +10,52 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// baselineArray
+Rcpp::NumericVector baselineArray(const Rcpp::NumericVector& x, const Rcpp::NumericVector& bl, const Rcpp::IntegerVector dims, const Rcpp::IntegerVector bldims, const int tidx, const Rcpp::IntegerVector& per, const Rcpp::IntegerVector& rest, const int method);
+RcppExport SEXP _ravetools_baselineArray(SEXP xSEXP, SEXP blSEXP, SEXP dimsSEXP, SEXP bldimsSEXP, SEXP tidxSEXP, SEXP perSEXP, SEXP restSEXP, SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type bl(blSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector >::type dims(dimsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector >::type bldims(bldimsSEXP);
+    Rcpp::traits::input_parameter< const int >::type tidx(tidxSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type per(perSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type rest(restSEXP);
+    Rcpp::traits::input_parameter< const int >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(baselineArray(x, bl, dims, bldims, tidx, per, rest, method));
+    return rcpp_result_gen;
+END_RCPP
+}
+// collapser_cplx
+SEXP collapser_cplx(SEXP x, SEXP keep, const int method, const int average);
+RcppExport SEXP _ravetools_collapser_cplx(SEXP xSEXP, SEXP keepSEXP, SEXP methodSEXP, SEXP averageSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type keep(keepSEXP);
+    Rcpp::traits::input_parameter< const int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< const int >::type average(averageSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapser_cplx(x, keep, method, average));
+    return rcpp_result_gen;
+END_RCPP
+}
+// collapser_real
+SEXP collapser_real(SEXP x, SEXP keep, const int method, const int average);
+RcppExport SEXP _ravetools_collapser_real(SEXP xSEXP, SEXP keepSEXP, SEXP methodSEXP, SEXP averageSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type keep(keepSEXP);
+    Rcpp::traits::input_parameter< const int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< const int >::type average(averageSEXP);
+    rcpp_result_gen = Rcpp::wrap(collapser_real(x, keep, method, average));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fftw_r2c
 SEXP fftw_r2c(SEXP data, int HermConj, int fftwplanopt, SEXP ret, bool inplace);
 RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
@@ -78,13 +124,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// shiftArray
+SEXP shiftArray(const SEXP& x, const R_xlen_t& alongIdx, const R_xlen_t& unitIdx, const SEXP& shiftAmount);
+RcppExport SEXP _ravetools_shiftArray(SEXP xSEXP, SEXP alongIdxSEXP, SEXP unitIdxSEXP, SEXP shiftAmountSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const R_xlen_t& >::type alongIdx(alongIdxSEXP);
+    Rcpp::traits::input_parameter< const R_xlen_t& >::type unitIdx(unitIdxSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type shiftAmount(shiftAmountSEXP);
+    rcpp_result_gen = Rcpp::wrap(shiftArray(x, alongIdx, unitIdx, shiftAmount));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ravetools_baselineArray", (DL_FUNC) &_ravetools_baselineArray, 8},
+    {"_ravetools_collapser_cplx", (DL_FUNC) &_ravetools_collapser_cplx, 4},
+    {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
     {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 5},
     {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 4},
     {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
     {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
+    {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
     {NULL, NULL, 0}
 };
 

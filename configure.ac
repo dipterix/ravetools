@@ -15,6 +15,15 @@ CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
 AC_REQUIRE_CPP
 AC_PROG_CC
 
+RCPP_PKG_LIBS=`${R_HOME}/bin/Rscript -e "Rcpp:::LdFlags()"`
+RCPP_PARALLRL_LIBS=`${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()"`
+
+if test `uname` = "Darwin" ; then
+  darwin="yes"
+else
+  darwin="no"
+fi
+
 ## Check pkg-config
 AC_DEFUN([AC_PROG_PKGCONFIG], [AC_CHECK_PROG(PKGCONFIG,pkg-config,yes)])
 AC_PROG_PKGCONFIG
@@ -27,9 +36,10 @@ fi
 fftw3_cflags=`pkg-config --cflags fftw3`
 fftw3_libs=`pkg-config --libs fftw3`
 
+## --- Output ----------------------------------------------------------------
 ## Substitute and generate Makevars
 AC_SUBST([PKG_CFLAGS],["${fftw3_cflags} ${PKG_CFLAGS}"])
-AC_SUBST([PKG_LIBS],["${fftw3_libs} ${PKG_LIBS}"])
+AC_SUBST([PKG_LIBS],["${fftw3_libs} ${PKG_LIBS} ${RCPP_PKG_LIBS} ${RCPP_PARALLRL_LIBS}"])
 AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT
 

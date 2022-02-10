@@ -5,7 +5,7 @@ Version: 0.0.1
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
-    person(family = "Beauchamp lab", email = "beauchamplab@gmail.com", role = c("cph", "fnd")),
+    person(family = "Beauchamp lab", email = "beauchamplab@gmail.com", role = c("cph")),
     person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph"), comment = "R package fftwtools"),
     person(family = "Prerau Lab", role = "cph", comment = "Multitaper Spectrogram Code")
     )
@@ -33,11 +33,14 @@ Imports:
     Rcpp (>= 1.0.8),
     waveslim (>= 1.8.2),
     signal (>= 0.7.7),
-    digest (>= 0.6.29)
+    digest (>= 0.6.29),
+    RcppParallel (>= 5.1.5)
 LinkingTo: 
-    Rcpp
+    Rcpp,
+    RcppParallel
 Suggests: 
     fftwtools,
     pracma,
+    microbenchmark,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
