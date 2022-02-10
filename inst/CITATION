@@ -1,0 +1,28 @@
+citHeader("To cite ravetools in publications use, please cite the RAVE paper from Beauchamp's lab. If you use the multitaper function, please also cite the paper from Prerau's lab.")
+
+citEntry(entry = "Article",
+         title        = "{RAVE}: Comprehensive open-source software for reproducible analysis and visualization of intracranial EEG data",
+         author       = personList(as.person("John F. Magnotti"),
+                                   as.person("Zhengjia Wang"),
+                                   as.person("Michael S. Beauchamp")),
+         journal      = "NeuroImage",
+         year         = "2020",
+         volume       = "223",
+         pages        = "117341",
+         doi          = "10.1016/j.neuroimage.2020.117341",
+         textVersion  = "Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE: comprehensive open-source software for reproducible analysis and visualization of intracranial EEG data. NeuroImage, 223, p.117341."
+)
+
+citEntry(entry = "Article",
+         title        = "Sleep neurophysiological dynamics through the lens of multitaper spectral analysis",
+         author       = personList(as.person("Michael J. Prerau"),
+                                   as.person("Ritchie E Brown"),
+                                   as.person("Matt T. Bianchi"),
+                                   as.person("Jeffrey M. Ellenbogen"),
+                                   as.person("Patrick L. Purdon")),
+         journal      = "Physiology",
+         year         = "2016",
+         doi          = "10.1152/physiol.00062.2015",
+         textVersion  = "Prerau, Michael J, and Brown, Ritchie E, and Bianchi, Matt T, and Ellenbogen, Jeffrey M, and Purdon, Patrick L. Sleep Neurophysiological Dynamics Through the Lens of Multitaper Spectral Analysis. Physiology, December 7, 2016, 60-92."
+)
+

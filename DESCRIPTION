@@ -1,6 +1,6 @@
 Package: ravetools
 Type: Package
-Title: Signal Processing Toolbox for RAVE Project
+Title: Signal Processing Toolbox for Analyzing 'Electrophysiology' Data
 Version: 0.0.1
 Language: en-US
 Authors@R: c(
@@ -12,7 +12,12 @@ Authors@R: c(
 Description: Implemented fast and memory-efficient 'Notch'-filter, 
     'Welch-periodogram', and discrete wavelet transform algorithm for hours of 
     high-resolution signals; providing fundamental toolbox
-    for 'iEEG' preprocess pipelines.
+    for 'iEEG' preprocess pipelines. 
+    Documentation and examples about 'RAVE' project are provided at 
+    <https://openwetware.org/wiki/RAVE>, and the paper by John F. Magnotti, 
+    Zhengjia Wang, Michael S. Beauchamp (2020) 
+    <doi:10.1016/j.neuroimage.2020.117341>; see 'citation("ravetools")' for 
+    details.
 BugReports: https://github.com/dipterix/ravetools/issues
 URL: http://dipterix.org/ravetools/
 License: GPL-3

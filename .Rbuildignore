@@ -11,3 +11,4 @@ autom4te.cache/
 ^pkgdown$
 ^README\.Rmd$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$

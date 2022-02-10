@@ -69,6 +69,20 @@ mv_pwelch(x, margin, fs, nfft)
 
 \item{margin}{the margin in which \code{pwelch} should be applied to}
 }
+\value{
+A list with class \code{'ravetools-pwelch'} that contains the
+following items:
+\describe{
+\item{\code{freq}}{frequencies used to calculate the 'periodogram'}
+\item{\code{spec}}{resulting spectral power for each frequency}
+\item{\code{window}}{window function (in numerical vector) used}
+\item{\code{noverlap}}{number of overlapping time-points between two adjacent windows}
+\item{\code{nfft}}{number of basis functions}
+\item{\code{fs}}{sample rate}
+\item{\code{x_len}}{input signal length}
+\item{\code{method}}{a character string \code{'Welch'}}
+}
+}
 \description{
 \code{pwelch} is for single signal trace only; \code{mv_pwelch}
 is for multiple traces. Currently \code{mv_pwelch} is experimental and

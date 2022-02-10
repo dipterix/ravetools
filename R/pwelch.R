@@ -14,6 +14,18 @@
 #' @param x \code{'pwelch'} instance returned by \code{pwelch} function
 #' @param col,xlim,ylim,main,type,cex,cex.main,cex.sub,cex.lab,cex.axis,las,xlab,ylab parameters passed to \code{\link[graphics]{plot.default}}
 #' @param margin the margin in which \code{pwelch} should be applied to
+#' @return A list with class \code{'ravetools-pwelch'} that contains the
+#' following items:
+#' \describe{
+#' \item{\code{freq}}{frequencies used to calculate the 'periodogram'}
+#' \item{\code{spec}}{resulting spectral power for each frequency}
+#' \item{\code{window}}{window function (in numerical vector) used}
+#' \item{\code{noverlap}}{number of overlapping time-points between two adjacent windows}
+#' \item{\code{nfft}}{number of basis functions}
+#' \item{\code{fs}}{sample rate}
+#' \item{\code{x_len}}{input signal length}
+#' \item{\code{method}}{a character string \code{'Welch'}}
+#' }
 #' @examples
 #'
 #' x <- rnorm(1000)
