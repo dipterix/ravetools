@@ -13,6 +13,12 @@
     <loc>http://dipterix.org/ravetools/news/index.html</loc>
   </url>
   <url>
+    <loc>http://dipterix.org/ravetools/reference/baseline_array.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/collapse.html</loc>
+  </url>
+  <url>
     <loc>http://dipterix.org/ravetools/reference/decimate.html</loc>
   </url>
   <url>
@@ -35,6 +41,9 @@
   </url>
   <url>
     <loc>http://dipterix.org/ravetools/reference/pwelch.html</loc>
+  </url>
+  <url>
+    <loc>http://dipterix.org/ravetools/reference/shift_array.html</loc>
   </url>
   <url>
     <loc>http://dipterix.org/ravetools/reference/wavelet.html</loc>
