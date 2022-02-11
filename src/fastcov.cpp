@@ -5,64 +5,180 @@
 using namespace Rcpp;
 // using namespace RcppParallel;
 
+template <typename T1, typename T2>
 struct FastCov : public RcppParallel::Worker
 {
   const SEXP &x1;
-  Rcpp::NumericVector &x2;
-  Rcpp::IntegerVector &col1;
-  Rcpp::IntegerVector &col2;
-  Rcpp::NumericVector &cm1;
-  Rcpp::NumericVector &cm2;
-  const R_xlen_t &nrow;
-  const R_xlen_t y_nrow;
+  const SEXP &x2;
+  const SEXP &col1;
+  const SEXP &col2;
+  const SEXP &colMeans1;
+  const SEXP &colMeans2;
+  const R_xlen_t &ncol1;
+  const R_xlen_t &ncol2;
+  const R_xlen_t &nObs;
   const double &df;
-  double* y_ptr;
+  const SEXP &re;
+
+  T1* x1_ptr;
+  T2* x2_ptr;
+  R_xlen_t col1_len;
+  R_xlen_t col2_len;
+  bool col1Null;
+  bool col2Null;
 
   FastCov(
-    Rcpp::NumericVector &x1,
-    Rcpp::NumericVector &x2,
-    Rcpp::IntegerVector &col1,
-    Rcpp::IntegerVector &col2,
-    Rcpp::NumericVector &cm1,
-    Rcpp::NumericVector &cm2,
-    const R_xlen_t &nrow,
+    const SEXP &x1,
+    const SEXP &x2,
+    const SEXP &col1,
+    const SEXP &col2,
+    const SEXP &colMeans1,
+    const SEXP &colMeans2,
+    const R_xlen_t &ncol1,
+    const R_xlen_t &ncol2,
+    const R_xlen_t &nObs,
     const double &df,
-    // const R_xlen_t &y_nrow,
-    SEXP y
-  ): x1(x1), x2(x2), col1(col1), col2(col2), cm1(cm1), cm2(cm2),
-  nrow(nrow), y_nrow(col1.length()), df(df), y_ptr(REAL(y)){}
+    const SEXP &re
+  ): x1(x1), x2(x2), col1(col1), col2(col2),
+  colMeans1(colMeans1), colMeans2(colMeans2),
+  ncol1(ncol1), ncol2(ncol2), nObs(nObs), df(df),
+  re(re) {
+    this->x1_ptr = get_sexp_pointer<T1>(x1);
+    this->x2_ptr = get_sexp_pointer<T2>(x2);
+    this->col1_len = Rf_xlength(colMeans1);
+    this->col2_len = Rf_xlength(colMeans2);
+
+    if(col1 == R_NilValue){
+      this->col1Null = true;
+    } else {
+      this->col1Null = false;
+    }
+    if(col2 == R_NilValue){
+      this->col2Null = true;
+    } else {
+      this->col2Null = false;
+    }
+
+  }
 
   void operator()(std::size_t begin, std::size_t end) {
-    // begin -> end columns
-    R_xlen_t ii, jj, kk, c1, c2;
-    Rcpp::NumericVector::iterator pt1, pt2;
-    Rcpp::NumericVector::iterator pt_cm1, pt_cm2;
-    Rcpp::IntegerVector::iterator pt_col1, pt_col2;
-    double tmp;
-    double* y_ptr2;
 
-    pt_col1 = col2.begin() + begin;
-    pt_cm2 = cm2.begin() + begin;
-    y_ptr2 = y_ptr + begin * y_nrow;
-    for(jj = begin; jj < end; jj++, pt_cm2++){
-      c2 = *pt_col1++ - 1;
-      // y_ptr2 = y_ptr + jj * y_nrow;
-      pt_cm1 = cm1.begin();
-      pt_col2 = col1.begin();
-      for(ii = 0; ii < y_nrow; ii++){
-        c1 = (*pt_col2++) - 1;
-        pt1 = x1.begin() + c1 * nrow;
-        pt2 = x2.begin() + c2 * nrow;
-        // cov c1, c2 columns
-        tmp = 0;
-        for(kk = 0; kk < nrow; kk++, pt1++, pt2++){
-          tmp += (*pt1) * (*pt2);
+    T1* x1_ptr2;
+    T2* x2_ptr2;
+
+    int* col1_ptr;
+    int fake_col1 = 1;
+    if(this->col1Null){
+      col1_ptr = &(fake_col1);
+      *col1_ptr = 1;
+    } else {
+      col1_ptr = INTEGER(this->col1);
+    }
+
+    int* col2_ptr;
+    int fake_col2 = 1;
+    if(this->col2Null){
+      col2_ptr = &(fake_col2);
+      *col2_ptr = 1 + (int)(begin);
+      // Rcout << *col2_ptr << "\n";
+    } else {
+      col2_ptr = INTEGER(this->col2) + begin;
+    }
+
+    double* colMeans1_ptr = REAL(this->colMeans1);
+    double* colMeans2_ptr = REAL(this->colMeans2);
+    double* re_ptr = REAL(re);
+    R_xlen_t ii, jj, kk, col1Idx, col2Idx;
+
+    double tmp = 0.0, tmp2 = 0.0;
+    double* tmp_ptr = &tmp;
+    double* tmp2_ptr = &tmp2;
+
+    // --------- Main iteration --------
+    colMeans2_ptr = REAL(this->colMeans2) + (int)begin;
+    re_ptr = REAL(re) + begin * col1_len;
+
+    // Rcout << *colMeans2_ptr << "\n";
+
+    // if(col2Null){
+    //   *col2_ptr = (int)begin + 1;
+    // } else {
+    //   col2_ptr += begin;
+    // }
+
+    for(ii = begin; ii < end; ii++, colMeans2_ptr++){
+      col2Idx = (*col2_ptr) - 1;
+
+      // Rcout << fake_col2 << "\n";
+
+      if(R_finite(col2Idx) && col2Idx >= 0 && col2Idx < ncol2) {
+        colMeans1_ptr = REAL(colMeans1);
+        if(!col1Null){
+          col1_ptr = INTEGER(this->col1);
+        } else {
+          *col1_ptr = 1;
         }
-        tmp -= (*pt_cm2) * (*pt_cm1++) * nrow;
-        *y_ptr2++ = tmp / df;
+
+        for(jj = 0; jj < col1_len; jj++, colMeans1_ptr++){
+          col1Idx = (*col1_ptr) - 1;
+
+          if(R_finite(col1Idx) && col1Idx >= 0 && col1Idx < ncol1) {
+            x1_ptr2 = (T1*)(x1_ptr + col1Idx * nObs);
+            x2_ptr2 = (T2*)(x2_ptr + col2Idx * nObs);
+            // Rcout << "-------\n";
+
+            // cov c1, c2 columns
+            *tmp_ptr = 0;
+            for(kk = 0; kk < nObs; kk++, x1_ptr2++, x2_ptr2++){
+              // Rcout << *x1_ptr2 << " " << *x2_ptr2 << "\n";
+              // if(*x1_ptr2 == na1) {
+              //   *tmp_ptr = NA_REAL;
+              //   break;
+              // }
+              // if(*x2_ptr2 == na2) {
+              //   *tmp_ptr = NA_REAL;
+              //   break;
+              // }
+
+              // Rcout << *x1_ptr2 << " " << *x2_ptr2 << "\n";
+
+              *tmp2_ptr = (*x1_ptr2) * (*x2_ptr2);
+              // if( *tmp2_ptr == NA_REAL ){
+              //   *tmp_ptr = NA_REAL;
+              //   break;
+              // }
+              if( *tmp_ptr == NA_REAL ){
+                break;
+              }
+
+              // Rcout << "         + " << *tmp2_ptr << "\n";
+              *tmp_ptr += *tmp2_ptr;
+            }
+            // Rcout << "         = " << *tmp_ptr << "\n";
+            *re_ptr++ = (*tmp_ptr - *colMeans1_ptr * *colMeans2_ptr * nObs) / df;
+          } else {
+            *re_ptr++ = NA_REAL;
+          }
+
+          if(col1Null){
+            *col1_ptr += 1;
+          } else {
+            col1_ptr++;
+          }
+        }
+      } else {
+        for(jj = 0; jj < col1_len; jj++, re_ptr++){
+          *re_ptr = NA_REAL;
+        }
       }
 
+      if(col2Null){
+        *col2_ptr += 1;
+      } else {
+        col2_ptr++;
+      }
     }
+
   }
 
 };
@@ -153,118 +269,122 @@ SEXP fastcov_template(
   Rf_setAttrib(re, R_DimSymbol, reDim);
 
 
-  const T1* x1_ptr = get_sexp_pointer<T1>(x1);
-  const T2* x2_ptr = get_sexp_pointer<T2>(x2);
-  T1* x1_ptr2;
-  T2* x2_ptr2;
-
-  int* col1_ptr;
-  if(col1Null){
-    int fake_col1 = 1;
-    col1_ptr = &(fake_col1);
-    *col1_ptr = 1;
-  } else {
-    col1_ptr = INTEGER(col1_);
-  }
-
-  int* col2_ptr;
-  if(col2Null){
-    int fake_col2 = 1;
-    col2_ptr = &(fake_col2);
-    *col2_ptr = 1;
-  } else {
-    col2_ptr = INTEGER(col2_);
-  }
-
-  double* colMeans1_ptr = REAL(colMeans1);
-  double* colMeans2_ptr = REAL(colMeans2);
-  double* re_ptr = REAL(re);
-  R_xlen_t ii, jj, kk, col1Idx, col2Idx;
-
-  double tmp = 0.0, tmp2 = 0.0;
-  double* tmp_ptr = &tmp;
-  double* tmp2_ptr = &tmp2;
-
-  // --------- Main iteration --------
-  R_xlen_t begin = 0, end = col2_len;
-  colMeans2_ptr = REAL(colMeans2) + begin;
-  re_ptr = REAL(re) + begin * col1_len;
-
-  if(col2Null){
-    *col2_ptr = (int)begin + 1;
-  } else {
-    col2_ptr += begin;
-  }
-
-  for(ii = begin; ii < end; ii++, colMeans2_ptr++){
-    col2Idx = (*col2_ptr) - 1;
-
-    if(R_finite(col2Idx) && col2Idx >= 0 && col2Idx < ncol2) {
-      colMeans1_ptr = REAL(colMeans1);
-      if(!col1Null){
-        col1_ptr = INTEGER(col1_);
-      } else {
-        *col1_ptr = 1;
-      }
-
-      for(jj = 0; jj < col1_len; jj++, colMeans1_ptr++){
-        col1Idx = (*col1_ptr) - 1;
-
-        if(R_finite(col1Idx) && col1Idx >= 0 && col1Idx < ncol1) {
-          x1_ptr2 = (T1*)(x1_ptr + col1Idx * nObs);
-          x2_ptr2 = (T2*)(x2_ptr + col2Idx * nObs);
-          // Rcout << "-------\n";
+  FastCov<T1, T2> fcov(x1, x2, col1_, col2_, colMeans1, colMeans2, ncol1, ncol2, nObs, df, re);
+  RcppParallel::parallelFor(0, col2_len, fcov);
 
 
-          // cov c1, c2 columns
-          *tmp_ptr = 0;
-          for(kk = 0; kk < nObs; kk++, x1_ptr2++, x2_ptr2++){
-            // Rcout << *x1_ptr2 << " " << *x2_ptr2 << "\n";
-            // if(*x1_ptr2 == na1) {
-            //   *tmp_ptr = NA_REAL;
-            //   break;
-            // }
-            // if(*x2_ptr2 == na2) {
-            //   *tmp_ptr = NA_REAL;
-            //   break;
-            // }
-
-            *tmp2_ptr = (*x1_ptr2) * (*x2_ptr2);
-            // if( *tmp2_ptr == NA_REAL ){
-            //   *tmp_ptr = NA_REAL;
-            //   break;
-            // }
-            if( *tmp_ptr == NA_REAL ){
-              break;
-            }
-
-            // Rcout << "         + " << *tmp2_ptr << "\n";
-            *tmp_ptr += *tmp2_ptr;
-          }
-          // Rcout << "         = " << *tmp_ptr << "\n";
-          *re_ptr++ = (*tmp_ptr - *colMeans1_ptr * *colMeans2_ptr * nObs) / df;
-        } else {
-          *re_ptr++ = NA_REAL;
-        }
-
-        if(col1Null){
-          *col1_ptr += 1;
-        } else {
-          col1_ptr++;
-        }
-      }
-    } else {
-      for(jj = 0; jj < col1_len; jj++, re_ptr++){
-        *re_ptr = NA_REAL;
-      }
-    }
-
-    if(col2Null){
-      *col2_ptr += 1;
-    } else {
-      col2_ptr++;
-    }
-  }
+  // const T1* x1_ptr = get_sexp_pointer<T1>(x1);
+  // const T2* x2_ptr = get_sexp_pointer<T2>(x2);
+  // T1* x1_ptr2;
+  // T2* x2_ptr2;
+  //
+  // int* col1_ptr;
+  // if(col1Null){
+  //   int fake_col1 = 1;
+  //   col1_ptr = &(fake_col1);
+  //   *col1_ptr = 1;
+  // } else {
+  //   col1_ptr = INTEGER(col1_);
+  // }
+  //
+  // int* col2_ptr;
+  // if(col2Null){
+  //   int fake_col2 = 1;
+  //   col2_ptr = &(fake_col2);
+  //   *col2_ptr = 1;
+  // } else {
+  //   col2_ptr = INTEGER(col2_);
+  // }
+  //
+  // double* colMeans1_ptr = REAL(colMeans1);
+  // double* colMeans2_ptr = REAL(colMeans2);
+  // double* re_ptr = REAL(re);
+  // R_xlen_t ii, jj, kk, col1Idx, col2Idx;
+  //
+  // double tmp = 0.0, tmp2 = 0.0;
+  // double* tmp_ptr = &tmp;
+  // double* tmp2_ptr = &tmp2;
+  //
+  // // --------- Main iteration --------
+  // R_xlen_t begin = 0, end = col2_len;
+  // colMeans2_ptr = REAL(colMeans2) + begin;
+  // re_ptr = REAL(re) + begin * col1_len;
+  //
+  // if(col2Null){
+  //   *col2_ptr = (int)begin + 1;
+  // } else {
+  //   col2_ptr += begin;
+  // }
+  //
+  // for(ii = begin; ii < end; ii++, colMeans2_ptr++){
+  //   col2Idx = (*col2_ptr) - 1;
+  //
+  //   if(R_finite(col2Idx) && col2Idx >= 0 && col2Idx < ncol2) {
+  //     colMeans1_ptr = REAL(colMeans1);
+  //     if(!col1Null){
+  //       col1_ptr = INTEGER(col1_);
+  //     } else {
+  //       *col1_ptr = 1;
+  //     }
+  //
+  //     for(jj = 0; jj < col1_len; jj++, colMeans1_ptr++){
+  //       col1Idx = (*col1_ptr) - 1;
+  //
+  //       if(R_finite(col1Idx) && col1Idx >= 0 && col1Idx < ncol1) {
+  //         x1_ptr2 = (T1*)(x1_ptr + col1Idx * nObs);
+  //         x2_ptr2 = (T2*)(x2_ptr + col2Idx * nObs);
+  //         // Rcout << "-------\n";
+  //
+  //
+  //         // cov c1, c2 columns
+  //         *tmp_ptr = 0;
+  //         for(kk = 0; kk < nObs; kk++, x1_ptr2++, x2_ptr2++){
+  //           // Rcout << *x1_ptr2 << " " << *x2_ptr2 << "\n";
+  //           // if(*x1_ptr2 == na1) {
+  //           //   *tmp_ptr = NA_REAL;
+  //           //   break;
+  //           // }
+  //           // if(*x2_ptr2 == na2) {
+  //           //   *tmp_ptr = NA_REAL;
+  //           //   break;
+  //           // }
+  //
+  //           *tmp2_ptr = (*x1_ptr2) * (*x2_ptr2);
+  //           // if( *tmp2_ptr == NA_REAL ){
+  //           //   *tmp_ptr = NA_REAL;
+  //           //   break;
+  //           // }
+  //           if( *tmp_ptr == NA_REAL ){
+  //             break;
+  //           }
+  //
+  //           // Rcout << "         + " << *tmp2_ptr << "\n";
+  //           *tmp_ptr += *tmp2_ptr;
+  //         }
+  //         // Rcout << "         = " << *tmp_ptr << "\n";
+  //         *re_ptr++ = (*tmp_ptr - *colMeans1_ptr * *colMeans2_ptr * nObs) / df;
+  //       } else {
+  //         *re_ptr++ = NA_REAL;
+  //       }
+  //
+  //       if(col1Null){
+  //         *col1_ptr += 1;
+  //       } else {
+  //         col1_ptr++;
+  //       }
+  //     }
+  //   } else {
+  //     for(jj = 0; jj < col1_len; jj++, re_ptr++){
+  //       *re_ptr = NA_REAL;
+  //     }
+  //   }
+  //
+  //   if(col2Null){
+  //     *col2_ptr += 1;
+  //   } else {
+  //     col2_ptr++;
+  //   }
+  // }
 
 
 
@@ -385,21 +505,25 @@ SEXP fastcov(const SEXP &x1,
 }
 
 /*** R
+RcppParallel::setThreadOptions(numThreads = 1)
 a = matrix(1:10, nrow = 5)
 b = matrix(1:50, nrow = 5)
-fastcov(a, b, col1 = c(1,2,3), NULL)
+y <- fastcov(a, b, col1 = c(2,1), NULL)
 
-cov(a[,c(1,2,NA)], b)
+fastColMeans(a, c(2L,1L), NULL)
+
+z <- cov(a[,2:1], b)
+y - z
 
 fastcov(a, b, col1 = NULL, NULL)
 
 devtools::load_all()
 RcppParallel::setThreadOptions(numThreads = 8)
 
-x <- matrix(rnorm(100000), nrow = 100)
-y <- matrix(rnorm(100000), nrow = 100)
-col1 <- sample(100)
-col2 <- sample(100)
+x <- matrix(rnorm(100000), nrow = 1000)
+y <- matrix(rnorm(100000), nrow = 1000)
+col1 <- 1:100; sample(99)
+col2 <- 1:100; sample(99)
 
 a <- cov(x[,col1], y[,col2])
 b <- fastcov(x, y, col1 = col1, col2 = col2)
