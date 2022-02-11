@@ -5,7 +5,7 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,2); sum', {
   keep <- c(4, 2)
 
   aggregate <- sum
-  avg = 0L
+  avg <- 0L
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
   r2 <- ravetools::collapse(x, keep, avg, method)
@@ -58,7 +58,7 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,2); sum', {
   keep <- c(4, 2)
 
   aggregate <- sum
-  avg = 0L
+  avg <- 0L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -112,7 +112,7 @@ test_that('testing collapse with 100x100x30x10; keep=4; sum', {
   keep <- 4
 
   aggregate <- sum
-  avg = 0L
+  avg <- 0L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -166,7 +166,7 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); sum', {
   keep <- c(4,3,2,1)
 
   aggregate <- sum
-  avg = 0L
+  avg <- 0L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -220,7 +220,7 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); sum', {
   keep <- c(4,3,2,1)
 
   aggregate <- sum
-  avg = 0L
+  avg <- 0L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -276,7 +276,7 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,2); mean', {
   keep <- c(4, 2)
 
   aggregate <- mean
-  avg = 1L
+  avg <- 1L
   method <- "asis"
   r1 <- r1 <- apply(x, keep, aggregate)
   r2 <- ravetools::collapse(x, keep, avg, method)
@@ -329,7 +329,7 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,2); mean', {
   keep <- c(4, 2)
 
   aggregate <- mean
-  avg = 1L
+  avg <- 1L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -383,7 +383,7 @@ test_that('testing collapse with 100x100x30x10; keep=4; mean', {
   keep <- 4
 
   aggregate <- mean
-  avg = 1L
+  avg <- 1L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -437,7 +437,7 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); mean', {
   keep <- c(4,3,2,1)
 
   aggregate <- mean
-  avg = 1L
+  avg <- 1L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)
@@ -491,7 +491,7 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); mean', {
   keep <- c(4,3,2,1)
 
   aggregate <- mean
-  avg = 1L
+  avg <- 1L
 
   method <- "asis"
   r1 <- apply(x, keep, aggregate)

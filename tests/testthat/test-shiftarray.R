@@ -3,24 +3,24 @@ test_that("Shift array with different types", {
   x <- matrix(x0, nrow = 2, byrow = TRUE)
   z <- shift_array(x, 2, 1, c(1,2))
   y <- NA * x
-  y[1,1:4] = x[1,2:5]
-  y[2,1:3] = x[2,3:5]
+  y[1,1:4] <- x[1,2:5]
+  y[2,1:3] <- x[2,3:5]
   expect_identical(y, z)
 
   x0 <- as.double(1:10)
   x <- matrix(x0, nrow = 2, byrow = TRUE)
   z <- shift_array(x, 2, 1, c(-2,1))
   y <- NA * x
-  y[1,3:5] = x[1,1:3]
-  y[2,1:4] = x[2,2:5]
+  y[1,3:5] <- x[1,1:3]
+  y[2,1:4] <- x[2,2:5]
   expect_identical(y, z)
 
   x0 <- as.complex(1:10)
   x <- matrix(x0, nrow = 2, byrow = TRUE)
   z <- shift_array(x, 2, 1, c(-2,1))
   y <- NA * x
-  y[1,3:5] = x[1,1:3]
-  y[2,1:4] = x[2,2:5]
+  y[1,3:5] <- x[1,1:3]
+  y[2,1:4] <- x[2,2:5]
   expect_identical(y, z)
 
   x0 <- sample(c(TRUE, FALSE), 10, replace = TRUE)
@@ -28,8 +28,8 @@ test_that("Shift array with different types", {
   z <- shift_array(x, 2, 1, c(1,2))
   y <- x
   y[] <- NA
-  y[1,1:4] = x[1,2:5]
-  y[2,1:3] = x[2,3:5]
+  y[1,1:4] <- x[1,2:5]
+  y[2,1:3] <- x[2,3:5]
   expect_identical(y, z)
 
 })

@@ -1,6 +1,6 @@
 test_that("fast_cov", {
-  a = matrix(rnorm(1000), nrow = 100)
-  b = matrix(1:5000, nrow = 100)
+  a <- matrix(rnorm(1000), nrow = 100)
+  b <- matrix(1:5000, nrow = 100)
   eps <- .Machine$double.eps^0.5
 
   # default

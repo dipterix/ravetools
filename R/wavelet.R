@@ -571,7 +571,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
   ii <- 1
   filearray::fmap2(x = fft_waves, fun = function(input){
     # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
-    kernel = input[[1]] + 1i * input[[2]]
+    kernel <- input[[1]] + 1i * input[[2]]
     fftw_c2c(data = kernel * fft_data,
              inverse = 1L, ret = tmp, inplace = TRUE)
     tmp <- c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
