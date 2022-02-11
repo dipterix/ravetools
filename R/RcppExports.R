@@ -13,6 +13,14 @@ collapser_real <- function(x, keep, method = 1L, average = 0L) {
     .Call(`_ravetools_collapser_real`, x, keep, method, average)
 }
 
+fastColMeans <- function(x, col, xDim) {
+    .Call(`_ravetools_fastColMeans`, x, col, xDim)
+}
+
+fastcov <- function(x1, x2, col1 = NULL, col2 = NULL, df = -1.0) {
+    .Call(`_ravetools_fastcov`, x1, x2, col1, col2, df)
+}
+
 fftw_r2c <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL, inplace = FALSE) {
     .Call(`_ravetools_fftw_r2c`, data, HermConj, fftwplanopt, ret, inplace)
 }

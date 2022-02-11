@@ -56,6 +56,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fastColMeans
+SEXP fastColMeans(const SEXP& x, const SEXP& col, const SEXP& xDim);
+RcppExport SEXP _ravetools_fastColMeans(SEXP xSEXP, SEXP colSEXP, SEXP xDimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type col(colSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type xDim(xDimSEXP);
+    rcpp_result_gen = Rcpp::wrap(fastColMeans(x, col, xDim));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fastcov
+SEXP fastcov(const SEXP& x1, const SEXP& x2, const SEXP& col1, const SEXP& col2, const double& df);
+RcppExport SEXP _ravetools_fastcov(SEXP x1SEXP, SEXP x2SEXP, SEXP col1SEXP, SEXP col2SEXP, SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type x1(x1SEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type x2(x2SEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type col1(col1SEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type col2(col2SEXP);
+    Rcpp::traits::input_parameter< const double& >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(fastcov(x1, x2, col1, col2, df));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fftw_r2c
 SEXP fftw_r2c(SEXP data, int HermConj, int fftwplanopt, SEXP ret, bool inplace);
 RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
@@ -143,6 +171,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_baselineArray", (DL_FUNC) &_ravetools_baselineArray, 8},
     {"_ravetools_collapser_cplx", (DL_FUNC) &_ravetools_collapser_cplx, 4},
     {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
+    {"_ravetools_fastColMeans", (DL_FUNC) &_ravetools_fastColMeans, 3},
+    {"_ravetools_fastcov", (DL_FUNC) &_ravetools_fastcov, 5},
     {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 5},
     {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 4},
     {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
