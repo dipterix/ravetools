@@ -36,8 +36,8 @@ no \code{NA} handling).
 }
 \examples{
 
-# Get numbers of threads to 2 to comply to CRAN package policy
-RcppParallel::setThreadOptions(numThreads = 2)
+# Set ncores = 2 to comply to CRAN policy. Please don't run this line
+RcppParallel::setThreadOptions(numThreads = 2L)
 
 x <- matrix(rnorm(400), nrow = 100)
 
@@ -47,7 +47,7 @@ fast_cov(x)
 # Calculate covariance of subsets
 fast_cov(x, col_x = 1, col_y = 1:2)
 
-\dontrun{
+if(interactive()){
 
 # Speed comparison, better to use multiple cores (4, 8, or more)
 # to show the differences.

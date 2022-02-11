@@ -34,6 +34,12 @@ time points (column, the second dimension) for each signal. \code{unit_margin=1}
 because the shift amount is depend on the signal number.
 }
 \examples{
+
+# Set ncores = 2 to comply to CRAN policy. Please don't run this line
+RcppParallel::setThreadOptions(numThreads = 2L)
+
+
+
 x <- matrix(1:10, nrow = 2, byrow = TRUE)
 z <- shift_array(x, 2, 1, c(1,2))
 
@@ -54,7 +60,7 @@ z <- shift_array(x, 3, 1, shift_amount)
 
 if(interactive()){
 
-par(mfrow = c(3, 2))
+par(mfrow = c(3, 2), mai = c(0.8, 0.6, 0.4, 0.1))
 for( ii in 1:3 ){
   image(t(x[ii, ,]), ylab = 'Frequency', xlab = 'Time',
         main = paste('Trial', ii))

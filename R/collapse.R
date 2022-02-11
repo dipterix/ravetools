@@ -13,7 +13,9 @@
 #'
 #'
 #' @examples
-#' RcppParallel::setThreadOptions(numThreads = 2) # auto multicores
+#'
+#' # Set ncores = 2 to comply to CRAN policy. Please don't run this line
+#' RcppParallel::setThreadOptions(numThreads = 2L)
 #'
 #' # Example 1
 #' x = matrix(1:16, 4)
@@ -27,6 +29,10 @@
 #' result = collapse(x, keep = c(3,2))
 #' compare = apply(x, c(3,2), mean)
 #' sum(abs(result - compare)) # The same, yield 0 or very small number (1e-10)
+#'
+#'
+#' if(interactive()){
+#' RcppParallel::setThreadOptions(numThreads = -1)
 #'
 #' # Example 3 (performance)
 #'
@@ -48,6 +54,8 @@
 #'   times = 1L , check = function(v){
 #'     max(abs(range(do.call('-', v)))) < 1e-10
 #'   })
+#'
+#' }
 #'
 #' @export
 collapse <- function(x, keep, ...) {

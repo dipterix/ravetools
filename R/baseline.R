@@ -84,6 +84,9 @@
 #'
 #' @examples
 #'
+#' # Set ncores = 2 to comply to CRAN policy. Please don't run this line
+#' RcppParallel::setThreadOptions(numThreads = 2L)
+#'
 #'
 #' library(ravetools)
 #' set.seed(1)
@@ -113,25 +116,29 @@
 #'
 #' # Check speed for large dataset
 #' if(interactive()){
-#'   dims <- c(200,20,300,2)
-#'   x <- array(rnorm(prod(dims))^2, dims)
-#'   # Set baseline window to be arbitrary 10 timepoints
-#'   baseline_window <- seq_len(100)
-#'   f1 <- function(){
-#'     aperm(apply(x, c(1,2,4), function(y){
-#'       m <- mean(y[baseline_window])
-#'       (y/m - 1) * 100
-#'     }), c(2,3,1,4))
-#'   }
-#'   f2 <- function(){
-#'     # equivalent as bl = x[,,baseline_window, ]
-#'     #
-#'     baseline_array(x, along_dim = 3,
-#'                    baseline_indexpoints = baseline_window,
-#'                    unit_dims = c(1,2,4), method = 'percentage')
-#'   }
-#'   range(f1() - f2())
-#'   microbenchmark::microbenchmark(f1(), f2(), times = 10L)
+#'
+#' RcppParallel::setThreadOptions(numThreads = -1)
+#'
+#' dims <- c(200,20,300,2)
+#' x <- array(rnorm(prod(dims))^2, dims)
+#' # Set baseline window to be arbitrary 10 timepoints
+#' baseline_window <- seq_len(100)
+#' f1 <- function(){
+#'   aperm(apply(x, c(1,2,4), function(y){
+#'     m <- mean(y[baseline_window])
+#'     (y/m - 1) * 100
+#'   }), c(2,3,1,4))
+#' }
+#' f2 <- function(){
+#'   # equivalent as bl = x[,,baseline_window, ]
+#'   #
+#'   baseline_array(x, along_dim = 3,
+#'                  baseline_indexpoints = baseline_window,
+#'                  unit_dims = c(1,2,4), method = 'percentage')
+#' }
+#' range(f1() - f2())
+#' microbenchmark::microbenchmark(f1(), f2(), times = 10L)
+#'
 #' }
 #'
 #'
