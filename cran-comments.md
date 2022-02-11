@@ -29,3 +29,5 @@ Please fix and resubmit.
 
 Thanks, detailed value description has been added to the `pwelch` function.
 
+
+In addition, all examples and tests are using 2 cores to comply with the CRAN policy.
