@@ -49,9 +49,14 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.0.1" id="ravetools-001">ravetools 0.0.1<a class="anchor" aria-label="anchor" href="#ravetools-001"></a></h2>
+<div class="section level4">
+<h4 id="documentation-0-0-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-1"></a></h4>
 <ul><li>Added <code>README</code> file to demonstrate basic usage</li>
 <li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
-<li>Re-implemented <code>decimate</code> with <code>FIR</code> filters creating the same results as in <code>Matlab</code>
+</ul></div>
+<div class="section level4">
+<h4 id="signal-processing-functions-0-0-1">Signal processing functions<a class="anchor" aria-label="anchor" href="#signal-processing-functions-0-0-1"></a></h4>
+<ul><li>Re-implemented <code>decimate</code> with <code>FIR</code> filters creating the same results as in <code>Matlab</code>
 </li>
 <li>Added <code>detrend</code> function to</li>
 <li>Added <code>diagnose_channel</code> to visually inspect channel signals</li>
@@ -61,6 +66,15 @@
 <li>Added <code>pwelch</code> (<code>Welch</code> periodogram)</li>
 <li>Added <code>notch_filter</code> to remove line noise</li>
 </ul></div>
+<div class="section level4">
+<h4 id="high-performance-functions-0-0-1">High-performance functions<a class="anchor" aria-label="anchor" href="#high-performance-functions-0-0-1"></a></h4>
+<p>The following functions are implemented in <code>C++</code> parallel. They tend to be faster than normal base-R implementations, depending on the number of <code>CPU</code> cores used.</p>
+<ul><li>Added <code>collapse</code> to collapse arrays</li>
+<li>Added <code>shift_array</code> to shift array along certain indices</li>
+<li>Added <code>fast_cov</code> to calculate <code>pearson</code> covariance matrix in parallel</li>
+<li>Added <code>baseline_array</code> to calculate baseline arrays with multiple margins</li>
+</ul></div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
