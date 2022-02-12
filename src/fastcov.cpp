@@ -198,12 +198,12 @@ SEXP fastcov_template(
 
   SEXP re = R_NilValue;
 
-  int64_t nObs, nObs_, ncol1, ncol2;
+  R_xlen_t nObs, nObs_, ncol1, ncol2;
 
   SEXP x1Dim = PROTECT(Rf_getAttrib(x1, R_DimSymbol));
   if(TYPEOF(x1Dim) == REALSXP){
-    nObs = (int64_t)(REAL(x1Dim)[0]);
-    ncol1 = (int64_t)(REAL(x1Dim)[1]);
+    nObs = (R_xlen_t)(REAL(x1Dim)[0]);
+    ncol1 = (R_xlen_t)(REAL(x1Dim)[1]);
   } else {
     nObs = INTEGER(x1Dim)[0];
     ncol1 = INTEGER(x1Dim)[1];
@@ -212,8 +212,8 @@ SEXP fastcov_template(
 
   SEXP x2Dim = PROTECT(Rf_getAttrib(x2, R_DimSymbol));
   if(TYPEOF(x2Dim) == REALSXP){
-    nObs_ = (int64_t)(REAL(x2Dim)[0]);
-    ncol2 = (int64_t)(REAL(x2Dim)[1]);
+    nObs_ = (R_xlen_t)(REAL(x2Dim)[0]);
+    ncol2 = (R_xlen_t)(REAL(x2Dim)[1]);
   } else {
     nObs_ = INTEGER(x2Dim)[0];
     ncol2 = INTEGER(x2Dim)[1];
