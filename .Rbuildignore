@@ -12,3 +12,4 @@ autom4te.cache/
 ^README\.Rmd$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^CRAN-RELEASE$

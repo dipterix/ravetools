@@ -106,7 +106,7 @@ struct FastCov : public RcppParallel::Worker
     //   col2_ptr += begin;
     // }
 
-    for(ii = begin; ii < end; ii++, colMeans2_ptr++){
+    for(ii = (R_xlen_t)begin; ii < (R_xlen_t)end; ii++, colMeans2_ptr++){
       col2Idx = (*col2_ptr) - 1;
 
       // Rcout << fake_col2 << "\n";
@@ -230,10 +230,10 @@ SEXP fastcov_template(
     df = nObs - 1;
   }
 
-  bool col1Null = true;
+  // bool col1Null = true;
   SEXP col1_ = R_NilValue;
   if(col1 != R_NilValue){
-    col1Null = false;
+    // col1Null = false;
     if(TYPEOF(col1) == INTSXP){
       PROTECT(col1_ = col1);
     } else {
@@ -243,10 +243,10 @@ SEXP fastcov_template(
     PROTECT(col1_ = col1);
   }
 
-  bool col2Null = true;
+  // bool col2Null = true;
   SEXP col2_ = R_NilValue;
   if(col2 != R_NilValue){
-    col2Null = false;
+    // col2Null = false;
     if(TYPEOF(col2) == INTSXP){
       PROTECT(col2_ = col2);
     } else {
