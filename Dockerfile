@@ -39,12 +39,12 @@ RUN apt-get update -qq \
     sudo \
     wget \
     zlib1g-dev \
-  && install2.r --error --skipinstalled --deps TRUE \
-    signal Rcpp RcppParallel remotes digest waveslim filearray docopt \
+  && install2.r --error --skipinstalled --deps NA \
+    remotes docopt \
   # Get NCPUs
   && ncpus=$(Rscript --no-save -e "cat(parallel::detectCores())") \
   && echo "Installing Github version of ravetools with $ncpus CPUs" \
-  && Rscript --verbose --no-save -e "remotes::install_github('dipterix/ravetools', upgrade = FALSE, force = TRUE, Ncpus = $ncpus)"
+  && Rscript --verbose --no-save -e "remotes::install_github('dipterix/ravetools', upgrade = FALSE, dependencies = TRUE, force = TRUE, Ncpus = $ncpus)"
 
 # Local build only
 # docker build --tag ravetools:devel .

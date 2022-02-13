@@ -139,5 +139,5 @@ remotes::install_github('dipterix/ravetools')
 
 ## Installing with Docker
 
-Please check this [Dockerfile](#).
+Please check this [Dockerfile](https://github.com/dipterix/ravetools/blob/master/Dockerfile). It takes 24 minutes to compile everything from source with 2 CPUs, 1 GB RAM
 
