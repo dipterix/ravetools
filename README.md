@@ -28,22 +28,10 @@ simply run:
 install.packages("ravetools")
 ```
 
-If you want to participate in the development of `ravetools`. Please
-make sure you have [`FFTW3`](https://www.fftw.org/) installed. On
-Windows, install
-[`Rtools`](https://cran.r-project.org/bin/windows/Rtools/) and add it to
-system path; on MacOS, install
-[`HomeBrew`](https://docs.brew.sh/Installation) in your shell terminals,
-and run `brew install pkg-config fftw`; on Ubuntu-Linux, run bash
-command `sudo apt-get install libfftw3-dev`. Please search online about
-how to install `FFTW3` on other operating systems. Once `FFTW3` is
-installed, execute the following R command.
-
-``` r
-#!/usr/bin/env R
-# install.packages("remotes")
-remotes::install_github("dipterix/ravetools")
-```
+Installing the package from source requires installation of proper
+compilers and some `C` libraries; see [this
+document](https://github.com/dipterix/ravetools/blob/master/installation.md)
+for details.
 
 ## `iEEG` preprocess pipeline
 
@@ -72,7 +60,7 @@ signal <- sin( 120 * pi * time) +
 diagnose_channel(signal, srate = 2000)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="adhoc/README-figures/toy-data-1.png" width="100%" />
 
 ### 2. Apply `Notch` filters and inspect `Periodograms`
 
@@ -84,7 +72,7 @@ diagnose_channel(signal, signal2, srate = 2000,
                  name = c("Raw", "Filtered"))
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="adhoc/README-figures/notch-filter-1.png" width="100%" />
 
 ### 3. Frequency-time decomposition
 
@@ -121,7 +109,7 @@ image(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="adhoc/README-figures/wavelet-1.png" width="100%" />
 
 #### `Multi-taper`
 
@@ -152,4 +140,4 @@ image(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="adhoc/README-figures/multitaper-1.png" width="100%" />

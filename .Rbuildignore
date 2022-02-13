@@ -10,6 +10,8 @@ autom4te.cache/
 ^docs$
 ^pkgdown$
 ^README\.Rmd$
+^installation\.md$
+^Dockerfile$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^CRAN-RELEASE$
