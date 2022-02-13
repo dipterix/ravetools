@@ -60,7 +60,7 @@ signal <- sin( 120 * pi * time) +
 diagnose_channel(signal, srate = 2000)
 ```
 
-<img src="adhoc/README-figures/toy-data-1.png" width="100%" />
+![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true)
 
 ### 2. Apply `Notch` filters and inspect `Periodograms`
 
@@ -72,7 +72,7 @@ diagnose_channel(signal, signal2, srate = 2000,
                  name = c("Raw", "Filtered"))
 ```
 
-<img src="adhoc/README-figures/notch-filter-1.png" width="100%" />
+![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true)
 
 ### 3. Frequency-time decomposition
 
@@ -109,7 +109,7 @@ image(
 )
 ```
 
-<img src="adhoc/README-figures/wavelet-1.png" width="100%" />
+![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true)
 
 #### `Multi-taper`
 
@@ -140,4 +140,4 @@ image(
 )
 ```
 
-<img src="adhoc/README-figures/multitaper-1.png" width="100%" />
+![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true)
