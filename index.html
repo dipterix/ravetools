@@ -93,11 +93,7 @@
 <p>The package is available on <code>CRAN</code>. To install the compiled version, simply run:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ravetools"</span><span class="op">)</span></code></pre></div>
-<p>If you want to participate in the development of <code>ravetools</code>. Please make sure you have <a href="https://www.fftw.org/" class="external-link"><code>FFTW3</code></a> installed. On Windows, install <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link"><code>Rtools</code></a> and add it to system path; on MacOS, install <a href="https://docs.brew.sh/Installation" class="external-link"><code>HomeBrew</code></a> in your shell terminals, and run <code>brew install pkg-config fftw</code>; on Ubuntu-Linux, run bash command <code>sudo apt-get install libfftw3-dev</code>. Please search online about how to install <code>FFTW3</code> on other operating systems. Once <code>FFTW3</code> is installed, execute the following R command.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#!/usr/bin/env R</span>
-<span class="co"># install.packages("remotes")</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"dipterix/ravetools"</span><span class="op">)</span></code></pre></div>
+<p>Installing the package from source requires installation of proper compilers and some <code>C</code> libraries; see <a href="https://github.com/dipterix/ravetools/blob/master/installation.md" class="external-link">this document</a> for details.</p>
 </div>
 <div class="section level2">
 <h2 id="ieeg-preprocess-pipeline">
@@ -113,7 +109,7 @@
 <div class="section level3">
 <h3 id="1-generate-toy-examples">1. Generate toy examples:<a class="anchor" aria-label="anchor" href="#1-generate-toy-examples"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ravetools/">ravetools</a></span><span class="op">)</span>
 
 <span class="co"># Generate 20 second data at 2000 Hz</span>
@@ -125,19 +121,19 @@
   <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, srate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-2-1.png" width="100%"></p>
+<p><img src="adhoc/README-figures/toy-data-1.png" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="2-apply-notch-filters-and-inspect-periodograms">2. Apply <code>Notch</code> filters and inspect <code>Periodograms</code>
 <a class="anchor" aria-label="anchor" href="#2-apply-notch-filters-and-inspect-periodograms"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## ------- Notch filter --------</span>
 <span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, sample_rate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>
 
 <span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,
                  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-3-1.png" width="100%"></p>
+<p><img src="adhoc/README-figures/notch-filter-1.png" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="3-frequency-time-decomposition">3. Frequency-time decomposition<a class="anchor" aria-label="anchor" href="#3-frequency-time-decomposition"></a>
@@ -146,7 +142,7 @@
 <div class="section level4">
 <h4 id="using-wavelet">Using <code>Wavelet</code>:<a class="anchor" aria-label="anchor" href="#using-wavelet"></a>
 </h4>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## ---------- Wavelet -----------</span>
 <span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span>
   <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>, 
@@ -168,14 +164,14 @@
   sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>, 
   col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+<p><img src="adhoc/README-figures/wavelet-1.png" width="100%"></p>
 </div>
 <div class="section level4">
 <h4 id="multi-taper">
 <code>Multi-taper</code><a class="anchor" aria-label="anchor" href="#multi-taper"></a>
 </h4>
 <p>Alternatively you can use <code>Multi-tapers</code> to obtain amplitude data. The algorithm is modified from source code <a href="https://github.com/preraulab/multitaper_toolbox" class="external-link">here</a>. Please credit them as well if you adopt this approach.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## ---------- Multitaper -----------</span>
 <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/multitaper.html">multitaper</a></span><span class="op">(</span>
   data <span class="op">=</span> <span class="va">signal2</span>,
@@ -195,7 +191,7 @@
   col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>,
   main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
+<p><img src="adhoc/README-figures/multitaper-1.png" width="100%"></p>
 </div>
 </div>
 </div>
