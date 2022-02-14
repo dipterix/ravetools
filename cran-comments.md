@@ -30,4 +30,6 @@ Please fix and resubmit.
 Thanks, detailed value description has been added to the `pwelch` function.
 
 
-In addition, all examples and tests are using 2 cores to comply with the CRAN policy.
+In addition, 
+* All examples and tests are using 2 cores to comply with the CRAN policy.
+* A critical `C++` bug has been fixed on `Win-32` system.
