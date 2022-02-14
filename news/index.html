@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2</span>
       </span>
     </div>
 
@@ -48,15 +48,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.0.1" id="ravetools-001">ravetools 0.0.1<a class="anchor" aria-label="anchor" href="#ravetools-001"></a></h2>
+<h2 class="page-header" data-toc-text="0.0.2" id="ravetools-002">ravetools 0.0.2<a class="anchor" aria-label="anchor" href="#ravetools-002"></a></h2>
 <p>This is an initial version of <code>ravetools</code>. Although a bare minimal set of signal processing functions are provided, it is sufficient to perform preprocess pipelines on most <code>iEEG</code> signals. Some functions are added from the <code>dipsaus</code> package, with considerable performance improvement. The <code>C++</code> functions have been tested on all major platforms, with different architectures (<code>ARM</code>, <code>i386</code>, <code>x64</code>).</p>
 <div class="section level4">
-<h4 id="documentation-0-0-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-1"></a></h4>
+<h4 id="documentation-0-0-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-2"></a></h4>
 <ul><li>Added <code>README</code> file to demonstrate basic usage</li>
 <li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
 </ul></div>
 <div class="section level4">
-<h4 id="signal-processing-functions-0-0-1">Signal processing functions<a class="anchor" aria-label="anchor" href="#signal-processing-functions-0-0-1"></a></h4>
+<h4 id="signal-processing-functions-0-0-2">Signal processing functions<a class="anchor" aria-label="anchor" href="#signal-processing-functions-0-0-2"></a></h4>
 <ul><li>Re-implemented <code>decimate</code> with <code>FIR</code> filters creating the same results as in <code>Matlab</code>
 </li>
 <li>Added <code>detrend</code> function to</li>
@@ -68,7 +68,7 @@
 <li>Added <code>notch_filter</code> to remove line noise</li>
 </ul></div>
 <div class="section level4">
-<h4 id="high-performance-functions-0-0-1">High-performance functions<a class="anchor" aria-label="anchor" href="#high-performance-functions-0-0-1"></a></h4>
+<h4 id="high-performance-functions-0-0-2">High-performance functions<a class="anchor" aria-label="anchor" href="#high-performance-functions-0-0-2"></a></h4>
 <p>The following functions are implemented in <code>C++</code> parallel. They tend to be faster than normal base-R implementations, depending on the number of <code>CPU</code> cores used.</p>
 <ul><li>Added <code>collapse</code> to collapse arrays</li>
 <li>Added <code>shift_array</code> to shift array along certain indices</li>
