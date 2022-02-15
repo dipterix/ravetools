@@ -7,7 +7,9 @@ Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
     person(family = "Beauchamp lab", email = "beauchamplab@gmail.com", role = c("cph")),
     person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph"), comment = "R package fftwtools"),
-    person(family = "Prerau Lab", role = "cph", comment = "Multitaper Spectrogram Code")
+    person(family = "Prerau Lab", role = "cph", comment = "Multitaper Spectrogram Code"),
+    person(family = "RcppParallel Authors", role = "cph", comment = "TinyParallel Code comes from RcppParallel"),
+    person("Marcus", "Geelnard", role = "cph", comment = "TinyThread library")
     )
 Description: Implemented fast and memory-efficient 'Notch'-filter, 
     'Welch-periodogram', and discrete wavelet transform algorithm for hours of 

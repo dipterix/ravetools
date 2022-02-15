@@ -1,5 +1,5 @@
-#include "utils.h"
 #include "TinyParallel.h"
+#include "utils.h"
 
 using namespace Rcpp;
 

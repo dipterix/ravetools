@@ -504,10 +504,10 @@ SEXP fastcov(const SEXP &x1,
 }
 
 /*** R
-RcppParallel::setThreadOptions(numThreads = 1)
+setThreadOptions(numThreads = 2)
 a = matrix(1:10, nrow = 5)
 b = matrix(1:50, nrow = 5)
-y <- fastcov(a, b, col1 = c(2,1), NULL)
+y <- fast_cov(a, b, col_x = c(2,1), NULL)
 
 fastColMeans(a, c(2L,1L), NULL)
 

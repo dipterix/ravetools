@@ -26,12 +26,12 @@ public:
     : begin_(begin), end_(end)
    {
    }
-  
+
    // Access begin() and end()
    std::size_t begin() const { return begin_; }
    std::size_t end() const { return end_; }
    std::size_t size() const { return end_ - begin_ ; }
-   
+
 private:
    std::size_t begin_;
    std::size_t end_;
@@ -39,10 +39,10 @@ private:
 
 
 // Because tinythread allows us to pass only a plain C function
-// we need to pass our worker and range within a struct that we 
+// we need to pass our worker and range within a struct that we
 // can cast to/from void*
 struct Work {
-   Work(IndexRange range, Worker& worker) 
+   Work(IndexRange range, Worker& worker)
     :  range(range), worker(worker)
    {
    }
@@ -67,7 +67,7 @@ extern "C" inline void workerThread(void* data) {
 // Function to calculate the ranges for a given input
 std::vector<IndexRange> splitInputRange(const IndexRange& range,
                                         std::size_t grainSize) {
-  
+
    // determine max number of threads
    std::size_t threads = tthread::thread::hardware_concurrency();
    char* numThreads = ::getenv("RAVETOOLS_NUM_THREADS");
@@ -76,7 +76,9 @@ std::vector<IndexRange> splitInputRange(const IndexRange& range,
       if (parsedThreads > 0)
          threads = parsedThreads;
    }
-       
+   // printf("Number of threads: %ld\n", threads);
+   // std::cout << "Number of threads: " << threads << "\n";
+
    // compute grainSize (including enforcing requested minimum)
    std::size_t length = range.end() - range.begin();
    if (threads == 1)
@@ -85,7 +87,7 @@ std::vector<IndexRange> splitInputRange(const IndexRange& range,
       grainSize = std::max(length / threads, grainSize);
    else // imperfect division, divide by threads - 1
       grainSize = std::max(length / (threads-1), grainSize);
-  
+
    // allocate ranges
    std::vector<IndexRange> ranges;
    std::size_t begin = range.begin();
@@ -99,8 +101,8 @@ std::vector<IndexRange> splitInputRange(const IndexRange& range,
      ranges.push_back(IndexRange(begin, end));
      begin = end;
    }
-   
-   // return ranges  
+
+   // return ranges
    return ranges;
 }
 
@@ -108,20 +110,20 @@ std::vector<IndexRange> splitInputRange(const IndexRange& range,
 
 // Execute the Worker over the IndexRange in parallel
 inline void ttParallelFor(std::size_t begin,
-                          std::size_t end, 
+                          std::size_t end,
                           Worker& worker,
                           std::size_t grainSize = 1)
 {
    // split the work
    IndexRange inputRange(begin, end);
    std::vector<IndexRange> ranges = splitInputRange(inputRange, grainSize);
-   
+
    // create threads
    std::vector<tthread::thread*> threads;
    for (std::size_t i = 0; i<ranges.size(); ++i) {
       threads.push_back(new tthread::thread(workerThread, new Work(ranges[i], worker)));
    }
-   
+
    // join and delete them
    for (std::size_t i = 0; i<threads.size(); ++i) {
       threads[i]->join();
@@ -132,14 +134,14 @@ inline void ttParallelFor(std::size_t begin,
 // Execute the IWorker over the range in parallel then join results
 template <typename Reducer>
 inline void ttParallelReduce(std::size_t begin,
-                             std::size_t end, 
+                             std::size_t end,
                              Reducer& reducer,
                              std::size_t grainSize = 1)
 {
    // split the work
    IndexRange inputRange(begin, end);
    std::vector<IndexRange> ranges = splitInputRange(inputRange, grainSize);
-   
+
    // create threads (split for each thread and track the allocated workers)
    std::vector<tthread::thread*> threads;
    std::vector<Worker*> workers;
@@ -148,15 +150,15 @@ inline void ttParallelReduce(std::size_t begin,
       workers.push_back(pReducer);
       threads.push_back(new tthread::thread(workerThread, new Work(ranges[i], *pReducer)));
    }
-   
+
    // wait for each thread, join it's results, then delete the worker & thread
    for (std::size_t i = 0; i<threads.size(); ++i) {
       // wait for thread
       threads[i]->join();
-      
+
       // join the results
       reducer.join(static_cast<Reducer&>(*workers[i]));
-      
+
       // delete the worker (which we split above) and the thread
       delete workers[i];
       delete threads[i];
