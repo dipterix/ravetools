@@ -1,8 +1,7 @@
 #include "utils.h"
-// [[Rcpp::depends(RcppParallel)]]
-#include <RcppParallel.h>
+#include "TinyParallel.h"
 
-void get_index(std::vector<int64_t>::iterator ptr, int64_t ii, const RcppParallel::RVector<int>& dims){
+void get_index(std::vector<int64_t>::iterator ptr, int64_t ii, const TinyParallel::RVector<int>& dims){
   int64_t rem = 0;
   int64_t leap = 1;
   std::size_t jj;
@@ -50,7 +49,7 @@ int64_t get_ii(std::vector<int64_t> idx, Rcpp::IntegerVector dim){
   }
   return ii;
 }
-int64_t get_ii(RcppParallel::RVector<int64_t> idx, Rcpp::IntegerVector dim){
+int64_t get_ii(TinyParallel::RVector<int64_t> idx, Rcpp::IntegerVector dim){
 
   int64_t ii = 0;
   int64_t leap = 1;
@@ -64,7 +63,7 @@ int64_t get_ii(RcppParallel::RVector<int64_t> idx, Rcpp::IntegerVector dim){
   }
   return ii;
 }
-int64_t get_ii(std::vector<int64_t> idx, RcppParallel::RVector<int> dim){
+int64_t get_ii(std::vector<int64_t> idx, TinyParallel::RVector<int> dim){
   int64_t ii = 0;
   int64_t leap = 1;
 
@@ -122,21 +121,21 @@ double add_square(const double e1, const double e2){
 
 
 
-struct Baseliner : public RcppParallel::Worker
+struct Baseliner : public TinyParallel::Worker
 {
-  const RcppParallel::RVector<double> x;
-  const RcppParallel::RVector<int> dims;
-  RcppParallel::RVector<int> dat_vec_idx;
+  const TinyParallel::RVector<double> x;
+  const TinyParallel::RVector<int> dims;
+  TinyParallel::RVector<int> dat_vec_idx;
   const Rcpp::NumericVector bl;
-  const RcppParallel::RVector<int> bldims;
-  RcppParallel::RVector<int> bl_vec_idx;
-  const RcppParallel::RVector<int> per;
-  const RcppParallel::RVector<int> per_dim;
+  const TinyParallel::RVector<int> bldims;
+  TinyParallel::RVector<int> bl_vec_idx;
+  const TinyParallel::RVector<int> per;
+  const TinyParallel::RVector<int> per_dim;
   const int method;
   const int64_t blloop_len;
   const int64_t innerloop_len;
 
-  RcppParallel::RVector<double> y;
+  TinyParallel::RVector<double> y;
 
   Baseliner(
     const Rcpp::NumericVector x,

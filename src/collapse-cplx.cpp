@@ -1,13 +1,12 @@
 // #include <cstdlib>
 #include "utils.h"
-// [[Rcpp::depends(RcppParallel)]]
-#include <RcppParallel.h>
+#include "TinyParallel.h"
 
 using namespace Rcpp;
-// using namespace RcppParallel;
+// using namespace TinyParallel;
 
 
-struct CollapseComplex : public RcppParallel::Worker
+struct CollapseComplex : public TinyParallel::Worker
 {
   const SEXP x_;
   const SEXP dims_;

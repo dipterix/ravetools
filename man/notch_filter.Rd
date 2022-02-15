@@ -34,7 +34,7 @@ vector)
 Apply 'Notch' filter
 }
 \details{
-Mainly used to remove electric line noise caused
+Mainly used to remove electrical line frequencies
 at 60, 120, and 180 \code{Hz}.
 }
 \examples{

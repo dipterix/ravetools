@@ -1,12 +1,11 @@
 #include "fastColMeans.h"
-// [[Rcpp::depends(RcppParallel)]]
-#include <RcppParallel.h>
+#include "TinyParallel.h"
 
 using namespace Rcpp;
-// using namespace RcppParallel;
+// using namespace TinyParallel;
 
 template <typename T1, typename T2>
-struct FastCov : public RcppParallel::Worker
+struct FastCov : public TinyParallel::Worker
 {
   const SEXP &x1;
   const SEXP &x2;
@@ -270,7 +269,7 @@ SEXP fastcov_template(
 
 
   FastCov<T1, T2> fcov(x1, x2, col1_, col2_, colMeans1, colMeans2, ncol1, ncol2, nObs, df, re);
-  RcppParallel::parallelFor(0, col2_len, fcov);
+  TinyParallel::parallelFor(0, col2_len, fcov);
 
 
   // const T1* x1_ptr = get_sexp_pointer<T1>(x1);
@@ -505,10 +504,10 @@ SEXP fastcov(const SEXP &x1,
 }
 
 /*** R
-RcppParallel::setThreadOptions(numThreads = 1)
+ravetools_threads(n_threads = 2)
 a = matrix(1:10, nrow = 5)
 b = matrix(1:50, nrow = 5)
-y <- fastcov(a, b, col1 = c(2,1), NULL)
+y <- fast_cov(a, b, col_x = c(2,1), NULL)
 
 fastColMeans(a, c(2L,1L), NULL)
 
@@ -518,7 +517,7 @@ y - z
 fastcov(a, b, col1 = NULL, NULL)
 
 devtools::load_all()
-RcppParallel::setThreadOptions(numThreads = 8)
+RcppParallel::ravetools_threads(n_threads = 8)
 
 x <- matrix(rnorm(100000), nrow = 1000)
 y <- matrix(rnorm(100000), nrow = 1000)

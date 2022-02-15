@@ -39,7 +39,7 @@ Collapse array
 \examples{
 
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
-RcppParallel::setThreadOptions(numThreads = 2L)
+ravetools_threads(n_threads = 2L)
 
 # Example 1
 x = matrix(1:16, 4)
@@ -56,7 +56,7 @@ sum(abs(result - compare)) # The same, yield 0 or very small number (1e-10)
 
 
 if(interactive()){
-RcppParallel::setThreadOptions(numThreads = -1)
+ravetools_threads(n_threads = -1)
 
 # Example 3 (performance)
 

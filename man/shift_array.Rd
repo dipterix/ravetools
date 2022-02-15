@@ -36,7 +36,7 @@ because the shift amount is depend on the signal number.
 \examples{
 
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
-RcppParallel::setThreadOptions(numThreads = 2L)
+ravetools_threads(n_threads = 2L)
 
 
 

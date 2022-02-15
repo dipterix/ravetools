@@ -166,6 +166,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getDefaultNumThreads
+SEXP getDefaultNumThreads();
+RcppExport SEXP _ravetools_getDefaultNumThreads() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(getDefaultNumThreads());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_baselineArray", (DL_FUNC) &_ravetools_baselineArray, 8},
@@ -179,6 +189,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
+    {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},
     {NULL, NULL, 0}
 };
 

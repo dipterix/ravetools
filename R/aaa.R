@@ -1,7 +1,6 @@
 ## usethis namespace: start
 #' @importFrom stats approx
 #' @importFrom Rcpp sourceCpp
-#' @import RcppParallel
 #' @useDynLib ravetools, .registration = TRUE
 ## usethis namespace: end
 NULL
@@ -74,3 +73,48 @@ tempfile2 <- function(
 matlab_palette <- function(){
   .matlab_palette
 }
+
+#' @name parallel-options
+#' @title Set or get thread options
+#' @param n_threads number of threads to set
+#' @param stack_size Stack size (in bytes) to use for worker threads. The
+#' default used for \code{"auto"} is 2MB on 32-bit systems and 4MB on 64-bit
+#' systems.
+#' @return \code{detect_threads} returns an integer of default threads that
+#' is determined by the number of \code{CPU} cores; \code{ravetools_threads}
+#' returns nothing.
+#'
+#' @examples
+#'
+#' if(interactive()){
+#'   detect_threads()
+#'   ravetools_threads(n_threads = 2)
+#' }
+#'
+#' @export
+detect_threads <- function() {
+  getDefaultNumThreads()
+}
+
+#' @rdname parallel-options
+#' @export
+ravetools_threads <- function (n_threads = "auto", stack_size = "auto") {
+  if (identical(n_threads, "auto"))
+    n_threads <- -1L
+  else if (!is.numeric(n_threads))
+    stop("n_threads must be an integer")
+  else n_threads <- as.integer(n_threads)
+  if (identical(stack_size, "auto"))
+    stack_size <- 0L
+  else if (!is.numeric(stack_size))
+    stop("stack_size must be an integer")
+  else stack_size <- as.integer(stack_size)
+  if (n_threads == -1L)
+    Sys.unsetenv("RAVETOOLS_NUM_THREADS")
+  else Sys.setenv(RAVETOOLS_NUM_THREADS = n_threads)
+  if (stack_size == 0L)
+    Sys.unsetenv("RAVETOOLS_STACK_SIZE")
+  else Sys.setenv(RAVETOOLS_STACK_SIZE = stack_size)
+  invisible()
+}
+

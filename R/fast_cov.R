@@ -24,7 +24,7 @@
 #' @examples
 #'
 #' # Set ncores = 2 to comply to CRAN policy. Please don't run this line
-#' RcppParallel::setThreadOptions(numThreads = 2L)
+#' ravetools_threads(n_threads = 2L)
 #'
 #' x <- matrix(rnorm(400), nrow = 100)
 #'
@@ -39,7 +39,7 @@
 #' # Speed comparison, better to use multiple cores (4, 8, or more)
 #' # to show the differences.
 #'
-#' RcppParallel::setThreadOptions(numThreads = -1)
+#' ravetools_threads(n_threads = -1)
 #' x <- matrix(rnorm(100000), nrow = 1000)
 #' microbenchmark::microbenchmark(
 #'   fast_cov = {

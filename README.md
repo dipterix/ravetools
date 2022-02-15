@@ -15,7 +15,7 @@ status](https://www.r-pkg.org/badges/version/ravetools)](https://CRAN.R-project.
 The goal of `ravetools` is to provide memory-efficient signal processing
 toolbox for `intracranial-EEG` analyses. Highlighted features include:
 
--   [`Notch filter`](#) (remove electric line noise)
+-   [`Notch filter`](#) (remove electrical line frequencies)
 -   [`Welch Periodogram`](#) (averaged power over frequencies)
 -   [`Wavelet`](#) (frequency-time decomposition)
 
@@ -39,7 +39,7 @@ This is a basic example which shows you how to preprocess an `iEEG`
 signal. The goal here is to:
 
 -   Plot diagnostic graphs to inspect channels
--   Apply Notch filters to remove electric line noise
+-   Apply Notch filters to remove electrical line noise
 -   Frequency-time decomposition and show the power densities
 
 <small>\* Channel referencing is not included</small>

@@ -1,11 +1,9 @@
 # Rtools contains fftw3, use that version
 
 CXX_STD = CXX11
-PKG_CXXFLAGS=-DRCPP_PARALLEL_USE_TBB=1 \
-$(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "Rcpp:::CxxFlags()") \
-$(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "Rcpp:::LdFlags()")
+PKG_CXXFLAGS=-I../inst/include
 PKG_CPPFLAGS=
-PKG_LIBS= -lfftw3 -lm $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "RcppParallel::RcppParallelLibs()")
+PKG_LIBS= -lfftw3 -lm
 
 all: $(SHLIB)
 

@@ -4000,8 +4000,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-RCPP_PKG_LIBS=`${R_HOME}/bin/Rscript -e "Rcpp:::LdFlags()"`
-RCPP_PARALLRL_LIBS=`${R_HOME}/bin/Rscript -e "RcppParallel::RcppParallelLibs()"`
+# RCPP_PKG_LIBS=`${R_HOME}/bin/Rscript -e "Rcpp:::LdFlags()"`
 
 if test `uname` = "Darwin" ; then
   darwin="yes"
@@ -4062,11 +4061,13 @@ fi
 fftw3_cflags=`pkg-config --cflags fftw3`
 fftw3_libs=`pkg-config --libs fftw3`
 
+
 ## --- Output ----------------------------------------------------------------
 ## Substitute and generate Makevars
-PKG_CFLAGS="${fftw3_cflags} ${PKG_CFLAGS}"
+PKG_CFLAGS="${fftw3_cflags} ${PKG_CFLAGS} -I../inst/include"
 
-PKG_LIBS="${fftw3_libs} ${PKG_LIBS} ${RCPP_PKG_LIBS} ${RCPP_PARALLRL_LIBS}"
+#  ${RCPP_PKG_LIBS}
+PKG_LIBS="${fftw3_libs} ${PKG_LIBS}"
 
 ac_config_files="$ac_config_files src/Makevars"
 

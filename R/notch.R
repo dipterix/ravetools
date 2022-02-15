@@ -1,5 +1,5 @@
 #' Apply 'Notch' filter
-#' @details Mainly used to remove electric line noise caused
+#' @details Mainly used to remove electrical line frequencies
 #' at 60, 120, and 180 \code{Hz}.
 #' @param s numerical vector if \code{domain=1} (voltage
 #' signals), or complex vector if \code{domain=0}

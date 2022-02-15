@@ -114,7 +114,7 @@ these baseline methods are:
 \examples{
 
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
-RcppParallel::setThreadOptions(numThreads = 2L)
+ravetools_threads(n_threads = 2L)
 
 
 library(ravetools)
@@ -146,7 +146,7 @@ range(re2 - re1)
 # Check speed for large dataset
 if(interactive()){
 
-RcppParallel::setThreadOptions(numThreads = -1)
+ravetools_threads(n_threads = -1)
 
 dims <- c(200,20,300,2)
 x <- array(rnorm(prod(dims))^2, dims)
