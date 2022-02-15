@@ -7,9 +7,10 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/dipterix/ravetools/workflows/R-CMD-check/badge.svg)](https://github.com/dipterix/ravetools/actions)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ravetools)](https://CRAN.R-project.org/package=ravetools)
-[![R-CMD-check](https://github.com/dipterix/ravetools/workflows/R-CMD-check/badge.svg)](https://github.com/dipterix/ravetools/actions)
+[![r-universe](https://dipterix.r-universe.dev/badges/ravetools)](https://dipterix.r-universe.dev/)
 <!-- badges: end -->
 
 The goal of `ravetools` is to provide memory-efficient signal processing
@@ -60,7 +61,7 @@ signal <- sin( 120 * pi * time) +
 diagnose_channel(signal, srate = 2000)
 ```
 
-![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true)
+<img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true" width="100%">
 
 ### 2. Apply `Notch` filters and inspect `Periodograms`
 
@@ -72,7 +73,7 @@ diagnose_channel(signal, signal2, srate = 2000,
                  name = c("Raw", "Filtered"))
 ```
 
-![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true)
+<img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true" width="100%">
 
 ### 3. Frequency-time decomposition
 
@@ -109,7 +110,7 @@ image(
 )
 ```
 
-![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true)
+<img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true" width="100%">
 
 #### `Multi-taper`
 
@@ -140,4 +141,4 @@ image(
 )
 ```
 
-![](https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true)
+<img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true" width="100%">
