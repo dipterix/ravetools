@@ -258,7 +258,7 @@ SEXP shiftArray(const SEXP& x,
 
 
 /*** R
-RcppParallel::setThreadOptions(1)
+RcppParallel::ravetools_threads(1)
 x <- matrix(as.double(1:10), nrow = 2, byrow = TRUE)
 shift_array(x, 2, 1, c(1,2))
 

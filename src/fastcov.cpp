@@ -504,7 +504,7 @@ SEXP fastcov(const SEXP &x1,
 }
 
 /*** R
-setThreadOptions(numThreads = 2)
+ravetools_threads(n_threads = 2)
 a = matrix(1:10, nrow = 5)
 b = matrix(1:50, nrow = 5)
 y <- fast_cov(a, b, col_x = c(2,1), NULL)
@@ -517,7 +517,7 @@ y - z
 fastcov(a, b, col1 = NULL, NULL)
 
 devtools::load_all()
-RcppParallel::setThreadOptions(numThreads = 8)
+RcppParallel::ravetools_threads(n_threads = 8)
 
 x <- matrix(rnorm(100000), nrow = 1000)
 y <- matrix(rnorm(100000), nrow = 1000)
