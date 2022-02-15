@@ -1,12 +1,11 @@
 #include "utils.h"
-// [[Rcpp::depends(RcppParallel)]]
-#include <RcppParallel.h>
+#include "TinyParallel.h"
 
 using namespace Rcpp;
 
 
 template <typename T>
-struct ArrayShifter : public RcppParallel::Worker
+struct ArrayShifter : public TinyParallel::Worker
 {
   const SEXP& x;
   const SEXP& re;

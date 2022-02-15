@@ -1,7 +1,6 @@
 ## usethis namespace: start
 #' @importFrom stats approx
 #' @importFrom Rcpp sourceCpp
-#' @import RcppParallel
 #' @useDynLib ravetools, .registration = TRUE
 ## usethis namespace: end
 NULL
@@ -74,3 +73,29 @@ tempfile2 <- function(
 matlab_palette <- function(){
   .matlab_palette
 }
+
+#' @export
+defaultNumThreads <- function() {
+  getDefaultNumThreads()
+}
+
+#' @export
+setThreadOptions <- function (numThreads = "auto", stackSize = "auto") {
+  if (identical(numThreads, "auto"))
+    numThreads <- -1L
+  else if (!is.numeric(numThreads))
+    stop("numThreads must be an integer")
+  else numThreads <- as.integer(numThreads)
+  if (identical(stackSize, "auto"))
+    stackSize <- 0L
+  else if (!is.numeric(stackSize))
+    stop("stackSize must be an integer")
+  else stackSize <- as.integer(stackSize)
+  if (numThreads == -1L)
+    Sys.unsetenv("RAVETOOLS_NUM_THREADS")
+  else Sys.setenv(RAVETOOLS_NUM_THREADS = numThreads)
+  if (stackSize == 0L)
+    Sys.unsetenv("RAVETOOLS_STACK_SIZE")
+  else Sys.setenv(RAVETOOLS_STACK_SIZE = stackSize)
+}
+

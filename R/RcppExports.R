@@ -45,3 +45,7 @@ shiftArray <- function(x, alongIdx, unitIdx, shiftAmount) {
     .Call(`_ravetools_shiftArray`, x, alongIdx, unitIdx, shiftAmount)
 }
 
+getDefaultNumThreads <- function() {
+    .Call(`_ravetools_getDefaultNumThreads`)
+}
+

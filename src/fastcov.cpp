@@ -1,12 +1,11 @@
 #include "fastColMeans.h"
-// [[Rcpp::depends(RcppParallel)]]
-#include <RcppParallel.h>
+#include "TinyParallel.h"
 
 using namespace Rcpp;
-// using namespace RcppParallel;
+// using namespace TinyParallel;
 
 template <typename T1, typename T2>
-struct FastCov : public RcppParallel::Worker
+struct FastCov : public TinyParallel::Worker
 {
   const SEXP &x1;
   const SEXP &x2;
@@ -270,7 +269,7 @@ SEXP fastcov_template(
 
 
   FastCov<T1, T2> fcov(x1, x2, col1_, col2_, colMeans1, colMeans2, ncol1, ncol2, nObs, df, re);
-  RcppParallel::parallelFor(0, col2_len, fcov);
+  TinyParallel::parallelFor(0, col2_len, fcov);
 
 
   // const T1* x1_ptr = get_sexp_pointer<T1>(x1);
