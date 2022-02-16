@@ -41,7 +41,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
   <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, srate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></code></pre></div>
-<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true"></p>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="2-apply-notch-filters-and-inspect-periodograms">2. Apply <code>Notch</code> filters and inspect <code>Periodograms</code>
@@ -133,7 +133,7 @@
 
 <span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,
                  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true"></p>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="3-frequency-time-decomposition">3. Frequency-time decomposition<a class="anchor" aria-label="anchor" href="#3-frequency-time-decomposition"></a>
@@ -164,7 +164,7 @@
   sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>, 
   col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true"></p>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true" width="100%"></p>
 </div>
 <div class="section level4">
 <h4 id="multi-taper">
@@ -191,8 +191,32 @@
   col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>,
   main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true"></p>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true" width="100%"></p>
 </div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div class="section level4">
+<h4 id="to-cite-ravetools-in-publications-use-please-cite-the-rave-paper-from-beauchamps-lab">To cite ravetools in publications use, please cite the <code>RAVE</code> paper from <code>Beauchamp's lab</code>
+<a class="anchor" aria-label="anchor" href="#to-cite-ravetools-in-publications-use-please-cite-the-rave-paper-from-beauchamps-lab"></a>
+</h4>
+<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="op">:</span><span class="st"> </span>comprehensive</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  open<span class="op">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
+<p>The <code>multitaper</code> function uses the script derived from <code>Prerau's lab</code>. The <code>TinyParallel</code> script is derived from <code>RcppParallel</code> package with <code>TBB</code> features removed (only use <code>tinythreads</code>).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="op">:</span><span class="st"> </span>comprehensive</span>
+<span id="cb7-2"><a href="#cb7-2"></a>    open<span class="op">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>[<span class="dv">2</span>] Prerau, Michael J, and Brown, Ritchie E, and Bianchi, Matt T, and</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    Ellenbogen, Jeffrey M, and Purdon, Patrick L. Sleep Neurophysiological</span>
+<span id="cb7-6"><a href="#cb7-6"></a>    Dynamics Through the Lens of Multitaper Spectral Analysis. Physiology,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>    December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>[<span class="dv">3</span>] JJ Allaire, Romain Francois, Kevin Ushey, Gregory Vandenbrouck, Marcus</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    Geelnard and <span class="kw">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="op">:</span><span class="st"> </span>Parallel Programming Tools <span class="cf">for</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>    <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>    https<span class="op">:</span><span class="er">//</span>CRAN.R<span class="op">-</span>project.org<span class="op">/</span>package=RcppParallel</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -235,8 +259,9 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
-<li><a href="https://CRAN.R-project.org/package=ravetools" class="external-link"><img src="https://www.r-pkg.org/badges/version/ravetools" alt="CRAN status"></a></li>
 <li><a href="https://github.com/dipterix/ravetools/actions" class="external-link"><img src="https://github.com/dipterix/ravetools/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=ravetools" class="external-link"><img src="https://www.r-pkg.org/badges/version/ravetools" alt="CRAN status"></a></li>
+<li><a href="https://dipterix.r-universe.dev/" class="external-link"><img src="https://dipterix.r-universe.dev/badges/ravetools" alt="r-universe"></a></li>
 </ul>
 </div>
 
