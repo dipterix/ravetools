@@ -1,3 +1,11 @@
+# ravetools 0.0.3
+
+This version fixes a memory issue reported by `CRAN` check (`gcc-UBSAN`). 
+
+* There is a potential integer overflow where `NA_INTEGER` is subtracted by one before being converted to `R_xlen_t` type. This update fixes this issue
+* Removed `RcppParallel` and copied part of it into `inst/include` folder, with `TBB` removed under the `GPL-3` license framework.
+
+
 # ravetools 0.0.2
 
 This is an initial version of `ravetools`. Although a bare minimal set of signal processing functions are provided, it is sufficient to perform preprocess pipelines on most `iEEG` signals. Some functions are added from the `dipsaus` package, with considerable performance improvement. The `C++` functions have been tested on all major platforms, with different architectures (`ARM`, `i386`, `x64`).

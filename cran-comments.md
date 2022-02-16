@@ -1,35 +1,17 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 note
 
-* This is a new release.
 
 ### Notes, fixes
 
-```
-If there are references describing the methods in your package, please add these in the description field of your DESCRIPTION file in the form
-authors (year) <doi:...>
-authors (year) <arXiv:...>
-authors (year, ISBN:...)
-or if those are not available: <https:...>
-with no space after 'doi:', 'arXiv:', 'https:' and angle brackets for auto-linking.
-(If you want to add a title as well please put it in quotes: "Title")
-```
+* CRAN reports gcc-UBSAN errors
 
-Thanks, two citations have been added to the `inst/CITATION` file, and the major one has been added to `DESCRIPTION`.
+The error was because of two factors:
+1. The Intel TBB library used by `RcppParallel` package failed the check
+2. There was a bug in my code: `col2Idx = (*col2_ptr) - 1;` where `*col2_ptr` is an `int` type, this statement overflows when `*col2_ptr` is `NA_INTEGER`
 
+To solve these issues:
+1. I extracted non-TBB part from `RcppParallel` and put them into `inst/include` folder so the package is independent from `RcppParallel`. (The authorship and credit has been given properly in both `README` and `DESCRIPTION` files)
+2. The integer overflow has been resolved by checking `*col2_ptr` with conditions `R_finite(*col2_ptr) && *col2_ptr >= 1`, such that `NA_INTEGER` enters the `else` clause.
 
-```
-Please add \value to .Rd files regarding exported methods and explain the functions results in the documentation. Please write about the structure of the output (class) and also what the output means. (If a function does not return a value, please document that too, e.g. \value{No return value, called for side effects} or similar)
-Missing Rd-tags:
-     pwelch.Rd: \value
-
-Please fix and resubmit.
-```
-
-Thanks, detailed value description has been added to the `pwelch` function.
-
-
-In addition, 
-* All examples and tests are using 2 cores to comply with the CRAN policy.
-* A critical `C++` bug has been fixed on `Win-32` system.

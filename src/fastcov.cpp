@@ -106,11 +106,17 @@ struct FastCov : public TinyParallel::Worker
     // }
 
     for(ii = (R_xlen_t)begin; ii < (R_xlen_t)end; ii++, colMeans2_ptr++){
-      col2Idx = (*col2_ptr) - 1;
-
       // Rcout << fake_col2 << "\n";
 
-      if(R_finite(col2Idx) && col2Idx >= 0 && col2Idx < ncol2) {
+      // gcc-UBSAN check error:
+      // runtime error: signed integer overflow: -2147483648 - 1 cannot be represented in type 'int'
+
+      // Cannot do this here! *col2_ptr might be NA_INTEGER, which is
+      // -2147483648, minus one will cause undefined behavior!!!
+      // col2Idx = (*col2_ptr) - 1;
+
+      if(R_finite(*col2_ptr) && *col2_ptr >= 1 && *col2_ptr <= ncol2) {
+        col2Idx = (*col2_ptr) - 1;
         colMeans1_ptr = REAL(colMeans1);
         if(!col1Null){
           col1_ptr = INTEGER(this->col1);
@@ -119,9 +125,10 @@ struct FastCov : public TinyParallel::Worker
         }
 
         for(jj = 0; jj < col1_len; jj++, colMeans1_ptr++){
-          col1Idx = (*col1_ptr) - 1;
 
-          if(R_finite(col1Idx) && col1Idx >= 0 && col1Idx < ncol1) {
+          if(R_finite(*col1_ptr) && *col1_ptr > 0 && *col1_ptr <= ncol1) {
+            col1Idx = (*col1_ptr) - 1;
+
             x1_ptr2 = (T1*)(x1_ptr + col1Idx * nObs);
             x2_ptr2 = (T2*)(x2_ptr + col2Idx * nObs);
             // Rcout << "-------\n";
