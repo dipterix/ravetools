@@ -89,7 +89,7 @@ is smoother than `Wavelet`.
 ``` r
 ## ---------- Wavelet -----------
 coef <- morlet_wavelet(
-  signal2, freqs = seq(1, 100), 
+  signal2, freqs = seq(1, 100, by = 1), 
   srate = 2000, wave_num = c(2, 15))
 amplitude <- 10 * log10(Mod(coef[]))
 
@@ -101,7 +101,7 @@ par(mfrow = c(1,1))
 image(
   z = downsample_amp,
   x = downsample_time,
-  y = 1:100,
+  y = seq(1, 100, by = 1),
   xlab = "Time (s)",
   ylab = "Frequency (Hz)",
   main = "Amplitude (dB)",
@@ -126,7 +126,8 @@ res <- multitaper(
   fs = 2000,
   frequency_range = c(1, 100),
   time_bandwidth = 1.5,
-  window_params = c(2, 0.01)
+  window_params = c(2, 0.01),
+  nfft = 100
 )
 
 par(mfrow = c(1,1))

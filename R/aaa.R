@@ -36,8 +36,19 @@ rand_string <- function(length = 10){
   paste(sample(c(letters, LETTERS, 0:9), length, replace = TRUE), collapse = '')
 }
 
+
+tempdir2 <- function(check = TRUE) {
+  path <- getOption("ravetools.tempdir",
+            default = Sys.getenv("RAVETOOLS_TEMPDIR",
+                                 unset = tempdir(check = FALSE)))
+  if(check && !dir.exists(path)) {
+    dir.create(path, showWarnings = FALSE, recursive = TRUE)
+  }
+  path
+}
+
 tempfile2 <- function(
-  pattern = "ravetmp-", tmpdir = file.path(tempdir(check = TRUE), "ravetools"),
+  pattern = "ravetmp-", tmpdir = file.path(tempdir2(check = TRUE), "ravetools"),
   fileext = ""){
   if(!dir.exists(tmpdir)){
     dir.create(tmpdir, showWarnings = FALSE, recursive = TRUE)

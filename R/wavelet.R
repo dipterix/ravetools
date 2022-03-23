@@ -228,7 +228,7 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
   data_length <- as.integer(data_length)
   kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
   digest <- digest::digest(list(freqs, srate, wave_num, data_length))
-  root_dir <- file.path(tempdir(check = TRUE), "ravetools")
+  root_dir <- file.path(tempdir2(check = TRUE), "ravetools")
   if(!dir.exists(root_dir)){
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
@@ -391,7 +391,7 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length){
   data_length <- as.integer(data_length)
   kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
   digest <- digest::digest(list(freqs, srate, wave_num, data_length))
-  root_dir <- file.path(tempdir(check = TRUE), "ravetools")
+  root_dir <- file.path(tempdir2(check = TRUE), "ravetools")
   if(!dir.exists(root_dir)){
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
