@@ -41,7 +41,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3.1</span>
       </span>
     </div>
 
@@ -145,7 +145,7 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## ---------- Wavelet -----------</span>
 <span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span>
-  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>, 
+  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, 
   srate <span class="op">=</span> <span class="fl">2000</span>, wave_num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>
 <span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
 
@@ -157,7 +157,7 @@
 <span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span>
   z <span class="op">=</span> <span class="va">downsample_amp</span>,
   x <span class="op">=</span> <span class="va">downsample_time</span>,
-  y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span>,
+  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
   xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,
   ylab <span class="op">=</span> <span class="st">"Frequency (Hz)"</span>,
   main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>,
@@ -178,7 +178,8 @@
   fs <span class="op">=</span> <span class="fl">2000</span>,
   frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>,
   time_bandwidth <span class="op">=</span> <span class="fl">1.5</span>,
-  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.01</span><span class="op">)</span>
+  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.01</span><span class="op">)</span>,
+  nfft <span class="op">=</span> <span class="fl">100</span>
 <span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>

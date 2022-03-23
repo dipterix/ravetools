@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3.1</span>
       </span>
     </div>
 
@@ -48,7 +48,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.0.3" id="ravetools-003">ravetools 0.0.3<a class="anchor" aria-label="anchor" href="#ravetools-003"></a></h2>
+<h2 class="page-header" data-toc-text="0.0.3" id="ravetools-003">ravetools 0.0.3<small>2022-02-16</small><a class="anchor" aria-label="anchor" href="#ravetools-003"></a></h2>
 <p>This version fixes a memory issue reported by <code>CRAN</code> check (<code>gcc-UBSAN</code>).</p>
 <ul><li>There is a potential integer overflow where <code>NA_INTEGER</code> is subtracted by one before being converted to <code>R_xlen_t</code> type. This update fixes this issue</li>
 <li>Removed <code>RcppParallel</code> and copied part of it into <code>inst/include</code> folder, with <code>TBB</code> removed under the <code>GPL-3</code> license framework.</li>
