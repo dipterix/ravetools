@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
       </span>
     </div>
 
@@ -47,7 +47,6 @@
     </div>
 
 <div id="full-installation-from-source-guide-for-ravetools" class="section level1">
-
 <p>The package <code>ravetools</code> contains <code>C++</code> code that requires general compilers such as <code>gcc</code> or <code>clang</code> to compile. In addition, the signal processing code requires <a href="https://www.fftw.org/" class="external-link"><code>FFTW3</code> library</a>, which could be installed easily.</p>
 <p>This guide contains three parts. In the first part, we will install proper compilers on your machine. If you have already installed them, please skip and proceed to the second part, in which you will install the <code>FFTW3</code> library. The last part simply installs <code>ravetools</code>.</p>
 <div class="section level4">
@@ -72,8 +71,7 @@
 <ul><li><p>Open your Windows start menu, search <code>Rtools Bash</code>. If <code>Rtools</code> has been installed successfully, you will see an application with a purple icon and letter <code>M</code>. Open the application, you will see a terminal window.</p></li>
 <li><p>In the terminal, paste the following script and execute.</p></li>
 </ul><pre><code>pacman -S  mingw-w64-{i686,x86_64}-fftw</code></pre>
-<ul><li>You will be prompted with a question <code>Proceed with installation? (Y/n)</code>. Please enter <code>Y</code> to agree. The <code>FFTW3</code> library will be added to your system.</li>
-</ul></div>
+<ul><li>You will be prompted with a question <code>Proceed with installation? (Y/n)</code>. Please enter <code>Y</code> to agree. The <code>FFTW3</code> library will be added to your system.</li></ul></div>
 <div class="section level4">
 <h4 id="3-install-ravetools">3. Install <code>ravetools</code>
 <a class="anchor" aria-label="anchor" href="#3-install-ravetools"></a></h4>
@@ -97,17 +95,13 @@ Platform: aarch64-apple-darwin20 (64-bit)</code></pre>
 <pre><code><span class="va">R.version</span><span class="op">$</span><span class="va">platform</span>
 <span class="co">##&gt; [1] "aarch64-apple-darwin20"</span></code></pre>
 <p>Check the architecture keywords after <code>Platform</code>. If you see <code>aarch64</code>, then you have ARM CPU (such as M1 chip), and an ARM version of R installed. If you see <code>x86_64</code>, then you have an Intel version of R installed (even if you have ARM chips, your R is still Intel-based).</p>
-<blockquote>
-<p>If you have ARM CPU (like M1-chip), it is always (strongly) recommended that you install R with the same architecture, because your compilers need to be consistent in architectures. If you have Intel-based R installed, then you have to set up a whole compiler chain that is Intel-based. (This tutorial does not cover such advanced case)</p>
-</blockquote>
+<blockquote><p>If you have ARM CPU (like M1-chip), it is always (strongly) recommended that you install R with the same architecture, because your compilers need to be consistent in architectures. If you have Intel-based R installed, then you have to set up a whole compiler chain that is Intel-based. (This tutorial does not cover such advanced case)</p></blockquote>
 </div>
 <div class="section level4">
 <h4 id="2-install-command-line-tools">2. Install command-line tools<a class="anchor" aria-label="anchor" href="#2-install-command-line-tools"></a></h4>
 <ul><li><p>Open your <code>Terminal.app</code>. It can be easily found in <code>/Application</code> folder, or by pressing <code>command</code> key and the <code>space</code> key at the same time, type “terminal”.</p></li>
 <li><p>Run <code>xcode-select --install</code> in the terminal and hit <code>return/enter</code> key. You will be prompted with an “Agreement” window. Please accept and wait the installation process to finish.</p></li>
-</ul><blockquote>
-<p>If you see the message: <code>code-select: error: command line tools are already installed, use "Software Update" to install updates</code>, this means the command-line tools have been already installed on your machine in the past, and you are safe to proceed to the next step.</p>
-</blockquote>
+</ul><blockquote><p>If you see the message: <code>code-select: error: command line tools are already installed, use "Software Update" to install updates</code>, this means the command-line tools have been already installed on your machine in the past, and you are safe to proceed to the next step.</p></blockquote>
 </div>
 <div class="section level4">
 <h4 id="3-install-homebrew">3. Install <code>HomeBrew</code>
@@ -140,11 +134,9 @@ brew install pkg-config fftw</code></pre>
 <div class="section level2">
 <h2 id="installing-on-ubuntu">Installing on Ubuntu<a class="anchor" aria-label="anchor" href="#installing-on-ubuntu"></a></h2>
 <ul><li>The following command will install essential build tools, system package configuration tools, and <code>FFTW3</code>
-</li>
-</ul><pre><code>sudo apt-get install build-essential pkg-config libfftw3-dev</code></pre>
+</li></ul><pre><code>sudo apt-get install build-essential pkg-config libfftw3-dev</code></pre>
 <p>Please search their alternatives if you are using other Linux systems such as RedHat or CentOS.</p>
-<ul><li>After installation, type <code>R</code> in the terminal, hit return/enter key to open R environment, and run the following R commands.</li>
-</ul><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<ul><li>After installation, type <code>R</code> in the terminal, hit return/enter key to open R environment, and run the following R commands.</li></ul><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span>
 
 <span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></code></pre></div>
@@ -170,7 +162,7 @@ brew install pkg-config fftw</code></pre>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
