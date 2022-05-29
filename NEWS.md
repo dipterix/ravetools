@@ -1,3 +1,9 @@
+# ravetools 0.0.4
+
+Parallel processes might use different temporary directory paths. To improve the performance, it is recommended to set a shared temporary directory, hence this version
+
+* Allows temporary directories to be set via environment variable `RAVETOOLS_TEMPDIR` or option `ravetools.tempdir`. 
+
 # ravetools 0.0.3
 
 This version fixes a memory issue reported by `CRAN` check (`gcc-UBSAN`). 

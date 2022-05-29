@@ -1,7 +1,7 @@
 Package: ravetools
 Type: Package
 Title: Signal Processing Toolbox for Analyzing 'Electrophysiology' Data
-Version: 0.0.3.1
+Version: 0.0.4
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -25,7 +25,7 @@ URL: http://dipterix.org/ravetools/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Depends: R (>= 4.0.0)
 SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
 Imports:
