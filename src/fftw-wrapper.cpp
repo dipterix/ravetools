@@ -178,7 +178,7 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace =
     nprot++;
   }
 
-  cfft_c2r(&xlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+  cfft_c2r(&retlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
            REAL(ret));
 
   if(nprot > 0){
