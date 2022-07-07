@@ -34,13 +34,21 @@ void cfft_r2c(int* n, double* data,
   double* data_copy = NULL;
 
   int effort = fftw_efforts(fftwplanopt);
-  // if( effort == FFTW_ESTIMATE ){
-    p = fftw_plan_dft_r2c_1d(*n, data, res, FFTW_DESTROY_INPUT | effort);
-  /* } else {
+  if( effort == FFTW_ESTIMATE ){
+    // FFTW_ESTIMATE specifies that, instead of actual measurements of different
+    // algorithms, a simple heuristic is used to pick a (probably sub-optimal)
+    // plan quickly. With this flag, the input/output arrays are not overwritten
+    // during planning.
+    p = fftw_plan_dft_r2c_1d(*n, data, res, effort);
+  } else {
+    // In my understanding, data is likely to be destroyed when making FFT plans
+    // unless the plan is FFTW_ESTIMATE. (Also depends on the OS: e.g. OSX
+    // with M1 seems fine sometimes, but Ubuntu always destroys)
+    // The desired way is to plan the FFT and then assign the data
     data_copy = (double*) malloc(*n * sizeof(double));
     p = fftw_plan_dft_r2c_1d(*n, data_copy, res, FFTW_DESTROY_INPUT | effort);
     memcpy(data_copy, data, *n * sizeof(double));
-  }*/
+  }
 
   fftw_execute(p);
   fftw_complex* resptr1;

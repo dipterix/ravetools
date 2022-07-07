@@ -38,11 +38,10 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1,
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  // } else if(!inplace && fftwplanopt <= 0) {
-  } else if(!inplace) {
+  } else if(!inplace && fftwplanopt <= 0) {
     // avoid inplace calculation, which might destroy the input data
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
   }
 
   cfft_r2c(&xlen, REAL(data), reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]), &HermConj,
