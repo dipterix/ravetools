@@ -49,3 +49,7 @@ getDefaultNumThreads <- function() {
     .Call(`_ravetools_getDefaultNumThreads`)
 }
 
+# Register entry points for exported C++ functions
+methods::setLoadAction(function(ns) {
+    .Call('_ravetools_RcppExport_registerCCallable', PACKAGE = 'ravetools')
+})

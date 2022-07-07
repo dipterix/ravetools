@@ -3,6 +3,8 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// [[Rcpp::interfaces(r, cpp)]]
+
 // [[Rcpp::export]]
 SEXP fftw_r2c(SEXP data, int HermConj = 1,
               int fftwplanopt = 0,

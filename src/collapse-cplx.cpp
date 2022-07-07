@@ -5,6 +5,7 @@
 using namespace Rcpp;
 // using namespace TinyParallel;
 
+// [[Rcpp::interfaces(r, cpp)]]
 
 struct CollapseComplex : public TinyParallel::Worker
 {

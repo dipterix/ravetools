@@ -4,6 +4,8 @@
 using namespace Rcpp;
 // using namespace TinyParallel;
 
+// [[Rcpp::interfaces(r, cpp)]]
+
 template <typename T1, typename T2>
 struct FastCov : public TinyParallel::Worker
 {

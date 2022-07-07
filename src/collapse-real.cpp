@@ -4,6 +4,8 @@
 using namespace Rcpp;
 // using namespace TinyParallel;
 
+// [[Rcpp::interfaces(r, cpp)]]
+
 struct CollapseDouble : public TinyParallel::Worker
 {
   const SEXP x_;

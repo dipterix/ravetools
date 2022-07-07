@@ -1,6 +1,7 @@
 #include "fastColMeans.h"
 
 using namespace Rcpp;
+// [[Rcpp::interfaces(r, cpp)]]
 
 template <typename T>
 SEXP fastColMeans_template(const SEXP& x, const SEXP& col, const SEXP& xDim){
