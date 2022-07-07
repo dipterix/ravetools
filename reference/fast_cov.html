@@ -19,7 +19,7 @@ no NA handling)."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4.9000</span>
       </span>
     </div>
 
@@ -57,7 +57,7 @@ no <code>NA</code> handling).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, y <span class="op">=</span> <span class="cn">NULL</span>, col_x <span class="op">=</span> <span class="cn">NULL</span>, col_y <span class="op">=</span> <span class="cn">NULL</span>, df <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, y <span class="op">=</span> <span class="cn">NULL</span>, col_x <span class="op">=</span> <span class="cn">NULL</span>, col_y <span class="op">=</span> <span class="cn">NULL</span>, df <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -65,69 +65,80 @@ no <code>NA</code> handling).</p>
     <dl><dt>x</dt>
 <dd><p>a numeric vector, matrix or data frame; a matrix is highly
 recommended to maximize the performance</p></dd>
+
+
 <dt>y</dt>
 <dd><p>NULL (default) or a vector, matrix or data frame with compatible
 dimensions to x; the default is equivalent to <code>y = x</code></p></dd>
+
+
 <dt>col_x</dt>
 <dd><p>integers indicating the subset indices (columns) of <code>x</code> to
 calculate the covariance, or <code>NULL</code> to include all the columns; default
 is <code>NULL</code></p></dd>
+
+
 <dt>col_y</dt>
 <dd><p>integers indicating the subset indices (columns) of <code>y</code> to
 calculate the covariance, or <code>NULL</code> to include all the columns; default
 is <code>NULL</code></p></dd>
+
+
 <dt>df</dt>
 <dd><p>a scalar indicating the degrees of freedom; default is
 <code>nrow(x)-1</code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A covariance matrix of <code>x</code> and <code>y</code>. Note that there is no
+    
+
+<p>A covariance matrix of <code>x</code> and <code>y</code>. Note that there is no
 <code>NA</code> handling. Any missing values will lead to <code>NA</code> in the
 resulting covariance matrices.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># Set ncores = 2 to comply to CRAN policy. Please don't run this line</span></span>
-<span class="r-in"><span class="fu"><a href="parallel-options.html">ravetools_threads</a></span><span class="op">(</span>n_threads <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">400</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Call `cov(x)` to compare</span></span>
-<span class="r-in"><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set ncores = 2 to comply to CRAN policy. Please don't run this line</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="parallel-options.html">ravetools_threads</a></span><span class="op">(</span>n_threads <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">400</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Call `cov(x)` to compare</span></span></span>
+<span class="r-in"><span><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              [,1]         [,2]         [,3]        [,4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.827675389 -0.004035968  0.029839461 -0.06705750</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.004035968  1.112077554 -0.008117246  0.04388783</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.029839461 -0.008117246  0.930292815 -0.03409748</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.067057501  0.043887835 -0.034097482  1.15494032</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Calculate covariance of subsets</span></span>
-<span class="r-in"><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, col_x <span class="op">=</span> <span class="fl">1</span>, col_y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Calculate covariance of subsets</span></span></span>
+<span class="r-in"><span><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, col_x <span class="op">=</span> <span class="fl">1</span>, col_y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]         [,2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.8276754 -0.004035968</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Speed comparison, better to use multiple cores (4, 8, or more)</span></span>
-<span class="r-in"><span class="co"># to show the differences.</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="parallel-options.html">ravetools_threads</a></span><span class="op">(</span>n_threads <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100000</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span></span>
-<span class="r-in">  fast_cov <span class="op">=</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, col_x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, col_y <span class="op">=</span> <span class="fl">51</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span>,</span>
-<span class="r-in">  cov <span class="op">=</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cov</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">]</span>, <span class="va">x</span><span class="op">[</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span>,</span>
-<span class="r-in">  unit <span class="op">=</span> <span class="st">'ms'</span>, times <span class="op">=</span> <span class="fl">10</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Speed comparison, better to use multiple cores (4, 8, or more)</span></span></span>
+<span class="r-in"><span><span class="co"># to show the differences.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="parallel-options.html">ravetools_threads</a></span><span class="op">(</span>n_threads <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100000</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  fast_cov <span class="op">=</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, col_x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, col_y <span class="op">=</span> <span class="fl">51</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span>,</span></span>
+<span class="r-in"><span>  cov <span class="op">=</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cov</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">50</span><span class="op">]</span>, <span class="va">x</span><span class="op">[</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span>,</span></span>
+<span class="r-in"><span>  unit <span class="op">=</span> <span class="st">'ms'</span>, times <span class="op">=</span> <span class="fl">10</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -142,7 +153,7 @@ resulting covariance matrices.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

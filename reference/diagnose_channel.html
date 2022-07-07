@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4.9000</span>
       </span>
     </div>
 
@@ -55,101 +55,136 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">diagnose_channel</span><span class="op">(</span>
-  <span class="va">s1</span>,
-  s2 <span class="op">=</span> <span class="cn">NULL</span>,
-  sc <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">srate</span>,
-  name <span class="op">=</span> <span class="st">""</span>,
-  try_compress <span class="op">=</span> <span class="cn">TRUE</span>,
-  max_freq <span class="op">=</span> <span class="fl">300</span>,
-  window <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">srate</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span>,
-  noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>,
-  std <span class="op">=</span> <span class="fl">3</span>,
-  cex <span class="op">=</span> <span class="fl">1.5</span>,
-  lwd <span class="op">=</span> <span class="fl">0.5</span>,
-  plim <span class="op">=</span> <span class="cn">NULL</span>,
-  nclass <span class="op">=</span> <span class="fl">100</span>,
-  main <span class="op">=</span> <span class="st">"Channel Inspection"</span>,
-  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>,
-  which <span class="op">=</span> <span class="cn">NULL</span>,
-  start_time <span class="op">=</span> <span class="fl">0</span>,
-  boundary <span class="op">=</span> <span class="cn">NULL</span>,
-  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.2</span>, <span class="fl">5.1</span>, <span class="fl">4.1</span>, <span class="fl">2.1</span><span class="op">)</span>,
-  mai <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.54</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">diagnose_channel</span><span class="op">(</span></span>
+<span>  <span class="va">s1</span>,</span>
+<span>  s2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">srate</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  try_compress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  max_freq <span class="op">=</span> <span class="fl">300</span>,</span>
+<span>  window <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">srate</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>,</span>
+<span>  std <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  lwd <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  plim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nclass <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Channel Inspection"</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>,</span>
+<span>  which <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  start_time <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  boundary <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.2</span>, <span class="fl">5.1</span>, <span class="fl">4.1</span>, <span class="fl">2.1</span><span class="op">)</span>,</span>
+<span>  mai <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.54</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>s1</dt>
 <dd><p>the main signal to draw</p></dd>
+
+
 <dt>s2</dt>
 <dd><p>the comparing signal to draw; usually <code>s1</code> after some filters;
 must be in the same sampling rate with <code>s1</code>; can be <code>NULL</code></p></dd>
+
+
 <dt>sc</dt>
 <dd><p>decimated <code>s1</code> to show if <code>srate</code> is too high; will
 be automatically generated if <code>NULL</code></p></dd>
+
+
 <dt>srate</dt>
 <dd><p>sampling rate</p></dd>
+
+
 <dt>name</dt>
 <dd><p>name of <code>s1</code>, or a vector of two names of <code>s1</code> and
 <code>s2</code> if <code>s2</code> is provided</p></dd>
+
+
 <dt>try_compress</dt>
 <dd><p>whether try to compress (decimate) <code>s1</code> if
 <code>srate</code> is too high for performance concerns</p></dd>
+
+
 <dt>max_freq</dt>
 <dd><p>the maximum frequency to display in 'Welch Periodograms'</p></dd>
+
+
 <dt>window, noverlap</dt>
 <dd><p>see <code><a href="pwelch.html">pwelch</a></code></p></dd>
+
+
 <dt>std</dt>
 <dd><p>the standard deviation of the channel signals used to determine
 <code>boundary</code>; default is plus-minus 3 standard deviation</p></dd>
+
+
 <dt>cex, lwd, mar, mai, ...</dt>
 <dd><p>graphical parameters; see <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></code></p></dd>
+
+
 <dt>plim</dt>
 <dd><p>the y-axis limit to draw in 'Welch Periodograms'</p></dd>
+
+
 <dt>nclass</dt>
 <dd><p>number of classes to show in histogram
 (<code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></code>)</p></dd>
+
+
 <dt>main</dt>
 <dd><p>the title of the signal plot</p></dd>
+
+
 <dt>col</dt>
 <dd><p>colors of <code>s1</code> and <code>s2</code></p></dd>
+
+
 <dt>which</dt>
 <dd><p><code>NULL</code> or integer from 1 to 4; if <code>NULL</code>, all plots
 will be displayed; otherwise only the subplot will be displayed</p></dd>
+
+
 <dt>start_time</dt>
 <dd><p>the starting time of channel (will only be used to draw
 signals)</p></dd>
+
+
 <dt>boundary</dt>
 <dd><p>a red boundary to show in channel plot; default is
 to be automatically determined by <code>std</code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list of boundary and y-axis limit used to draw the channel</p>
+    
+
+<p>A list of boundary and y-axis limit used to draw the channel</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ravetools/">ravetools</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Generate 20 second data at 2000 Hz</span></span>
-<span class="r-in"><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2000</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span></span>
-<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, <span class="fl">2000</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">diagnose_channel</span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span class="r-in">                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ravetools/">ravetools</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Generate 20 second data at 2000 Hz</span></span></span>
+<span class="r-in"><span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, <span class="fl">2000</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">diagnose_channel</span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,</span></span>
+<span class="r-in"><span>                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="diagnose_channel-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -164,7 +199,7 @@ to be automatically determined by <code>std</code></p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

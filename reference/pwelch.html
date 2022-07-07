@@ -19,7 +19,7 @@ should not be called directly."><!-- mathjax --><script src="https://cdnjs.cloud
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4.9000</span>
       </span>
     </div>
 
@@ -57,76 +57,99 @@ should not be called directly.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">pwelch</span><span class="op">(</span>
-  <span class="va">x</span>,
-  <span class="va">fs</span>,
-  window <span class="op">=</span> <span class="fl">64</span>,
-  noverlap <span class="op">=</span> <span class="fl">8</span>,
-  nfft <span class="op">=</span> <span class="fl">256</span>,
-  col <span class="op">=</span> <span class="st">"black"</span>,
-  xlim <span class="op">=</span> <span class="cn">NULL</span>,
-  ylim <span class="op">=</span> <span class="cn">NULL</span>,
-  main <span class="op">=</span> <span class="st">"Welch periodogram"</span>,
-  plot <span class="op">=</span> <span class="fl">0</span>,
-  log <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"xy"</span>, <span class="st">""</span>, <span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for pwelch</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for pwelch</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">x</span>,
-  log <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"xy"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">""</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="st">"l"</span>,
-  add <span class="op">=</span> <span class="cn">FALSE</span>,
-  col <span class="op">=</span> <span class="fl">1</span>,
-  cex <span class="op">=</span> <span class="fl">1</span>,
-  cex.main <span class="op">=</span> <span class="va">cex</span>,
-  cex.sub <span class="op">=</span> <span class="va">cex</span>,
-  cex.lab <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.8</span>,
-  cex.axis <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.7</span>,
-  las <span class="op">=</span> <span class="fl">1</span>,
-  main <span class="op">=</span> <span class="st">"Welch periodogram"</span>,
-  <span class="va">xlab</span>,
-  <span class="va">ylab</span>,
-  xlim <span class="op">=</span> <span class="cn">NULL</span>,
-  ylim <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">mv_pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="va">margin</span>, <span class="va">fs</span>, <span class="va">nfft</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pwelch</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">fs</span>,</span>
+<span>  window <span class="op">=</span> <span class="fl">64</span>,</span>
+<span>  noverlap <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  nfft <span class="op">=</span> <span class="fl">256</span>,</span>
+<span>  col <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Welch periodogram"</span>,</span>
+<span>  plot <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  log <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"xy"</span>, <span class="st">""</span>, <span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for pwelch</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for pwelch</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  log <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"xy"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">""</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>  add <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  col <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  cex.main <span class="op">=</span> <span class="va">cex</span>,</span>
+<span>  cex.sub <span class="op">=</span> <span class="va">cex</span>,</span>
+<span>  cex.lab <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.8</span>,</span>
+<span>  cex.axis <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.7</span>,</span>
+<span>  las <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Welch periodogram"</span>,</span>
+<span>  <span class="va">xlab</span>,</span>
+<span>  <span class="va">ylab</span>,</span>
+<span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mv_pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="va">margin</span>, <span class="va">fs</span>, <span class="va">nfft</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p><code>'pwelch'</code> instance returned by <code>pwelch</code> function</p></dd>
+
+
 <dt>fs</dt>
 <dd><p>sample rate, average number of time points per second</p></dd>
+
+
 <dt>window</dt>
 <dd><p>window length in time points, default size is <code>64</code></p></dd>
+
+
 <dt>noverlap</dt>
 <dd><p>overlap between two adjacent windows, measured in time points; default is <code>8</code></p></dd>
+
+
 <dt>nfft</dt>
 <dd><p>number of basis functions to apply</p></dd>
+
+
 <dt>col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab</dt>
 <dd><p>parameters passed to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot.default</a></code></p></dd>
+
+
 <dt>plot</dt>
 <dd><p>integer, whether to plot the result or not; choices are <code>0</code>, no plot; <code>1</code> plot on a new canvas; <code>2</code> add to existing canvas</p></dd>
+
+
 <dt>log</dt>
 <dd><p>indicates which axis should be <code>log10</code>-transformed, used by the plot function. For <code>'x'</code> axis, it's <code>log10</code>-transform; for <code>'y'</code> axis, it's <code>10log10</code>-transform (decibel unit). Choices are <code>"xy"</code>, <code>"x"</code>, <code>"y"</code>, and <code>""</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>will be passed to <code>plot.pwelch</code> or ignored</p></dd>
+
+
 <dt>add</dt>
 <dd><p>logical, whether the plot should be added to existing canvas</p></dd>
+
+
 <dt>margin</dt>
 <dd><p>the margin in which <code>pwelch</code> should be applied to</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list with class <code>'ravetools-pwelch'</code> that contains the
+    
+
+<p>A list with class <code>'ravetools-pwelch'</code> that contains the
 following items:</p><dl><dt><code>freq</code></dt>
 <dd><p>frequencies used to calculate the 'periodogram'</p></dd>
 
@@ -156,20 +179,20 @@ following items:</p><dl><dt><code>freq</code></dt>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pwel</span> <span class="op">&lt;-</span> <span class="fu">pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="fl">100</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pwel</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pwel</span> <span class="op">&lt;-</span> <span class="fu">pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pwel</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Welch Periodogram:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time points: 1000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sample rate: 100.00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   window size: 64</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   window overlaps: 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   filter count: 256</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pwel</span>, log <span class="op">=</span> <span class="st">"xy"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pwel</span>, log <span class="op">=</span> <span class="st">"xy"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pwelch-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -184,7 +207,7 @@ following items:</p><dl><dt><code>freq</code></dt>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

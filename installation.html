@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4.9000</span>
       </span>
     </div>
 
@@ -60,7 +60,7 @@
 <ul><li><p>Please go to <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">this website</a> and follow their instructions to download <code>Rtools</code>. As of <code>ravetools</code> is developed (R version <code>4.1.2</code>), the latest <code>Rtools</code> version is <code>4</code>.</p></li>
 <li><p>Once <code>Rtools</code> is downloaded and installed, please open your R console, copy-paste the following R command and hit return:</p></li>
 </ul><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="st">'PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"'</span>, file <span class="op">=</span> <span class="st">"~/.Renviron"</span>, append <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="st">'PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"'</span>, file <span class="op">=</span> <span class="st">"~/.Renviron"</span>, append <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="2-install-fftw3">2. Install <code>FFTW3</code>
@@ -78,9 +78,9 @@
 <ul><li>If you have previously opened any, please close all of them just in case.</li>
 <li>Open your <code>R</code> or <code>RStudio</code>. In your newly opened <code>R</code> console, paste the following code and return line-by-line.</li>
 </ul><div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span>
-
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span></span>
+<span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -92,8 +92,8 @@
 Copyright (C) 2021 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20 (64-bit)</code></pre>
 <p>Alternatively, you can run the following R command:</p>
-<pre><code><span class="va">R.version</span><span class="op">$</span><span class="va">platform</span>
-<span class="co">##&gt; [1] "aarch64-apple-darwin20"</span></code></pre>
+<pre><code><span><span class="va">R.version</span><span class="op">$</span><span class="va">platform</span></span>
+<span><span class="co">##&gt; [1] "aarch64-apple-darwin20"</span></span></code></pre>
 <p>Check the architecture keywords after <code>Platform</code>. If you see <code>aarch64</code>, then you have ARM CPU (such as M1 chip), and an ARM version of R installed. If you see <code>x86_64</code>, then you have an Intel version of R installed (even if you have ARM chips, your R is still Intel-based).</p>
 <blockquote><p>If you have ARM CPU (like M1-chip), it is always (strongly) recommended that you install R with the same architecture, because your compilers need to be consistent in architectures. If you have Intel-based R installed, then you have to set up a whole compiler chain that is Intel-based. (This tutorial does not cover such advanced case)</p></blockquote>
 </div>
@@ -126,9 +126,9 @@ brew install pkg-config fftw</code></pre>
 <ul><li>If you have previously opened any, please close all of them just in case.</li>
 <li>Open your <code>R</code> or <code>RStudio</code>. In your newly opened <code>R</code> console, paste the following code and return line-by-line.</li>
 </ul><div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span>
-
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span></span>
+<span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -137,9 +137,9 @@ brew install pkg-config fftw</code></pre>
 </li></ul><pre><code>sudo apt-get install build-essential pkg-config libfftw3-dev</code></pre>
 <p>Please search their alternatives if you are using other Linux systems such as RedHat or CentOS.</p>
 <ul><li>After installation, type <code>R</code> in the terminal, hit return/enter key to open R environment, and run the following R commands.</li></ul><div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span>
-
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">'remotes'</span><span class="op">)</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span> <span class="op">}</span></span>
+<span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'dipterix/ravetools'</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="installing-with-docker">Installing with Docker<a class="anchor" aria-label="anchor" href="#installing-with-docker"></a></h2>
@@ -162,7 +162,7 @@ brew install pkg-config fftw</code></pre>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

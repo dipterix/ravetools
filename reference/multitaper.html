@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4.9000</span>
       </span>
     </div>
 
@@ -53,59 +53,78 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">multitaper_config</span><span class="op">(</span>
-  <span class="va">data_length</span>,
-  <span class="va">fs</span>,
-  frequency_range <span class="op">=</span> <span class="cn">NULL</span>,
-  time_bandwidth <span class="op">=</span> <span class="fl">5</span>,
-  num_tapers <span class="op">=</span> <span class="cn">NULL</span>,
-  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span>,
-  nfft <span class="op">=</span> <span class="cn">NA</span>,
-  detrend_opt <span class="op">=</span> <span class="st">"linear"</span>
-<span class="op">)</span>
-
-<span class="fu">multitaper</span><span class="op">(</span>
-  <span class="va">data</span>,
-  <span class="va">fs</span>,
-  frequency_range <span class="op">=</span> <span class="cn">NULL</span>,
-  time_bandwidth <span class="op">=</span> <span class="fl">5</span>,
-  num_tapers <span class="op">=</span> <span class="cn">NULL</span>,
-  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span>,
-  nfft <span class="op">=</span> <span class="cn">NA</span>,
-  detrend_opt <span class="op">=</span> <span class="st">"linear"</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">multitaper_config</span><span class="op">(</span></span>
+<span>  <span class="va">data_length</span>,</span>
+<span>  <span class="va">fs</span>,</span>
+<span>  frequency_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time_bandwidth <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  num_tapers <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  nfft <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  detrend_opt <span class="op">=</span> <span class="st">"linear"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">multitaper</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  <span class="va">fs</span>,</span>
+<span>  frequency_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time_bandwidth <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  num_tapers <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  nfft <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  detrend_opt <span class="op">=</span> <span class="st">"linear"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data_length</dt>
 <dd><p>length of data</p></dd>
+
+
 <dt>fs</dt>
 <dd><p>sampling frequency in 'Hz'</p></dd>
+
+
 <dt>frequency_range</dt>
 <dd><p>frequency range to look at; length of two</p></dd>
+
+
 <dt>time_bandwidth</dt>
 <dd><p>a number indicating time-half bandwidth product; i.e.
 the window duration times the half bandwidth of main lobe; default is
 <code>5</code></p></dd>
+
+
 <dt>num_tapers</dt>
 <dd><p>number of 'DPSS' tapers to use; default is <code>NULL</code> and
 will be automatically computed from <code>floor(2*time_bandwidth - 1)</code></p></dd>
+
+
 <dt>window_params</dt>
 <dd><p>vector of two numbers; the first number is the
 window size in seconds; the second number if the step size; default is
 <code>c(5, 1)</code></p></dd>
+
+
 <dt>nfft</dt>
 <dd><p>'NFFT' size, positive; see 'Details'</p></dd>
+
+
 <dt>detrend_opt</dt>
 <dd><p>how you want to remove the trend from data window; options
 are <code>'linear'</code> (default), <code>'constant'</code>, and <code>'off'</code></p></dd>
+
+
 <dt>data</dt>
 <dd><p>numerical vector, signal traces</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>multitaper_config</code> returns a list of configuration parameters
+    
+
+<p><code>multitaper_config</code> returns a list of configuration parameters
 for the filters; <code>multitaper</code> also returns the time, frequency and
 corresponding spectral power.</p>
     </div>
@@ -128,27 +147,27 @@ allows other choices.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, by <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">multitaper</span><span class="op">(</span></span>
-<span class="r-in">  <span class="va">x</span>, <span class="fl">1000</span>, frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">15</span><span class="op">)</span>,</span>
-<span class="r-in">  time_bandwidth<span class="op">=</span><span class="fl">1.5</span>,</span>
-<span class="r-in">  window_params<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">0.01</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span></span>
-<span class="r-in">  x <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">time</span>,</span>
-<span class="r-in">  y <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">frequency</span>,</span>
-<span class="r-in">  z <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span>,</span>
-<span class="r-in">  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,</span>
-<span class="r-in">  ylab <span class="op">=</span> <span class="st">'Frequency (Hz)'</span>,</span>
-<span class="r-in">  col <span class="op">=</span> <span class="fu"><a href="matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, by <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">multitaper</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">x</span>, <span class="fl">1000</span>, frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">15</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  time_bandwidth<span class="op">=</span><span class="fl">1.5</span>,</span></span>
+<span class="r-in"><span>  window_params<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">0.01</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">time</span>,</span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">frequency</span>,</span></span>
+<span class="r-in"><span>  z <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,</span></span>
+<span class="r-in"><span>  ylab <span class="op">=</span> <span class="st">'Frequency (Hz)'</span>,</span></span>
+<span class="r-in"><span>  col <span class="op">=</span> <span class="fu"><a href="matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="multitaper-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -163,7 +182,7 @@ allows other choices.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

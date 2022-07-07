@@ -41,7 +41,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.4.9000</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@
 </h2>
 <p>The package is available on <code>CRAN</code>. To install the compiled version, simply run:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ravetools"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ravetools"</span><span class="op">)</span></span></code></pre></div>
 <p>Installing the package from source requires installation of proper compilers and some <code>C</code> libraries; see <a href="https://github.com/dipterix/ravetools/blob/master/installation.md" class="external-link">this document</a> for details.</p>
 </div>
 <div class="section level2">
@@ -109,17 +109,17 @@
 <h3 id="1-generate-toy-examples">1. Generate toy examples:<a class="anchor" aria-label="anchor" href="#1-generate-toy-examples"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ravetools/">ravetools</a></span><span class="op">)</span>
-
-<span class="co"># Generate 20 second data at 2000 Hz</span>
-<span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2000</span><span class="op">)</span>
-<span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> 
-  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, srate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dipterix.org/ravetools/">ravetools</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate 20 second data at 2000 Hz</span></span>
+<span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2000</span><span class="op">)</span></span>
+<span><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, srate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true" width="100%"></p>
 </div>
 <div class="section level3">
@@ -127,11 +127,11 @@
 <a class="anchor" aria-label="anchor" href="#2-apply-notch-filters-and-inspect-periodograms"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## ------- Notch filter --------</span>
-<span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, sample_rate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>
-
-<span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,
-                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## ------- Notch filter --------</span></span>
+<span><span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, sample_rate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,</span>
+<span>                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true" width="100%"></p>
 </div>
 <div class="section level3">
@@ -142,27 +142,27 @@
 <h4 id="using-wavelet">Using <code>Wavelet</code>:<a class="anchor" aria-label="anchor" href="#using-wavelet"></a>
 </h4>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## ---------- Wavelet -----------</span>
-<span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span>
-  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, 
-  srate <span class="op">=</span> <span class="fl">2000</span>, wave_num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>
-<span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># For each frequency, decimate to 100 Hz</span>
-<span class="va">downsample_amp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">amplitude</span>, <span class="fl">2</span>, <span class="va">decimate</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
-<span class="va">downsample_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/decimate.html">decimate</a></span><span class="op">(</span><span class="va">time</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span>
-  z <span class="op">=</span> <span class="va">downsample_amp</span>,
-  x <span class="op">=</span> <span class="va">downsample_time</span>,
-  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
-  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,
-  ylab <span class="op">=</span> <span class="st">"Frequency (Hz)"</span>,
-  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>,
-  sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>, 
-  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## ---------- Wavelet -----------</span></span>
+<span><span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span></span>
+<span>  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, </span>
+<span>  srate <span class="op">=</span> <span class="fl">2000</span>, wave_num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># For each frequency, decimate to 100 Hz</span></span>
+<span><span class="va">downsample_amp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">amplitude</span>, <span class="fl">2</span>, <span class="va">decimate</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="va">downsample_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/decimate.html">decimate</a></span><span class="op">(</span><span class="va">time</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span></span>
+<span>  z <span class="op">=</span> <span class="va">downsample_amp</span>,</span>
+<span>  x <span class="op">=</span> <span class="va">downsample_time</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Frequency (Hz)"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>,</span>
+<span>  sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>, </span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true" width="100%"></p>
 </div>
 <div class="section level4">
@@ -171,26 +171,26 @@
 </h4>
 <p>Alternatively you can use <code>Multi-tapers</code> to obtain amplitude data. The algorithm is modified from source code <a href="https://github.com/preraulab/multitaper_toolbox" class="external-link">here</a>. Please credit them as well if you adopt this approach.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## ---------- Multitaper -----------</span>
-<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/multitaper.html">multitaper</a></span><span class="op">(</span>
-  data <span class="op">=</span> <span class="va">signal2</span>,
-  fs <span class="op">=</span> <span class="fl">2000</span>,
-  frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>,
-  time_bandwidth <span class="op">=</span> <span class="fl">1.5</span>,
-  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.01</span><span class="op">)</span>,
-  nfft <span class="op">=</span> <span class="fl">100</span>
-<span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span>
-  x <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">time</span>,
-  y <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">frequency</span>,
-  z <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span>,
-  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,
-  ylab <span class="op">=</span> <span class="st">'Frequency (Hz)'</span>,
-  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>,
-  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## ---------- Multitaper -----------</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/multitaper.html">multitaper</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">signal2</span>,</span>
+<span>  fs <span class="op">=</span> <span class="fl">2000</span>,</span>
+<span>  frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  time_bandwidth <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.01</span><span class="op">)</span>,</span>
+<span>  nfft <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">time</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">res</span><span class="op">$</span><span class="va">frequency</span>,</span>
+<span>  z <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">spec</span><span class="op">)</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">'Frequency (Hz)'</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true" width="100%"></p>
 </div>
 </div>
@@ -276,7 +276,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>
