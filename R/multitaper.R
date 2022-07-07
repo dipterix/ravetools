@@ -301,7 +301,7 @@ multitaper_calc_mts_segment <- function(data_segment, dpss_tapers, nfft, freq_in
   # fft_range = fft_data[freq_inds,,drop = FALSE]
 
   # nr1 <- nrow(tapered_padded_data)
-  fft_data <- mvfftw_r2c(tapered_padded_data, inplace = TRUE)
+  fft_data <- mvfftw_r2c(tapered_padded_data)
   # nr2 <- nrow(fft_data)
   #
   # if( nr1 %% 2 == 0 ){

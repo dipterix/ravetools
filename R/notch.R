@@ -75,6 +75,6 @@ notch_filter <- function(
     s <- fftw_r2c(s) / n
   }
 
-  fftw_c2r(s * kernel, inplace = TRUE)
+  fftw_c2r(s * kernel)
 
 }

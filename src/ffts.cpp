@@ -115,9 +115,10 @@ void cfft_c2r(int* nres, int* ndata, fftw_complex* data,
 
 
 void cfft_c2c(int* n, fftw_complex* data,
-              fftw_complex* res, int* inverse) {
-  int sign;
+              fftw_complex* res, int* inverse, int* fftwplanopt) {
+  int sign, effort;
   fftw_plan p;
+  fftw_complex* data_copy = NULL;
 
   if(*inverse == 1) {
     sign = FFTW_BACKWARD;
@@ -125,11 +126,21 @@ void cfft_c2c(int* n, fftw_complex* data,
     sign = FFTW_FORWARD;
   }
 
-  p = fftw_plan_dft_1d(*n, data, res, sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
+  effort = fftw_efforts(fftwplanopt);
+
+
+  data_copy = (fftw_complex*) malloc(*n * sizeof(fftw_complex));
+  p = fftw_plan_dft_1d(*n, data_copy, res, sign, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, *n * sizeof(fftw_complex));
+  // p = fftw_plan_dft_1d(*n, data, res, sign, FFTW_DESTROY_INPUT | effort);
 
   fftw_execute(p);
 
   fftw_destroy_plan(p);
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 
 }
 

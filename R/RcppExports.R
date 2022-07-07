@@ -21,20 +21,20 @@ fastcov <- function(x1, x2, col1 = NULL, col2 = NULL, df = -1.0) {
     .Call(`_ravetools_fastcov`, x1, x2, col1, col2, df)
 }
 
-fftw_r2c <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL, inplace = FALSE) {
-    .Call(`_ravetools_fftw_r2c`, data, HermConj, fftwplanopt, ret, inplace)
+fftw_r2c <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
+    .Call(`_ravetools_fftw_r2c`, data, HermConj, fftwplanopt, ret)
 }
 
-mvfftw_r2c <- function(data, fftwplanopt = 0L, ret = NULL, inplace = FALSE) {
-    .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, ret, inplace)
+mvfftw_r2c <- function(data, fftwplanopt = 0L, ret = NULL) {
+    .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, ret)
 }
 
-fftw_c2c <- function(data, inverse = 0L, ret = NULL, inplace = FALSE) {
-    .Call(`_ravetools_fftw_c2c`, data, inverse, ret, inplace)
+fftw_c2c <- function(data, inverse = 0L, fftwplanopt = 0L, ret = NULL) {
+    .Call(`_ravetools_fftw_c2c`, data, inverse, fftwplanopt, ret)
 }
 
-fftw_c2r <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL, inplace = FALSE) {
-    .Call(`_ravetools_fftw_c2r`, data, HermConj, fftwplanopt, ret, inplace)
+fftw_c2r <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
+    .Call(`_ravetools_fftw_c2r`, data, HermConj, fftwplanopt, ret)
 }
 
 conjugate <- function(data) {

@@ -72,7 +72,7 @@ pwelch <- function (
     # Mod(a)^2
   })
 
-  re <- Mod(mvfftw_r2c(re, inplace = TRUE))^2
+  re <- Mod(mvfftw_r2c(re))^2
 
   NN <- floor((nfft + 1)/2)
   spec <- rowMeans(re) / (window_len / 2)^2
@@ -201,7 +201,7 @@ mv_pwelch <- function(x, margin, fs, nfft){
     a <- detrend_naive(s)
     postpad(a$Y * window, nfft)
   })
-  re <- Mod(mvfftw_r2c(re, inplace = TRUE))^2
+  re <- Mod(mvfftw_r2c(re))^2
 
   NN <- floor((nfft + 1)/2)
   spec <- rowMeans(re) / (window_len / 2)^2

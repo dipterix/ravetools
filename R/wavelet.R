@@ -271,7 +271,7 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
     n_post <- data_length - n_pre - w_l
     x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
     # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
-    fftw_c2c(data = x, inverse = 0L, ret = tmp, inplace = TRUE)
+    fftw_c2c(data = x, inverse = 0L, ret = tmp)
     conjugate(tmp)
     arr[,ii] <- tmp
     NULL
@@ -316,10 +316,11 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
   if(trend != "none"){
     data <- as.vector(detrend(data, trend = trend, ...))
     # data <- data - mean(data)
-    fft_data <- fftw_r2c(data, inplace = TRUE)
-  } else {
-    fft_data <- fftw_r2c(data, inplace = FALSE)
+  #   fft_data <- fftw_r2c(data, inplace = TRUE)
+  # } else {
+  #   fft_data <- fftw_r2c(data, inplace = FALSE)
   }
+  fft_data <- fftw_r2c(data)
 
   # Convolution Notice that since we don't pad zeros to data
   # d_l is nrows of wave_spectrum. However, if wave_spectrum is changed
@@ -361,7 +362,7 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
   filearray::fmap(x = fft_waves, fun = function(input){
     # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
     fftw_c2c(data = input[[1]] * fft_data,
-             inverse = 1L, ret = tmp, inplace = TRUE)
+             inverse = 1L, ret = tmp)
     c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
   }, .y = output, .input_size = wave_len, .output_size = wave_len)
 
@@ -448,7 +449,7 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length){
     n_post <- data_length - n_pre - w_l
     x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
     # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
-    fftw_c2c(data = x, inverse = 0L, ret = tmp, inplace = TRUE)
+    fftw_c2c(data = x, inverse = 0L, ret = tmp)
     conjugate(tmp)
     arr_real[,ii] <- Re(tmp)
     arr_imag[,ii] <- Im(tmp)
@@ -509,10 +510,11 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
   if(trend != "none"){
     data <- as.vector(detrend(data, trend = trend, ...))
     # data <- data - mean(data)
-    fft_data <- fftw_r2c(data, inplace = TRUE)
-  } else {
-    fft_data <- fftw_r2c(data, inplace = FALSE)
+    # fft_data <- fftw_r2c(data, inplace = TRUE)
+  # } else {
+    # fft_data <- fftw_r2c(data, inplace = FALSE)
   }
+  fft_data <- fftw_r2c(data)
 
   # Convolution Notice that since we don't pad zeros to data
   # d_l is nrows of wave_spectrum. However, if wave_spectrum is changed
@@ -573,7 +575,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
     # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
     kernel <- input[[1]] + 1i * input[[2]]
     fftw_c2c(data = kernel * fft_data,
-             inverse = 1L, ret = tmp, inplace = TRUE)
+             inverse = 1L, ret = tmp)
     tmp <- c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
     output_real[,ii] <- Re(tmp)
     output_imag[,ii] <- Im(tmp)

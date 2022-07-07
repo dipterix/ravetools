@@ -14,7 +14,7 @@ void cfft_c2r(int* nres, int* ndata, fftw_complex* data,
 
 /* complex to complex --eitherway */
 void cfft_c2c(int* n, fftw_complex* data,
-              fftw_complex* res, int* inverse);
+              fftw_complex* res, int* inverse, int* fftwplanopt);
 
 void cmvfft_r2c(int *n, int *m, double* data,
                 fftw_complex* res,
