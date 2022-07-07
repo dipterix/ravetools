@@ -34,13 +34,13 @@ void cfft_r2c(int* n, double* data,
   double* data_copy = NULL;
 
   int effort = fftw_efforts(fftwplanopt);
-  if( effort == FFTW_ESTIMATE ){
+  // if( effort == FFTW_ESTIMATE ){
     p = fftw_plan_dft_r2c_1d(*n, data, res, FFTW_DESTROY_INPUT | effort);
-  } else {
+  /* } else {
     data_copy = (double*) malloc(*n * sizeof(double));
     p = fftw_plan_dft_r2c_1d(*n, data_copy, res, FFTW_DESTROY_INPUT | effort);
     memcpy(data_copy, data, *n * sizeof(double));
-  }
+  }*/
 
   fftw_execute(p);
   fftw_complex* resptr1;

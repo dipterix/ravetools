@@ -34,10 +34,13 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1,
   }
 
   if( TYPEOF(data) != REALSXP ){
+    // in this case, data is copied anyway, and hence not destroyed
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace && fftwplanopt <= 0) {
+  // } else if(!inplace && fftwplanopt <= 0) {
+  } else if(!inplace) {
+    // avoid inplace calculation, which might destroy the input data
     data = PROTECT(Rf_duplicate(data));
     nprot++;
   }
