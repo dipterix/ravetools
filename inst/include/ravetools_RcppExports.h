@@ -171,17 +171,17 @@ namespace ravetools {
         return Rcpp::as<SEXP >(rcpp_result_gen);
     }
 
-    inline SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace = false) {
-        typedef SEXP(*Ptr_fftw_c2r)(SEXP,SEXP,SEXP,SEXP);
+    inline SEXP fftw_c2r(SEXP data, int HermConj = 1, int fftwplanopt = 0, SEXP ret = R_NilValue, bool inplace = false) {
+        typedef SEXP(*Ptr_fftw_c2r)(SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_fftw_c2r p_fftw_c2r = NULL;
         if (p_fftw_c2r == NULL) {
-            validateSignature("SEXP(*fftw_c2r)(SEXP,int,SEXP,bool)");
+            validateSignature("SEXP(*fftw_c2r)(SEXP,int,int,SEXP,bool)");
             p_fftw_c2r = (Ptr_fftw_c2r)R_GetCCallable("ravetools", "_ravetools_fftw_c2r");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_fftw_c2r(Shield<SEXP>(Rcpp::wrap(data)), Shield<SEXP>(Rcpp::wrap(HermConj)), Shield<SEXP>(Rcpp::wrap(ret)), Shield<SEXP>(Rcpp::wrap(inplace)));
+            rcpp_result_gen = p_fftw_c2r(Shield<SEXP>(Rcpp::wrap(data)), Shield<SEXP>(Rcpp::wrap(HermConj)), Shield<SEXP>(Rcpp::wrap(fftwplanopt)), Shield<SEXP>(Rcpp::wrap(ret)), Shield<SEXP>(Rcpp::wrap(inplace)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();

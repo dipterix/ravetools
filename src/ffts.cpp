@@ -70,16 +70,47 @@ void cfft_r2c(int* n, double* data,
   }
 }
 
-void cfft_c2r(int* n, fftw_complex* data,
-              double* res) {
+void cfft_c2r(int* nres, int* ndata, fftw_complex* data,
+              double* res, int* fftwplanopt) {
 
   fftw_plan p;
+  fftw_complex* data_copy = NULL;
 
-  p = fftw_plan_dft_c2r_1d(*n, data, res, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
+  int effort = fftw_efforts(fftwplanopt);
+  /*
+  if( effort == FFTW_ESTIMATE ){
+    p = fftw_plan_dft_c2r_1d(*nres, data, res, effort);
+  } else {
+    data_copy = (fftw_complex*) malloc(*ndata * sizeof(fftw_complex));
+    p = fftw_plan_dft_c2r_1d(*nres, data_copy, res, FFTW_DESTROY_INPUT | effort);
+    memcpy(data_copy, data, *ndata * sizeof(fftw_complex));
+  }
+   */
+  /* FFTW_PRESERVE_INPUT specifies that an out-of-place transform must not
+   * change its input array. This is ordinarily the default, except for c2r
+   * and hc2r (i.e. complex-to-real) transforms for which FFTW_DESTROY_INPUT
+   * is the default. In the latter cases, passing FFTW_PRESERVE_INPUT will
+   * attempt to use algorithms that do not destroy the input, at the expense
+   * of worse performance; for multi-dimensional c2r transforms, however, no
+   * input-preserving algorithms are implemented and the planner will return
+   * NULL if one is requested.
+   *
+   * From what I observe, c2r seems always destroy the data even when
+   * FFTW_ESTIMATE is used
+  **/
+  data_copy = (fftw_complex*) malloc(*ndata * sizeof(fftw_complex));
+  p = fftw_plan_dft_c2r_1d(*nres, data_copy, res, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, *ndata * sizeof(fftw_complex));
+
+  // p = fftw_plan_dft_c2r_1d(*n, data, res, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
 
   fftw_execute(p);
 
   fftw_destroy_plan(p);
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 }
 
 

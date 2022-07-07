@@ -78,3 +78,47 @@ test_that("mvfftw_r2c", {
   dim(xx) <- c(100,10)
   expect_equal(x, xx)
 })
+
+
+test_that("fftw_c2r", {
+  set.seed(1)
+  x <- rnorm(1000) + 1i * rnorm(1000)
+  xx <- x + 1
+  c <- double(1000)
+
+  expect_error(ravetools:::fftw_c2r(data = x, HermConj = 1, ret = double(999)))
+  expect_error(ravetools:::fftw_c2r(data = x, HermConj = 0, ret = double(1000)))
+
+  expect_equal(x+1, xx)
+
+  expect_equal(
+    ravetools:::fftw_c2r(x, HermConj = 1),
+    fftwtools::fftw_c2r((xx - 1), HermConj = 1, n = 1000)
+  )
+  expect_equal(x+1, xx)
+
+  expect_equal(
+    ravetools:::fftw_c2r(x, HermConj = 0, fftwplanopt = 1),
+    fftwtools::fftw_c2r((xx - 1), HermConj = 0, n = 1998)
+  )
+  expect_equal(x+1, xx)
+
+  ravetools:::fftw_c2r(data = x, HermConj = 1, ret = c)
+  expect_equal(
+    c,
+    fftwtools::fftw_c2r((xx - 1), HermConj = 1)
+  )
+  expect_equal(x+1, xx)
+
+  ravetools:::fftw_c2r(data = x, HermConj = 1, fftwplanopt = 1L,
+                       inplace = TRUE, ret = c)
+  expect_equal(x+1, xx)
+  expect_equal(
+    c,
+    fftwtools::fftw_c2r((xx - 1), HermConj = 1)
+  )
+
+  expect_equal(x+1, xx)
+
+
+})

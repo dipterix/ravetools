@@ -33,8 +33,8 @@ fftw_c2c <- function(data, inverse = 0L, ret = NULL, inplace = FALSE) {
     .Call(`_ravetools_fftw_c2c`, data, inverse, ret, inplace)
 }
 
-fftw_c2r <- function(data, HermConj = 1L, ret = NULL, inplace = FALSE) {
-    .Call(`_ravetools_fftw_c2r`, data, HermConj, ret, inplace)
+fftw_c2r <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL, inplace = FALSE) {
+    .Call(`_ravetools_fftw_c2r`, data, HermConj, fftwplanopt, ret, inplace)
 }
 
 conjugate <- function(data) {

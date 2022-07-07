@@ -9,8 +9,8 @@ void cfft_r2c(int* n, double* data,
               int* fftwplanopt);
 
 /* complex to real backward */
-void cfft_c2r(int* n, fftw_complex* data,
-              double* res);
+void cfft_c2r(int* nres, int* ndata, fftw_complex* data,
+              double* res, int* fftwplanopt);
 
 /* complex to complex --eitherway */
 void cfft_c2c(int* n, fftw_complex* data,

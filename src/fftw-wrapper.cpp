@@ -87,8 +87,11 @@ SEXP mvfftw_r2c(SEXP data,
     // data need to be copied
     // however fftwplanopt > 0 will copy eventually, so only
     // copy when fftwplanopt <= 0
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
+    // UPDATE: FFTW3 official document mentions that with FFTW_ESTIMATE,
+    //   the input/output arrays are not overwritten during planning.
+
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
   }
 
   cmvfft_r2c(&nrows, &ncols, REAL(data),
@@ -144,7 +147,10 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue, bool inplace = 
 }
 
 // [[Rcpp::export]]
-SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace = false){
+SEXP fftw_c2r(SEXP data, int HermConj = 1,
+              int fftwplanopt = 0,
+              SEXP ret = R_NilValue,
+              bool inplace = false){
   int nprot = 0;
 
   // check HermConj and ret
@@ -166,9 +172,7 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace =
     if( Rf_xlength(ret) < retlen ){
       stop("ravetools `fftw_c2r`: `ret` length should be at least " + std::to_string(retlen));
     }
-    if( Rf_xlength(ret) > retlen ){
-      retlen++;
-    }
+    retlen = Rf_xlength(ret);
   }
 
   if( TYPEOF(data) != CPLXSXP ){
@@ -176,12 +180,12 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace =
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
   } else if(!inplace) {
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
   }
 
-  cfft_c2r(&retlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
-           REAL(ret));
+  cfft_c2r(&retlen, &xlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+           REAL(ret), &fftwplanopt);
 
   if(nprot > 0){
     UNPROTECT(nprot);
