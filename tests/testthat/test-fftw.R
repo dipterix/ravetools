@@ -33,7 +33,7 @@ test_that("fftw_r2c", {
     fftwtools::fftw_r2c(x, 0)
   )
 
-  ravetools::fftw_r2c(data = xx, HermConj = 1, fftwplanopt = 1L,
+  ravetools:::fftw_r2c(data = xx, HermConj = 1, fftwplanopt = 1L,
                       inplace = TRUE, ret = c)
   expect_equal(
     c,
