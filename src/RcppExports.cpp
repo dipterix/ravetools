@@ -180,24 +180,23 @@ RcppExport SEXP _ravetools_fastcov(SEXP x1SEXP, SEXP x2SEXP, SEXP col1SEXP, SEXP
     return rcpp_result_gen;
 }
 // fftw_r2c
-SEXP fftw_r2c(SEXP data, int HermConj, int fftwplanopt, SEXP ret, bool inplace);
-static SEXP _ravetools_fftw_r2c_try(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+SEXP fftw_r2c(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_r2c_try(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type HermConj(HermConjSEXP);
     Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
-    rcpp_result_gen = Rcpp::wrap(fftw_r2c(data, HermConj, fftwplanopt, ret, inplace));
+    rcpp_result_gen = Rcpp::wrap(fftw_r2c(data, HermConj, fftwplanopt, ret));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_ravetools_fftw_r2c_try(dataSEXP, HermConjSEXP, fftwplanoptSEXP, retSEXP, inplaceSEXP));
+        rcpp_result_gen = PROTECT(_ravetools_fftw_r2c_try(dataSEXP, HermConjSEXP, fftwplanoptSEXP, retSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -218,23 +217,22 @@ RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwp
     return rcpp_result_gen;
 }
 // mvfftw_r2c
-SEXP mvfftw_r2c(SEXP data, int fftwplanopt, SEXP ret, bool inplace);
-static SEXP _ravetools_mvfftw_r2c_try(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+SEXP mvfftw_r2c(SEXP data, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_mvfftw_r2c_try(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
-    rcpp_result_gen = Rcpp::wrap(mvfftw_r2c(data, fftwplanopt, ret, inplace));
+    rcpp_result_gen = Rcpp::wrap(mvfftw_r2c(data, fftwplanopt, ret));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _ravetools_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+RcppExport SEXP _ravetools_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_ravetools_mvfftw_r2c_try(dataSEXP, fftwplanoptSEXP, retSEXP, inplaceSEXP));
+        rcpp_result_gen = PROTECT(_ravetools_mvfftw_r2c_try(dataSEXP, fftwplanoptSEXP, retSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -255,23 +253,23 @@ RcppExport SEXP _ravetools_mvfftw_r2c(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP 
     return rcpp_result_gen;
 }
 // fftw_c2c
-SEXP fftw_c2c(SEXP data, int inverse, SEXP ret, bool inplace);
-static SEXP _ravetools_fftw_c2c_try(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+SEXP fftw_c2c(SEXP data, int inverse, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_c2c_try(SEXP dataSEXP, SEXP inverseSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type inverse(inverseSEXP);
+    Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
-    rcpp_result_gen = Rcpp::wrap(fftw_c2c(data, inverse, ret, inplace));
+    rcpp_result_gen = Rcpp::wrap(fftw_c2c(data, inverse, fftwplanopt, ret));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _ravetools_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+RcppExport SEXP _ravetools_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_ravetools_fftw_c2c_try(dataSEXP, inverseSEXP, retSEXP, inplaceSEXP));
+        rcpp_result_gen = PROTECT(_ravetools_fftw_c2c_try(dataSEXP, inverseSEXP, fftwplanoptSEXP, retSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -292,23 +290,23 @@ RcppExport SEXP _ravetools_fftw_c2c(SEXP dataSEXP, SEXP inverseSEXP, SEXP retSEX
     return rcpp_result_gen;
 }
 // fftw_c2r
-SEXP fftw_c2r(SEXP data, int HermConj, SEXP ret, bool inplace);
-static SEXP _ravetools_fftw_c2r_try(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+SEXP fftw_c2r(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_c2r_try(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type HermConj(HermConjSEXP);
+    Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
-    Rcpp::traits::input_parameter< bool >::type inplace(inplaceSEXP);
-    rcpp_result_gen = Rcpp::wrap(fftw_c2r(data, HermConj, ret, inplace));
+    rcpp_result_gen = Rcpp::wrap(fftw_c2r(data, HermConj, fftwplanopt, ret));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _ravetools_fftw_c2r(SEXP dataSEXP, SEXP HermConjSEXP, SEXP retSEXP, SEXP inplaceSEXP) {
+RcppExport SEXP _ravetools_fftw_c2r(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_ravetools_fftw_c2r_try(dataSEXP, HermConjSEXP, retSEXP, inplaceSEXP));
+        rcpp_result_gen = PROTECT(_ravetools_fftw_c2r_try(dataSEXP, HermConjSEXP, fftwplanoptSEXP, retSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -395,10 +393,10 @@ static int _ravetools_RcppExport_validate(const char* sig) {
         signatures.insert("SEXP(*collapser_real)(SEXP,SEXP,const int,const int)");
         signatures.insert("SEXP(*fastColMeans)(const SEXP&,const SEXP&,const SEXP&)");
         signatures.insert("SEXP(*fastcov)(const SEXP&,const SEXP&,const SEXP&,const SEXP&,const double&)");
-        signatures.insert("SEXP(*fftw_r2c)(SEXP,int,int,SEXP,bool)");
-        signatures.insert("SEXP(*mvfftw_r2c)(SEXP,int,SEXP,bool)");
-        signatures.insert("SEXP(*fftw_c2c)(SEXP,int,SEXP,bool)");
-        signatures.insert("SEXP(*fftw_c2r)(SEXP,int,SEXP,bool)");
+        signatures.insert("SEXP(*fftw_r2c)(SEXP,int,int,SEXP)");
+        signatures.insert("SEXP(*mvfftw_r2c)(SEXP,int,SEXP)");
+        signatures.insert("SEXP(*fftw_c2c)(SEXP,int,int,SEXP)");
+        signatures.insert("SEXP(*fftw_c2r)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*conjugate)(SEXP)");
     }
     return signatures.find(sig) != signatures.end();
@@ -425,8 +423,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
     {"_ravetools_fastColMeans", (DL_FUNC) &_ravetools_fastColMeans, 3},
     {"_ravetools_fastcov", (DL_FUNC) &_ravetools_fastcov, 5},
-    {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 5},
-    {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 4},
+    {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 4},
+    {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 3},
     {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
     {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},

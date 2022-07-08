@@ -5,11 +5,15 @@ using namespace Rcpp;
 
 // [[Rcpp::interfaces(r, cpp)]]
 
+/**
+ * Migrated: fftw_r2c, mvfftw_r2c, fftw_c2r
+ * TODO: fftw_c2c,
+ */
+
 // [[Rcpp::export]]
 SEXP fftw_r2c(SEXP data, int HermConj = 1,
               int fftwplanopt = 0,
-              SEXP ret = R_NilValue,
-              bool inplace = false) {
+              SEXP ret = R_NilValue) {
   int nprot = 0;
 
   // check HermConj and ret
@@ -34,12 +38,14 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1,
   }
 
   if( TYPEOF(data) != REALSXP ){
+    // in this case, data is copied anyway, and hence not destroyed
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace && fftwplanopt <= 0) {
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
+  // } else if(!inplace && fftwplanopt <= 0) {
+    // avoid inplace calculation, which might destroy the input data
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
   }
 
   cfft_r2c(&xlen, REAL(data), reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]), &HermConj,
@@ -54,8 +60,7 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1,
 // [[Rcpp::export]]
 SEXP mvfftw_r2c(SEXP data,
                int fftwplanopt = 0,
-               SEXP ret = R_NilValue,
-               bool inplace = false)
+               SEXP ret = R_NilValue)
 {
   int nprot = 0;
 
@@ -81,12 +86,15 @@ SEXP mvfftw_r2c(SEXP data,
     PROTECT(data = Rf_coerceVector(data, REALSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace && fftwplanopt <= 0) {
+  // } else if(!inplace && fftwplanopt <= 0) {
     // data need to be copied
     // however fftwplanopt > 0 will copy eventually, so only
     // copy when fftwplanopt <= 0
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
+    // UPDATE: FFTW3 official document mentions that with FFTW_ESTIMATE,
+    //   the input/output arrays are not overwritten during planning.
+
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
   }
 
   cmvfft_r2c(&nrows, &ncols, REAL(data),
@@ -101,22 +109,12 @@ SEXP mvfftw_r2c(SEXP data,
 }
 
 // [[Rcpp::export]]
-SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue, bool inplace = false)
+SEXP fftw_c2c(SEXP data, int inverse = 0,
+              int fftwplanopt = 0,
+              SEXP ret = R_NilValue)
 {
   int nprot = 0;
   int xlen = Rf_length(data);
-  if(TYPEOF(data) != CPLXSXP){
-    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
-    nprot++;
-  // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace) {
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
-  }
-
-  if(inverse){
-    inverse = 1;
-  }
 
   if(ret == R_NilValue){
     PROTECT(ret = Rf_allocVector(CPLXSXP, xlen));
@@ -129,9 +127,21 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue, bool inplace = 
       stop("ravetools `fftw_c2c`: `ret` must have length of " + std::to_string(xlen));
     }
   }
+
+  if(TYPEOF(data) != CPLXSXP){
+    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
+    nprot++;
+  }
+
+  if(inverse){
+    inverse = 1;
+  }
+
   cfft_c2c(
-    &xlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
-    reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]), &inverse
+    &xlen,
+    reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+    reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]),
+    &inverse, &fftwplanopt
   );
 
   if(nprot > 0){
@@ -142,7 +152,9 @@ SEXP fftw_c2c(SEXP data, int inverse = 0, SEXP ret = R_NilValue, bool inplace = 
 }
 
 // [[Rcpp::export]]
-SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace = false){
+SEXP fftw_c2r(SEXP data, int HermConj = 1,
+              int fftwplanopt = 0,
+              SEXP ret = R_NilValue){
   int nprot = 0;
 
   // check HermConj and ret
@@ -164,22 +176,20 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1, SEXP ret = R_NilValue, bool inplace =
     if( Rf_xlength(ret) < retlen ){
       stop("ravetools `fftw_c2r`: `ret` length should be at least " + std::to_string(retlen));
     }
-    if( Rf_xlength(ret) > retlen ){
-      retlen++;
-    }
+    retlen = Rf_xlength(ret);
   }
 
   if( TYPEOF(data) != CPLXSXP ){
     PROTECT(data = Rf_coerceVector(data, CPLXSXP));
     nprot++;
   // } else if (MAYBE_REFERENCED(data)) {
-  } else if(!inplace) {
-    data = PROTECT(Rf_duplicate(data));
-    nprot++;
+  // } else if(!inplace) {
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
   }
 
-  cfft_c2r(&retlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
-           REAL(ret));
+  cfft_c2r(&retlen, &xlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+           REAL(ret), &fftwplanopt);
 
   if(nprot > 0){
     UNPROTECT(nprot);

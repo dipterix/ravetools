@@ -35,6 +35,7 @@ profile({
 
 profile({
   y1 <- rave::wavelet(x, freqs, srate, wave_num, demean = TRUE)
+  gc()
 })
 
 # a <- y2[]
