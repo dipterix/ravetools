@@ -125,7 +125,6 @@ Please see Examples for comparisons.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 0x00, 0x7f, 0x80, 0xFF</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/raw.html" class="external-link">as.raw</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">127</span>, <span class="fl">128</span>, <span class="fl">255</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -137,13 +136,15 @@ Please see Examples for comparisons.</p>
 <span class="r-in"><span><span class="fu">raw_to_int8</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]    0  127 -128   -1</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 0x007f (127), 0x80FF (33023 unsigned, or -32513 signed)</span></span></span>
+<span class="r-in"><span><span class="co">## Comments based on little endian system</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 0x7f00 (32512), 0xFF80 (65408 unsigned, or -128 signed)</span></span></span>
 <span class="r-in"><span><span class="fu">raw_to_uint16</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 32512 65408</span>
 <span class="r-in"><span><span class="fu">raw_to_int16</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 32512  -128</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># 0x007F80FF (8356095)</span></span></span>
+<span class="r-in"><span><span class="co"># 0xFF807F00 (4286611200 unsigned, -8356096 signed)</span></span></span>
 <span class="r-in"><span><span class="fu">raw_to_uint32</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4286611200</span>
 <span class="r-in"><span><span class="fu">raw_to_int32</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
@@ -168,6 +169,7 @@ Please see Examples for comparisons.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This is the end."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---------------------------- Integer64 ------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># Runs on little endian system</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/raw.html" class="external-link">as.raw</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0x80</span>, <span class="fl">0x00</span>, <span class="fl">0x7f</span>, <span class="fl">0x80</span>, <span class="fl">0xFF</span>, <span class="fl">0x50</span>, <span class="fl">0x7f</span>, <span class="fl">0x00</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate bitstring, which concaternates the followings</span></span></span>
