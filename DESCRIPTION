@@ -1,7 +1,7 @@
 Package: ravetools
 Type: Package
 Title: Signal Processing Toolbox for Analyzing 'Electrophysiology' Data
-Version: 0.0.4.9001
+Version: 0.0.4.9002
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -21,11 +21,11 @@ Description: Implemented fast and memory-efficient 'Notch'-filter,
     <doi:10.1016/j.neuroimage.2020.117341>; see 'citation("ravetools")' for 
     details.
 BugReports: https://github.com/dipterix/ravetools/issues
-URL: http://dipterix.org/ravetools/
+URL: https://dipterix.org/ravetools/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Depends: R (>= 4.0.0)
 SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
 Imports:
@@ -40,7 +40,7 @@ LinkingTo:
     Rcpp
 Suggests: 
     fftwtools,
+    bit64,
     pracma,
     microbenchmark,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
+    testthat

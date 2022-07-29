@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.Renviron
+adhoc
 autom4te.cache
 config.log
 config.status

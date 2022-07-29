@@ -41,6 +41,42 @@ conjugate <- function(data) {
     .Call(`_ravetools_conjugate`, data)
 }
 
+rawToUInt8 <- function(x) {
+    .Call(`_ravetools_rawToUInt8`, x)
+}
+
+rawToInt8 <- function(x) {
+    .Call(`_ravetools_rawToInt8`, x)
+}
+
+rawToUInt16 <- function(x) {
+    .Call(`_ravetools_rawToUInt16`, x)
+}
+
+rawToInt16 <- function(x) {
+    .Call(`_ravetools_rawToInt16`, x)
+}
+
+rawToUInt32 <- function(x) {
+    .Call(`_ravetools_rawToUInt32`, x)
+}
+
+rawToInt32 <- function(x) {
+    .Call(`_ravetools_rawToInt32`, x)
+}
+
+rawToInt64 <- function(x) {
+    .Call(`_ravetools_rawToInt64`, x)
+}
+
+rawToFloat <- function(x) {
+    .Call(`_ravetools_rawToFloat`, x)
+}
+
+rawToString <- function(x) {
+    .Call(`_ravetools_rawToString`, x)
+}
+
 shiftArray <- function(x, alongIdx, unitIdx, shiftAmount) {
     .Call(`_ravetools_shiftArray`, x, alongIdx, unitIdx, shiftAmount)
 }

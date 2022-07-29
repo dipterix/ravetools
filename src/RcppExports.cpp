@@ -360,6 +360,105 @@ RcppExport SEXP _ravetools_conjugate(SEXP dataSEXP) {
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// rawToUInt8
+SEXP rawToUInt8(SEXP x);
+RcppExport SEXP _ravetools_rawToUInt8(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToUInt8(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToInt8
+SEXP rawToInt8(SEXP x);
+RcppExport SEXP _ravetools_rawToInt8(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToInt8(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToUInt16
+SEXP rawToUInt16(SEXP x);
+RcppExport SEXP _ravetools_rawToUInt16(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToUInt16(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToInt16
+SEXP rawToInt16(SEXP x);
+RcppExport SEXP _ravetools_rawToInt16(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToInt16(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToUInt32
+SEXP rawToUInt32(SEXP x);
+RcppExport SEXP _ravetools_rawToUInt32(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToUInt32(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToInt32
+SEXP rawToInt32(SEXP x);
+RcppExport SEXP _ravetools_rawToInt32(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToInt32(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToInt64
+SEXP rawToInt64(SEXP x);
+RcppExport SEXP _ravetools_rawToInt64(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToInt64(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToFloat
+SEXP rawToFloat(SEXP x);
+RcppExport SEXP _ravetools_rawToFloat(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToFloat(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rawToString
+SEXP rawToString(SEXP x);
+RcppExport SEXP _ravetools_rawToString(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rawToString(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // shiftArray
 SEXP shiftArray(const SEXP& x, const R_xlen_t& alongIdx, const R_xlen_t& unitIdx, const SEXP& shiftAmount);
 RcppExport SEXP _ravetools_shiftArray(SEXP xSEXP, SEXP alongIdxSEXP, SEXP unitIdxSEXP, SEXP shiftAmountSEXP) {
@@ -428,6 +527,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
     {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
+    {"_ravetools_rawToUInt8", (DL_FUNC) &_ravetools_rawToUInt8, 1},
+    {"_ravetools_rawToInt8", (DL_FUNC) &_ravetools_rawToInt8, 1},
+    {"_ravetools_rawToUInt16", (DL_FUNC) &_ravetools_rawToUInt16, 1},
+    {"_ravetools_rawToInt16", (DL_FUNC) &_ravetools_rawToInt16, 1},
+    {"_ravetools_rawToUInt32", (DL_FUNC) &_ravetools_rawToUInt32, 1},
+    {"_ravetools_rawToInt32", (DL_FUNC) &_ravetools_rawToInt32, 1},
+    {"_ravetools_rawToInt64", (DL_FUNC) &_ravetools_rawToInt64, 1},
+    {"_ravetools_rawToFloat", (DL_FUNC) &_ravetools_rawToFloat, 1},
+    {"_ravetools_rawToString", (DL_FUNC) &_ravetools_rawToString, 1},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
     {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
