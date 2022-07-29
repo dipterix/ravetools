@@ -1,3 +1,9 @@
+# ravetools 0.0.5
+
+* Removed confusing in-place arguments in the `fftw` related code
+* Corrected `fftw` plans to respect the flags
+* Added `C++` to convert raw binary bytes to `uint`, `int`, `float`, and `string`
+
 # ravetools 0.0.4
 
 Parallel processes might use different temporary directory paths. To improve the performance, it is recommended to set a shared temporary directory, hence this version
