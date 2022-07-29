@@ -43,7 +43,6 @@
 #'
 #' @examples
 #'
-#'
 #' # 0x00, 0x7f, 0x80, 0xFF
 #' x <- as.raw(c(0, 127, 128, 255))
 #'
@@ -53,11 +52,13 @@
 #' # 128 -> -128, 255 -> -1
 #' raw_to_int8(x)
 #'
-#' # 0x007f (127), 0x80FF (33023 unsigned, or -32513 signed)
+#' ## Comments based on little endian system
+#'
+#' # 0x7f00 (32512), 0xFF80 (65408 unsigned, or -128 signed)
 #' raw_to_uint16(x)
 #' raw_to_int16(x)
 #'
-#' # 0x007F80FF (8356095)
+#' # 0xFF807F00 (4286611200 unsigned, -8356096 signed)
 #' raw_to_uint32(x)
 #' raw_to_int32(x)
 #'
@@ -77,6 +78,7 @@
 #' raw_to_string(x)
 #'
 #' # ---------------------------- Integer64 ------------------------
+#' # Runs on little endian system
 #' x <- as.raw(c(0x80, 0x00, 0x7f, 0x80, 0xFF, 0x50, 0x7f, 0x00))
 #'
 #' # Calculate bitstring, which concaternates the followings
