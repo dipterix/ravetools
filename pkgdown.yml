@@ -1,9 +1,9 @@
 pandoc: 2.7.3
-pkgdown: 2.0.5
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles: {}
-last_built: 2022-07-08T02:13Z
+last_built: 2022-07-29T06:44Z
 urls:
-  reference: http://dipterix.org/ravetools/reference
-  article: http://dipterix.org/ravetools/articles
+  reference: https://dipterix.org/ravetools/reference
+  article: https://dipterix.org/ravetools/articles
 
