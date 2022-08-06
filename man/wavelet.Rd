@@ -50,6 +50,7 @@ differences.
 }
 \examples{
 
+if(interactive()){
 
 # generate sine waves
 time <- seq(0, 3, by = 0.01)
@@ -86,5 +87,7 @@ kern <- wavelet_kernels(freq, 100, c(2,3))
 print(kern)
 
 plot(kern)
+
+}
 
 }

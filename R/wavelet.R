@@ -21,6 +21,7 @@
 #'
 #' @examples
 #'
+#' if(interactive()){
 #'
 #' # generate sine waves
 #' time <- seq(0, 3, by = 0.01)
@@ -57,6 +58,8 @@
 #' print(kern)
 #'
 #' plot(kern)
+#'
+#' }
 #'
 NULL
 
