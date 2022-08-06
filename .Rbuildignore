@@ -15,3 +15,5 @@ autom4te.cache/
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^CRAN-RELEASE$
+^\.Renviron$
+^\.Rhistory$
