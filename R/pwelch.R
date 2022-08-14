@@ -67,12 +67,14 @@ pwelch <- function (
   step <- max(floor(window_len - noverlap + 0.99), 1)
 
   ## Average the slices
-  offset <- seq(1, x_len-window_len+1, by = step)
+  offset <- seq(1, max(x_len-window_len+1, 1), by = step)
 
   N <- length(offset)
 
   re <- sapply(seq_len(N), function(i){
-    a <- detrend_naive(x[offset[i] - 1 + seq_len(window_len)])
+    slice <- x[offset[i] - 1 + seq_len(window_len)]
+    slice[is.na(slice)] <- 0
+    a <- detrend_naive(slice)
     postpad(a$Y * window, nfft)
     # # HermConj = 0 : without the "Hermitian" redundancy
     # a = fftwtools::fftw_r2c(postpad(a$Y * window, nfft), HermConj = 0)
@@ -170,8 +172,17 @@ plot.pwelch <- function(
     xlabel <- pretty(xlim)
   }
 
-  spec_lb <- x$spec_db - x$spec_db_se * as.numeric(se)
-  spec_ub <- x$spec_db + x$spec_db_se * as.numeric(se)
+  if( x$df < 1 || log %in% c("x", "") ) {
+    se <- FALSE
+    spec_lb <- 0
+  }
+  if( se ) {
+    spec_lb <- x$spec_db - x$spec_db_se * as.numeric(se)
+    spec_ub <- x$spec_db + x$spec_db_se * as.numeric(se)
+  } else {
+    spec_lb <- 0
+    spec_ub <- 0
+  }
 
   switch (
     log,
