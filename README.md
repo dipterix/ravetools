@@ -89,7 +89,7 @@ is smoother than `Wavelet`.
 coef <- morlet_wavelet(
   signal2, freqs = seq(1, 100, by = 1), 
   srate = 2000, wave_num = c(2, 15))
-amplitude <- 10 * log10(Mod(coef[]))
+amplitude <- 20 * log10(Mod(coef[]))
 
 # For each frequency, decimate to 100 Hz
 downsample_amp <- apply(amplitude, 2, decimate, q = 20)

@@ -27,9 +27,15 @@ pwelch(
 \method{plot}{pwelch}(
   x,
   log = c("xy", "x", "y", ""),
+  se = FALSE,
+  xticks,
   type = "l",
   add = FALSE,
   col = 1,
+  col.se = "orange",
+  alpha.se = 0.5,
+  lty = 1,
+  lwd = 1,
   cex = 1,
   cex.main = cex,
   cex.sub = cex,
@@ -41,6 +47,11 @@ pwelch(
   ylab,
   xlim = NULL,
   ylim = NULL,
+  xaxs = "i",
+  yaxs = "i",
+  xline = 1.5,
+  yline = 2.5,
+  mar = c(2.6, 3.5, 1.1, 0.6),
   ...
 )
 
@@ -57,7 +68,7 @@ mv_pwelch(x, margin, fs, nfft)
 
 \item{nfft}{number of basis functions to apply}
 
-\item{col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab}{parameters passed to \code{\link[graphics]{plot.default}}}
+\item{col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar}{parameters passed to \code{\link[graphics]{plot.default}}}
 
 \item{plot}{integer, whether to plot the result or not; choices are \code{0}, no plot; \code{1} plot on a new canvas; \code{2} add to existing canvas}
 
@@ -65,7 +76,18 @@ mv_pwelch(x, margin, fs, nfft)
 
 \item{...}{will be passed to \code{plot.pwelch} or ignored}
 
+\item{se}{logical or a positive number indicating whether to plot standard
+error of mean; default is false. If provided with a number, then a multiple
+of standard error will be drawn. This option is only available when power
+is in log-scale (decibel unit)}
+
+\item{xticks}{ticks to show on frequency axis}
+
 \item{add}{logical, whether the plot should be added to existing canvas}
+
+\item{col.se, alpha.se}{controls the color and opacity of the standard error}
+
+\item{xline, yline}{controls how close the axis labels to the corresponding axes}
 
 \item{margin}{the margin in which \code{pwelch} should be applied to}
 }
