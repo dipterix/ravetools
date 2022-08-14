@@ -83,7 +83,7 @@ pwelch <- function (
 
   NN <- floor((nfft + 1)/2)
 
-  re <- re[seq_len(NN), ] / (window_len / 2)^2
+  re <- re[seq_len(NN), , drop = FALSE] / (window_len / 2)^2
 
   spec <- rowMeans(re)
 
