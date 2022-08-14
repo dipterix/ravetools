@@ -31,7 +31,7 @@ pwelch(
   xticks,
   type = "l",
   add = FALSE,
-  col = 1,
+  col = graphics::par("fg"),
   col.se = "orange",
   alpha.se = 0.5,
   lty = 1,
@@ -52,6 +52,7 @@ pwelch(
   xline = 1.5,
   yline = 2.5,
   mar = c(2.6, 3.5, 1.1, 0.6),
+  grid = TRUE,
   ...
 )
 
@@ -88,6 +89,9 @@ is in log-scale (decibel unit)}
 \item{col.se, alpha.se}{controls the color and opacity of the standard error}
 
 \item{xline, yline}{controls how close the axis labels to the corresponding axes}
+
+\item{grid}{whether to draw rectangular grid lines to the plot; only
+respected when \code{add=FALSE}; default is true}
 
 \item{margin}{the margin in which \code{pwelch} should be applied to}
 }

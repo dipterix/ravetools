@@ -20,6 +20,8 @@
 #' @param col.se,alpha.se controls the color and opacity of the standard error
 #' @param xticks ticks to show on frequency axis
 #' @param xline,yline controls how close the axis labels to the corresponding axes
+#' @param grid whether to draw rectangular grid lines to the plot; only
+#' respected when \code{add=FALSE}; default is true
 #' @param margin the margin in which \code{pwelch} should be applied to
 #' @return A list with class \code{'ravetools-pwelch'} that contains the
 #' following items:
@@ -143,11 +145,11 @@ print.pwelch <- function(x, ...){
 #' @export
 plot.pwelch <- function(
     x, log = c("xy", "x", "y", ""), se = FALSE, xticks, type = 'l', add = FALSE,
-    col = 1, col.se = "orange", alpha.se = 0.5, lty = 1, lwd = 1,
+    col = graphics::par("fg"), col.se = "orange", alpha.se = 0.5, lty = 1, lwd = 1,
     cex = 1, cex.main = cex, cex.sub = cex, cex.lab = cex * 0.8,
     cex.axis = cex * 0.7, las = 1, main = 'Welch periodogram', xlab, ylab,
     xlim = NULL, ylim = NULL, xaxs ="i", yaxs = "i", xline = 1.5, yline = 2.5,
-    mar = c(2.6, 3.5, 1.1, 0.6),
+    mar = c(2.6, 3.5, 1.1, 0.6), grid = TRUE,
     ...) {
   if(!is.null(log) && !identical(log, "")){
     log <- match.arg(log)
@@ -174,11 +176,11 @@ plot.pwelch <- function(
 
   if( x$df < 1 || log %in% c("x", "") ) {
     se <- FALSE
-    spec_lb <- 0
   }
+  spec <- x$spec
   if( se ) {
-    spec_lb <- x$spec_db - x$spec_db_se * as.numeric(se)
-    spec_ub <- x$spec_db + x$spec_db_se * as.numeric(se)
+    spec_lb <- 20 * log10(spec) - x$spec_db_se * as.numeric(se)
+    spec_ub <- 20 * log10(spec) + x$spec_db_se * as.numeric(se)
   } else {
     spec_lb <- 0
     spec_ub <- 0
@@ -194,7 +196,7 @@ plot.pwelch <- function(
       xat[xat <= 0 ] <- min(freq[freq > 0])
       xat <- log10(xat)
       freq <- log10(freq)
-      spec <- x$spec_db
+      spec <- 20 * log10(spec)
 
       xlim <- range(xat)
       if(xlim[1] < min(freq)) {
@@ -219,7 +221,7 @@ plot.pwelch <- function(
     "y" = {
       xlab %?<-% 'Frequency'
       ylab %?<-% 'Power (dB)'
-      spec <- x$spec_db
+      spec <- 20 * log10(spec)
       xat <- xlabel
     },
     {
@@ -256,6 +258,10 @@ plot.pwelch <- function(
     graphics::mtext(side = 2, text = ylab, line = yline, cex = cex.lab)
     graphics::mtext(side = 1, text = xlab, line = xline, cex = cex.lab)
 
+    if(grid) {
+      graphics::grid()
+    }
+
     if(!isFALSE(se)) {
       graphics::polygon(c(freq, rev(freq)), c(spec_lb, rev(spec_ub)),
               density = NA, border = NA,
@@ -264,7 +270,10 @@ plot.pwelch <- function(
     graphics::lines(x = freq, y = spec, col = col, lty = lty, lwd = lwd, type = type)
 
   }
-  invisible()
+  invisible(list(
+    xlim = xlim,
+    ylim = ylim
+  ))
 }
 
 
