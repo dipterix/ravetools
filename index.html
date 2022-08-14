@@ -41,7 +41,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5.9000</span>
       </span>
     </div>
 
@@ -146,7 +146,7 @@
 <span><span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span></span>
 <span>  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, </span>
 <span>  srate <span class="op">=</span> <span class="fl">2000</span>, wave_num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">20</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># For each frequency, decimate to 100 Hz</span></span>
 <span><span class="va">downsample_amp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">amplitude</span>, <span class="fl">2</span>, <span class="va">decimate</span>, q <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>

@@ -19,7 +19,7 @@ should not be called directly."><!-- mathjax --><script src="https://cdnjs.cloud
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5.9000</span>
       </span>
     </div>
 
@@ -79,9 +79,15 @@ should not be called directly.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  log <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"xy"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">""</span><span class="op">)</span>,</span>
+<span>  se <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">xticks</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>  add <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  col <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  col.se <span class="op">=</span> <span class="st">"orange"</span>,</span>
+<span>  alpha.se <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  lty <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  lwd <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cex <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cex.main <span class="op">=</span> <span class="va">cex</span>,</span>
 <span>  cex.sub <span class="op">=</span> <span class="va">cex</span>,</span>
@@ -93,6 +99,11 @@ should not be called directly.</p>
 <span>  <span class="va">ylab</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>  yaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>  xline <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  yline <span class="op">=</span> <span class="fl">2.5</span>,</span>
+<span>  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.6</span>, <span class="fl">3.5</span>, <span class="fl">1.1</span>, <span class="fl">0.6</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -121,7 +132,7 @@ should not be called directly.</p>
 <dd><p>number of basis functions to apply</p></dd>
 
 
-<dt>col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab</dt>
+<dt>col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar</dt>
 <dd><p>parameters passed to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot.default</a></code></p></dd>
 
 
@@ -137,8 +148,27 @@ should not be called directly.</p>
 <dd><p>will be passed to <code>plot.pwelch</code> or ignored</p></dd>
 
 
+<dt>se</dt>
+<dd><p>logical or a positive number indicating whether to plot standard
+error of mean; default is false. If provided with a number, then a multiple
+of standard error will be drawn. This option is only available when power
+is in log-scale (decibel unit)</p></dd>
+
+
+<dt>xticks</dt>
+<dd><p>ticks to show on frequency axis</p></dd>
+
+
 <dt>add</dt>
 <dd><p>logical, whether the plot should be added to existing canvas</p></dd>
+
+
+<dt>col.se, alpha.se</dt>
+<dd><p>controls the color and opacity of the standard error</p></dd>
+
+
+<dt>xline, yline</dt>
+<dd><p>controls how close the axis labels to the corresponding axes</p></dd>
 
 
 <dt>margin</dt>
