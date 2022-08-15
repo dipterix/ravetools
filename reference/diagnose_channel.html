@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5.9002</span>
       </span>
     </div>
 
@@ -66,17 +66,23 @@
 <span>  window <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">srate</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>,</span>
 <span>  std <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  cex <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  which <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Channel Inspection"</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">1.2</span>,</span>
+<span>  cex.lab <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lwd <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  plim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nclass <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Channel Inspection"</span>,</span>
-<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>,</span>
-<span>  which <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  start_time <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  boundary <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.2</span>, <span class="fl">5.1</span>, <span class="fl">4.1</span>, <span class="fl">2.1</span><span class="op">)</span>,</span>
-<span>  mai <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.54</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.1</span>, <span class="fl">4.1</span>, <span class="fl">2.1</span>, <span class="fl">0.8</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0.25</span> <span class="op">+</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.75</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span>,</span>
+<span>  mgp <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  xaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>  yaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>  xline <span class="op">=</span> <span class="fl">1.66</span> <span class="op">*</span> <span class="va">cex</span>,</span>
+<span>  yline <span class="op">=</span> <span class="fl">2.66</span> <span class="op">*</span> <span class="va">cex</span>,</span>
+<span>  tck <span class="op">=</span> <span class="op">-</span><span class="fl">0.005</span> <span class="op">*</span> <span class="op">(</span><span class="fl">3</span> <span class="op">+</span> <span class="va">cex</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -124,8 +130,22 @@ be automatically generated if <code>NULL</code></p></dd>
 <code>boundary</code>; default is plus-minus 3 standard deviation</p></dd>
 
 
-<dt>cex, lwd, mar, mai, ...</dt>
-<dd><p>graphical parameters; see <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></code></p></dd>
+<dt>which</dt>
+<dd><p><code>NULL</code> or integer from 1 to 4; if <code>NULL</code>, all plots
+will be displayed; otherwise only the subplot will be displayed</p></dd>
+
+
+<dt>main</dt>
+<dd><p>the title of the signal plot</p></dd>
+
+
+<dt>col</dt>
+<dd><p>colors of <code>s1</code> and <code>s2</code></p></dd>
+
+
+<dt>cex, lwd, mar, cex.lab, mgp, xaxs, yaxs, tck, ...</dt>
+<dd><p>graphical parameters; see
+<code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></code></p></dd>
 
 
 <dt>plim</dt>
@@ -137,19 +157,6 @@ be automatically generated if <code>NULL</code></p></dd>
 (<code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></code>)</p></dd>
 
 
-<dt>main</dt>
-<dd><p>the title of the signal plot</p></dd>
-
-
-<dt>col</dt>
-<dd><p>colors of <code>s1</code> and <code>s2</code></p></dd>
-
-
-<dt>which</dt>
-<dd><p><code>NULL</code> or integer from 1 to 4; if <code>NULL</code>, all plots
-will be displayed; otherwise only the subplot will be displayed</p></dd>
-
-
 <dt>start_time</dt>
 <dd><p>the starting time of channel (will only be used to draw
 signals)</p></dd>
@@ -158,6 +165,10 @@ signals)</p></dd>
 <dt>boundary</dt>
 <dd><p>a red boundary to show in channel plot; default is
 to be automatically determined by <code>std</code></p></dd>
+
+
+<dt>xline, yline</dt>
+<dd><p>distance of axis labels towards ticks</p></dd>
 
 </dl></div>
     <div id="value">
@@ -183,8 +194,6 @@ to be automatically determined by <code>std</code></p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">diagnose_channel</span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,</span></span>
 <span class="r-in"><span>                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`plot.pwelch`: `xlim` should be the frequency range in native values not log-range. Please check your plot function</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`plot.pwelch`: `xlim` should be the frequency range in native values not log-range. Please check your plot function</span>
 <span class="r-plt img"><img src="diagnose_channel-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

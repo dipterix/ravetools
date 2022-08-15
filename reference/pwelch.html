@@ -19,7 +19,7 @@ should not be called directly."><!-- mathjax --><script src="https://cdnjs.cloud
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5.9002</span>
       </span>
     </div>
 
@@ -89,10 +89,6 @@ should not be called directly.</p>
 <span>  lty <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lwd <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cex <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  cex.main <span class="op">=</span> <span class="va">cex</span>,</span>
-<span>  cex.sub <span class="op">=</span> <span class="va">cex</span>,</span>
-<span>  cex.lab <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.8</span>,</span>
-<span>  cex.axis <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fl">0.7</span>,</span>
 <span>  las <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  main <span class="op">=</span> <span class="st">"Welch periodogram"</span>,</span>
 <span>  <span class="va">xlab</span>,</span>
@@ -101,9 +97,11 @@ should not be called directly.</p>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  xaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
 <span>  yaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
-<span>  xline <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  yline <span class="op">=</span> <span class="fl">2.5</span>,</span>
-<span>  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.6</span>, <span class="fl">3.5</span>, <span class="fl">1.1</span>, <span class="fl">0.6</span><span class="op">)</span>,</span>
+<span>  xline <span class="op">=</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="va">cex</span>,</span>
+<span>  yline <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">cex</span>,</span>
+<span>  mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.6</span>, <span class="fl">3.8</span>, <span class="fl">2.1</span>, <span class="fl">0.6</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0.5</span> <span class="op">+</span> <span class="va">cex</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>,</span>
+<span>  mgp <span class="op">=</span> <span class="va">cex</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  tck <span class="op">=</span> <span class="op">-</span><span class="fl">0.02</span> <span class="op">*</span> <span class="va">cex</span>,</span>
 <span>  grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -133,7 +131,7 @@ should not be called directly.</p>
 <dd><p>number of basis functions to apply</p></dd>
 
 
-<dt>col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar</dt>
+<dt>col, xlim, ylim, main, type, cex, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar, mgp, tck</dt>
 <dd><p>parameters passed to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot.default</a></code></p></dd>
 
 
