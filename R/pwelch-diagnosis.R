@@ -14,7 +14,9 @@
 #' @param max_freq the maximum frequency to display in 'Welch Periodograms'
 #' @param plim the y-axis limit to draw in 'Welch Periodograms'
 #' @param window,noverlap see \code{\link{pwelch}}
-#' @param cex,lwd,mar,mai,... graphical parameters; see \code{\link[graphics]{par}}
+#' @param cex,lwd,mar,cex.lab,mgp,xaxs,yaxs,tck,... graphical parameters; see
+#' \code{\link[graphics]{par}}
+#' @param xline,yline distance of axis labels towards ticks
 #' @param nclass number of classes to show in histogram
 #' (\code{\link[graphics]{hist}})
 #' @param main the title of the signal plot
@@ -48,10 +50,14 @@
 diagnose_channel <- function(
   s1, s2 = NULL, sc = NULL, srate, name = '', try_compress = TRUE,
   max_freq = 300, window = ceiling(srate * 2), noverlap = window / 2, std = 3,
-  cex = 1.5, lwd = 0.5, plim = NULL, nclass = 100,
-  main = 'Channel Inspection', col = c('black', 'red'),
-  which = NULL, start_time = 0, boundary = NULL,
-  mar = c(5.2, 5.1, 4.1, 2.1), mai = c(0.6, 0.54, 0.4, 0.1),
+  which = NULL, main = 'Channel Inspection', col = c('black', 'red'),
+  cex = 1.2, cex.lab = 1,
+  lwd = 0.5, plim = NULL, nclass = 100, start_time = 0, boundary = NULL,
+  mar = c(3.1, 4.1, 2.1, 0.8) * (0.25 + cex * 0.75) + 0.1,
+  # mai = c(0.41, 0.51, 0.4, 0.1) * (0.5 + cex / 2),
+  mgp = cex * c(2, 0.5, 0),
+  xaxs = "i", yaxs = "i", xline = 1.66 * cex, yline = 2.66 * cex,
+  tck = -0.005 * (3 + cex),
   ...){
 
   # is sc not specified, and srate is too high, compress s1
@@ -63,7 +69,7 @@ diagnose_channel <- function(
     sratec <- srate / length(s1) * length(sc)
   }
   max_freq <- min(max_freq, floor(srate/ 2))
-  xlim <- c(0, max_freq)
+  xlim <- c(1, max_freq)
 
   # Calculate boundary to draw
   if(is.null(boundary)){
@@ -73,9 +79,17 @@ diagnose_channel <- function(
 
   # Grid layout
 
-  par_opt <- graphics::par(c('mai', "mar"))
+  par_opt <- graphics::par(c("mai", "mar", "mgp", "cex.main", "cex.lab", "cex.axis", "cex.sub"))
+
+  if( length(which) == 0 || prod(graphics::par("mfrow")) > 1 ) {
+    par_opt$cex.lab <- cex.lab * 0.7
+  } else {
+    par_opt$cex.lab <- cex.lab
+  }
+
+
   on.exit({graphics::par(par_opt)}, add = TRUE)
-  graphics::par(mar = mar, mai = mai)
+  graphics::par(mar = mar, mgp = mgp, cex.lab = par_opt$cex.lab)
 
   if(length(which) == 0){
     # grid::grid.newpage()
@@ -85,14 +99,26 @@ diagnose_channel <- function(
 
   # First plot: plot sc directly with col[1]
   if(length(which) == 0 || 1 %in% which){
-    graphics::plot(start_time + (seq_along(sc) / sratec), sc, xlab = 'Time (seconds)', ylab = 'Voltage',
-                   main = main, lwd = lwd,
-                   type = 'l', ylim = c(-ylim-1, ylim+1), yaxt="n", col = col[1],
-                   cex.axis = cex * 0.7, cex.lab = cex *0.8, cex.main = cex, cex.sub = cex, ...)
+    graphics::plot(
+      start_time + (seq_along(sc) / sratec), sc, xlab = '', ylab = '',
+      main = main, lwd = lwd,
+      type = 'l', ylim = c(-ylim-1, ylim+1), yaxt="n", col = col[1],
+      xaxs = xaxs, yaxs = yaxs, tck = tck, ...,
+      cex = cex, cex.main = par_opt$cex.main * cex,
+      cex.lab = par_opt$cex.lab * cex,
+      cex.axis = par_opt$cex.axis * cex
+    )
     graphics::abline(h = c(-1,1) * boundary, col = 'red')
-    ticks<-c(-ylim, -boundary,0,boundary, ylim)
-    graphics::axis(2,at=ticks,labels=round(ticks), las = 1,
-                   cex.axis = cex*0.7, cex.lab = cex *0.8, cex.main = cex, cex.sub = cex)
+    ticks<-c(-ylim,-boundary, 0, boundary, ylim)
+    graphics::axis(2,at=ticks,labels=round(ticks), las = 1, tck = tck,
+                   cex = cex, cex.main = par_opt$cex.main * cex,
+                   cex.lab = par_opt$cex.lab * cex,
+                   cex.axis = par_opt$cex.axis * cex)
+    # graphics::title(main = main, cex.main = cex * graphics::par('cex.main'))
+    graphics::mtext(side = 2, text = 'Voltage', line = yline,
+                    cex = par_opt$cex.lab * cex)
+    graphics::mtext(side = 1, text = 'Time (seconds)', line = xline,
+                    cex = par_opt$cex.lab * cex)
   }
 
   # plot 2, 3 too slow, need to be faster - pwelch periodogram
@@ -100,40 +126,58 @@ diagnose_channel <- function(
     if(!is.null(s2)){
       pwelch(s2, fs = srate, window = window,
              noverlap = noverlap, plot = 1, col = col[2], cex = cex, ylim = plim,
-             log = 'y', xlim = xlim)
+             log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
       pwelch(s1, fs = srate, window = window, noverlap = noverlap, cex = cex, ylim = plim,
-             plot = 2, col = col[1], log = 'y', xlim = xlim)
+             plot = 2, col = col[1], log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
       graphics::legend('topright', name, col = col, lty = 1, cex = cex * 0.8, bty = "n")
     }else{
       pwelch(s1, fs = srate, window = window,
              noverlap = noverlap, plot = 1, col = col[1], cex = cex, ylim = plim,
-             log = 'y', xlim = xlim)
+             log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
     }
   }
 
 
   if(length(which) == 0 || 3 %in% which){
-    log_xlim <- log10(sapply(xlim, max, 1))
     if(!is.null(s2)){
       pwelch(s2, fs = srate, window = window,
              noverlap = noverlap, plot = 1, col = col[2], cex = cex, ylim = plim,
-             log = 'xy', xlim = log_xlim)
+             log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
       pwelch(s1, fs = srate, window = window, noverlap = noverlap, cex = cex, ylim = plim,
-             plot = 2, col = col[1], log = 'xy', xlim = log_xlim)
+             plot = 2, col = col[1], log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
       graphics::legend('topright', name, col = col, lty = 1, cex = cex * 0.8, bty = "n")
     }else{
       pwelch(s1, fs = srate, window = window,
              noverlap = noverlap, plot = 1, col = col[1], cex = cex, ylim = plim,
-             log = 'xy', xlim = log_xlim)
+             log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
     }
   }
 
 
   if(length(which) == 0 || 4 %in% which){
     # Plot 4:
-    graphics::hist(s1, nclass = nclass,
-                   xlab = 'Signal Voltage Histogram', main = paste0('Histogram ', name[[1]]),
-                   cex.axis = cex * 0.7, cex.lab = cex*0.8, cex.main = cex, cex.sub = cex)
+    graphics::hist(s1, nclass = nclass, probability = FALSE,
+                   xlab = '', ylab = "", main = paste0('Histogram ', name[[1]]),
+                   tck = tck, las = 1,
+                   cex = cex, cex.main = par_opt$cex.main * cex,
+                   cex.lab = par_opt$cex.lab * cex,
+                   cex.axis = par_opt$cex.axis * cex)
+    graphics::mtext(side = 2, text = 'Frequency', line = yline,
+                    cex = par_opt$cex.lab * cex)
+    graphics::mtext(side = 1, text = 'Signal Voltage Histogram', line = xline,
+                    cex = par_opt$cex.lab * cex)
   }
 
   return(invisible(list(

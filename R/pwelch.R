@@ -12,7 +12,7 @@
 #' @param add logical, whether the plot should be added to existing canvas
 #' @param ... will be passed to \code{plot.pwelch} or ignored
 #' @param x \code{'pwelch'} instance returned by \code{pwelch} function
-#' @param col,xlim,ylim,main,type,cex,cex.main,cex.sub,cex.lab,cex.axis,las,xlab,ylab,lty,lwd,xaxs,yaxs,mar parameters passed to \code{\link[graphics]{plot.default}}
+#' @param col,xlim,ylim,main,type,cex,las,xlab,ylab,lty,lwd,xaxs,yaxs,mar,mgp,tck parameters passed to \code{\link[graphics]{plot.default}}
 #' @param se logical or a positive number indicating whether to plot standard
 #' error of mean; default is false. If provided with a number, then a multiple
 #' of standard error will be drawn. This option is only available when power
@@ -146,11 +146,11 @@ print.pwelch <- function(x, ...){
 plot.pwelch <- function(
     x, log = c("xy", "x", "y", ""), se = FALSE, xticks, type = 'l', add = FALSE,
     col = graphics::par("fg"), col.se = "orange", alpha.se = 0.5, lty = 1, lwd = 1,
-    cex = 1, cex.main = cex, cex.sub = cex, cex.lab = cex * 0.8,
-    cex.axis = cex * 0.7, las = 1, main = 'Welch periodogram', xlab, ylab,
-    xlim = NULL, ylim = NULL, xaxs ="i", yaxs = "i", xline = 1.5, yline = 2.5,
-    mar = c(2.6, 3.5, 1.1, 0.6), grid = TRUE,
-    ...) {
+    cex = 1, las = 1, main = 'Welch periodogram', xlab, ylab,
+    xlim = NULL, ylim = NULL, xaxs ="i", yaxs = "i",
+    xline = 1.2 * cex, yline = 2.0 * cex,
+    mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex / 2), mgp = cex * c(2, 0.5, 0),
+    tck = -0.02 * cex, grid = TRUE, ...) {
   if(!is.null(log) && !identical(log, "")){
     log <- match.arg(log)
   } else {
@@ -236,27 +236,35 @@ plot.pwelch <- function(
     ylim <- range(pretty(spec))
   }
 
-  if(add){
-    graphics::points(freq, spec, type = type, col = col, lty = lty, lwd = lwd, ...)
-  } else {
+  cex_params <- graphics::par("mgp", "mar", "mai", "cex.main", "cex.lab", "cex.axis", "cex.sub")
 
-    old_par <- graphics::par(c("mgp", "mar"))
-    graphics::par(mgp = c(2, 0.5, 0), mar = mar)
+  if(!add){
+
+    graphics::par(mgp = mgp, mar = mar)
     on.exit({
-      do.call(graphics::par, old_par)
+      do.call(graphics::par, cex_params)
     })
 
     graphics::plot(
       range(freq), range(spec), type = "n", xlab = "", ylab = "",
       xlim = xlim, ylim = ylim, main = main, las = las,
-      cex.axis = cex.axis, cex.lab = cex.lab, cex.main = cex.main,
-      cex.sub = cex.sub, axes = FALSE,
-      xaxs = xaxs, yaxs = yaxs, ...)
-    graphics::axis(1, at = xat, labels = xlabel, tck = -0.03, cex.axis = cex.axis)
-    graphics::axis(2, at = pretty(ylim), las = 1, tck = -0.03, cex.axis = cex.axis)
+      axes = FALSE, xaxs = xaxs, yaxs = yaxs,
+      cex = cex, cex.main = cex_params$cex.main * cex,
+      cex.lab = cex_params$cex.lab * cex,
+      cex.axis = cex_params$cex.axis * cex, ...)
+    graphics::axis(1, at = xat, labels = xlabel, tck = tck,
+                   cex = cex, cex.main = cex_params$cex.main * cex,
+                   cex.lab = cex_params$cex.lab * cex,
+                   cex.axis = cex_params$cex.axis * cex)
+    graphics::axis(2, at = pretty(ylim), las = 1, tck = tck,
+                   cex = cex, cex.main = cex_params$cex.main * cex,
+                   cex.lab = cex_params$cex.lab * cex,
+                   cex.axis = cex_params$cex.axis * cex)
 
-    graphics::mtext(side = 2, text = ylab, line = yline, cex = cex.lab)
-    graphics::mtext(side = 1, text = xlab, line = xline, cex = cex.lab)
+    graphics::mtext(side = 2, text = ylab, line = yline,
+                    cex = cex_params$cex.lab * cex)
+    graphics::mtext(side = 1, text = xlab, line = xline,
+                    cex = cex_params$cex.lab * cex)
 
     if(grid) {
       graphics::grid()
@@ -265,11 +273,19 @@ plot.pwelch <- function(
     if(!isFALSE(se)) {
       graphics::polygon(c(freq, rev(freq)), c(spec_lb, rev(spec_ub)),
               density = NA, border = NA,
-              col = grDevices::adjustcolor(col.se, alpha.f = alpha.se))
+              col = grDevices::adjustcolor(col.se, alpha.f = alpha.se),
+              cex = cex, cex.main = cex_params$cex.main * cex,
+              cex.lab = cex_params$cex.lab * cex,
+              cex.axis = cex_params$cex.axis * cex, )
     }
-    graphics::lines(x = freq, y = spec, col = col, lty = lty, lwd = lwd, type = type)
+    # graphics::lines(x = freq, y = spec, col = col, lty = lty, lwd = lwd, type = type)
 
   }
+
+  graphics::points(freq, spec, type = type, col = col, lty = lty, lwd = lwd,
+                   cex = cex, cex.main = cex_params$cex.main * cex,
+                   cex.lab = cex_params$cex.lab * cex,
+                   cex.axis = cex_params$cex.axis * cex, ...)
   invisible(list(
     xlim = xlim,
     ylim = ylim

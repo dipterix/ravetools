@@ -15,17 +15,23 @@ diagnose_channel(
   window = ceiling(srate * 2),
   noverlap = window/2,
   std = 3,
-  cex = 1.5,
+  which = NULL,
+  main = "Channel Inspection",
+  col = c("black", "red"),
+  cex = 1.2,
+  cex.lab = 1,
   lwd = 0.5,
   plim = NULL,
   nclass = 100,
-  main = "Channel Inspection",
-  col = c("black", "red"),
-  which = NULL,
   start_time = 0,
   boundary = NULL,
-  mar = c(5.2, 5.1, 4.1, 2.1),
-  mai = c(0.6, 0.54, 0.4, 0.1),
+  mar = c(3.1, 4.1, 2.1, 0.8) * (0.25 + cex * 0.75) + 0.1,
+  mgp = cex * c(2, 0.5, 0),
+  xaxs = "i",
+  yaxs = "i",
+  xline = 1.66 * cex,
+  yline = 2.66 * cex,
+  tck = -0.005 * (3 + cex),
   ...
 )
 }
@@ -53,25 +59,28 @@ be automatically generated if \code{NULL}}
 \item{std}{the standard deviation of the channel signals used to determine
 \code{boundary}; default is plus-minus 3 standard deviation}
 
-\item{cex, lwd, mar, mai, ...}{graphical parameters; see \code{\link[graphics]{par}}}
+\item{which}{\code{NULL} or integer from 1 to 4; if \code{NULL}, all plots
+will be displayed; otherwise only the subplot will be displayed}
+
+\item{main}{the title of the signal plot}
+
+\item{col}{colors of \code{s1} and \code{s2}}
+
+\item{cex, lwd, mar, cex.lab, mgp, xaxs, yaxs, tck, ...}{graphical parameters; see
+\code{\link[graphics]{par}}}
 
 \item{plim}{the y-axis limit to draw in 'Welch Periodograms'}
 
 \item{nclass}{number of classes to show in histogram
 (\code{\link[graphics]{hist}})}
 
-\item{main}{the title of the signal plot}
-
-\item{col}{colors of \code{s1} and \code{s2}}
-
-\item{which}{\code{NULL} or integer from 1 to 4; if \code{NULL}, all plots
-will be displayed; otherwise only the subplot will be displayed}
-
 \item{start_time}{the starting time of channel (will only be used to draw
 signals)}
 
 \item{boundary}{a red boundary to show in channel plot; default is
 to be automatically determined by \code{std}}
+
+\item{xline, yline}{distance of axis labels towards ticks}
 }
 \value{
 A list of boundary and y-axis limit used to draw the channel

@@ -37,10 +37,6 @@ pwelch(
   lty = 1,
   lwd = 1,
   cex = 1,
-  cex.main = cex,
-  cex.sub = cex,
-  cex.lab = cex * 0.8,
-  cex.axis = cex * 0.7,
   las = 1,
   main = "Welch periodogram",
   xlab,
@@ -49,9 +45,11 @@ pwelch(
   ylim = NULL,
   xaxs = "i",
   yaxs = "i",
-  xline = 1.5,
-  yline = 2.5,
-  mar = c(2.6, 3.5, 1.1, 0.6),
+  xline = 1.2 * cex,
+  yline = 2 * cex,
+  mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex/2),
+  mgp = cex * c(2, 0.5, 0),
+  tck = -0.02 * cex,
   grid = TRUE,
   ...
 )
@@ -69,7 +67,7 @@ mv_pwelch(x, margin, fs, nfft)
 
 \item{nfft}{number of basis functions to apply}
 
-\item{col, xlim, ylim, main, type, cex, cex.main, cex.sub, cex.lab, cex.axis, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar}{parameters passed to \code{\link[graphics]{plot.default}}}
+\item{col, xlim, ylim, main, type, cex, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar, mgp, tck}{parameters passed to \code{\link[graphics]{plot.default}}}
 
 \item{plot}{integer, whether to plot the result or not; choices are \code{0}, no plot; \code{1} plot on a new canvas; \code{2} add to existing canvas}
 
