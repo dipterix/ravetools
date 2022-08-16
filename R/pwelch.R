@@ -92,7 +92,7 @@ pwelch <- function (
   spec <- rowMeans(re)
 
   # decibel unit so we can calculate sterr of mean
-  re_db <- 20 * log10(re)
+  re_db <- 10 * log10(re)
   spec_db <- rowMeans(re_db)
   if(N > 1) {
     spec_db_se <- apply(re_db, 1, stats::sd) / sqrt(N - 1)
@@ -179,8 +179,8 @@ plot.pwelch <- function(
   }
   spec <- x$spec
   if( se ) {
-    spec_lb <- 20 * log10(spec) - x$spec_db_se * as.numeric(se)
-    spec_ub <- 20 * log10(spec) + x$spec_db_se * as.numeric(se)
+    spec_lb <- 10 * log10(spec) - x$spec_db_se * as.numeric(se)
+    spec_ub <- 10 * log10(spec) + x$spec_db_se * as.numeric(se)
   } else {
     spec_lb <- 0
     spec_ub <- 0
@@ -196,7 +196,7 @@ plot.pwelch <- function(
       xat[xat <= 0 ] <- min(freq[freq > 0])
       xat <- log10(xat)
       freq <- log10(freq)
-      spec <- 20 * log10(spec)
+      spec <- 10 * log10(spec)
 
       xlim <- range(xat)
       if(xlim[1] < min(freq)) {
@@ -221,7 +221,7 @@ plot.pwelch <- function(
     "y" = {
       xlab %?<-% 'Frequency'
       ylab %?<-% 'Power (dB)'
-      spec <- 20 * log10(spec)
+      spec <- 10 * log10(spec)
       xat <- xlabel
     },
     {
