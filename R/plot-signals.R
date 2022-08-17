@@ -141,9 +141,9 @@ plot_signals <- function (
   }
   else {
     graphics::matpoints(time_shift + Time, t(r), type = "l",
-                        col = col, lty = 1, lwd = lwd, cex = cex,
-                        cex.axis = cex * 0.7, cex.lab = cex * 0.8,
-                        xlim = xlim, cex = cex, cex.main = par_opt$cex.main * cex,
+                        col = col, lty = 1, lwd = lwd,
+                        xlim = xlim, cex = cex,
+                        cex.main = par_opt$cex.main * cex,
                         cex.lab = par_opt$cex.lab * cex,
                         cex.axis = par_opt$cex.axis * cex)
   }
