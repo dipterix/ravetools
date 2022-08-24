@@ -1,3 +1,10 @@
+# ravetools 0.0.6
+
+* Added decibel average in `pwelch`
+* Allowed `pwelch` sampling frequency to be greater than the signal length
+* Adjusted parameters diagnostic plot and `pwelch` plot to properly handle graph text, margin, axis
+* Added `plot_signals` to plot multiple functional data within the same canvas
+
 # ravetools 0.0.5
 
 * Exposed `C++` code to `inst/includes` so other users can dynamically link to the functions (https://github.com/dipterix/ravetools/issues/5)

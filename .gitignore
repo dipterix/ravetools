@@ -18,3 +18,4 @@ configure~
 .lineno
 configure.ac~
 docs
+.R

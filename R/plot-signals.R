@@ -50,8 +50,18 @@ plot_signals <- function (
 {
   space_mode <- match.arg(space_mode)
   if (space_mode == "quantile" && space <= 1) {
-    space <- stats::quantile(signals, space, na.rm = TRUE) * 2
+    # quantile is slow: sample
+    if(length(signals) > 100000) {
+      space <- stats::quantile(
+        signals[sample(length(signals), 100000)],
+        space, na.rm = TRUE
+      ) * 2
+    } else {
+      space <- stats::quantile(signals, space, na.rm = TRUE) * 2
+    }
   }
+  # make sure spacing is positive
+  space <- abs(space)
   compress <- round(compress)
   if(!is.matrix(signals)) {
     if(is.vector(signals)) {
@@ -69,35 +79,48 @@ plot_signals <- function (
     } else {
       n_tp <- round(nt - start_time * sample_rate)
     }
-    if (n_tp * ns > 20000) {
-      compress <- (n_tp * ns/20000)
-      if(n_tp / compress < 100) {
-        compress <- n_tp / 100
+    if (n_tp * ns > 100000) {
+      compress <- (n_tp * ns/100000)
+      if(n_tp / compress < 1000) {
+        compress <- n_tp / 1000
       }
     }
   }
+
   if (compress > 1) {
+    tidx <- round(seq(1, ncol(signals), by = compress))
+    nt <- length(tidx)
+
+    Time <- (tidx - 1) / sample_rate
+
     sample_rate <- sample_rate/compress
-    signals <- signals[, round(seq(1, ncol(signals), by = compress)), drop = FALSE]
+  } else {
+    nt <- ncol(signals)
+    tidx <- seq_len(nt)
+
+    Time <- (tidx - 1) / sample_rate
   }
+
+  start_time <- min(start_time, range(Time)[2] - 10/sample_rate)
+  if (is.null(duration)) {
+    time_range <- c(start_time, range(Time)[2])
+  } else {
+    time_range <- c(start_time, start_time + duration)
+  }
+  tsl <- Time >= time_range[[1]] & Time <= time_range[[2]]
+
+  tidx <- tidx[tsl]
+  Time <- Time[tsl]
+
+  signals <- signals[, tidx, drop = FALSE]
   nt <- ncol(signals)
+
   if (length(col) == 1) {
     col <- rep(col, ns)
   }
   y0 <- space * seq_len(ns)
   r <- y0 + signals
-  Time <- (seq_len(nt) - 1) / sample_rate
-  start_time <- min(start_time, range(Time)[2] - 10/sample_rate)
-  if (is.null(duration)) {
-    time_range <- c(start_time, range(Time)[2])
-  }
-  else {
-    time_range <- c(start_time, start_time + duration)
-  }
-  tsl <- Time >= time_range[[1]] & Time <= time_range[[2]]
-  r <- r[, tsl, drop = FALSE]
-  Time <- Time[tsl]
-  nt <- ncol(r)
+
   if (is.null(channel_names)) {
     channel_names <- as.character(seq_len(ns))
     if (length(y0) > 30) {
