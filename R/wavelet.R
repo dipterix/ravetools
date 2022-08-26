@@ -18,6 +18,11 @@
 #' used for wavelet function; \code{morlet_wavelet} returns a file-based array
 #' if \code{precision} is \code{'float'}, or a list of real and imaginary
 #' arrays if \code{precision} is \code{'double'}
+#' @param frequency_range frequency range to calculate, default is 2 to 200
+#' @param cycle_range number of cycles corresponding to \code{frequency_range}.
+#' For default frequency range (2 - 200), the default \code{cycle_range} is
+#' 3 to 20. That is, 3 wavelet kernel cycles at 2 Hertz, and 20 cycles at 200
+#' Hertz.
 #'
 #' @examples
 #'
@@ -633,6 +638,27 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, precision = c("float", 
   }
   return(re)
 }
+
+#' @rdname wavelet
+#' @export
+wavelet_cycles_suggest <- function(
+    freqs,
+    frequency_range = c(2, 200),
+    cycle_range = c(3, 20)
+) {
+  v1 <- log(cycle_range[[1]])
+  v2 <- log(cycle_range[[2]])
+  cycle <- (v2 - v1) / (log(frequency_range[[2]]) - log(frequency_range[[1]])) *
+    (log(freqs) - log(frequency_range[[1]])) + v1
+  cycle <- round(exp(cycle))
+  cycle[cycle <= 0] <- 1
+
+  data.frame(
+    Frequency = freqs,
+    Cycles = cycle
+  )
+}
+
 
 # x <- rnorm(10000)
 # y2 <- morlet_wavelet(x, freqs = 2:200, srate = 2000, wave_num = c(2,20), demean = TRUE)
