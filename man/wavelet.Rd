@@ -16,6 +16,7 @@ morlet_wavelet(
   wave_num,
   precision = c("float", "double"),
   trend = c("constant", "linear", "none"),
+  signature = NULL,
   ...
 )
 
@@ -41,6 +42,8 @@ smoothness); positive integers are strongly suggested}
 
 \item{trend}{choices are \code{'constant'}: center the signal at zero;
 \code{'linear'}: remove the linear trend; \code{'none'} do nothing}
+
+\item{signature}{signature to calculate kernel path to save, internally used}
 
 \item{...}{further passed to \code{\link{detrend}};}
 
