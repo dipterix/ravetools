@@ -19,7 +19,7 @@ differences."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ravetools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.6.9000</span>
       </span>
     </div>
 
@@ -67,6 +67,12 @@ differences.</p>
 <span>  precision <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"float"</span>, <span class="st">"double"</span><span class="op">)</span>,</span>
 <span>  trend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"constant"</span>, <span class="st">"linear"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">wavelet_cycles_suggest</span><span class="op">(</span></span>
+<span>  <span class="va">freqs</span>,</span>
+<span>  frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">200</span><span class="op">)</span>,</span>
+<span>  cycle_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">20</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,6 +108,17 @@ smoothness); positive integers are strongly suggested</p></dd>
 
 <dt>...</dt>
 <dd><p>further passed to <code><a href="detrend.html">detrend</a></code>;</p></dd>
+
+
+<dt>frequency_range</dt>
+<dd><p>frequency range to calculate, default is 2 to 200</p></dd>
+
+
+<dt>cycle_range</dt>
+<dd><p>number of cycles corresponding to <code>frequency_range</code>.
+For default frequency range (2 - 200), the default <code>cycle_range</code> is
+3 to 20. That is, 3 wavelet kernel cycles at 2 Hertz, and 20 cycles at 200
+Hertz.</p></dd>
 
 </dl></div>
     <div id="value">
