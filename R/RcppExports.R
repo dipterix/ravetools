@@ -41,6 +41,10 @@ conjugate <- function(data) {
     .Call(`_ravetools_conjugate`, data)
 }
 
+cpp_filter <- function(b, a, x, z) {
+    .Call(`_ravetools_cpp_filter`, b, a, x, z)
+}
+
 rawToUInt8 <- function(x) {
     .Call(`_ravetools_rawToUInt8`, x)
 }

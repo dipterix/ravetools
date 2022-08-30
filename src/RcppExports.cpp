@@ -360,6 +360,43 @@ RcppExport SEXP _ravetools_conjugate(SEXP dataSEXP) {
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// cpp_filter
+SEXP cpp_filter(SEXP b, SEXP a, SEXP x, SEXP z);
+static SEXP _ravetools_cpp_filter_try(SEXP bSEXP, SEXP aSEXP, SEXP xSEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type b(bSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type a(aSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type z(zSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_filter(b, a, x, z));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_cpp_filter(SEXP bSEXP, SEXP aSEXP, SEXP xSEXP, SEXP zSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_cpp_filter_try(bSEXP, aSEXP, xSEXP, zSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
 // rawToUInt8
 SEXP rawToUInt8(SEXP x);
 RcppExport SEXP _ravetools_rawToUInt8(SEXP xSEXP) {
@@ -497,6 +534,7 @@ static int _ravetools_RcppExport_validate(const char* sig) {
         signatures.insert("SEXP(*fftw_c2c)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*fftw_c2r)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*conjugate)(SEXP)");
+        signatures.insert("SEXP(*cpp_filter)(SEXP,SEXP,SEXP,SEXP)");
     }
     return signatures.find(sig) != signatures.end();
 }
@@ -512,6 +550,7 @@ RcppExport SEXP _ravetools_RcppExport_registerCCallable() {
     R_RegisterCCallable("ravetools", "_ravetools_fftw_c2c", (DL_FUNC)_ravetools_fftw_c2c_try);
     R_RegisterCCallable("ravetools", "_ravetools_fftw_c2r", (DL_FUNC)_ravetools_fftw_c2r_try);
     R_RegisterCCallable("ravetools", "_ravetools_conjugate", (DL_FUNC)_ravetools_conjugate_try);
+    R_RegisterCCallable("ravetools", "_ravetools_cpp_filter", (DL_FUNC)_ravetools_cpp_filter_try);
     R_RegisterCCallable("ravetools", "_ravetools_RcppExport_validate", (DL_FUNC)_ravetools_RcppExport_validate);
     return R_NilValue;
 }
@@ -527,6 +566,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
     {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
+    {"_ravetools_cpp_filter", (DL_FUNC) &_ravetools_cpp_filter, 4},
     {"_ravetools_rawToUInt8", (DL_FUNC) &_ravetools_rawToUInt8, 1},
     {"_ravetools_rawToInt8", (DL_FUNC) &_ravetools_rawToInt8, 1},
     {"_ravetools_rawToUInt16", (DL_FUNC) &_ravetools_rawToUInt16, 1},

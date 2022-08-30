@@ -213,6 +213,27 @@ namespace ravetools {
         return Rcpp::as<SEXP >(rcpp_result_gen);
     }
 
+    inline SEXP cpp_filter(SEXP b, SEXP a, SEXP x, SEXP z) {
+        typedef SEXP(*Ptr_cpp_filter)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_cpp_filter p_cpp_filter = NULL;
+        if (p_cpp_filter == NULL) {
+            validateSignature("SEXP(*cpp_filter)(SEXP,SEXP,SEXP,SEXP)");
+            p_cpp_filter = (Ptr_cpp_filter)R_GetCCallable("ravetools", "_ravetools_cpp_filter");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_cpp_filter(Shield<SEXP>(Rcpp::wrap(b)), Shield<SEXP>(Rcpp::wrap(a)), Shield<SEXP>(Rcpp::wrap(x)), Shield<SEXP>(Rcpp::wrap(z)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
 }
 
 #endif // RCPP_ravetools_RCPPEXPORTS_H_GEN_
