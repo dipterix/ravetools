@@ -2,7 +2,8 @@
 #' @description \code{pwelch} is for single signal trace only; \code{mv_pwelch}
 #' is for multiple traces. Currently \code{mv_pwelch} is experimental and
 #' should not be called directly.
-#' @param x numerical vector, analog voltage signal
+#' @param x numerical vector or a row-major vector, analog voltage signals.
+#' If \code{x} is a matrix, then each row is a channel
 #' @param fs sample rate, average number of time points per second
 #' @param window window length in time points, default size is \code{64}
 #' @param nfft number of basis functions to apply
@@ -44,7 +45,90 @@
 #' plot(pwel, log = "xy")
 #'
 #' @export
-pwelch <- function (
+pwelch <- function(
+    x, fs, window = 64, noverlap = 8, nfft = 256,
+    col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
+    plot = 0, log = c("xy", "", "x", "y"), ...
+) {
+  UseMethod("pwelch")
+}
+
+#' @export
+pwelch.matrix <- function(
+    x, fs, window = 64, noverlap = 8, nfft = 256,
+    col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
+    plot = 0, log = c("xy", "", "x", "y"), ...) {
+
+  x_len <- ncol(x)
+
+  nfft <- max(min(nfft, x_len), window)
+
+  window <- hanning(window)
+
+  # window_norm = norm(window, '2')
+  window_len <- length(window)
+
+  # normalization <- mean(window^2)
+
+  step <- max(floor(window_len - noverlap + 0.99), 1)
+
+  ## Average the slices
+  offset <- seq(1, max(x_len-window_len+1, 1), by = step)
+
+  N <- length(offset)
+
+  # re-slice data
+  nchannels <- nrow(x)
+  re <- sapply(offset, function(idx_start) {
+    t(x[, idx_start - 1 + seq_len(window_len), drop = FALSE])
+  })
+  dim(re) <- c(window_len, nchannels * length(offset))
+
+  re <- apply(re, 2, function(slice) {
+    a <- detrend_naive(slice)
+    postpad(a$Y * window, nfft)
+  })
+
+  re <- Mod(mvfftw_r2c(re))^2
+
+  NN <- floor((nfft + 1)/2)
+  re <- re[seq_len(NN), , drop = FALSE] / (window_len / 2)^2
+
+  # calculate mean
+  dim(re) <- c(NN, nchannels, N)
+  re <- apply(re, 1, rowMeans) # nchannels x NN
+  if(!is.matrix(re)) {
+    dim(re) <- c(nchannels, NN)
+  }
+
+  freq <- seq(1, fs / 2, length.out = NN)
+
+  res <- structure(list(
+    freq = freq,
+    spec = re,
+    nchannels = nchannels,
+    df = N - 1,
+    window = window,
+    noverlap = noverlap,
+    nfft = nfft,
+    fs = fs,
+    x_len = length(x),
+    method = "Welch"
+  ), class = c("pwelch-multi", "ravetools-pwelch", "pwelch"))
+
+  if( plot ) {
+    if(!is.null(log)){
+      log <- match.arg(log)
+    }
+    plot(res, col = col, xlim = xlim, ylim = ylim, main = main,
+         add = plot >= 2, log = log, ...)
+    return(invisible(res))
+  }
+  return(res)
+}
+
+#' @export
+pwelch.default <- function (
   x, fs, window = 64, noverlap = 8, nfft = 256,
   col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
   plot = 0, log = c("xy", "", "x", "y"), ...) {
@@ -107,6 +191,7 @@ pwelch <- function (
     spec = spec,
     spec_db = spec_db,
     spec_db_se = spec_db_se,
+    nchannels = 1,
     df = N - 1,
     window = window,
     noverlap = noverlap,
@@ -132,6 +217,7 @@ pwelch <- function (
 print.pwelch <- function(x, ...){
   cat(paste0(
     "Welch Periodogram:\n",
+    sprintf("  # channels: %.0f\n", x$nchannels),
     sprintf("  time points: %d\n", x$x_len),
     sprintf("  sample rate: %.2f\n", x$fs),
     sprintf("  window size: %d\n", length(x$window)),
@@ -174,7 +260,7 @@ plot.pwelch <- function(
     xlabel <- pretty(xlim)
   }
 
-  if( x$df < 1 || log %in% c("x", "") ) {
+  if( x$df < 1 || log %in% c("x", "") || !length(x$spec_db_se) ) {
     se <- FALSE
   }
   spec <- x$spec
@@ -236,6 +322,10 @@ plot.pwelch <- function(
     ylim <- range(pretty(spec))
   }
 
+  if(!is.matrix(spec)) {
+    spec <- matrix(spec, nrow = x$nchannels)
+  }
+
   cex_params <- graphics::par("mgp", "mar", "mai", "cex.main", "cex.lab", "cex.axis", "cex.sub")
 
   if(!add){
@@ -282,7 +372,7 @@ plot.pwelch <- function(
 
   }
 
-  graphics::points(freq, spec, type = type, col = col, lty = lty, lwd = lwd,
+  graphics::matpoints(freq, t(spec), type = type, col = col, lty = lty, lwd = lwd,
                    cex = cex, cex.main = cex_params$cex.main * cex,
                    cex.lab = cex_params$cex.lab * cex,
                    cex.axis = cex_params$cex.axis * cex, ...)
