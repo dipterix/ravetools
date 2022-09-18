@@ -1,7 +1,7 @@
 Package: ravetools
 Type: Package
 Title: Signal Processing Toolbox for Analyzing 'Electrophysiology' Data
-Version: 0.0.6.9003
+Version: 0.0.7
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -35,12 +35,12 @@ Imports:
     Rcpp (>= 1.0.8),
     waveslim (>= 1.8.2),
     signal (>= 0.7.7),
+    pracma,
     digest (>= 0.6.29)
 LinkingTo: 
     Rcpp
 Suggests: 
     fftwtools,
     bit64,
-    pracma,
     microbenchmark,
     testthat

@@ -1,3 +1,11 @@
+# ravetools 0.0.7
+
+* Added signal `filter`, `filtfilt` that produce the same results as `Matlab` (with precision error)
+* Added two ways to perform band-pass filters
+* Allows multiple channels through `pwelch` as a row-major matrix to speed up calculation
+* Added `wavelet_cycles_suggest` to provide default calculation of wavelet cycles
+* Added internal argument `signature` to wavelet to resolve potential cache conflicts when running in multiple processes. (This allows `RAVE` to run wavelet on multiple subjects at the same time)
+
 # ravetools 0.0.6
 
 * Added decibel average in `pwelch`
