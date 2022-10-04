@@ -122,47 +122,55 @@ diagnose_channel <- function(
   }
 
   # plot 2, 3 too slow, need to be faster - pwelch periodogram
-  if(length(which) == 0 || 2 %in% which){
-    if(!is.null(s2)){
-      pwelch(s2, fs = srate, window = window,
-             noverlap = noverlap, plot = 1, col = col[2], cex = cex, ylim = plim,
+  if(length(which) == 0 || any(c(2, 3) %in% which)){
+    ps1 <- pwelch(s1, fs = srate, window = window, noverlap = noverlap, plot = FALSE)
+    has_s2 <- !is.null(s2)
+    if(has_s2) {
+      ps2 <- pwelch(s2, fs = srate, window = window, noverlap = noverlap, plot = FALSE)
+    } else {
+      ps2 <- NULL
+    }
+
+    if( length(which) == 0 || 2 %in% which ) {
+
+      if(has_s2) {
+        plot(ps2, add = FALSE, col = col[2], cex = cex, ylim = plim,
              log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
-      pwelch(s1, fs = srate, window = window, noverlap = noverlap, cex = cex, ylim = plim,
-             plot = 2, col = col[1], log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
-             xline = xline, yline = yline, main = "Welch Periodogram",
-             mgp = mgp, tck = tck)
-      graphics::legend('topright', name, col = col, lty = 1, cex = cex * 0.8, bty = "n")
-    }else{
-      pwelch(s1, fs = srate, window = window,
-             noverlap = noverlap, plot = 1, col = col[1], cex = cex, ylim = plim,
+        plot(ps1, add = TRUE, col = col[1], cex = cex, ylim = plim,
              log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
+      } else {
+        plot(ps1, add = FALSE, col = col[1], cex = cex, ylim = plim,
+             log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
+      }
+
     }
-  }
 
+    if( length(which) == 0 || 3 %in% which ) {
 
-  if(length(which) == 0 || 3 %in% which){
-    if(!is.null(s2)){
-      pwelch(s2, fs = srate, window = window,
-             noverlap = noverlap, plot = 1, col = col[2], cex = cex, ylim = plim,
+      if(has_s2) {
+        plot(ps2, add = FALSE, col = col[2], cex = cex, ylim = plim,
              log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
-      pwelch(s1, fs = srate, window = window, noverlap = noverlap, cex = cex, ylim = plim,
-             plot = 2, col = col[1], log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
-             xline = xline, yline = yline, main = "Welch Periodogram",
-             mgp = mgp, tck = tck)
-      graphics::legend('topright', name, col = col, lty = 1, cex = cex * 0.8, bty = "n")
-    }else{
-      pwelch(s1, fs = srate, window = window,
-             noverlap = noverlap, plot = 1, col = col[1], cex = cex, ylim = plim,
+        plot(ps1, add = TRUE, col = col[1], cex = cex, ylim = plim,
              log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
+      } else {
+        plot(ps1, add = FALSE, col = col[1], cex = cex, ylim = plim,
+             log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
+             xline = xline, yline = yline, main = "Welch Periodogram",
+             mgp = mgp, tck = tck)
+      }
+
     }
+
   }
 
 
