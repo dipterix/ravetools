@@ -5,8 +5,19 @@ using namespace Rcpp;
 // [[Rcpp::interfaces(r, cpp)]]
 
 // choose random index (not really random but should be enough for quantiles)
+static unsigned long seed1=123456789, seed2=362436069, seed3=521288629;
+
 R_xlen_t randIndex(const R_xlen_t &totalSize) {
-  return std::rand() % totalSize;
+  unsigned long t;
+  seed1 ^= seed1 << 16;
+  seed1 ^= seed1 >> 5;
+  seed1 ^= seed1 << 1;
+
+  t = seed1;
+  seed1 = seed2;
+  seed2 = seed3;
+  seed3 = t ^ seed1 ^ seed2;
+  return seed3 % totalSize;
 }
 
 // Get quick-select pivot value
