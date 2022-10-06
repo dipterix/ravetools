@@ -918,7 +918,8 @@ inline thread::thread(void (*aFunction)(void *), void * aArg)
 inline thread::~thread()
 {
 #if defined(_TTHREAD_WIN32_)
-  std::terminate();
+  if(joinable())
+    std::terminate();
 #elif defined(_TTHREAD_POSIX_)
   join();
   detach();
