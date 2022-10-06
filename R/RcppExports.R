@@ -13,8 +13,24 @@ collapser_real <- function(x, keep, method = 1L, average = 0L) {
     .Call(`_ravetools_collapser_real`, x, keep, method, average)
 }
 
+columnQuantile <- function(x, prob, naRm) {
+    .Call(`_ravetools_columnQuantile`, x, prob, naRm)
+}
+
+columnMedian <- function(x, naRm) {
+    .Call(`_ravetools_columnMedian`, x, naRm)
+}
+
 fastColMeans <- function(x, col, xDim) {
     .Call(`_ravetools_fastColMeans`, x, col, xDim)
+}
+
+quickQuantile <- function(x, prob, naRm) {
+    .Call(`_ravetools_quickQuantile`, x, prob, naRm)
+}
+
+quickMedian <- function(x, naRm) {
+    .Call(`_ravetools_quickMedian`, x, naRm)
 }
 
 fastcov <- function(x1, x2, col1 = NULL, col2 = NULL, df = -1.0) {

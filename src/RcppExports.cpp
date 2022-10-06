@@ -105,6 +105,77 @@ RcppExport SEXP _ravetools_collapser_real(SEXP xSEXP, SEXP keepSEXP, SEXP method
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// columnQuantile
+SEXP columnQuantile(SEXP& x, const double& prob, const bool& naRm);
+static SEXP _ravetools_columnQuantile_try(SEXP xSEXP, SEXP probSEXP, SEXP naRmSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type naRm(naRmSEXP);
+    rcpp_result_gen = Rcpp::wrap(columnQuantile(x, prob, naRm));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_columnQuantile(SEXP xSEXP, SEXP probSEXP, SEXP naRmSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_columnQuantile_try(xSEXP, probSEXP, naRmSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// columnMedian
+SEXP columnMedian(SEXP& x, const bool& naRm);
+static SEXP _ravetools_columnMedian_try(SEXP xSEXP, SEXP naRmSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type naRm(naRmSEXP);
+    rcpp_result_gen = Rcpp::wrap(columnMedian(x, naRm));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_columnMedian(SEXP xSEXP, SEXP naRmSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_columnMedian_try(xSEXP, naRmSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
 // fastColMeans
 SEXP fastColMeans(const SEXP& x, const SEXP& col, const SEXP& xDim);
 static SEXP _ravetools_fastColMeans_try(SEXP xSEXP, SEXP colSEXP, SEXP xDimSEXP) {
@@ -122,6 +193,77 @@ RcppExport SEXP _ravetools_fastColMeans(SEXP xSEXP, SEXP colSEXP, SEXP xDimSEXP)
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
         rcpp_result_gen = PROTECT(_ravetools_fastColMeans_try(xSEXP, colSEXP, xDimSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// quickQuantile
+SEXP quickQuantile(const SEXP& x, const double& prob, const bool& naRm);
+static SEXP _ravetools_quickQuantile_try(SEXP xSEXP, SEXP probSEXP, SEXP naRmSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type naRm(naRmSEXP);
+    rcpp_result_gen = Rcpp::wrap(quickQuantile(x, prob, naRm));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_quickQuantile(SEXP xSEXP, SEXP probSEXP, SEXP naRmSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_quickQuantile_try(xSEXP, probSEXP, naRmSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// quickMedian
+SEXP quickMedian(const SEXP& x, const bool& naRm);
+static SEXP _ravetools_quickMedian_try(SEXP xSEXP, SEXP naRmSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type naRm(naRmSEXP);
+    rcpp_result_gen = Rcpp::wrap(quickMedian(x, naRm));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_quickMedian(SEXP xSEXP, SEXP naRmSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_quickMedian_try(xSEXP, naRmSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -527,7 +669,11 @@ static int _ravetools_RcppExport_validate(const char* sig) {
     if (signatures.empty()) {
         signatures.insert("SEXP(*collapser_cplx)(SEXP,SEXP,const int,const int)");
         signatures.insert("SEXP(*collapser_real)(SEXP,SEXP,const int,const int)");
+        signatures.insert("SEXP(*columnQuantile)(SEXP&,const double&,const bool&)");
+        signatures.insert("SEXP(*columnMedian)(SEXP&,const bool&)");
         signatures.insert("SEXP(*fastColMeans)(const SEXP&,const SEXP&,const SEXP&)");
+        signatures.insert("SEXP(*quickQuantile)(const SEXP&,const double&,const bool&)");
+        signatures.insert("SEXP(*quickMedian)(const SEXP&,const bool&)");
         signatures.insert("SEXP(*fastcov)(const SEXP&,const SEXP&,const SEXP&,const SEXP&,const double&)");
         signatures.insert("SEXP(*fftw_r2c)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*mvfftw_r2c)(SEXP,int,SEXP)");
@@ -543,7 +689,11 @@ static int _ravetools_RcppExport_validate(const char* sig) {
 RcppExport SEXP _ravetools_RcppExport_registerCCallable() { 
     R_RegisterCCallable("ravetools", "_ravetools_collapser_cplx", (DL_FUNC)_ravetools_collapser_cplx_try);
     R_RegisterCCallable("ravetools", "_ravetools_collapser_real", (DL_FUNC)_ravetools_collapser_real_try);
+    R_RegisterCCallable("ravetools", "_ravetools_columnQuantile", (DL_FUNC)_ravetools_columnQuantile_try);
+    R_RegisterCCallable("ravetools", "_ravetools_columnMedian", (DL_FUNC)_ravetools_columnMedian_try);
     R_RegisterCCallable("ravetools", "_ravetools_fastColMeans", (DL_FUNC)_ravetools_fastColMeans_try);
+    R_RegisterCCallable("ravetools", "_ravetools_quickQuantile", (DL_FUNC)_ravetools_quickQuantile_try);
+    R_RegisterCCallable("ravetools", "_ravetools_quickMedian", (DL_FUNC)_ravetools_quickMedian_try);
     R_RegisterCCallable("ravetools", "_ravetools_fastcov", (DL_FUNC)_ravetools_fastcov_try);
     R_RegisterCCallable("ravetools", "_ravetools_fftw_r2c", (DL_FUNC)_ravetools_fftw_r2c_try);
     R_RegisterCCallable("ravetools", "_ravetools_mvfftw_r2c", (DL_FUNC)_ravetools_mvfftw_r2c_try);
@@ -559,7 +709,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_baselineArray", (DL_FUNC) &_ravetools_baselineArray, 8},
     {"_ravetools_collapser_cplx", (DL_FUNC) &_ravetools_collapser_cplx, 4},
     {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
+    {"_ravetools_columnQuantile", (DL_FUNC) &_ravetools_columnQuantile, 3},
+    {"_ravetools_columnMedian", (DL_FUNC) &_ravetools_columnMedian, 2},
     {"_ravetools_fastColMeans", (DL_FUNC) &_ravetools_fastColMeans, 3},
+    {"_ravetools_quickQuantile", (DL_FUNC) &_ravetools_quickQuantile, 3},
+    {"_ravetools_quickMedian", (DL_FUNC) &_ravetools_quickMedian, 2},
     {"_ravetools_fastcov", (DL_FUNC) &_ravetools_fastcov, 5},
     {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 4},
     {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 3},
