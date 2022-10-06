@@ -115,7 +115,8 @@ double quickSelectQuantile(
 
     if( k - 1 == lsize ) {
       //   Rcout << "k - 1 == lsize [" << k << " " << lsize <<"] " << xlenOdd;
-      double medianL, medianR;
+      double medianR;
+      double medianL = 0.0l; // avoid not initialized warnings
       if( !xlenOdd ) {
         // medianL is the max of buf
         medianL = findMax(bufptr, lsize, i, pt0, pt1);

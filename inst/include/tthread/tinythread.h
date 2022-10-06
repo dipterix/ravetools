@@ -861,21 +861,22 @@ inline void * thread::wrapper_function(void * aArg)
   {
     // Call the actual client thread function
     ti->mFunction(ti->mArg);
-    // ti->mThread->join();
   }
   catch(...)
   {
     // Uncaught exceptions will terminate the application (default behavior
     // according to C++11)
 
-    // ti->mThread->join();
-    // ti->mThread->detach();
     std::terminate();
   }
 
   // The thread is no longer executing
-  // lock_guard<mutex> guard(ti->mThread->mDataMutex);
-  // ti->mThread->mNotAThread = true;
+  // Originally it executes on all platforms, but I don't think it's right to
+  // call with pthreads, so only make it work on Windows
+#if defined(_TTHREAD_WIN32_)
+  lock_guard<mutex> guard(ti->mThread->mDataMutex);
+  ti->mThread->mNotAThread = true;
+#endif
 
   // The thread is responsible for freeing the startup information
   delete ti;
@@ -916,8 +917,12 @@ inline thread::thread(void (*aFunction)(void *), void * aArg)
 
 inline thread::~thread()
 {
+#if defined(_TTHREAD_WIN32_)
+  std::terminate();
+#elif defined(_TTHREAD_POSIX_)
   join();
   detach();
+#endif
 }
 
 inline void thread::join()
@@ -934,9 +939,9 @@ inline void thread::join()
 
 inline bool thread::joinable() const
 {
-  // mDataMutex.lock();
+  mDataMutex.lock();
   bool result = !mNotAThread;
-  // mDataMutex.unlock();
+  mDataMutex.unlock();
   return result;
 }
 
