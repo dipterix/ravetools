@@ -81,7 +81,7 @@ freely, subject to the following restrictions:
   #include <signal.h>
   #include <sched.h>
   #include <unistd.h>
-  #include <stdlib.h> 
+  #include <stdlib.h>
 #endif
 
 // Generic includes
@@ -861,17 +861,21 @@ inline void * thread::wrapper_function(void * aArg)
   {
     // Call the actual client thread function
     ti->mFunction(ti->mArg);
+    // ti->mThread->join();
   }
   catch(...)
   {
     // Uncaught exceptions will terminate the application (default behavior
     // according to C++11)
+
+    // ti->mThread->join();
+    // ti->mThread->detach();
     std::terminate();
   }
 
   // The thread is no longer executing
-  lock_guard<mutex> guard(ti->mThread->mDataMutex);
-  ti->mThread->mNotAThread = true;
+  // lock_guard<mutex> guard(ti->mThread->mDataMutex);
+  // ti->mThread->mNotAThread = true;
 
   // The thread is responsible for freeing the startup information
   delete ti;
@@ -912,14 +916,13 @@ inline thread::thread(void (*aFunction)(void *), void * aArg)
 
 inline thread::~thread()
 {
-  if(joinable())
-    std::terminate();
+  join();
+  detach();
 }
 
 inline void thread::join()
 {
-  if(joinable())
-  {
+  if( joinable() ) {
 #if defined(_TTHREAD_WIN32_)
     WaitForSingleObject(mHandle, INFINITE);
     CloseHandle(mHandle);
@@ -931,25 +934,31 @@ inline void thread::join()
 
 inline bool thread::joinable() const
 {
-  mDataMutex.lock();
+  // mDataMutex.lock();
   bool result = !mNotAThread;
-  mDataMutex.unlock();
+  // mDataMutex.unlock();
   return result;
 }
 
 inline void thread::detach()
 {
+  bool isDetachable = false;
   mDataMutex.lock();
   if(!mNotAThread)
+  {
+    mNotAThread = true;
+    isDetachable = true;
+  }
+  mDataMutex.unlock();
+
+  if(isDetachable)
   {
 #if defined(_TTHREAD_WIN32_)
     CloseHandle(mHandle);
 #elif defined(_TTHREAD_POSIX_)
     pthread_detach(mHandle);
 #endif
-    mNotAThread = true;
   }
-  mDataMutex.unlock();
 }
 
 inline thread::id thread::get_id() const

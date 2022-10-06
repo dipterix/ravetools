@@ -66,6 +66,48 @@ namespace ravetools {
         return Rcpp::as<SEXP >(rcpp_result_gen);
     }
 
+    inline SEXP columnQuantile(SEXP& x, const double& prob, const bool& naRm) {
+        typedef SEXP(*Ptr_columnQuantile)(SEXP,SEXP,SEXP);
+        static Ptr_columnQuantile p_columnQuantile = NULL;
+        if (p_columnQuantile == NULL) {
+            validateSignature("SEXP(*columnQuantile)(SEXP&,const double&,const bool&)");
+            p_columnQuantile = (Ptr_columnQuantile)R_GetCCallable("ravetools", "_ravetools_columnQuantile");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_columnQuantile(Shield<SEXP>(Rcpp::wrap(x)), Shield<SEXP>(Rcpp::wrap(prob)), Shield<SEXP>(Rcpp::wrap(naRm)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
+    inline SEXP columnMedian(SEXP& x, const bool& naRm) {
+        typedef SEXP(*Ptr_columnMedian)(SEXP,SEXP);
+        static Ptr_columnMedian p_columnMedian = NULL;
+        if (p_columnMedian == NULL) {
+            validateSignature("SEXP(*columnMedian)(SEXP&,const bool&)");
+            p_columnMedian = (Ptr_columnMedian)R_GetCCallable("ravetools", "_ravetools_columnMedian");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_columnMedian(Shield<SEXP>(Rcpp::wrap(x)), Shield<SEXP>(Rcpp::wrap(naRm)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
     inline SEXP fastColMeans(const SEXP& x, const SEXP& col, const SEXP& xDim) {
         typedef SEXP(*Ptr_fastColMeans)(SEXP,SEXP,SEXP);
         static Ptr_fastColMeans p_fastColMeans = NULL;
@@ -77,6 +119,48 @@ namespace ravetools {
         {
             RNGScope RCPP_rngScope_gen;
             rcpp_result_gen = p_fastColMeans(Shield<SEXP>(Rcpp::wrap(x)), Shield<SEXP>(Rcpp::wrap(col)), Shield<SEXP>(Rcpp::wrap(xDim)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
+    inline SEXP quickQuantile(const SEXP& x, const double& prob, const bool& naRm) {
+        typedef SEXP(*Ptr_quickQuantile)(SEXP,SEXP,SEXP);
+        static Ptr_quickQuantile p_quickQuantile = NULL;
+        if (p_quickQuantile == NULL) {
+            validateSignature("SEXP(*quickQuantile)(const SEXP&,const double&,const bool&)");
+            p_quickQuantile = (Ptr_quickQuantile)R_GetCCallable("ravetools", "_ravetools_quickQuantile");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_quickQuantile(Shield<SEXP>(Rcpp::wrap(x)), Shield<SEXP>(Rcpp::wrap(prob)), Shield<SEXP>(Rcpp::wrap(naRm)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
+    inline SEXP quickMedian(const SEXP& x, const bool& naRm) {
+        typedef SEXP(*Ptr_quickMedian)(SEXP,SEXP);
+        static Ptr_quickMedian p_quickMedian = NULL;
+        if (p_quickMedian == NULL) {
+            validateSignature("SEXP(*quickMedian)(const SEXP&,const bool&)");
+            p_quickMedian = (Ptr_quickMedian)R_GetCCallable("ravetools", "_ravetools_quickMedian");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_quickMedian(Shield<SEXP>(Rcpp::wrap(x)), Shield<SEXP>(Rcpp::wrap(naRm)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
