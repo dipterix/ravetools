@@ -143,7 +143,7 @@ plot_signals <- function (
 
     graphics::matplot(time_shift + Time, t(r), type = "l",
                       col = col, lty = 1, lwd = lwd, frame.plot = FALSE,
-                      yaxt = "n", xlab = "", ylab = "",
+                      yaxt = "n", xlab = "", ylab = "", ylim = space * c(0.5, ns + 0.5),
                       xlim = xlim, cex = cex, cex.main = par_opt$cex.main * cex,
                       cex.lab = par_opt$cex.lab * cex,
                       cex.axis = par_opt$cex.axis * cex,
