@@ -11,7 +11,8 @@ baseline_array(x, along_dim, unit_dims = seq_along(dim(x))[-along_dim], ...)
   x,
   along_dim,
   unit_dims = seq_along(dim(x))[-along_dim],
-  method = c("percentage", "sqrt_percentage", "decibel", "zscore", "sqrt_zscore"),
+  method = c("percentage", "sqrt_percentage", "decibel", "zscore", "sqrt_zscore",
+    "subtract_mean"),
   baseline_indexpoints = NULL,
   baseline_subarray = NULL,
   ...

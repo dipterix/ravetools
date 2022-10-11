@@ -168,18 +168,18 @@ baseline_array <- function(x, along_dim, unit_dims = seq_along(dim(x))[-along_di
 
 #' @rdname baseline_array
 #' @export
-baseline_array.array <- function(x, along_dim,
-                           unit_dims = seq_along(dim(x))[-along_dim],
-                           method = c("percentage", "sqrt_percentage",
-                                      "decibel", "zscore", "sqrt_zscore"),
-                           baseline_indexpoints = NULL,
-                           baseline_subarray = NULL, ...) {
+baseline_array.array <- function(
+    x, along_dim, unit_dims = seq_along(dim(x))[-along_dim],
+    method = c("percentage", "sqrt_percentage", "decibel", "zscore",
+               "sqrt_zscore", "subtract_mean"),
+    baseline_indexpoints = NULL, baseline_subarray = NULL, ...) {
 
   along_dim <- as.integer(along_dim)
   unit_dims <- as.integer(unit_dims)
   method <- match.arg(method)
-  method_int <- which(c("percentage", "sqrt_percentage",
-                        "decibel", "zscore", "sqrt_zscore") == method)
+  method_int <- which(c(
+    "percentage", "sqrt_percentage", "decibel", "zscore", "sqrt_zscore",
+    "subtract_mean") == method)
 
   dims <- dim(x)
   ntimepoints <- dims[along_dim]
