@@ -1,3 +1,12 @@
+# ravetools 0.0.8
+
+* Added `interpolate_stimulation` to detect stimulation signals within the response and interpolate with smooth signals
+* The package now imports `splines`
+* Added `fast_quantile` and `fast_mvquantile` to improve the quantile/median calculation speed
+* Fixed the `plot_signals` plotting range too large when signals have large values (such as stimulation)
+* Fixed `TinyThreads` library memory leak issues
+* Simplified `diagnose_channel`, avoid duplicated `pwelch` calculation
+
 # ravetools 0.0.7
 
 * Added signal `filter`, `filtfilt` that produce the same results as `Matlab` (with precision error)
