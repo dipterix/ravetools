@@ -50,14 +50,14 @@ test_that("C++ signal filter", {
       z <- rep(0, n - 1)
     }
 
-    for(m in 1:length(y)) {
+    for(m in seq_along(y)) {
       xm <- x[m]
       y[m] <- b[1] * xm + z[1]
       ym <- y[m]
       for( i in 2: (n-1)) {
-        z[ i-1 ] = b[i] * xm + z[i] - a[i] * ym
+        z[ i-1 ] <- b[i] * xm + z[i] - a[i] * ym
       }
-      z[n-1] = b[n] * xm - a[n] * ym
+      z[n-1] <- b[n] * xm - a[n] * ym
     }
     list(y, z)
   }

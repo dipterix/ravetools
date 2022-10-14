@@ -114,7 +114,7 @@ fir1 <- function(
   b <- wind * hh
 
   if(scale) {
-    b <- scale_filter(b, use_first_band, freq, filter_len);
+    b <- scale_filter(b, use_first_band, freq, filter_len)
   }
 
   return(b)
@@ -149,7 +149,7 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
   min_freq <- min(freq)
   max_freq <- max(freq)
 
-  n = fir_validate(n, freq[[length(freq)]], magnitude, type != "default")
+  n <- fir_validate(n, freq[[length(freq)]], magnitude, type != "default")
 
   filter_length <- n + 1
   half_freq <- freq / 2
@@ -235,7 +235,7 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
         ) * (wt[(s+1) / 2]) ^ 2
 
       if( need_matrix ) {
-        G = G + (
+        G <- G + (
           half_freq[s+1] * ( sinc(2 * I1 * half_freq[s+1]) + sinc(2 * I2 * half_freq[s+1]) ) -
             half_freq[s] * ( sinc(2 * I1 * half_freq[s]) + sinc(2 * I2 * half_freq[s]) )
         ) * (wt[(s+1) / 2]) ^ 2 / 2
@@ -323,9 +323,9 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
         tmp02 <- 2*pi * half_freq[s] * (-I2)
         tmp01 <- 2*pi * half_freq[s] * I1
         snint1 <- sineint( tmp12 )
-        snint2 <- sineint( tmp11 );
-        snint3 <- sineint( tmp02 );
-        snint4 <- sineint( tmp01 );
+        snint2 <- sineint( tmp11 )
+        snint3 <- sineint( tmp02 )
+        snint4 <- sineint( tmp01 )
 
         G <- G + 0.5 * (
           (
@@ -364,7 +364,7 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
           ) / (2 * pi * m) * (wt[(s+1) / 2]) ^ 2
 
         if( need_matrix ) {
-          G = G + (
+          G <- G + (
             half_freq[s+1] * ( sinc(2 * I1 * half_freq[s+1]) - sinc(2 * I2 * half_freq[s+1]) ) -
               half_freq[s] * ( sinc(2 * I1 * half_freq[s]) - sinc(2 * I2 * half_freq[s]) )
           ) * (wt[(s+1) / 2]) ^ 2 / 2
