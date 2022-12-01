@@ -101,7 +101,7 @@ pwelch.matrix <- function(
     dim(re) <- c(nchannels, NN)
   }
 
-  freq <- seq(1, fs / 2, length.out = NN)
+  freq <- seq(0, fs / 2, length.out = NN)
 
   res <- structure(list(
     freq = freq,
@@ -184,7 +184,7 @@ pwelch.default <- function (
     spec_db_se <- rep(N, nrow(re))
   }
 
-  freq <- seq(1, fs / 2, length.out = NN)
+  freq <- seq(0, fs / 2, length.out = NN)
 
   res <- structure(list(
     freq = freq,

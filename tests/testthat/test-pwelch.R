@@ -17,7 +17,7 @@ test_that("pwelch", {
       Mod(a)^2
     })
     NN <- floor((nfft + 1)/2)
-    freq <- seq(1, fs/2, length.out = NN)
+    freq <- seq(0, fs/2, length.out = NN)
     spec <- rowMeans(re[seq_len(NN), , drop = F])/(window_len/2)^2
     res <- list(freq = freq, spec = spec, method = "Welch")
     return(invisible(res))
