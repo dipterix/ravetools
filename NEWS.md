@@ -1,3 +1,8 @@
+# ravetools 0.0.9
+
+* Fixed `pwelch` frequency not starting from zero issue
+* Upgraded `TinyThread` using the latest pull-request to `RcppParallel`
+
 # ravetools 0.0.8
 
 * Added `interpolate_stimulation` to detect stimulation signals within the response and interpolate with smooth signals
