@@ -1,7 +1,7 @@
 Package: ravetools
 Type: Package
 Title: Signal Processing Toolbox for Analyzing 'Electrophysiology' Data
-Version: 0.0.9
+Version: 0.0.9.9000
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -37,11 +37,16 @@ Imports:
     signal (>= 0.7.7),
     pracma,
     digest (>= 0.6.29),
-    splines
+    splines,
+    RNiftyReg (>= 2.7.1),
+    Rvcg (>= 0.22.1),
+    imager (>= 0.42.18)
 LinkingTo: 
     Rcpp
 Suggests: 
     fftwtools,
     bit64,
+    grDevices,
     microbenchmark,
+    freesurferformats,
     testthat

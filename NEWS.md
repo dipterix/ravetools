@@ -1,3 +1,12 @@
+# ravetools 0.1.0
+
+Added 3 functions to handle imaging data
+
+* `fill_surface` fills volume based on given surface mesh
+* `mesh_from_volume` generates mesh from volume. This function can be used together with `fill_surface` to generate surface envelope
+* `register_volume` aligns two imaging data using linear or non-linear registration
+
+
 # ravetools 0.0.9
 
 * Fixed `pwelch` frequency not starting from zero issue
