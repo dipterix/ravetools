@@ -27,7 +27,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.1
 Depends: R (>= 4.0.0)
-SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
+SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm)), libtiff,X11
 Imports:
     graphics,
     stats,
