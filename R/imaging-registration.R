@@ -17,18 +17,26 @@
 #' target <- system.file("extdata", "flash_t1.nii.gz", package="RNiftyReg")
 #' aligned <- register_volume(source, target, verbose = FALSE)
 #'
-#' source_img <- imager::as.cimg(array(aligned$source[[1]], dim = c(dim(aligned$source[[1]]), 1)))
-#' target_img <- imager::as.cimg(array(aligned$target, dim = c(dim(aligned$target), 1)))
-#' aligned_img <- imager::as.cimg(array(aligned$image, dim = c(dim(aligned$image), 1)))
+#' source_img <- aligned$source[[1]]
+#' target_img <- aligned$target
+#' aligned_img <- aligned$image
+#'
 #' par(mfrow = c(2, 2), mar = c(0.1, 0.1, 3.1, 0.1))
-#' plot(source_img, frame = 30, axes = FALSE, main = "Source image")
-#' plot(target_img, frame = 64, axes = FALSE, main = "Target image")
-#' plot(aligned_img, frame = 64, axes = FALSE, main = "Aligned image")
+#'
+#' pal <- grDevices::grey.colors(256, alpha = 1)
+#' image(source_img[,,30], asp = 1, axes = FALSE,
+#'       col = pal, main = "Source image")
+#' image(target_img[,,64], asp = 1, axes = FALSE,
+#'       col = pal, main = "Target image")
+#' image(aligned_img[,,64], asp = 1, axes = FALSE,
+#'       col = pal, main = "Aligned image")
 #'
 #' # bucket fill and calculate differences
 #' aligned_img[is.nan(aligned_img) | aligned_img <= 1] <- 1
 #' target_img[is.nan(target_img) | aligned_img <= 1] <- 1
-#' plot(diff, frame = 64, axes = FALSE,  main = "Percentage Difference")
+#' diff <- abs(aligned_img / target_img - 1)
+#' image(diff[,,64], asp = 1, axes = FALSE,
+#'       col = pal, main = "Percentage Difference")
 #'
 #' }
 #'

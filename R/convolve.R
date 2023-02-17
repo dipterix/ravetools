@@ -1,3 +1,59 @@
+#' @name convolve
+#' @title Convolution of \code{1D}, \code{2D}, \code{3D} data via \code{FFT}
+#' @description Use the 'Fast-Fourier' transform to compute the convolutions of
+#' two data with zero padding.
+#' @param x one-dimensional signal vector, two-dimensional image, or
+#' three-dimensional volume; numeric or complex
+#' @param filter kernel with the same number of dimensions as \code{x}
+#' @returns Convolution results with the same length and dimensions as \code{x}.
+#' If \code{x} is complex, results will be complex, otherwise results will
+#' be real numbers.
+#' @details This implementation uses 'Fast-Fourier' transform to perform
+#' \code{1D}, \code{2D}, or \code{3D} convolution. Compared to implementations
+#' using definition of convolution, this approach is much faster.
+#'
+#' The input \code{x} is zero-padded beyond edges. This is most common in image
+#' or volume convolution, but less optimal for periodic one-dimensional signals.
+#' Please use other implementations if non-zero padding is needed.
+#'
+#' The convolution results might be different to the ground truth by a precision
+#' error, usually at \code{1e-13} level, depending on the \code{'FFTW3'}
+#' library precision and implementation.
+#'
+#' @examples
+#'
+#'
+#' # ---- 1D convolution ------------------------------------
+#' x <- cumsum(rnorm(100))
+#' filter <- dnorm(-2:2)
+#' # normalize
+#' filter <- filter / sum(filter)
+#' smoothed <- convolve_signal(x, filter)
+#'
+#' plot(x, pch = 20)
+#' lines(smoothed, col = 'red')
+#'
+#' # ---- 2D convolution ------------------------------------
+#' x <- array(0, c(100, 100))
+#' x[
+#'   floor(runif(10, min = 1, max = 100)),
+#'   floor(runif(10, min = 1, max = 100))
+#' ] <- 1
+#'
+#' # smooth
+#' kernel <- outer(dnorm(-2:2), dnorm(-2:2), FUN = "*")
+#' kernel <- kernel / sum(kernel)
+#'
+#' y <- convolve_image(x, kernel)
+#'
+#' par(mfrow = c(1,2))
+#' image(x, asp = 1, axes = FALSE, main = "Origin")
+#' image(y, asp = 1, axes = FALSE, main = "Smoothed")
+#'
+#'
+NULL
+
+#' @rdname convolve
 #' @export
 convolve_signal <- function(x, filter) {
 
@@ -6,23 +62,24 @@ convolve_signal <- function(x, filter) {
 
   padded_len <- len_x + len_y + 1L
 
-  prepad_len <- ceiling((len_y + 1) / 2) + 1L
+  junk_len <- ceiling(len_y / 2) - 1
 
-  postpad_len <- len_y + 1 - prepad_len
-
-  x_ <- c(rep(0.0, prepad_len), as.double(x), rep(0.0, postpad_len))
+  x_ <- c(as.double(x), rep(0.0, len_y + 1L))
   y_ <- c(as.double(filter), rep(0.0, len_x + 1L))
 
-  a <- fftw_r2c(x_)
-  b <- fftw_r2c(y_)
+  a <- fftw_c2c(x_)
+  b <- fftw_c2c(y_)
 
   a <- fftw_c2c(a * b, inverse = TRUE, ret = a) / padded_len
-  b <- a[prepad_len + postpad_len + seq_len(len_x)]
+  b <- a[junk_len + seq_len(len_x)]
 
-  Re(b)
+  if(!is.complex(x)) {
+    b <- Re(b)
+  }
+  b
 }
 
-
+#' @rdname convolve
 #' @export
 convolve_image <- function(x, filter) {
   # make sure x and filter are matrix
@@ -34,45 +91,33 @@ convolve_image <- function(x, filter) {
     filter <- as.matrix(filter)
   }
 
-  nrow_x <- nrow(x)
-  nrow_y <- nrow(filter)
-  ncol_x <- ncol(x)
-  ncol_y <- ncol(filter)
+  dim_x <- dim(x)
+  dim_y <- dim(filter)
 
-  padded_row <- nrow_x + nrow_y + 1L
-  padded_col <- ncol_x + ncol_y + 1L
+  padded_dim <- dim_x + dim_y + 1L
 
-  prepad_row <- ceiling((nrow_y + 1) / 2) + 1L
-  prepad_col <- ceiling((ncol_y + 1) / 2) + 1L
+  junk_dim <- ceiling(dim_y / 2) - 1
 
-  postpad_row <- nrow_y + 1 - prepad_row
-  postpad_col <- ncol_y + 1 - prepad_col
+  x_ <- array(0.0, padded_dim)
+  x_[ seq_len(dim_x[[1]]), seq_len(dim_x[[2]]) ] <- x
+  y_ <- array(0.0, padded_dim)
+  y_[ seq_len(dim_y[[1]]), seq_len(dim_y[[2]]) ] <- filter
 
-  x_ <- array(0.0, c(padded_row, padded_col))
-  x_[
-    prepad_row + seq_len(nrow_x),
-    prepad_col + seq_len(ncol_x)
-  ] <- x
-  y_ <- array(0.0, c(padded_row, padded_col))
-  y_[
-    seq_len(nrow_y),
-    seq_len(ncol_y)
-  ] <- filter
+  a <- fftw_c2c_2d(x_)
+  b <- fftw_c2c_2d(y_)
 
-  a <- fftw_r2c_2d(x_)
-  b <- fftw_r2c_2d(y_)
-
-  a <- fftw_c2c_2d(a * b, inverse = TRUE, ret = a) / (padded_row * padded_col)
-  b <- a[prepad_row + postpad_row + seq_len(nrow_x),
-         prepad_col + postpad_col + seq_len(ncol_x),
+  a <- fftw_c2c_2d(a * b, inverse = TRUE, ret = a) / prod(padded_dim)
+  b <- a[junk_dim[[1]] + seq_len(dim_x[[1]]),
+         junk_dim[[2]] + seq_len(dim_x[[2]]),
          drop = FALSE]
 
-  Re(b)
+  if(!is.complex(x)) {
+    b <- Re(b)
+  }
+  b
 }
 
-
-
-
+#' @rdname convolve
 #' @export
 convolve_volume <- function(x, filter) {
   # make sure x and filter are matrix
@@ -106,16 +151,13 @@ convolve_volume <- function(x, filter) {
   }
 
   padded_dim <- dim_x + dim_y + 1L
-
-  prepad_dim <- ceiling((dim_y + 1) / 2) + 1L
-
-  postpad_dim <- dim_y + 1 - prepad_dim
+  junk_dim <- ceiling(dim_y / 2) - 1L
 
   x_ <- array(0.0, padded_dim)
   x_[
-    prepad_dim[[1]] + seq_len(dim_x[[1]]),
-    prepad_dim[[2]] + seq_len(dim_x[[2]]),
-    prepad_dim[[3]] + seq_len(dim_x[[3]])
+    seq_len(dim_x[[1]]),
+    seq_len(dim_x[[2]]),
+    seq_len(dim_x[[3]])
   ] <- x
   y_ <- array(0.0, padded_dim)
   y_[
@@ -124,16 +166,29 @@ convolve_volume <- function(x, filter) {
     seq_len(dim_y[[3]])
   ] <- filter
 
-  a <- fftw_r2c_3d(x_)
-  b <- fftw_r2c_3d(y_)
+  a <- fftw_c2c_3d(x_)
+  b <- fftw_c2c_3d(y_)
 
   a <- fftw_c2c_3d(a * b, inverse = TRUE, ret = a) / prod(padded_dim)
   b <- a[
-    prepad_dim[[1]] + postpad_dim[[1]] + seq_len(dim_x[[1]]),
-    prepad_dim[[2]] + postpad_dim[[2]] + seq_len(dim_x[[2]]),
-    prepad_dim[[3]] + postpad_dim[[3]] + seq_len(dim_x[[3]]),
+    junk_dim[[1]] + seq_len(dim_x[[1]]),
+    junk_dim[[2]] + seq_len(dim_x[[2]]),
+    junk_dim[[3]] + seq_len(dim_x[[3]]),
     drop = FALSE
   ]
 
-  Re(b)
+  if(!is.complex(x)) {
+    b <- Re(b)
+  }
+  b
+}
+
+
+
+grow_volume <- function(volume, x, y = x, z = x, threshold = 0.5) {
+  filter <- array(1.0, c(x, y, z))
+  re <- convolve_volume(volume, filter)
+  sel <- re > threshold
+  mode(sel) <- "integer"
+  sel
 }

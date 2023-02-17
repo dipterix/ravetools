@@ -5,6 +5,7 @@ Detrending
 Electrophysiology
 Github
 IIR
+IJK
 Magnotti
 Morlet
 NFFT
@@ -15,3 +16,4 @@ iEEG
 multitaper
 neuroimage
 preprocess
+rgl

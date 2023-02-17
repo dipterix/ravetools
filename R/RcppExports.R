@@ -5,6 +5,10 @@ baselineArray <- function(x, bl, dims, bldims, tidx, per, rest, method) {
     .Call(`_ravetools_baselineArray`, x, bl, dims, bldims, tidx, per, rest, method)
 }
 
+bucketFillVolume <- function(volume, x, y, z, fill) {
+    .Call(`_ravetools_bucketFillVolume`, volume, x, y, z, fill)
+}
+
 collapser_cplx <- function(x, keep, method = 1L, average = 0L) {
     .Call(`_ravetools_collapser_cplx`, x, keep, method, average)
 }

@@ -31,6 +31,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// bucketFillVolume
+SEXP bucketFillVolume(SEXP volume, R_xlen_t x, R_xlen_t y, R_xlen_t z, int fill);
+RcppExport SEXP _ravetools_bucketFillVolume(SEXP volumeSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP fillSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type volume(volumeSEXP);
+    Rcpp::traits::input_parameter< R_xlen_t >::type x(xSEXP);
+    Rcpp::traits::input_parameter< R_xlen_t >::type y(ySEXP);
+    Rcpp::traits::input_parameter< R_xlen_t >::type z(zSEXP);
+    Rcpp::traits::input_parameter< int >::type fill(fillSEXP);
+    rcpp_result_gen = Rcpp::wrap(bucketFillVolume(volume, x, y, z, fill));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapser_cplx
 SEXP collapser_cplx(SEXP x, SEXP keep, const int method, const int average);
 static SEXP _ravetools_collapser_cplx_try(SEXP xSEXP, SEXP keepSEXP, SEXP methodSEXP, SEXP averageSEXP) {
@@ -863,6 +878,7 @@ RcppExport SEXP _ravetools_RcppExport_registerCCallable() {
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_baselineArray", (DL_FUNC) &_ravetools_baselineArray, 8},
+    {"_ravetools_bucketFillVolume", (DL_FUNC) &_ravetools_bucketFillVolume, 5},
     {"_ravetools_collapser_cplx", (DL_FUNC) &_ravetools_collapser_cplx, 4},
     {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
     {"_ravetools_columnQuantile", (DL_FUNC) &_ravetools_columnQuantile, 3},

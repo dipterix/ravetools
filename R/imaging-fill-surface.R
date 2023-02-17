@@ -104,7 +104,7 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   )) - 2L)
 
   # Creating a volume
-  volume <- array(0L, dim = c(rep(resolution, 3), 1))
+  volume <- array(0L, dim = rep(resolution, 3))
 
   # embed the surface in volume space
   surface_index <- round(surface$vb[c(1,2,3), ])
@@ -112,43 +112,34 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
     surface_index[3, ] * (resolution^2) + 1
   volume[surface_index] <- 1L
 
-  # convert to cimg object so imager can handle it
-  volume <- imager::as.cimg(volume)
-
   # Grow the volume by ~15mm and shrink back (~12mm).
   # This step connects the
   # segmented voxels into a shell that is water-tight
-  volume_grew <- imager::grow(volume, max_fill)
+  volume_grew <- grow_volume(volume, max_fill)
 
-  # bucket-fill from the corner
-  volume_filled <- imager::bucketfill(
-    volume_grew, x = 1, y = 1, z = 1, color = 1L)
+  # bucket-fill from the corner, bucketFillVolume is in-place
+  volume_filled <- bucketFillVolume(volume_grew + 0L, x = 1, y = 1, z = 1, fill = 1L)
 
   # Fill the voxels within the surface and shrink
-  volume2 <- 1L - (volume_filled - volume_grew)
-
   shrink_amount <- max_fill - inflate
-  volume2 <- imager::shrink(volume2, shrink_amount)
+  volume2 <- 1L - grow_volume(volume_filled - volume_grew, shrink_amount)
 
   # preview
   preview2D({
     oldPar <- graphics::par(c("mfrow", "mar"))
-    graphics::par(mfrow = c(1, 3), mar = c(3.1, 0.1, 3.1, 0.1))
+    graphics::par(mfrow = c(1,3), mar = c(3.1, 0.1, 3.1, 0.1))
     on.exit({ do.call(graphics::par, oldPar) })
 
     frame <- as.integer(preview_frame)
     if(is.na(frame) || frame <= 1 || frame > resolution) {
       frame <- ceiling(resolution / 2)
     }
-    volume <- imager::add.color(volume)
 
-    plot(volume, frame = frame, axes = FALSE, main = "1. Initial surface embed")
+    image(volume[,,frame], axes = FALSE, main = "1. Initial surface embed", asp = 1)
 
-    imager::channel(volume, 2) <- volume_grew - imager::channel(volume, 1)
-    plot(volume, frame = frame, axes = FALSE, main = "2. Grow voxels")
+    image(volume_grew[,,frame] + volume[,,frame], axes = FALSE, main = "2. Grow voxels", asp = 1)
 
-    imager::channel(volume, 2) <- volume2 - imager::channel(volume, 1)
-    plot(volume, frame = frame, axes = FALSE, main = "3. Final result")
+    image(volume2[,,frame] + volume[,,frame], axes = FALSE, main = "3. Bucket-fill+shrink", asp = 1)
 
   })
 

@@ -5,6 +5,8 @@ Added 3 functions to handle imaging data
 * `fill_surface` fills volume based on given surface mesh
 * `mesh_from_volume` generates mesh from volume. This function can be used together with `fill_surface` to generate surface envelope
 * `register_volume` aligns two imaging data using linear or non-linear registration
+* Added `fftw` on `2D` image and `3D` volume data
+* Added convolution for `1D`, `2D`, `3D` data
 
 
 # ravetools 0.0.9

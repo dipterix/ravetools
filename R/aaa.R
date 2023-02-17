@@ -1,6 +1,7 @@
 ## usethis namespace: start
 #' @importFrom stats approx
 #' @importFrom Rcpp sourceCpp
+#' @importFrom graphics image
 #' @useDynLib ravetools, .registration = TRUE
 ## usethis namespace: end
 NULL
