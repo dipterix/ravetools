@@ -27,7 +27,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.1
 Depends: R (>= 4.0.0)
-SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm)), libtiff,X11
+SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
 Imports:
     graphics,
     stats,
@@ -39,8 +39,7 @@ Imports:
     digest (>= 0.6.29),
     splines,
     RNiftyReg (>= 2.7.1),
-    Rvcg (>= 0.22.1),
-    imager (>= 0.42.18)
+    Rvcg (>= 0.22.1)
 LinkingTo: 
     Rcpp
 Suggests: 

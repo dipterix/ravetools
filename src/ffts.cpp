@@ -247,70 +247,107 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
   }
 }
 
-void cfft_r2c_2d(int* nx, int* ny, double* data, fftw_complex* res) {
+void cfft_r2c_2d(int* nx, int* ny, double* data, fftw_complex* res, int* fftwplanopt) {
 
-  fftw_plan p;
+  size_t n = (size_t)*nx * (size_t)*ny;
+  double* data_copy = NULL;
 
-  p = fftw_plan_dft_r2c_2d(*nx, *ny, data, res,
-                           FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
+  int effort = fftw_efforts(fftwplanopt);
+
+  data_copy = (double*) malloc(n * sizeof(double));
+  fftw_plan p = fftw_plan_dft_r2c_2d(*nx, *ny, data_copy, res, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, n * sizeof(double));
 
   fftw_execute(p);
-
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 }
 
 
 void cfft_c2c_2d(int* nx, int* ny, fftw_complex* data,
-                 fftw_complex* res, int* inverse) {
+                 fftw_complex* res, int* inverse, int* fftwplanopt) {
 
   int sign;
-  fftw_plan p;
-
   if(*inverse == 1) {
     sign = FFTW_BACKWARD;
   } else {
     sign = FFTW_FORWARD;
   }
 
-  p = fftw_plan_dft_2d(*nx, *ny, data, res,
-                       sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
+  size_t n = (size_t)*nx * (size_t)*ny;
+  fftw_complex* data_copy = NULL;
+
+  int effort = fftw_efforts(fftwplanopt);
+
+  data_copy = (fftw_complex*) malloc(n * sizeof(fftw_complex));
+  fftw_plan p = fftw_plan_dft_2d(*nx, *ny, data, res, sign, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, n * sizeof(fftw_complex));
 
   fftw_execute(p);
-
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
 }
 
-void cfft_r2c_3d(int* nx, int* ny, int *nz, double* data, fftw_complex* res) {
+void cfft_r2c_3d(int* nx, int* ny, int *nz, double* data, fftw_complex* res,
+                 int* fftwplanopt) {
 
-  fftw_plan p;
+  size_t n = (size_t)*nx * *ny * *nz;
+  double* data_copy = NULL;
 
-  p = fftw_plan_dft_r2c_3d(*nx, *ny, *nz, data, res,
-                           FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
+  int effort = fftw_efforts(fftwplanopt);
+
+  data_copy = (double*) malloc(n * sizeof(double));
+  fftw_plan p = fftw_plan_dft_r2c_3d(*nx, *ny, *nz, data_copy,
+                                     res, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, n * sizeof(double));
 
   fftw_execute(p);
-
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
+
 }
 
 
 void cfft_c2c_3d(int* nx, int* ny, int *nz, fftw_complex* data,
-                 fftw_complex* res, int* inverse) {
+                 fftw_complex* res, int* inverse, int* fftwplanopt) {
 
   int sign;
-  fftw_plan p;
-
   if(*inverse == 1) {
     sign = FFTW_BACKWARD;
   } else {
     sign = FFTW_FORWARD;
   }
 
-  p = fftw_plan_dft_3d(*nx, *ny, *nz, data, res,
-                       sign, FFTW_DESTROY_INPUT | FFTW_ESTIMATE);
+  size_t n = (size_t)*nx * (size_t)*ny * (size_t)*nz;
+  fftw_complex* data_copy = NULL;
+
+  int effort = fftw_efforts(fftwplanopt);
+
+  data_copy = (fftw_complex*) malloc(n * sizeof(fftw_complex));
+  fftw_plan p = fftw_plan_dft_3d(*nx, *ny, *nz, data, res,
+                                 sign, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, n * sizeof(fftw_complex));
 
   fftw_execute(p);
-
   fftw_destroy_plan(p);
+
+  if(data_copy != NULL){
+    free(data_copy);
+    data_copy = NULL;
+  }
+
 }
 
 void cfft_c2c_xd(int* r, int* n, fftw_complex* data,

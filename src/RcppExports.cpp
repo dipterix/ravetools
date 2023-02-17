@@ -358,6 +358,154 @@ RcppExport SEXP _ravetools_fftw_r2c(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwp
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// fftw_r2c_2d
+SEXP fftw_r2c_2d(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_r2c_2d_try(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type HermConj(HermConjSEXP);
+    Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_r2c_2d(data, HermConj, fftwplanopt, ret));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_fftw_r2c_2d(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_fftw_r2c_2d_try(dataSEXP, HermConjSEXP, fftwplanoptSEXP, retSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// fftw_c2c_2d
+SEXP fftw_c2c_2d(SEXP data, int inverse, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_c2c_2d_try(SEXP dataSEXP, SEXP inverseSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type inverse(inverseSEXP);
+    Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_c2c_2d(data, inverse, fftwplanopt, ret));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_fftw_c2c_2d(SEXP dataSEXP, SEXP inverseSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_fftw_c2c_2d_try(dataSEXP, inverseSEXP, fftwplanoptSEXP, retSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// fftw_r2c_3d
+SEXP fftw_r2c_3d(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_r2c_3d_try(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type HermConj(HermConjSEXP);
+    Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_r2c_3d(data, HermConj, fftwplanopt, ret));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_fftw_r2c_3d(SEXP dataSEXP, SEXP HermConjSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_fftw_r2c_3d_try(dataSEXP, HermConjSEXP, fftwplanoptSEXP, retSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// fftw_c2c_3d
+SEXP fftw_c2c_3d(SEXP data, int inverse, int fftwplanopt, SEXP ret);
+static SEXP _ravetools_fftw_c2c_3d_try(SEXP dataSEXP, SEXP inverseSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type inverse(inverseSEXP);
+    Rcpp::traits::input_parameter< int >::type fftwplanopt(fftwplanoptSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ret(retSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftw_c2c_3d(data, inverse, fftwplanopt, ret));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_fftw_c2c_3d(SEXP dataSEXP, SEXP inverseSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_fftw_c2c_3d_try(dataSEXP, inverseSEXP, fftwplanoptSEXP, retSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
 // mvfftw_r2c
 SEXP mvfftw_r2c(SEXP data, int fftwplanopt, SEXP ret);
 static SEXP _ravetools_mvfftw_r2c_try(SEXP dataSEXP, SEXP fftwplanoptSEXP, SEXP retSEXP) {
@@ -676,6 +824,10 @@ static int _ravetools_RcppExport_validate(const char* sig) {
         signatures.insert("SEXP(*quickMedian)(const SEXP&,const bool&)");
         signatures.insert("SEXP(*fastcov)(const SEXP&,const SEXP&,const SEXP&,const SEXP&,const double&)");
         signatures.insert("SEXP(*fftw_r2c)(SEXP,int,int,SEXP)");
+        signatures.insert("SEXP(*fftw_r2c_2d)(SEXP,int,int,SEXP)");
+        signatures.insert("SEXP(*fftw_c2c_2d)(SEXP,int,int,SEXP)");
+        signatures.insert("SEXP(*fftw_r2c_3d)(SEXP,int,int,SEXP)");
+        signatures.insert("SEXP(*fftw_c2c_3d)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*mvfftw_r2c)(SEXP,int,SEXP)");
         signatures.insert("SEXP(*fftw_c2c)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*fftw_c2r)(SEXP,int,int,SEXP)");
@@ -696,6 +848,10 @@ RcppExport SEXP _ravetools_RcppExport_registerCCallable() {
     R_RegisterCCallable("ravetools", "_ravetools_quickMedian", (DL_FUNC)_ravetools_quickMedian_try);
     R_RegisterCCallable("ravetools", "_ravetools_fastcov", (DL_FUNC)_ravetools_fastcov_try);
     R_RegisterCCallable("ravetools", "_ravetools_fftw_r2c", (DL_FUNC)_ravetools_fftw_r2c_try);
+    R_RegisterCCallable("ravetools", "_ravetools_fftw_r2c_2d", (DL_FUNC)_ravetools_fftw_r2c_2d_try);
+    R_RegisterCCallable("ravetools", "_ravetools_fftw_c2c_2d", (DL_FUNC)_ravetools_fftw_c2c_2d_try);
+    R_RegisterCCallable("ravetools", "_ravetools_fftw_r2c_3d", (DL_FUNC)_ravetools_fftw_r2c_3d_try);
+    R_RegisterCCallable("ravetools", "_ravetools_fftw_c2c_3d", (DL_FUNC)_ravetools_fftw_c2c_3d_try);
     R_RegisterCCallable("ravetools", "_ravetools_mvfftw_r2c", (DL_FUNC)_ravetools_mvfftw_r2c_try);
     R_RegisterCCallable("ravetools", "_ravetools_fftw_c2c", (DL_FUNC)_ravetools_fftw_c2c_try);
     R_RegisterCCallable("ravetools", "_ravetools_fftw_c2r", (DL_FUNC)_ravetools_fftw_c2r_try);
@@ -716,6 +872,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_quickMedian", (DL_FUNC) &_ravetools_quickMedian, 2},
     {"_ravetools_fastcov", (DL_FUNC) &_ravetools_fastcov, 5},
     {"_ravetools_fftw_r2c", (DL_FUNC) &_ravetools_fftw_r2c, 4},
+    {"_ravetools_fftw_r2c_2d", (DL_FUNC) &_ravetools_fftw_r2c_2d, 4},
+    {"_ravetools_fftw_c2c_2d", (DL_FUNC) &_ravetools_fftw_c2c_2d, 4},
+    {"_ravetools_fftw_r2c_3d", (DL_FUNC) &_ravetools_fftw_r2c_3d, 4},
+    {"_ravetools_fftw_c2c_3d", (DL_FUNC) &_ravetools_fftw_c2c_3d, 4},
     {"_ravetools_mvfftw_r2c", (DL_FUNC) &_ravetools_mvfftw_r2c, 3},
     {"_ravetools_fftw_c2c", (DL_FUNC) &_ravetools_fftw_c2c, 4},
     {"_ravetools_fftw_c2r", (DL_FUNC) &_ravetools_fftw_c2r, 4},

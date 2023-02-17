@@ -26,15 +26,16 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
 void cmvfft_c2c(int *n, int *m, fftw_complex* data,
                 fftw_complex* res, int* inverse, int* fftwplanopt);
 
-void cfft_r2c_2d(int* nx, int* ny, double* data, fftw_complex* res);
+void cfft_r2c_2d(int* nx, int* ny, double* data, fftw_complex* res, int* fftwplanopt);
 
 void cfft_c2c_2d(int* nx, int* ny, fftw_complex* data,
-                 fftw_complex* res, int* inverse);
+                 fftw_complex* res, int* inverse, int* fftwplanopt);
 
-void cfft_r2c_3d(int* nx, int* ny, int *nz, double* data, fftw_complex* res);
+void cfft_r2c_3d(int* nx, int* ny, int *nz, double* data, fftw_complex* res,
+                 int* fftwplanopt);
 
 void cfft_c2c_3d(int* nx, int* ny, int *nz, fftw_complex* data,
-                 fftw_complex* res, int* inverse);
+                 fftw_complex* res, int* inverse, int* fftwplanopt);
 
 void cfft_c2c_xd(int* r, int* n, fftw_complex* data,
                  fftw_complex* res, int* inverse);

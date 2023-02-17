@@ -32,7 +32,7 @@ mesh_from_volume(
 \item{threshold}{threshold used to create volume mask; the surface will be
 created to fit the mask boundaries}
 
-\item{verbose}{whether to be verbosive}
+\item{verbose}{whether to verbose the progress}
 
 \item{remesh}{whether to re-sample the mesh using \code{\link[Rvcg]{vcgUniformRemesh}}}
 
