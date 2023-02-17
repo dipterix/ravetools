@@ -19,3 +19,5 @@ configure~
 configure.ac~
 docs
 .R
+valgrind.R
+valgrind.sh

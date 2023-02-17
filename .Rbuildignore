@@ -17,3 +17,5 @@ autom4te.cache/
 ^CRAN-RELEASE$
 ^\.Renviron$
 ^\.Rhistory$
+^valgrind\.sh$
+^valgrind\.R$
