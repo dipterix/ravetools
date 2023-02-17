@@ -48,9 +48,12 @@ test_that("convolve_volume", {
   y <- imager$as.cimg(structure(ravetools:::convolve_volume(boats, filter = filter), dim = dim(boats)))
   testthat::expect_equal(y, x, tolerance = 1e-10)
 
+  # imager <- asNamespace("imager")
+  # boats <- imager$as.cimg(array(rnorm(256*256*256), c(rep(256,3), 1)))
+  # filter <- imager$as.cimg(function(x,y,z) sign(x-5),11,11, 11)
   # microbenchmark::microbenchmark(
   #   {imager$convolve(boats, filter = filter)},
-  #   {imager$as.cimg(structure(ravetools:::convolve_volume(boats, filter = filter), dim = dim(boats)))}, times = 10
+  #   {imager$as.cimg(structure(ravetools:::convolve_volume(boats, filter = filter), dim = dim(boats)))}, times = 1
   # )
 
 })

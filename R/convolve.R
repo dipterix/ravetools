@@ -10,7 +10,8 @@
 #' be real numbers.
 #' @details This implementation uses 'Fast-Fourier' transform to perform
 #' \code{1D}, \code{2D}, or \code{3D} convolution. Compared to implementations
-#' using definition of convolution, this approach is much faster.
+#' using original mathematical definition of convolution, this approach is
+#' much faster, especially for image and volume convolutions.
 #'
 #' The input \code{x} is zero-padded beyond edges. This is most common in image
 #' or volume convolution, but less optimal for periodic one-dimensional signals.
