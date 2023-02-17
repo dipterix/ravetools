@@ -84,7 +84,8 @@ be real numbers.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This implementation uses 'Fast-Fourier' transform to perform
 <code>1D</code>, <code>2D</code>, or <code>3D</code> convolution. Compared to implementations
-using definition of convolution, this approach is much faster.</p>
+using original mathematical definition of convolution, this approach is
+much faster, especially for image and volume convolutions.</p>
 <p>The input <code>x</code> is zero-padded beyond edges. This is most common in image
 or volume convolution, but less optimal for periodic one-dimensional signals.
 Please use other implementations if non-zero padding is needed.</p>
