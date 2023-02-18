@@ -11,12 +11,15 @@ status](https://www.r-pkg.org/badges/version/ravetools)](https://CRAN.R-project.
 [![r-universe](https://dipterix.r-universe.dev/badges/ravetools)](https://dipterix.r-universe.dev/)
 <!-- badges: end -->
 
-The goal of `ravetools` is to provide memory-efficient signal processing
-toolbox for `intracranial-EEG` analyses. Highlighted features include:
+The goal of `ravetools` is to provide memory-efficient signal & image
+processing toolbox for `intracranial Electroencephalography`.
+Highlighted features include:
 
--   [`Notch filter`](#) (remove electrical line frequencies)
--   [`Welch Periodogram`](#) (averaged power over frequencies)
--   [`Wavelet`](#) (frequency-time decomposition)
+- [`Notch filter`](#) (remove electrical line frequencies)
+- [`Welch Periodogram`](#) (averaged power over frequencies)
+- [`Wavelet`](#) (frequency-time decomposition)
+- 2D, 3D image convolution via `FFT`
+- `CT/MRI` to `MRI` image alignment
 
 ## Installation
 
@@ -37,9 +40,9 @@ for details.
 This is a basic example which shows you how to preprocess an `iEEG`
 signal. The goal here is to:
 
--   Plot diagnostic graphs to inspect channels
--   Apply Notch filters to remove electrical line noise
--   Frequency-time decomposition and show the power densities
+- Plot diagnostic graphs to inspect channels
+- Apply Notch filters to remove electrical line noise
+- Frequency-time decomposition and show the power densities
 
 <small>\* Channel referencing is not included</small>
 
@@ -142,6 +145,42 @@ image(
 
 <img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true" width="100%">
 
+#### Image alignment
+
+`ravetools` provides imaging co-registration via
+[`NiftyReg`](https://doi.org/10.1117/1.JMI.1.2.024003). You can align
+`CT` to `MRI`, or `MRI` (T2) to `MRI` (T1). The method can be body
+`rigid`, `affine`, or `non-linear`.
+
+``` r
+source <- system.file("extdata", "epi_t2.nii.gz", package="RNiftyReg")
+target <- system.file("extdata", "flash_t1.nii.gz", package="RNiftyReg")
+aligned <- register_volume(source, target, verbose = FALSE)
+
+source_img <- aligned$source[[1]]
+target_img <- aligned$target
+aligned_img <- aligned$image
+
+par(mfrow = c(2, 2), mar = c(0.1, 0.1, 3.1, 0.1))
+
+pal <- grDevices::grey.colors(256, alpha = 1)
+image(source_img[,,30], asp = 1, axes = FALSE,
+      col = pal, main = "Source image")
+image(target_img[,,64], asp = 1, axes = FALSE,
+      col = pal, main = "Target image")
+image(aligned_img[,,64], asp = 1, axes = FALSE,
+      col = pal, main = "Aligned image")
+
+# bucket fill and calculate differences
+aligned_img[is.nan(aligned_img) | aligned_img <= 1] <- 1
+target_img[is.nan(target_img) | aligned_img <= 1] <- 1
+diff <- abs(aligned_img / target_img - 1)
+image(diff[,,64], asp = 1, axes = FALSE,
+      col = pal, main = "Percentage Difference")
+```
+
+<img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/coregistration-1.png?raw=true" width="80%">
+
 ## References
 
 #### To cite ravetools in publications use, please cite the `RAVE` paper from `Beauchamp's lab`
@@ -150,9 +189,12 @@ image(
       open-source software for reproducible analysis and visualization of
       intracranial EEG data. NeuroImage, 223, p.117341.
 
-The `multitaper` function uses the script derived from `Prerau's lab`.
-The `TinyParallel` script is derived from `RcppParallel` package with
-`TBB` features removed (only use `tinythreads`).
+The `multitaper` function (MIT License) uses the script derived from
+`Prerau's lab`. The `TinyParallel` script is derived from `RcppParallel`
+package (GPL License) with `TBB` features removed (only use
+`tinythreads`). The `register_volume` function uses `NiftyReg` (BSD
+License) developed by `CMIC` at University College London, UK (its R
+implementation is released under GPL license).
 
     [1] Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE: comprehensive
         open-source software for reproducible analysis and visualization of
@@ -161,7 +203,10 @@ The `TinyParallel` script is derived from `RcppParallel` package with
         Ellenbogen, Jeffrey M, and Purdon, Patrick L. Sleep Neurophysiological
         Dynamics Through the Lens of Multitaper Spectral Analysis. Physiology,
         December 7, 2016, 60-92.
-    [3] JJ Allaire, Romain Francois, Kevin Ushey, Gregory Vandenbrouck, Marcus
+    [3] Modat, M., Cash, D.M., Daga, P., Winston, G.P., Duncan, J.S. and 
+        Ourselin, S., 2014. Global image registration using a symmetric 
+        block-matching approach. Journal of medical imaging, 1(2), pp.024003-024003.
+    [4] JJ Allaire, Romain Francois, Kevin Ushey, Gregory Vandenbrouck, Marcus
         Geelnard and Intel (2022). RcppParallel: Parallel Programming Tools for
         'Rcpp'. R package version 5.1.5.
         https://CRAN.R-project.org/package=RcppParallel

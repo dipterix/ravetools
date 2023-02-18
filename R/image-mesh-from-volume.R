@@ -42,7 +42,8 @@ mesh_from_volume <- function(
 
   debug <- function(..., appendLF = TRUE) {
     if (verbose) {
-      message(..., appendLF = appendLF)
+      appendLF <- ifelse(appendLF, "\n", "")
+      cat(..., appendLF)
     }
   }
 
