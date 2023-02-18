@@ -6,24 +6,24 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content='Implemented fast and memory-efficient Notch-filter, 
-    Welch-periodogram, and discrete wavelet transform algorithm for hours of 
-    high-resolution signals; providing fundamental toolbox
-    for iEEG preprocess pipelines. 
+    Welch-periodogram, discrete wavelet transform algorithm for hours of 
+    high-resolution signals, fast 3D convolution, and image alignment;
+    providing fundamental toolbox for iEEG pipelines. 
     Documentation and examples about RAVE project are provided at 
     &lt;https://openwetware.org/wiki/RAVE&gt;, and the paper by John F. Magnotti, 
     Zhengjia Wang, Michael S. Beauchamp (2020) 
     &lt;doi:10.1016/j.neuroimage.2020.117341&gt;; see citation("ravetools") for 
     details.'>
-<title>Signal Processing Toolbox for Analyzing Electrophysiology Data • ravetools</title>
+<title>Signal and Image Processing Toolbox for Analyzing Intracranial Electroencephalography Data • ravetools</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Signal Processing Toolbox for Analyzing Electrophysiology Data">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Signal and Image Processing Toolbox for Analyzing Intracranial Electroencephalography Data">
 <meta property="og:description" content='Implemented fast and memory-efficient Notch-filter, 
-    Welch-periodogram, and discrete wavelet transform algorithm for hours of 
-    high-resolution signals; providing fundamental toolbox
-    for iEEG preprocess pipelines. 
+    Welch-periodogram, discrete wavelet transform algorithm for hours of 
+    high-resolution signals, fast 3D convolution, and image alignment;
+    providing fundamental toolbox for iEEG pipelines. 
     Documentation and examples about RAVE project are provided at 
     &lt;https://openwetware.org/wiki/RAVE&gt;, and the paper by John F. Magnotti, 
     Zhengjia Wang, Michael S. Beauchamp (2020) 
@@ -42,7 +42,7 @@
     
     <a class="navbar-brand me-2" href="index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <code>ravetools</code> is to provide memory-efficient signal processing toolbox for <code>intracranial-EEG</code> analyses. Highlighted features include:</p>
+<p>The goal of <code>ravetools</code> is to provide memory-efficient signal &amp; image processing toolbox for <code>intracranial Electroencephalography</code>. Highlighted features include:</p>
 <ul>
 <li>
 <a href="#"><code>Notch filter</code></a> (remove electrical line frequencies)</li>
@@ -89,6 +89,10 @@
 <a href="#"><code>Welch Periodogram</code></a> (averaged power over frequencies)</li>
 <li>
 <a href="#"><code>Wavelet</code></a> (frequency-time decomposition)</li>
+<li>2D, 3D image convolution via <code>FFT</code>
+</li>
+<li>
+<code>CT/MRI</code> to <code>MRI</code> image alignment</li>
 </ul>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -197,6 +201,37 @@
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true" width="100%"></p>
 </div>
+<div class="section level4">
+<h4 id="image-alignment">Image alignment<a class="anchor" aria-label="anchor" href="#image-alignment"></a>
+</h4>
+<p><code>ravetools</code> provides imaging co-registration via <code>NiftyReg</code> (<code>doi.org/10.1117/1.JMI.1.2.024003</code>). You can align <code>CT</code> to <code>MRI</code>, or <code>MRI</code> (T2) to <code>MRI</code> (T1). The method can be body <code>rigid</code>, <code>affine</code>, or <code>non-linear</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"epi_t2.nii.gz"</span>, package<span class="op">=</span><span class="st">"RNiftyReg"</span><span class="op">)</span></span>
+<span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"flash_t1.nii.gz"</span>, package<span class="op">=</span><span class="st">"RNiftyReg"</span><span class="op">)</span></span>
+<span><span class="va">aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/register_volume.html">register_volume</a></span><span class="op">(</span><span class="va">source</span>, <span class="va">target</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">source_img</span> <span class="op">&lt;-</span> <span class="va">aligned</span><span class="op">$</span><span class="va">source</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">target_img</span> <span class="op">&lt;-</span> <span class="va">aligned</span><span class="op">$</span><span class="va">target</span></span>
+<span><span class="va">aligned_img</span> <span class="op">&lt;-</span> <span class="va">aligned</span><span class="op">$</span><span class="va">image</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">3.1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/gray.colors.html" class="external-link">grey.colors</a></span><span class="op">(</span><span class="fl">256</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">source_img</span><span class="op">[</span>,,<span class="fl">30</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Source image"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">target_img</span><span class="op">[</span>,,<span class="fl">64</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Target image"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">aligned_img</span><span class="op">[</span>,,<span class="fl">64</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Aligned image"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># bucket fill and calculate differences</span></span>
+<span><span class="va">aligned_img</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.nan</a></span><span class="op">(</span><span class="va">aligned_img</span><span class="op">)</span> <span class="op">|</span> <span class="va">aligned_img</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">target_img</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.nan</a></span><span class="op">(</span><span class="va">target_img</span><span class="op">)</span> <span class="op">|</span> <span class="va">aligned_img</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">aligned_img</span> <span class="op">/</span> <span class="va">target_img</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">diff</span><span class="op">[</span>,,<span class="fl">64</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Percentage Difference"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/coregistration-1.png?raw=true" width="80%"></p>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -206,21 +241,24 @@
 <h4 id="to-cite-ravetools-in-publications-use-please-cite-the-rave-paper-from-beauchamps-lab">To cite ravetools in publications use, please cite the <code>RAVE</code> paper from <code>Beauchamp's lab</code>
 <a class="anchor" aria-label="anchor" href="#to-cite-ravetools-in-publications-use-please-cite-the-rave-paper-from-beauchamps-lab"></a>
 </h4>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
-<p>The <code>multitaper</code> function uses the script derived from <code>Prerau's lab</code>. The <code>TinyParallel</code> script is derived from <code>RcppParallel</code> package with <code>TBB</code> features removed (only use <code>tinythreads</code>).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>[<span class="dv">2</span>] Prerau, Michael J, and Brown, Ritchie E, and Bianchi, Matt T, and</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    Ellenbogen, Jeffrey M, and Purdon, Patrick L. Sleep Neurophysiological</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    Dynamics Through the Lens of Multitaper Spectral Analysis. Physiology,</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>[<span class="dv">3</span>] JJ Allaire, Romain Francois, Kevin Ushey, Gregory Vandenbrouck, Marcus</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    Geelnard and <span class="fu">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="sc">:</span> Parallel Programming Tools <span class="cf">for</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>RcppParallel</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
+<p>The <code>multitaper</code> function (MIT License) uses the script derived from <code>Prerau's lab</code>. The <code>TinyParallel</code> script is derived from <code>RcppParallel</code> package (GPL License) with <code>TBB</code> features removed (only use <code>tinythreads</code>). The <code>register_volume</code> function uses <code>NiftyReg</code> (BSD License) developed by <code>CMIC</code> at University College London, UK (its R implementation is released under GPL license).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>[<span class="dv">2</span>] Prerau, Michael J, and Brown, Ritchie E, and Bianchi, Matt T, and</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    Ellenbogen, Jeffrey M, and Purdon, Patrick L. Sleep Neurophysiological</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    Dynamics Through the Lens of Multitaper Spectral Analysis. Physiology,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>[<span class="dv">3</span>] Modat, M., Cash, D.M., Daga, P., Winston, G.P., Duncan, J.S. and </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    Ourselin, S., <span class="fl">2014.</span> Global image registration using a symmetric </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    block<span class="sc">-</span>matching approach. Journal of medical imaging, <span class="dv">1</span>(<span class="dv">2</span>), pp<span class="fl">.024003-024003.</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>[<span class="dv">4</span>] JJ Allaire, Romain Francois, Kevin Ushey, Gregory Vandenbrouck, Marcus</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    Geelnard and <span class="fu">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="sc">:</span> Parallel Programming Tools <span class="cf">for</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>RcppParallel</span></code></pre></div>
 </div>
 </div>
 </div>
