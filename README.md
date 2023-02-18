@@ -147,10 +147,10 @@ image(
 
 #### Image alignment
 
-`ravetools` provides imaging co-registration via
-[`NiftyReg`](https://doi.org/10.1117/1.JMI.1.2.024003). You can align
-`CT` to `MRI`, or `MRI` (T2) to `MRI` (T1). The method can be body
-`rigid`, `affine`, or `non-linear`.
+`ravetools` provides imaging co-registration via `NiftyReg`
+(`doi.org/10.1117/1.JMI.1.2.024003`). You can align `CT` to `MRI`, or
+`MRI` (T2) to `MRI` (T1). The method can be body `rigid`, `affine`, or
+`non-linear`.
 
 ``` r
 source <- system.file("extdata", "epi_t2.nii.gz", package="RNiftyReg")
