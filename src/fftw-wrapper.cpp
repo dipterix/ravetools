@@ -57,6 +57,149 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1,
   return ret;
 }
 
+
+// [[Rcpp::export]]
+SEXP fftw_c2c(SEXP data, int inverse = 0,
+              int fftwplanopt = 0,
+              SEXP ret = R_NilValue)
+{
+  int nprot = 0;
+  int xlen = Rf_length(data);
+
+  if(ret == R_NilValue){
+    PROTECT(ret = Rf_allocVector(CPLXSXP, xlen));
+    nprot++;
+  } else {
+    if(TYPEOF(ret) != CPLXSXP){
+      stop("ravetools `fftw_c2c`: `ret` must be complex");
+    }
+    if(Rf_length(ret) != xlen) {
+      stop("ravetools `fftw_c2c`: `ret` must have length of " + std::to_string(xlen));
+    }
+  }
+
+  if(TYPEOF(data) != CPLXSXP){
+    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
+    nprot++;
+  }
+
+  if(inverse){
+    inverse = 1;
+  }
+
+  cfft_c2c(
+    &xlen,
+    reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+    reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]),
+    &inverse, &fftwplanopt
+  );
+
+  if(nprot > 0){
+    UNPROTECT(nprot);
+  }
+
+  return ret;
+}
+
+// [[Rcpp::export]]
+SEXP fftw_c2r(SEXP data, int HermConj = 1,
+              int fftwplanopt = 0,
+              SEXP ret = R_NilValue){
+  int nprot = 0;
+
+  // check HermConj and ret
+  int xlen = Rf_length(data);
+  int retlen = 0;
+  if( HermConj == 1 ){
+    retlen = xlen;
+  } else {
+    if( HermConj != 0){ HermConj = 0; }
+    retlen = (xlen - 1) * 2;
+  }
+  if( ret == R_NilValue || ret == R_MissingArg ){
+    PROTECT(ret = Rf_allocVector(REALSXP, retlen));
+    nprot++;
+  } else {
+    if( TYPEOF(ret) != REALSXP ){
+      stop("ravetools `fftw_c2r`: `ret` should be double");
+    }
+    if( Rf_xlength(ret) < retlen ){
+      stop("ravetools `fftw_c2r`: `ret` length should be at least " + std::to_string(retlen));
+    }
+    retlen = Rf_xlength(ret);
+  }
+
+  if( TYPEOF(data) != CPLXSXP ){
+    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
+    nprot++;
+    // } else if (MAYBE_REFERENCED(data)) {
+    // } else if(!inplace) {
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
+  }
+
+  cfft_c2r(&retlen, &xlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+           REAL(ret), &fftwplanopt);
+
+  if(nprot > 0){
+    UNPROTECT(nprot);
+  }
+  return ret;
+}
+
+
+// [[Rcpp::export]]
+SEXP mvfftw_r2c(SEXP data,
+                int fftwplanopt = 0,
+                SEXP ret = R_NilValue)
+{
+  int nprot = 0;
+
+  // check HermConj and ret
+  int nrows = Rf_nrows(data);
+  int ncols = Rf_ncols(data);
+  int retrows = ( nrows / 2 ) + 1;
+  if( ret == R_NilValue || ret == R_MissingArg ){
+    PROTECT(ret = Rf_allocMatrix(CPLXSXP, retrows, ncols));
+    nprot++;
+  } else {
+    if( TYPEOF(ret) != CPLXSXP ){
+      stop("ravetools `fftw_r2c`: `ret` should be complex");
+    }
+    if( Rf_xlength(ret) != retrows * ncols ){
+      stop("ravetools `fftw_r2c`: `ret` length should be " + std::to_string(retrows * ncols));
+    }
+  }
+
+
+
+  if( TYPEOF(data) != REALSXP ){
+    PROTECT(data = Rf_coerceVector(data, REALSXP));
+    nprot++;
+    // } else if (MAYBE_REFERENCED(data)) {
+    // } else if(!inplace && fftwplanopt <= 0) {
+    // data need to be copied
+    // however fftwplanopt > 0 will copy eventually, so only
+    // copy when fftwplanopt <= 0
+    // UPDATE: FFTW3 official document mentions that with FFTW_ESTIMATE,
+    //   the input/output arrays are not overwritten during planning.
+
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
+  }
+
+  cmvfft_r2c(&nrows, &ncols, REAL(data),
+             reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]),
+             &fftwplanopt);
+
+  if(nprot > 0){
+    UNPROTECT(nprot);
+  }
+
+  return(ret);
+}
+
+
 // [[Rcpp::export]]
 SEXP fftw_r2c_2d(SEXP data, int HermConj = 1,
                  int fftwplanopt = 0,
@@ -414,146 +557,6 @@ SEXP fftw_c2c_3d(SEXP data, int inverse = 0, int fftwplanopt = 0,
   }
 
   UNPROTECT( nprot );
-  return ret;
-}
-
-// [[Rcpp::export]]
-SEXP mvfftw_r2c(SEXP data,
-               int fftwplanopt = 0,
-               SEXP ret = R_NilValue)
-{
-  int nprot = 0;
-
-  // check HermConj and ret
-  int nrows = Rf_nrows(data);
-  int ncols = Rf_ncols(data);
-  int retrows = ( nrows / 2 ) + 1;
-  if( ret == R_NilValue || ret == R_MissingArg ){
-    PROTECT(ret = Rf_allocMatrix(CPLXSXP, retrows, ncols));
-    nprot++;
-  } else {
-    if( TYPEOF(ret) != CPLXSXP ){
-      stop("ravetools `fftw_r2c`: `ret` should be complex");
-    }
-    if( Rf_xlength(ret) != retrows * ncols ){
-      stop("ravetools `fftw_r2c`: `ret` length should be " + std::to_string(retrows * ncols));
-    }
-  }
-
-
-
-  if( TYPEOF(data) != REALSXP ){
-    PROTECT(data = Rf_coerceVector(data, REALSXP));
-    nprot++;
-  // } else if (MAYBE_REFERENCED(data)) {
-  // } else if(!inplace && fftwplanopt <= 0) {
-    // data need to be copied
-    // however fftwplanopt > 0 will copy eventually, so only
-    // copy when fftwplanopt <= 0
-    // UPDATE: FFTW3 official document mentions that with FFTW_ESTIMATE,
-    //   the input/output arrays are not overwritten during planning.
-
-    // data = PROTECT(Rf_duplicate(data));
-    // nprot++;
-  }
-
-  cmvfft_r2c(&nrows, &ncols, REAL(data),
-             reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]),
-             &fftwplanopt);
-
-  if(nprot > 0){
-    UNPROTECT(nprot);
-  }
-
-  return(ret);
-}
-
-// [[Rcpp::export]]
-SEXP fftw_c2c(SEXP data, int inverse = 0,
-              int fftwplanopt = 0,
-              SEXP ret = R_NilValue)
-{
-  int nprot = 0;
-  int xlen = Rf_length(data);
-
-  if(ret == R_NilValue){
-    PROTECT(ret = Rf_allocVector(CPLXSXP, xlen));
-    nprot++;
-  } else {
-    if(TYPEOF(ret) != CPLXSXP){
-      stop("ravetools `fftw_c2c`: `ret` must be complex");
-    }
-    if(Rf_length(ret) != xlen) {
-      stop("ravetools `fftw_c2c`: `ret` must have length of " + std::to_string(xlen));
-    }
-  }
-
-  if(TYPEOF(data) != CPLXSXP){
-    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
-    nprot++;
-  }
-
-  if(inverse){
-    inverse = 1;
-  }
-
-  cfft_c2c(
-    &xlen,
-    reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
-    reinterpret_cast<fftw_complex*>(&COMPLEX(ret)[0]),
-    &inverse, &fftwplanopt
-  );
-
-  if(nprot > 0){
-    UNPROTECT(nprot);
-  }
-
-  return ret;
-}
-
-// [[Rcpp::export]]
-SEXP fftw_c2r(SEXP data, int HermConj = 1,
-              int fftwplanopt = 0,
-              SEXP ret = R_NilValue){
-  int nprot = 0;
-
-  // check HermConj and ret
-  int xlen = Rf_length(data);
-  int retlen = 0;
-  if( HermConj == 1 ){
-    retlen = xlen;
-  } else {
-    if( HermConj != 0){ HermConj = 0; }
-    retlen = (xlen - 1) * 2;
-  }
-  if( ret == R_NilValue || ret == R_MissingArg ){
-    PROTECT(ret = Rf_allocVector(REALSXP, retlen));
-    nprot++;
-  } else {
-    if( TYPEOF(ret) != REALSXP ){
-      stop("ravetools `fftw_c2r`: `ret` should be double");
-    }
-    if( Rf_xlength(ret) < retlen ){
-      stop("ravetools `fftw_c2r`: `ret` length should be at least " + std::to_string(retlen));
-    }
-    retlen = Rf_xlength(ret);
-  }
-
-  if( TYPEOF(data) != CPLXSXP ){
-    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
-    nprot++;
-  // } else if (MAYBE_REFERENCED(data)) {
-  // } else if(!inplace) {
-    // data = PROTECT(Rf_duplicate(data));
-    // nprot++;
-  }
-
-  cfft_c2r(&retlen, &xlen, reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
-           REAL(ret), &fftwplanopt);
-
-  if(nprot > 0){
-    UNPROTECT(nprot);
-  }
   return ret;
 }
 
