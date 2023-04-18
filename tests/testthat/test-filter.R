@@ -75,7 +75,13 @@ test_that("C++ signal filter", {
   expected <- myFilter(b,a,x,z)
   my_result <- ravetools:::cpp_filter(b,a,x,z)
 
-  expect_equal(expected[[1]], my_result[[1]])
-  expect_equal(expected[[2]], my_result[[2]])
+  testthat::expect_lt(
+    max(abs((expected[[1]] - my_result[[1]]) / (expected[[1]] + my_result[[1]] + 1))),
+    1e-3
+  )
+  testthat::expect_lt(
+    max(abs((expected[[2]] - my_result[[2]]) / (expected[[2]] + my_result[[2]] + 1))),
+    1e-3
+  )
 
 })

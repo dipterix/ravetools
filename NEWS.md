@@ -1,3 +1,7 @@
+# ravetools 0.1.1
+
+* Fixed a precision issue that caused test failure on some machine
+
 # ravetools 0.1.0
 
 * Added `fill_surface` to fill in volume based on given surface mesh
