@@ -374,7 +374,7 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
     fftw_c2c(data = input[[1]] * fft_data,
              inverse = 1L, ret = tmp)
     c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
-  }, .y = output, .input_size = wave_len, .output_size = wave_len)
+  }, .y = output, .buffer_count = ncol(output))
 
   # output <- apply(fft_waves[], 2, function(x){
   #   wave_spectrum = fftwtools::fftw_c2c(x * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
@@ -592,7 +592,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
     output_imag[,ii] <- Im(tmp)
     ii <<- ii + 1
     NULL
-  }, .input_size = wave_len)
+  }, .buffer_count = f_l)
 
   # output <- apply(fft_waves[], 2, function(x){
   #   wave_spectrum = fftwtools::fftw_c2c(x * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))

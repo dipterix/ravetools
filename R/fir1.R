@@ -214,30 +214,30 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
     for(ii in seq_len(ncol(half_freq2))) {
       s <- 2 * ii - 1
 
-      slope <- (amp[s + 1] - amp[s]) / (half_freq[s + 1] - half_freq[s])
-      intercept <- amp[s] - slope * half_freq[s]
+      slope <- (amp[s + 1] - amp[s]) / (half_freq2[s + 1] - half_freq2[s])
+      intercept <- amp[s] - slope * half_freq2[s]
 
       if( !fl_is_even ) {
         b0 <- b0 + (
-          intercept * (half_freq[s + 1] - half_freq[s]) +
-            slope / 2 * (half_freq[s + 1]^2 - half_freq[s]^2)
+          intercept * (half_freq2[s + 1] - half_freq2[s]) +
+            slope / 2 * (half_freq2[s + 1]^2 - half_freq2[s]^2)
         ) * (wt[(s + 1) / 2])^2
       }
 
       b <- b +
         (
-          slope * ( cos(2 * pi * m * half_freq[s+1]) - cos(2 * pi * m * half_freq[s]) ) /
+          slope * ( cos(2 * pi * m * half_freq2[s+1]) - cos(2 * pi * m * half_freq2[s]) ) /
             (2*pi*m)^2
         ) * (wt[(s+1) / 2]) ^ 2 +
         (
-          half_freq[s+1] * ( slope * half_freq[s+1] + intercept ) * sinc( 2*m*half_freq[s+1] ) -
-            half_freq[s] * ( slope * half_freq[s] + intercept ) * sinc( 2*m*half_freq[s] )
+          half_freq2[s+1] * ( slope * half_freq2[s+1] + intercept ) * sinc( 2*m*half_freq2[s+1] ) -
+            half_freq2[s] * ( slope * half_freq2[s] + intercept ) * sinc( 2*m*half_freq2[s] )
         ) * (wt[(s+1) / 2]) ^ 2
 
       if( need_matrix ) {
         G <- G + (
-          half_freq[s+1] * ( sinc(2 * I1 * half_freq[s+1]) + sinc(2 * I2 * half_freq[s+1]) ) -
-            half_freq[s] * ( sinc(2 * I1 * half_freq[s]) + sinc(2 * I2 * half_freq[s]) )
+          half_freq2[s+1] * ( sinc(2 * I1 * half_freq2[s+1]) + sinc(2 * I2 * half_freq2[s+1]) ) -
+            half_freq2[s] * ( sinc(2 * I1 * half_freq2[s]) + sinc(2 * I2 * half_freq2[s]) )
         ) * (wt[(s+1) / 2]) ^ 2 / 2
       }
 
@@ -298,15 +298,15 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
       s <- 2 * ii - 1
 
       if(do_weight[[ii]]) {
-        if(half_freq[[s]] == 0) {
-          half_freq[[s]] <- 1e-5
+        if(half_freq2[[s]] == 0) {
+          half_freq2[[s]] <- 1e-5
         }
 
-        slope <- (amp[s + 1] - amp[s]) / (half_freq[s + 1] - half_freq[s])
-        intercept <- amp[s] - slope * half_freq[s]
+        slope <- (amp[s + 1] - amp[s]) / (half_freq2[s + 1] - half_freq2[s])
+        intercept <- amp[s] - slope * half_freq2[s]
 
-        tmp1 <- 2*pi * m * half_freq[s + 1]
-        tmp0 <- 2*pi * m * half_freq[s]
+        tmp1 <- 2*pi * m * half_freq2[s + 1]
+        tmp0 <- 2*pi * m * half_freq2[s]
         snint1 <- sineint( tmp1 ) - sineint( tmp0 )
         csint1 <- -0.5 * Re(
           pracma::expint( 1i * tmp1 ) + pracma::expint( -1i * tmp1 ) -
@@ -314,14 +314,14 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
         )
 
         slope * snint1 + intercept * 2*pi * m * (
-          sinc( 2 * m * half_freq[s] ) + csint1 - sinc( 2 * m * half_freq[s + 1] )
+          sinc( 2 * m * half_freq2[s] ) + csint1 - sinc( 2 * m * half_freq2[s + 1] )
         ) * wt[[ii]]^2
 
 
-        tmp12 <- 2*pi * half_freq[s + 1] * (-I2)
-        tmp11 <- 2*pi * half_freq[s + 1] * I1
-        tmp02 <- 2*pi * half_freq[s] * (-I2)
-        tmp01 <- 2*pi * half_freq[s] * I1
+        tmp12 <- 2*pi * half_freq2[s + 1] * (-I2)
+        tmp11 <- 2*pi * half_freq2[s + 1] * I1
+        tmp02 <- 2*pi * half_freq2[s] * (-I2)
+        tmp01 <- 2*pi * half_freq2[s] * I1
         snint1 <- sineint( tmp12 )
         snint2 <- sineint( tmp11 )
         snint3 <- sineint( tmp02 )
@@ -329,44 +329,44 @@ firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "di
 
         G <- G + 0.5 * (
           (
-            cos( tmp12 ) / half_freq[s + 1] -
+            cos( tmp12 ) / half_freq2[s + 1] -
               2 * snint1 * pi * I2 -
-              cos( tmp11 ) / half_freq[s + 1] -
+              cos( tmp11 ) / half_freq2[s + 1] -
               2 * snint2 * pi * I1 ) -
           (
-            cos( tmp02 ) / half_freq[s] -
+            cos( tmp02 ) / half_freq2[s] -
               2 * snint3 * pi * I2 -
-              cos( tmp01 ) / half_freq[s] -
+              cos( tmp01 ) / half_freq2[s] -
               2 * snint4 * pi * I1
           )
         ) * wt[[ii]]^2
 
       } else {
 
-        slope <- (amp[s + 1] - amp[s]) / (half_freq[s + 1] - half_freq[s])
-        intercept <- amp[s] - slope * half_freq[s]
+        slope <- (amp[s + 1] - amp[s]) / (half_freq2[s + 1] - half_freq2[s])
+        intercept <- amp[s] - slope * half_freq2[s]
 
         if( !fl_is_even ) {
           b0 <- b0 + (
-            intercept * (half_freq[s + 1] - half_freq[s]) +
-              slope / 2 * (half_freq[s + 1]^2 - half_freq[s]^2)
+            intercept * (half_freq2[s + 1] - half_freq2[s]) +
+              slope / 2 * (half_freq2[s + 1]^2 - half_freq2[s]^2)
           ) * (wt[(s + 1) / 2])^2
         }
 
         b <- b +
           (
-            slope * ( sin(2 * pi * m * half_freq[s+1]) - sin(2 * pi * m * half_freq[s]) ) /
+            slope * ( sin(2 * pi * m * half_freq2[s+1]) - sin(2 * pi * m * half_freq2[s]) ) /
               (2*pi*m)^2
           ) * (wt[(s+1) / 2]) ^ 2 +
           (
-            ( slope * half_freq[s] + intercept ) * cos( 2*m*half_freq[s] ) -
-            ( slope * half_freq[s+1] + intercept ) * cos( 2*m*half_freq[s+1] )
+            ( slope * half_freq2[s] + intercept ) * cos( 2*m*half_freq2[s] ) -
+            ( slope * half_freq2[s+1] + intercept ) * cos( 2*m*half_freq2[s+1] )
           ) / (2 * pi * m) * (wt[(s+1) / 2]) ^ 2
 
         if( need_matrix ) {
           G <- G + (
-            half_freq[s+1] * ( sinc(2 * I1 * half_freq[s+1]) - sinc(2 * I2 * half_freq[s+1]) ) -
-              half_freq[s] * ( sinc(2 * I1 * half_freq[s]) - sinc(2 * I2 * half_freq[s]) )
+            half_freq2[s+1] * ( sinc(2 * I1 * half_freq2[s+1]) - sinc(2 * I2 * half_freq2[s+1]) ) -
+              half_freq2[s] * ( sinc(2 * I1 * half_freq2[s]) - sinc(2 * I2 * half_freq2[s]) )
           ) * (wt[(s+1) / 2]) ^ 2 / 2
         }
 
