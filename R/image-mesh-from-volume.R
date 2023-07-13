@@ -1,3 +1,13 @@
+mesh_volume <- function(mesh) {
+  suppressWarnings({
+    tryCatch({
+      return(Rvcg::vcgVolume(mesh))
+    }, error = function(e) {
+      NA_real_
+    })
+  })
+}
+
 #' @title Generate 3D mesh surface from volume data
 #' @description Internally calls \code{\link[Rvcg]{vcgIsosurface}}, optionally
 #' calls \code{\link[Rvcg]{vcgUniformRemesh}} and \code{\link[Rvcg]{vcgSmooth}}.
@@ -62,20 +72,20 @@ mesh_from_volume <- function(
 
   mesh <- Rvcg::vcgIsosurface(volume, threshold = threshold, IJK2RAS = IJK2RAS)
 
-  debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
+  debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", mesh_volume(mesh)))
 
   if( remesh ) {
     mesh <- Rvcg::vcgUniformRemesh(
       mesh, voxelSize = remesh_voxel_size, multiSample = remesh_multisample,
       mergeClost = remesh_automerge, silent = !verbose)
-    debug(sprintf("The re-meshed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
+    debug(sprintf("The re-meshed surface volume is %.1f mm^3", mesh_volume(mesh)))
   }
   if( smooth ) {
     mesh <- Rvcg::vcgSmooth(
       mesh = mesh, type = smooth_method,
       lambda = smooth_lambda, delta = smooth_delta
     )
-    debug(sprintf("The smoothed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
+    debug(sprintf("The smoothed surface volume is %.1f mm^3", mesh_volume(mesh)))
   }
 
   switch(

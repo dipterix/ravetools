@@ -159,76 +159,76 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
 }
 
 
-mesh_from_volume <- function(
-    volume, output_format = c("rgl", "freesurfer"),
-    IJK2RAS = NULL, threshold = 0, verbose = TRUE,
-    remesh = TRUE, remesh_voxel_size = 1,
-    remesh_multisample = TRUE, remesh_automerge = TRUE,
-    smooth = FALSE, smooth_lambda = 10, smooth_delta = 20,
-    smooth_method = "surfPreserveLaplace"
-) {
-
-  output_format <- match.arg(output_format)
-
-  debug <- function(..., appendLF = TRUE) {
-    if (verbose) {
-      appendLF <- ifelse(appendLF, "\n", "")
-      cat(..., appendLF)
-    }
-  }
-
-  volume <- as.array(volume)
-  dm <- dim(volume)[c(1,2,3)]
-  dim(volume) <- dm
-
-  if(length(IJK2RAS) != 16L) {
-    IJK2RAS <- matrix(
-      nrow = 4, byrow = TRUE,
-      c(-1, 0, 0, dm[[1]]/2,
-        0, 0, 1, -dm[[3]]/2,
-        0, -1, 0, dm[[2]]/2,
-        0, 0, 0, 1))
-  }
-
-  mesh <- Rvcg::vcgIsosurface(volume, threshold = threshold, IJK2RAS = IJK2RAS)
-
-  debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
-
-  if( remesh ) {
-    mesh <- Rvcg::vcgUniformRemesh(
-      mesh, voxelSize = remesh_voxel_size, multiSample = remesh_multisample,
-      mergeClost = remesh_automerge, silent = !verbose)
-    debug(sprintf("The re-meshed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
-  }
-  if( smooth ) {
-    mesh <- Rvcg::vcgSmooth(
-      mesh = mesh, type = smooth_method,
-      lambda = smooth_lambda, delta = smooth_delta
-    )
-    debug(sprintf("The smoothed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
-  }
-
-  switch(
-    output_format,
-    "freesurfer" = {
-      face_index <- t(mesh$it)
-      face_index_start <- min(face_index)
-      face_index <- face_index - (face_index_start - 1L)
-
-      vertices <- t(mesh$vb[c(1, 2, 3), ])
-      mesh <- structure(
-        list(
-          mesh_face_type = "tris",
-          vertices = vertices,
-          faces = face_index
-        ),
-        class = c("fs.surface", "list")
-      )
-    },{}
-  )
-  mesh
-
-}
-
-
-
+# mesh_from_volume <- function(
+#     volume, output_format = c("rgl", "freesurfer"),
+#     IJK2RAS = NULL, threshold = 0, verbose = TRUE,
+#     remesh = TRUE, remesh_voxel_size = 1,
+#     remesh_multisample = TRUE, remesh_automerge = TRUE,
+#     smooth = FALSE, smooth_lambda = 10, smooth_delta = 20,
+#     smooth_method = "surfPreserveLaplace"
+# ) {
+#
+#   output_format <- match.arg(output_format)
+#
+#   debug <- function(..., appendLF = TRUE) {
+#     if (verbose) {
+#       appendLF <- ifelse(appendLF, "\n", "")
+#       cat(..., appendLF)
+#     }
+#   }
+#
+#   volume <- as.array(volume)
+#   dm <- dim(volume)[c(1,2,3)]
+#   dim(volume) <- dm
+#
+#   if(length(IJK2RAS) != 16L) {
+#     IJK2RAS <- matrix(
+#       nrow = 4, byrow = TRUE,
+#       c(-1, 0, 0, dm[[1]]/2,
+#         0, 0, 1, -dm[[3]]/2,
+#         0, -1, 0, dm[[2]]/2,
+#         0, 0, 0, 1))
+#   }
+#
+#   mesh <- Rvcg::vcgIsosurface(volume, threshold = threshold, IJK2RAS = IJK2RAS)
+#
+#   debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
+#
+#   if( remesh ) {
+#     mesh <- Rvcg::vcgUniformRemesh(
+#       mesh, voxelSize = remesh_voxel_size, multiSample = remesh_multisample,
+#       mergeClost = remesh_automerge, silent = !verbose)
+#     debug(sprintf("The re-meshed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
+#   }
+#   if( smooth ) {
+#     mesh <- Rvcg::vcgSmooth(
+#       mesh = mesh, type = smooth_method,
+#       lambda = smooth_lambda, delta = smooth_delta
+#     )
+#     debug(sprintf("The smoothed surface volume is %.1f mm^3", suppressWarnings(Rvcg::vcgVolume(mesh))))
+#   }
+#
+#   switch(
+#     output_format,
+#     "freesurfer" = {
+#       face_index <- t(mesh$it)
+#       face_index_start <- min(face_index)
+#       face_index <- face_index - (face_index_start - 1L)
+#
+#       vertices <- t(mesh$vb[c(1, 2, 3), ])
+#       mesh <- structure(
+#         list(
+#           mesh_face_type = "tris",
+#           vertices = vertices,
+#           faces = face_index
+#         ),
+#         class = c("fs.surface", "list")
+#       )
+#     },{}
+#   )
+#   mesh
+#
+# }
+#
+#
+#
