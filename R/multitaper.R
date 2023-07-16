@@ -37,6 +37,8 @@
 #'
 #' @examples
 #'
+#' if(interactive()) {
+#'
 #' time <- seq(0, 3, by = 0.001)
 #' x <- sin(time * 20*pi) + exp(-time^2) * cos(time * 10*pi)
 #'
@@ -55,6 +57,8 @@
 #'   ylab = 'Frequency (Hz)',
 #'   col = matlab_palette()
 #' )
+#'
+#' }
 #'
 NULL
 
