@@ -1,3 +1,9 @@
+# ravetools 0.1.2
+
+* Compatible with the latest `filearray`
+* Exported `grow_volume`
+* `mesh_from_volume` no longer throw errors if the mesh does not form a manifold
+
 # ravetools 0.1.1
 
 * Fixed a precision issue that caused test failure on some machine
