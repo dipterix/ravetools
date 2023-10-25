@@ -203,6 +203,11 @@ struct Baseliner : public TinyParallel::Worker
       case 0: // 0: direct baseline
 
         bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0) / bl_len;
+
+        // if( ii == 0 ) {
+        //   Rcpp::Rcout << bl_len << " " << bl_mean << "\n";
+        // }
+
         // Element-wise (e1 / e2 - 1) * 100
         for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
           arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
@@ -315,8 +320,9 @@ Rcpp::NumericVector baselineArray(
 
   // Callculate baseline inner loop length
   Rcpp::IntegerVector rest_dim = dims[rest];
+  Rcpp::IntegerVector blrest_dim = bldims[rest];
   int64_t innerloop_len = length_from_dim(rest_dim);
-  int64_t blloop_len = length_from_dim(bldims[rest]);
+  int64_t blloop_len = length_from_dim(blrest_dim);
   Rcpp::IntegerVector rest_idx = Rcpp::IntegerVector(rest_dim.length());
 
   // Rcpp::Rcout << "cpp debug calculated innerloop length\n";
@@ -327,9 +333,17 @@ Rcpp::NumericVector baselineArray(
   rest_idx[0] = -1;
   subset_idx.fill(0);
   for(ptr = bl_vec_idx.begin(); ptr != bl_vec_idx.end(); ptr++ ){
-    next_array_index(rest_idx.begin(), rest_idx.end(), rest_dim.begin());
+    next_array_index(rest_idx.begin(), rest_idx.end(), blrest_dim.begin());
     subset_idx[rest] = rest_idx;
     *ptr = get_ii(subset_idx, bldims);
+
+    // if( ptr + 1 == bl_vec_idx.end() ) {
+    //   Rcpp::print(subset_idx);
+    //   Rcpp::print(bldims);
+    //   Rcpp::print(blrest_dim);
+    //   Rcpp::print(Rcpp::wrap(*ptr));
+    // }
+
   }
 
   // Rcpp::Rcout << "cpp debug baseline indives calculated\n";
@@ -343,6 +357,14 @@ Rcpp::NumericVector baselineArray(
     next_array_index(rest_idx.begin(), rest_idx.end(), rest_dim.begin());
     subset_idx[rest] = rest_idx;
     *ptr = get_ii(subset_idx, dims);
+
+    // if( ptr + 1 == dat_vec_idx.end() ) {
+    //   Rcpp::Rcout << "---------\n" ;
+    //   Rcpp::print(subset_idx);
+    //   Rcpp::print(bldims);
+    //   Rcpp::print(rest_dim);
+    //   Rcpp::print(Rcpp::wrap(*ptr));
+    // }
   }
 
   // Rcpp::Rcout << "cpp debug partial index calculated\n";

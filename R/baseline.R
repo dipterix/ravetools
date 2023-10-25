@@ -16,7 +16,7 @@
 #' \code{baseline_indexpoints}).
 #' @param ... passed to other methods
 #'
-#' @return Contrast array with the same dimension as \code{x}.
+#' @returns Contrast array with the same dimension as \code{x}.
 #' @details
 #' Consider a scenario where we want to baseline a bunch of signals recorded
 #' from different locations. For each location, we record \code{n} sessions.
@@ -185,7 +185,7 @@ baseline_array.array <- function(
   ntimepoints <- dims[along_dim]
 
   stopifnot2(!(is.null(baseline_indexpoints) && is.null(baseline_subarray)),
-             msg = "Either `baseline_indexpoints` and `baseline_subarray` must be specified")
+             msg = "Either `baseline_indexpoints` or `baseline_subarray` must be specified")
   if(!is.null(baseline_indexpoints)) {
     baseline_indexpoints <- as.integer(baseline_indexpoints)
     # calculate baseline window
@@ -217,6 +217,15 @@ baseline_array.array <- function(
   }
 
   rest <- seq_along(dims)[-unit_dims]
+  #
+  # if(!all(c(1, 3, 4) %in% unit_dims)) {
+  #   bl <- ravetools::collapse(bl, keep = unit_dims)
+  # }
+  #
+  #
+  # dim(bl2) <- c(20,1,1,1)
+  # bldims2 <- dim(bl2)
+  # re <- .Call(`_ravetools_baselineArray`, x, bl2, dims, bldims2, along_dim - 1L, unit_dims - 1L, rest - 1L, method_int - 1L)
 
   re <- .Call(`_ravetools_baselineArray`, x, bl, dims, bldims, along_dim - 1L, unit_dims - 1L, rest - 1L, method_int - 1L)
   if(inherits(re, "ravetools_error")){

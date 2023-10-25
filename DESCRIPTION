@@ -38,7 +38,8 @@ Imports:
     digest (>= 0.6.29),
     splines,
     RNiftyReg (>= 2.7.1),
-    Rvcg (>= 0.22.1)
+    Rvcg (>= 0.22.1),
+    R6 (>= 2.5.1)
 LinkingTo: 
     Rcpp
 Suggests: 

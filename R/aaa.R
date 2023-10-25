@@ -2,6 +2,8 @@
 #' @importFrom stats approx
 #' @importFrom Rcpp sourceCpp
 #' @importFrom graphics image
+#' @importFrom R6 R6Class
+#' @importFrom R6 is.R6
 #' @useDynLib ravetools, .registration = TRUE
 ## usethis namespace: end
 NULL
@@ -79,7 +81,7 @@ tempfile2 <- function(
           "#AF0000", "#9F0000", "#8F0000", "#800000")
 
 #' 'Matlab' heat-map plot palette
-#' @return vector of 64 colors
+#' @returns vector of 64 colors
 #' @export
 matlab_palette <- function(){
   .matlab_palette
@@ -91,7 +93,7 @@ matlab_palette <- function(){
 #' @param stack_size Stack size (in bytes) to use for worker threads. The
 #' default used for \code{"auto"} is 2MB on 32-bit systems and 4MB on 64-bit
 #' systems.
-#' @return \code{detect_threads} returns an integer of default threads that
+#' @returns \code{detect_threads} returns an integer of default threads that
 #' is determined by the number of \code{CPU} cores; \code{ravetools_threads}
 #' returns nothing.
 #'
