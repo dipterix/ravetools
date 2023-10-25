@@ -6,7 +6,7 @@
 #' @param break_points integer vector, or \code{NULL}; only used when
 #' \code{trend} is \code{'linear'} to remove piecewise linear trend; will
 #' throw warnings if \code{trend} is \code{'constant'}
-#' @return The signals with trend removed in matrix form; the number of columns
+#' @returns The signals with trend removed in matrix form; the number of columns
 #' is the number of signals, and number of rows is length of the signals
 #' @examples
 #'

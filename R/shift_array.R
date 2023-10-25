@@ -4,7 +4,7 @@
 #' @param along_margin which index is to be shifted
 #' @param unit_margin which dimension decides \code{shift_amount}
 #' @param shift_amount shift amount along \code{along_margin}
-#' @return An array with same dimensions as the input \code{x}, but with
+#' @returns An array with same dimensions as the input \code{x}, but with
 #' index shifted. The missing elements will be filled with \code{NA}.
 #' @details
 #' A simple use-case for this function is to think of a matrix where each row

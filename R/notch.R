@@ -9,7 +9,7 @@
 #' shares the same length as \code{lb}
 #' @param domain \code{1} if the input signal is in the
 #' time domain, \code{0} if it is in the frequency domain
-#' @return filtered signal in time domain (real numerical
+#' @returns filtered signal in time domain (real numerical
 #' vector)
 #' @examples
 #'

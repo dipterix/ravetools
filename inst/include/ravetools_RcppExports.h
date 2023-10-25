@@ -402,6 +402,1181 @@ namespace ravetools {
         return Rcpp::as<SEXP >(rcpp_result_gen);
     }
 
+    inline SEXP Vector3__new() {
+        typedef SEXP(*Ptr_Vector3__new)();
+        static Ptr_Vector3__new p_Vector3__new = NULL;
+        if (p_Vector3__new == NULL) {
+            validateSignature("SEXP(*Vector3__new)()");
+            p_Vector3__new = (Ptr_Vector3__new)R_GetCCallable("ravetools", "_ravetools_Vector3__new");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__new();
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
+    inline void Vector3__from_array(const SEXP& self, std::vector<double>& array, const int& offset = 0, const int& n_elems = -1) {
+        typedef SEXP(*Ptr_Vector3__from_array)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_Vector3__from_array p_Vector3__from_array = NULL;
+        if (p_Vector3__from_array == NULL) {
+            validateSignature("void(*Vector3__from_array)(const SEXP&,std::vector<double>&,const int&,const int&)");
+            p_Vector3__from_array = (Ptr_Vector3__from_array)R_GetCCallable("ravetools", "_ravetools_Vector3__from_array");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__from_array(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(array)), Shield<SEXP>(Rcpp::wrap(offset)), Shield<SEXP>(Rcpp::wrap(n_elems)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__resize(const SEXP& self, const int& n_elems) {
+        typedef SEXP(*Ptr_Vector3__resize)(SEXP,SEXP);
+        static Ptr_Vector3__resize p_Vector3__resize = NULL;
+        if (p_Vector3__resize == NULL) {
+            validateSignature("void(*Vector3__resize)(const SEXP&,const int&)");
+            p_Vector3__resize = (Ptr_Vector3__resize)R_GetCCallable("ravetools", "_ravetools_Vector3__resize");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__resize(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(n_elems)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline size_t Vector3__get_size(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__get_size)(SEXP);
+        static Ptr_Vector3__get_size p_Vector3__get_size = NULL;
+        if (p_Vector3__get_size == NULL) {
+            validateSignature("size_t(*Vector3__get_size)(const SEXP&)");
+            p_Vector3__get_size = (Ptr_Vector3__get_size)R_GetCCallable("ravetools", "_ravetools_Vector3__get_size");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__get_size(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<size_t >(rcpp_result_gen);
+    }
+
+    inline SEXP Vector3__to_array(const SEXP& self, const int& n_skip = 0, const int& max_n_elems = -1) {
+        typedef SEXP(*Ptr_Vector3__to_array)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__to_array p_Vector3__to_array = NULL;
+        if (p_Vector3__to_array == NULL) {
+            validateSignature("SEXP(*Vector3__to_array)(const SEXP&,const int&,const int&)");
+            p_Vector3__to_array = (Ptr_Vector3__to_array)R_GetCCallable("ravetools", "_ravetools_Vector3__to_array");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__to_array(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(n_skip)), Shield<SEXP>(Rcpp::wrap(max_n_elems)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
+    inline void Vector3__set_scalar(const SEXP& self, double& value) {
+        typedef SEXP(*Ptr_Vector3__set_scalar)(SEXP,SEXP);
+        static Ptr_Vector3__set_scalar p_Vector3__set_scalar = NULL;
+        if (p_Vector3__set_scalar == NULL) {
+            validateSignature("void(*Vector3__set_scalar)(const SEXP&,double&)");
+            p_Vector3__set_scalar = (Ptr_Vector3__set_scalar)R_GetCCallable("ravetools", "_ravetools_Vector3__set_scalar");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_scalar(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(value)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__set_x(const SEXP& self, double& value) {
+        typedef SEXP(*Ptr_Vector3__set_x)(SEXP,SEXP);
+        static Ptr_Vector3__set_x p_Vector3__set_x = NULL;
+        if (p_Vector3__set_x == NULL) {
+            validateSignature("void(*Vector3__set_x)(const SEXP&,double&)");
+            p_Vector3__set_x = (Ptr_Vector3__set_x)R_GetCCallable("ravetools", "_ravetools_Vector3__set_x");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_x(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(value)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__set_y(const SEXP& self, double& value) {
+        typedef SEXP(*Ptr_Vector3__set_y)(SEXP,SEXP);
+        static Ptr_Vector3__set_y p_Vector3__set_y = NULL;
+        if (p_Vector3__set_y == NULL) {
+            validateSignature("void(*Vector3__set_y)(const SEXP&,double&)");
+            p_Vector3__set_y = (Ptr_Vector3__set_y)R_GetCCallable("ravetools", "_ravetools_Vector3__set_y");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_y(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(value)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__set_z(const SEXP& self, double& value) {
+        typedef SEXP(*Ptr_Vector3__set_z)(SEXP,SEXP);
+        static Ptr_Vector3__set_z p_Vector3__set_z = NULL;
+        if (p_Vector3__set_z == NULL) {
+            validateSignature("void(*Vector3__set_z)(const SEXP&,double&)");
+            p_Vector3__set_z = (Ptr_Vector3__set_z)R_GetCCallable("ravetools", "_ravetools_Vector3__set_z");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_z(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(value)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline double Vector3__get_x(const SEXP& self, const size_t& i) {
+        typedef SEXP(*Ptr_Vector3__get_x)(SEXP,SEXP);
+        static Ptr_Vector3__get_x p_Vector3__get_x = NULL;
+        if (p_Vector3__get_x == NULL) {
+            validateSignature("double(*Vector3__get_x)(const SEXP&,const size_t&)");
+            p_Vector3__get_x = (Ptr_Vector3__get_x)R_GetCCallable("ravetools", "_ravetools_Vector3__get_x");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__get_x(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(i)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<double >(rcpp_result_gen);
+    }
+
+    inline double Vector3__get_y(const SEXP& self, const size_t& i) {
+        typedef SEXP(*Ptr_Vector3__get_y)(SEXP,SEXP);
+        static Ptr_Vector3__get_y p_Vector3__get_y = NULL;
+        if (p_Vector3__get_y == NULL) {
+            validateSignature("double(*Vector3__get_y)(const SEXP&,const size_t&)");
+            p_Vector3__get_y = (Ptr_Vector3__get_y)R_GetCCallable("ravetools", "_ravetools_Vector3__get_y");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__get_y(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(i)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<double >(rcpp_result_gen);
+    }
+
+    inline double Vector3__get_z(const SEXP& self, const size_t& i) {
+        typedef SEXP(*Ptr_Vector3__get_z)(SEXP,SEXP);
+        static Ptr_Vector3__get_z p_Vector3__get_z = NULL;
+        if (p_Vector3__get_z == NULL) {
+            validateSignature("double(*Vector3__get_z)(const SEXP&,const size_t&)");
+            p_Vector3__get_z = (Ptr_Vector3__get_z)R_GetCCallable("ravetools", "_ravetools_Vector3__get_z");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__get_z(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(i)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<double >(rcpp_result_gen);
+    }
+
+    inline SEXP Vector3__get_item(const SEXP& self, const size_t& i) {
+        typedef SEXP(*Ptr_Vector3__get_item)(SEXP,SEXP);
+        static Ptr_Vector3__get_item p_Vector3__get_item = NULL;
+        if (p_Vector3__get_item == NULL) {
+            validateSignature("SEXP(*Vector3__get_item)(const SEXP&,const size_t&)");
+            p_Vector3__get_item = (Ptr_Vector3__get_item)R_GetCCallable("ravetools", "_ravetools_Vector3__get_item");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__get_item(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(i)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
+    inline void Vector3__copy(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__copy)(SEXP,SEXP);
+        static Ptr_Vector3__copy p_Vector3__copy = NULL;
+        if (p_Vector3__copy == NULL) {
+            validateSignature("void(*Vector3__copy)(const SEXP&,const SEXP&)");
+            p_Vector3__copy = (Ptr_Vector3__copy)R_GetCCallable("ravetools", "_ravetools_Vector3__copy");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__copy(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__add(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__add)(SEXP,SEXP);
+        static Ptr_Vector3__add p_Vector3__add = NULL;
+        if (p_Vector3__add == NULL) {
+            validateSignature("void(*Vector3__add)(const SEXP&,const SEXP&)");
+            p_Vector3__add = (Ptr_Vector3__add)R_GetCCallable("ravetools", "_ravetools_Vector3__add");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__add(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__add_scalar(const SEXP& self, std::vector<double>& s) {
+        typedef SEXP(*Ptr_Vector3__add_scalar)(SEXP,SEXP);
+        static Ptr_Vector3__add_scalar p_Vector3__add_scalar = NULL;
+        if (p_Vector3__add_scalar == NULL) {
+            validateSignature("void(*Vector3__add_scalar)(const SEXP&,std::vector<double>&)");
+            p_Vector3__add_scalar = (Ptr_Vector3__add_scalar)R_GetCCallable("ravetools", "_ravetools_Vector3__add_scalar");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__add_scalar(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(s)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__add_vectors(const SEXP& self, const SEXP& a, const SEXP& b) {
+        typedef SEXP(*Ptr_Vector3__add_vectors)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__add_vectors p_Vector3__add_vectors = NULL;
+        if (p_Vector3__add_vectors == NULL) {
+            validateSignature("void(*Vector3__add_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+            p_Vector3__add_vectors = (Ptr_Vector3__add_vectors)R_GetCCallable("ravetools", "_ravetools_Vector3__add_vectors");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__add_vectors(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(a)), Shield<SEXP>(Rcpp::wrap(b)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__add_scaled(const SEXP& self, const SEXP& v, const double& s) {
+        typedef SEXP(*Ptr_Vector3__add_scaled)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__add_scaled p_Vector3__add_scaled = NULL;
+        if (p_Vector3__add_scaled == NULL) {
+            validateSignature("void(*Vector3__add_scaled)(const SEXP&,const SEXP&,const double&)");
+            p_Vector3__add_scaled = (Ptr_Vector3__add_scaled)R_GetCCallable("ravetools", "_ravetools_Vector3__add_scaled");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__add_scaled(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)), Shield<SEXP>(Rcpp::wrap(s)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__sub(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__sub)(SEXP,SEXP);
+        static Ptr_Vector3__sub p_Vector3__sub = NULL;
+        if (p_Vector3__sub == NULL) {
+            validateSignature("void(*Vector3__sub)(const SEXP&,const SEXP&)");
+            p_Vector3__sub = (Ptr_Vector3__sub)R_GetCCallable("ravetools", "_ravetools_Vector3__sub");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__sub(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__sub_scalar(const SEXP& self, std::vector<double>& s) {
+        typedef SEXP(*Ptr_Vector3__sub_scalar)(SEXP,SEXP);
+        static Ptr_Vector3__sub_scalar p_Vector3__sub_scalar = NULL;
+        if (p_Vector3__sub_scalar == NULL) {
+            validateSignature("void(*Vector3__sub_scalar)(const SEXP&,std::vector<double>&)");
+            p_Vector3__sub_scalar = (Ptr_Vector3__sub_scalar)R_GetCCallable("ravetools", "_ravetools_Vector3__sub_scalar");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__sub_scalar(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(s)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__sub_vectors(const SEXP& self, const SEXP& a, const SEXP& b) {
+        typedef SEXP(*Ptr_Vector3__sub_vectors)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__sub_vectors p_Vector3__sub_vectors = NULL;
+        if (p_Vector3__sub_vectors == NULL) {
+            validateSignature("void(*Vector3__sub_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+            p_Vector3__sub_vectors = (Ptr_Vector3__sub_vectors)R_GetCCallable("ravetools", "_ravetools_Vector3__sub_vectors");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__sub_vectors(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(a)), Shield<SEXP>(Rcpp::wrap(b)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__multiply(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__multiply)(SEXP,SEXP);
+        static Ptr_Vector3__multiply p_Vector3__multiply = NULL;
+        if (p_Vector3__multiply == NULL) {
+            validateSignature("void(*Vector3__multiply)(const SEXP&,const SEXP&)");
+            p_Vector3__multiply = (Ptr_Vector3__multiply)R_GetCCallable("ravetools", "_ravetools_Vector3__multiply");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__multiply(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__multiply_scalar(const SEXP& self, std::vector<double>& s) {
+        typedef SEXP(*Ptr_Vector3__multiply_scalar)(SEXP,SEXP);
+        static Ptr_Vector3__multiply_scalar p_Vector3__multiply_scalar = NULL;
+        if (p_Vector3__multiply_scalar == NULL) {
+            validateSignature("void(*Vector3__multiply_scalar)(const SEXP&,std::vector<double>&)");
+            p_Vector3__multiply_scalar = (Ptr_Vector3__multiply_scalar)R_GetCCallable("ravetools", "_ravetools_Vector3__multiply_scalar");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__multiply_scalar(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(s)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__multiply_vectors(const SEXP& self, const SEXP& a, const SEXP& b) {
+        typedef SEXP(*Ptr_Vector3__multiply_vectors)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__multiply_vectors p_Vector3__multiply_vectors = NULL;
+        if (p_Vector3__multiply_vectors == NULL) {
+            validateSignature("void(*Vector3__multiply_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+            p_Vector3__multiply_vectors = (Ptr_Vector3__multiply_vectors)R_GetCCallable("ravetools", "_ravetools_Vector3__multiply_vectors");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__multiply_vectors(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(a)), Shield<SEXP>(Rcpp::wrap(b)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__apply_matrix3(const SEXP& self, const std::vector<double>& m) {
+        typedef SEXP(*Ptr_Vector3__apply_matrix3)(SEXP,SEXP);
+        static Ptr_Vector3__apply_matrix3 p_Vector3__apply_matrix3 = NULL;
+        if (p_Vector3__apply_matrix3 == NULL) {
+            validateSignature("void(*Vector3__apply_matrix3)(const SEXP&,const std::vector<double>&)");
+            p_Vector3__apply_matrix3 = (Ptr_Vector3__apply_matrix3)R_GetCCallable("ravetools", "_ravetools_Vector3__apply_matrix3");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__apply_matrix3(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(m)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__apply_matrix4(const SEXP& self, const std::vector<double>& m) {
+        typedef SEXP(*Ptr_Vector3__apply_matrix4)(SEXP,SEXP);
+        static Ptr_Vector3__apply_matrix4 p_Vector3__apply_matrix4 = NULL;
+        if (p_Vector3__apply_matrix4 == NULL) {
+            validateSignature("void(*Vector3__apply_matrix4)(const SEXP&,const std::vector<double>&)");
+            p_Vector3__apply_matrix4 = (Ptr_Vector3__apply_matrix4)R_GetCCallable("ravetools", "_ravetools_Vector3__apply_matrix4");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__apply_matrix4(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(m)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__apply_quaternion(const SEXP& self, const std::vector<double>& q) {
+        typedef SEXP(*Ptr_Vector3__apply_quaternion)(SEXP,SEXP);
+        static Ptr_Vector3__apply_quaternion p_Vector3__apply_quaternion = NULL;
+        if (p_Vector3__apply_quaternion == NULL) {
+            validateSignature("void(*Vector3__apply_quaternion)(const SEXP&,const std::vector<double>&)");
+            p_Vector3__apply_quaternion = (Ptr_Vector3__apply_quaternion)R_GetCCallable("ravetools", "_ravetools_Vector3__apply_quaternion");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__apply_quaternion(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(q)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__transform_direction(const SEXP& self, const SEXP& m) {
+        typedef SEXP(*Ptr_Vector3__transform_direction)(SEXP,SEXP);
+        static Ptr_Vector3__transform_direction p_Vector3__transform_direction = NULL;
+        if (p_Vector3__transform_direction == NULL) {
+            validateSignature("void(*Vector3__transform_direction)(const SEXP&,const SEXP&)");
+            p_Vector3__transform_direction = (Ptr_Vector3__transform_direction)R_GetCCallable("ravetools", "_ravetools_Vector3__transform_direction");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__transform_direction(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(m)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__divide(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__divide)(SEXP,SEXP);
+        static Ptr_Vector3__divide p_Vector3__divide = NULL;
+        if (p_Vector3__divide == NULL) {
+            validateSignature("void(*Vector3__divide)(const SEXP&,const SEXP&)");
+            p_Vector3__divide = (Ptr_Vector3__divide)R_GetCCallable("ravetools", "_ravetools_Vector3__divide");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__divide(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__divide_scalar(const SEXP& self, std::vector<double>& s) {
+        typedef SEXP(*Ptr_Vector3__divide_scalar)(SEXP,SEXP);
+        static Ptr_Vector3__divide_scalar p_Vector3__divide_scalar = NULL;
+        if (p_Vector3__divide_scalar == NULL) {
+            validateSignature("void(*Vector3__divide_scalar)(const SEXP&,std::vector<double>&)");
+            p_Vector3__divide_scalar = (Ptr_Vector3__divide_scalar)R_GetCCallable("ravetools", "_ravetools_Vector3__divide_scalar");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__divide_scalar(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(s)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__min(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__min)(SEXP,SEXP);
+        static Ptr_Vector3__min p_Vector3__min = NULL;
+        if (p_Vector3__min == NULL) {
+            validateSignature("void(*Vector3__min)(const SEXP&,const SEXP&)");
+            p_Vector3__min = (Ptr_Vector3__min)R_GetCCallable("ravetools", "_ravetools_Vector3__min");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__min(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__max(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__max)(SEXP,SEXP);
+        static Ptr_Vector3__max p_Vector3__max = NULL;
+        if (p_Vector3__max == NULL) {
+            validateSignature("void(*Vector3__max)(const SEXP&,const SEXP&)");
+            p_Vector3__max = (Ptr_Vector3__max)R_GetCCallable("ravetools", "_ravetools_Vector3__max");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__max(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__clamp(const SEXP& self, const SEXP& min, const SEXP& max) {
+        typedef SEXP(*Ptr_Vector3__clamp)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__clamp p_Vector3__clamp = NULL;
+        if (p_Vector3__clamp == NULL) {
+            validateSignature("void(*Vector3__clamp)(const SEXP&,const SEXP&,const SEXP&)");
+            p_Vector3__clamp = (Ptr_Vector3__clamp)R_GetCCallable("ravetools", "_ravetools_Vector3__clamp");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__clamp(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(min)), Shield<SEXP>(Rcpp::wrap(max)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__floor(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__floor)(SEXP);
+        static Ptr_Vector3__floor p_Vector3__floor = NULL;
+        if (p_Vector3__floor == NULL) {
+            validateSignature("void(*Vector3__floor)(const SEXP&)");
+            p_Vector3__floor = (Ptr_Vector3__floor)R_GetCCallable("ravetools", "_ravetools_Vector3__floor");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__floor(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__ceil(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__ceil)(SEXP);
+        static Ptr_Vector3__ceil p_Vector3__ceil = NULL;
+        if (p_Vector3__ceil == NULL) {
+            validateSignature("void(*Vector3__ceil)(const SEXP&)");
+            p_Vector3__ceil = (Ptr_Vector3__ceil)R_GetCCallable("ravetools", "_ravetools_Vector3__ceil");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__ceil(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__round(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__round)(SEXP);
+        static Ptr_Vector3__round p_Vector3__round = NULL;
+        if (p_Vector3__round == NULL) {
+            validateSignature("void(*Vector3__round)(const SEXP&)");
+            p_Vector3__round = (Ptr_Vector3__round)R_GetCCallable("ravetools", "_ravetools_Vector3__round");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__round(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__round_to_zero(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__round_to_zero)(SEXP);
+        static Ptr_Vector3__round_to_zero p_Vector3__round_to_zero = NULL;
+        if (p_Vector3__round_to_zero == NULL) {
+            validateSignature("void(*Vector3__round_to_zero)(const SEXP&)");
+            p_Vector3__round_to_zero = (Ptr_Vector3__round_to_zero)R_GetCCallable("ravetools", "_ravetools_Vector3__round_to_zero");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__round_to_zero(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__negate(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__negate)(SEXP);
+        static Ptr_Vector3__negate p_Vector3__negate = NULL;
+        if (p_Vector3__negate == NULL) {
+            validateSignature("void(*Vector3__negate)(const SEXP&)");
+            p_Vector3__negate = (Ptr_Vector3__negate)R_GetCCallable("ravetools", "_ravetools_Vector3__negate");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__negate(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline std::vector<double> Vector3__dot(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__dot)(SEXP,SEXP);
+        static Ptr_Vector3__dot p_Vector3__dot = NULL;
+        if (p_Vector3__dot == NULL) {
+            validateSignature("std::vector<double>(*Vector3__dot)(const SEXP&,const SEXP&)");
+            p_Vector3__dot = (Ptr_Vector3__dot)R_GetCCallable("ravetools", "_ravetools_Vector3__dot");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__dot(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline std::vector<double> Vector3__length_squared(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__length_squared)(SEXP);
+        static Ptr_Vector3__length_squared p_Vector3__length_squared = NULL;
+        if (p_Vector3__length_squared == NULL) {
+            validateSignature("std::vector<double>(*Vector3__length_squared)(const SEXP&)");
+            p_Vector3__length_squared = (Ptr_Vector3__length_squared)R_GetCCallable("ravetools", "_ravetools_Vector3__length_squared");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__length_squared(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline std::vector<double> Vector3__length(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__length)(SEXP);
+        static Ptr_Vector3__length p_Vector3__length = NULL;
+        if (p_Vector3__length == NULL) {
+            validateSignature("std::vector<double>(*Vector3__length)(const SEXP&)");
+            p_Vector3__length = (Ptr_Vector3__length)R_GetCCallable("ravetools", "_ravetools_Vector3__length");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__length(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline std::vector<double> Vector3__length_manhattan(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__length_manhattan)(SEXP);
+        static Ptr_Vector3__length_manhattan p_Vector3__length_manhattan = NULL;
+        if (p_Vector3__length_manhattan == NULL) {
+            validateSignature("std::vector<double>(*Vector3__length_manhattan)(const SEXP&)");
+            p_Vector3__length_manhattan = (Ptr_Vector3__length_manhattan)R_GetCCallable("ravetools", "_ravetools_Vector3__length_manhattan");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__length_manhattan(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline void Vector3__normalize(const SEXP& self) {
+        typedef SEXP(*Ptr_Vector3__normalize)(SEXP);
+        static Ptr_Vector3__normalize p_Vector3__normalize = NULL;
+        if (p_Vector3__normalize == NULL) {
+            validateSignature("void(*Vector3__normalize)(const SEXP&)");
+            p_Vector3__normalize = (Ptr_Vector3__normalize)R_GetCCallable("ravetools", "_ravetools_Vector3__normalize");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__normalize(Shield<SEXP>(Rcpp::wrap(self)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__set_length(const SEXP& self, std::vector<double>& length) {
+        typedef SEXP(*Ptr_Vector3__set_length)(SEXP,SEXP);
+        static Ptr_Vector3__set_length p_Vector3__set_length = NULL;
+        if (p_Vector3__set_length == NULL) {
+            validateSignature("void(*Vector3__set_length)(const SEXP&,std::vector<double>&)");
+            p_Vector3__set_length = (Ptr_Vector3__set_length)R_GetCCallable("ravetools", "_ravetools_Vector3__set_length");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_length(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(length)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__lerp(const SEXP& self, const SEXP& v, std::vector<double>& alpha) {
+        typedef SEXP(*Ptr_Vector3__lerp)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__lerp p_Vector3__lerp = NULL;
+        if (p_Vector3__lerp == NULL) {
+            validateSignature("void(*Vector3__lerp)(const SEXP&,const SEXP&,std::vector<double>&)");
+            p_Vector3__lerp = (Ptr_Vector3__lerp)R_GetCCallable("ravetools", "_ravetools_Vector3__lerp");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__lerp(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)), Shield<SEXP>(Rcpp::wrap(alpha)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__lerp_vectors(const SEXP& self, const SEXP& v1, const SEXP& v2, std::vector<double>& alpha) {
+        typedef SEXP(*Ptr_Vector3__lerp_vectors)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_Vector3__lerp_vectors p_Vector3__lerp_vectors = NULL;
+        if (p_Vector3__lerp_vectors == NULL) {
+            validateSignature("void(*Vector3__lerp_vectors)(const SEXP&,const SEXP&,const SEXP&,std::vector<double>&)");
+            p_Vector3__lerp_vectors = (Ptr_Vector3__lerp_vectors)R_GetCCallable("ravetools", "_ravetools_Vector3__lerp_vectors");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__lerp_vectors(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v1)), Shield<SEXP>(Rcpp::wrap(v2)), Shield<SEXP>(Rcpp::wrap(alpha)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__cross(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__cross)(SEXP,SEXP);
+        static Ptr_Vector3__cross p_Vector3__cross = NULL;
+        if (p_Vector3__cross == NULL) {
+            validateSignature("void(*Vector3__cross)(const SEXP&,const SEXP&)");
+            p_Vector3__cross = (Ptr_Vector3__cross)R_GetCCallable("ravetools", "_ravetools_Vector3__cross");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__cross(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__cross_vectors(const SEXP& self, const SEXP& a, const SEXP& b) {
+        typedef SEXP(*Ptr_Vector3__cross_vectors)(SEXP,SEXP,SEXP);
+        static Ptr_Vector3__cross_vectors p_Vector3__cross_vectors = NULL;
+        if (p_Vector3__cross_vectors == NULL) {
+            validateSignature("void(*Vector3__cross_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+            p_Vector3__cross_vectors = (Ptr_Vector3__cross_vectors)R_GetCCallable("ravetools", "_ravetools_Vector3__cross_vectors");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__cross_vectors(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(a)), Shield<SEXP>(Rcpp::wrap(b)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__project_on_vector(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__project_on_vector)(SEXP,SEXP);
+        static Ptr_Vector3__project_on_vector p_Vector3__project_on_vector = NULL;
+        if (p_Vector3__project_on_vector == NULL) {
+            validateSignature("void(*Vector3__project_on_vector)(const SEXP&,const SEXP&)");
+            p_Vector3__project_on_vector = (Ptr_Vector3__project_on_vector)R_GetCCallable("ravetools", "_ravetools_Vector3__project_on_vector");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__project_on_vector(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__project_on_plane(const SEXP& self, const SEXP& planeNormal) {
+        typedef SEXP(*Ptr_Vector3__project_on_plane)(SEXP,SEXP);
+        static Ptr_Vector3__project_on_plane p_Vector3__project_on_plane = NULL;
+        if (p_Vector3__project_on_plane == NULL) {
+            validateSignature("void(*Vector3__project_on_plane)(const SEXP&,const SEXP&)");
+            p_Vector3__project_on_plane = (Ptr_Vector3__project_on_plane)R_GetCCallable("ravetools", "_ravetools_Vector3__project_on_plane");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__project_on_plane(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(planeNormal)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__reflect(const SEXP& self, const SEXP& normal) {
+        typedef SEXP(*Ptr_Vector3__reflect)(SEXP,SEXP);
+        static Ptr_Vector3__reflect p_Vector3__reflect = NULL;
+        if (p_Vector3__reflect == NULL) {
+            validateSignature("void(*Vector3__reflect)(const SEXP&,const SEXP&)");
+            p_Vector3__reflect = (Ptr_Vector3__reflect)R_GetCCallable("ravetools", "_ravetools_Vector3__reflect");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__reflect(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(normal)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline std::vector<double> Vector3__angle_to(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__angle_to)(SEXP,SEXP);
+        static Ptr_Vector3__angle_to p_Vector3__angle_to = NULL;
+        if (p_Vector3__angle_to == NULL) {
+            validateSignature("std::vector<double>(*Vector3__angle_to)(const SEXP&,const SEXP&)");
+            p_Vector3__angle_to = (Ptr_Vector3__angle_to)R_GetCCallable("ravetools", "_ravetools_Vector3__angle_to");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__angle_to(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline std::vector<double> Vector3__distance_to(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__distance_to)(SEXP,SEXP);
+        static Ptr_Vector3__distance_to p_Vector3__distance_to = NULL;
+        if (p_Vector3__distance_to == NULL) {
+            validateSignature("std::vector<double>(*Vector3__distance_to)(const SEXP&,const SEXP&)");
+            p_Vector3__distance_to = (Ptr_Vector3__distance_to)R_GetCCallable("ravetools", "_ravetools_Vector3__distance_to");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__distance_to(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline std::vector<double> Vector3__distance_to_squared(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__distance_to_squared)(SEXP,SEXP);
+        static Ptr_Vector3__distance_to_squared p_Vector3__distance_to_squared = NULL;
+        if (p_Vector3__distance_to_squared == NULL) {
+            validateSignature("std::vector<double>(*Vector3__distance_to_squared)(const SEXP&,const SEXP&)");
+            p_Vector3__distance_to_squared = (Ptr_Vector3__distance_to_squared)R_GetCCallable("ravetools", "_ravetools_Vector3__distance_to_squared");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__distance_to_squared(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline std::vector<double> Vector3__distance_to_manhattan(const SEXP& self, const SEXP& v) {
+        typedef SEXP(*Ptr_Vector3__distance_to_manhattan)(SEXP,SEXP);
+        static Ptr_Vector3__distance_to_manhattan p_Vector3__distance_to_manhattan = NULL;
+        if (p_Vector3__distance_to_manhattan == NULL) {
+            validateSignature("std::vector<double>(*Vector3__distance_to_manhattan)(const SEXP&,const SEXP&)");
+            p_Vector3__distance_to_manhattan = (Ptr_Vector3__distance_to_manhattan)R_GetCCallable("ravetools", "_ravetools_Vector3__distance_to_manhattan");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__distance_to_manhattan(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(v)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<std::vector<double> >(rcpp_result_gen);
+    }
+
+    inline void Vector3__set_from_spherical_coords(const SEXP& self, const double& radius, const double& phi, const double& theta) {
+        typedef SEXP(*Ptr_Vector3__set_from_spherical_coords)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_Vector3__set_from_spherical_coords p_Vector3__set_from_spherical_coords = NULL;
+        if (p_Vector3__set_from_spherical_coords == NULL) {
+            validateSignature("void(*Vector3__set_from_spherical_coords)(const SEXP&,const double&,const double&,const double&)");
+            p_Vector3__set_from_spherical_coords = (Ptr_Vector3__set_from_spherical_coords)R_GetCCallable("ravetools", "_ravetools_Vector3__set_from_spherical_coords");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_from_spherical_coords(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(radius)), Shield<SEXP>(Rcpp::wrap(phi)), Shield<SEXP>(Rcpp::wrap(theta)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__set_from_matrix_position(const SEXP& self, const SEXP& m) {
+        typedef SEXP(*Ptr_Vector3__set_from_matrix_position)(SEXP,SEXP);
+        static Ptr_Vector3__set_from_matrix_position p_Vector3__set_from_matrix_position = NULL;
+        if (p_Vector3__set_from_matrix_position == NULL) {
+            validateSignature("void(*Vector3__set_from_matrix_position)(const SEXP&,const SEXP&)");
+            p_Vector3__set_from_matrix_position = (Ptr_Vector3__set_from_matrix_position)R_GetCCallable("ravetools", "_ravetools_Vector3__set_from_matrix_position");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_from_matrix_position(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(m)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
+    inline void Vector3__set_from_matrix_scale(const SEXP& self, const SEXP& m) {
+        typedef SEXP(*Ptr_Vector3__set_from_matrix_scale)(SEXP,SEXP);
+        static Ptr_Vector3__set_from_matrix_scale p_Vector3__set_from_matrix_scale = NULL;
+        if (p_Vector3__set_from_matrix_scale == NULL) {
+            validateSignature("void(*Vector3__set_from_matrix_scale)(const SEXP&,const SEXP&)");
+            p_Vector3__set_from_matrix_scale = (Ptr_Vector3__set_from_matrix_scale)R_GetCCallable("ravetools", "_ravetools_Vector3__set_from_matrix_scale");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_Vector3__set_from_matrix_scale(Shield<SEXP>(Rcpp::wrap(self)), Shield<SEXP>(Rcpp::wrap(m)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+    }
+
 }
 
 #endif // RCPP_ravetools_RCPPEXPORTS_H_GEN_

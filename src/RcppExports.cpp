@@ -702,6 +702,2364 @@ RcppExport SEXP _ravetools_cpp_filter(SEXP bSEXP, SEXP aSEXP, SEXP xSEXP, SEXP z
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// Matrix4__new
+SEXP Matrix4__new();
+RcppExport SEXP _ravetools_Matrix4__new() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(Matrix4__new());
+    return rcpp_result_gen;
+END_RCPP
+}
+// Matrix4__to_array
+SEXP Matrix4__to_array(const SEXP& self);
+RcppExport SEXP _ravetools_Matrix4__to_array(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Matrix4__to_array(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Matrix4__from_array
+void Matrix4__from_array(const SEXP& self, const std::vector<double>& array, size_t offset);
+RcppExport SEXP _ravetools_Matrix4__from_array(SEXP selfSEXP, SEXP arraySEXP, SEXP offsetSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type array(arraySEXP);
+    Rcpp::traits::input_parameter< size_t >::type offset(offsetSEXP);
+    Matrix4__from_array(self, array, offset);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__identity
+void Matrix4__identity(const SEXP& self);
+RcppExport SEXP _ravetools_Matrix4__identity(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Matrix4__identity(self);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__copy
+void Matrix4__copy(const SEXP& self, const SEXP& m);
+RcppExport SEXP _ravetools_Matrix4__copy(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Matrix4__copy(self, m);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__copy_position
+void Matrix4__copy_position(const SEXP& self, const SEXP& m);
+RcppExport SEXP _ravetools_Matrix4__copy_position(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Matrix4__copy_position(self, m);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__extract_basis
+void Matrix4__extract_basis(const SEXP& self, const SEXP& x, const SEXP& y, const SEXP& z);
+RcppExport SEXP _ravetools_Matrix4__extract_basis(SEXP selfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type z(zSEXP);
+    Matrix4__extract_basis(self, x, y, z);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_basis
+void Matrix4__make_basis(const SEXP& self, const SEXP& x, const SEXP& y, const SEXP& z);
+RcppExport SEXP _ravetools_Matrix4__make_basis(SEXP selfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type z(zSEXP);
+    Matrix4__make_basis(self, x, y, z);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__extract_rotation
+void Matrix4__extract_rotation(const SEXP& self, const SEXP& m);
+RcppExport SEXP _ravetools_Matrix4__extract_rotation(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Matrix4__extract_rotation(self, m);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__look_at
+void Matrix4__look_at(const SEXP& self, const SEXP& eye, const SEXP& target, const SEXP& up);
+RcppExport SEXP _ravetools_Matrix4__look_at(SEXP selfSEXP, SEXP eyeSEXP, SEXP targetSEXP, SEXP upSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type eye(eyeSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type target(targetSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type up(upSEXP);
+    Matrix4__look_at(self, eye, target, up);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__multiply_matrices
+void Matrix4__multiply_matrices(const SEXP& self, const SEXP& a, const SEXP& b);
+RcppExport SEXP _ravetools_Matrix4__multiply_matrices(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Matrix4__multiply_matrices(self, a, b);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__multiply_scalar
+void Matrix4__multiply_scalar(const SEXP& self, const double& s);
+RcppExport SEXP _ravetools_Matrix4__multiply_scalar(SEXP selfSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type s(sSEXP);
+    Matrix4__multiply_scalar(self, s);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__determinant
+double Matrix4__determinant(const SEXP& self);
+RcppExport SEXP _ravetools_Matrix4__determinant(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Matrix4__determinant(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Matrix4__transpose
+void Matrix4__transpose(const SEXP& self);
+RcppExport SEXP _ravetools_Matrix4__transpose(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Matrix4__transpose(self);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__set_position
+void Matrix4__set_position(const SEXP& self, const double& x, const double& y, const double& z);
+RcppExport SEXP _ravetools_Matrix4__set_position(SEXP selfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const double& >::type z(zSEXP);
+    Matrix4__set_position(self, x, y, z);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__invert
+void Matrix4__invert(const SEXP& self);
+RcppExport SEXP _ravetools_Matrix4__invert(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Matrix4__invert(self);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__scale
+void Matrix4__scale(const SEXP& self, const SEXP& v);
+RcppExport SEXP _ravetools_Matrix4__scale(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Matrix4__scale(self, v);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__get_max_scale_on_axis
+double Matrix4__get_max_scale_on_axis(const SEXP& self);
+RcppExport SEXP _ravetools_Matrix4__get_max_scale_on_axis(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Matrix4__get_max_scale_on_axis(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Matrix4__make_translation
+void Matrix4__make_translation(const SEXP& self, const double& x, const double& y, const double& z);
+RcppExport SEXP _ravetools_Matrix4__make_translation(SEXP selfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const double& >::type z(zSEXP);
+    Matrix4__make_translation(self, x, y, z);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_rotation_x
+void Matrix4__make_rotation_x(const SEXP& self, const double& theta);
+RcppExport SEXP _ravetools_Matrix4__make_rotation_x(SEXP selfSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type theta(thetaSEXP);
+    Matrix4__make_rotation_x(self, theta);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_rotation_y
+void Matrix4__make_rotation_y(const SEXP& self, const double& theta);
+RcppExport SEXP _ravetools_Matrix4__make_rotation_y(SEXP selfSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type theta(thetaSEXP);
+    Matrix4__make_rotation_y(self, theta);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_rotation_z
+void Matrix4__make_rotation_z(const SEXP& self, const double& theta);
+RcppExport SEXP _ravetools_Matrix4__make_rotation_z(SEXP selfSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type theta(thetaSEXP);
+    Matrix4__make_rotation_z(self, theta);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_rotation_axis
+void Matrix4__make_rotation_axis(const SEXP& self, const SEXP& axis, const double& angle);
+RcppExport SEXP _ravetools_Matrix4__make_rotation_axis(SEXP selfSEXP, SEXP axisSEXP, SEXP angleSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type axis(axisSEXP);
+    Rcpp::traits::input_parameter< const double& >::type angle(angleSEXP);
+    Matrix4__make_rotation_axis(self, axis, angle);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_scale
+void Matrix4__make_scale(const SEXP& self, const double& x, const double& y, const double& z);
+RcppExport SEXP _ravetools_Matrix4__make_scale(SEXP selfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const double& >::type z(zSEXP);
+    Matrix4__make_scale(self, x, y, z);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_shear
+void Matrix4__make_shear(const SEXP& self, const double& xy, const double& xz, const double& yx, const double& yz, const double& zx, const double& zy);
+RcppExport SEXP _ravetools_Matrix4__make_shear(SEXP selfSEXP, SEXP xySEXP, SEXP xzSEXP, SEXP yxSEXP, SEXP yzSEXP, SEXP zxSEXP, SEXP zySEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type xy(xySEXP);
+    Rcpp::traits::input_parameter< const double& >::type xz(xzSEXP);
+    Rcpp::traits::input_parameter< const double& >::type yx(yxSEXP);
+    Rcpp::traits::input_parameter< const double& >::type yz(yzSEXP);
+    Rcpp::traits::input_parameter< const double& >::type zx(zxSEXP);
+    Rcpp::traits::input_parameter< const double& >::type zy(zySEXP);
+    Matrix4__make_shear(self, xy, xz, yx, yz, zx, zy);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_perspective
+void Matrix4__make_perspective(const SEXP& self, const double& left, const double& right, const double& top, const double& bottom, const double& near, const double& far);
+RcppExport SEXP _ravetools_Matrix4__make_perspective(SEXP selfSEXP, SEXP leftSEXP, SEXP rightSEXP, SEXP topSEXP, SEXP bottomSEXP, SEXP nearSEXP, SEXP farSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< const double& >::type right(rightSEXP);
+    Rcpp::traits::input_parameter< const double& >::type top(topSEXP);
+    Rcpp::traits::input_parameter< const double& >::type bottom(bottomSEXP);
+    Rcpp::traits::input_parameter< const double& >::type near(nearSEXP);
+    Rcpp::traits::input_parameter< const double& >::type far(farSEXP);
+    Matrix4__make_perspective(self, left, right, top, bottom, near, far);
+    return R_NilValue;
+END_RCPP
+}
+// Matrix4__make_orthographic
+void Matrix4__make_orthographic(const SEXP& self, const double& left, const double& right, const double& top, const double& bottom, const double& near, const double& far);
+RcppExport SEXP _ravetools_Matrix4__make_orthographic(SEXP selfSEXP, SEXP leftSEXP, SEXP rightSEXP, SEXP topSEXP, SEXP bottomSEXP, SEXP nearSEXP, SEXP farSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< const double& >::type right(rightSEXP);
+    Rcpp::traits::input_parameter< const double& >::type top(topSEXP);
+    Rcpp::traits::input_parameter< const double& >::type bottom(bottomSEXP);
+    Rcpp::traits::input_parameter< const double& >::type near(nearSEXP);
+    Rcpp::traits::input_parameter< const double& >::type far(farSEXP);
+    Matrix4__make_orthographic(self, left, right, top, bottom, near, far);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__new
+SEXP Quaternion__new();
+RcppExport SEXP _ravetools_Quaternion__new() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(Quaternion__new());
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__set
+void Quaternion__set(const SEXP& self, const double& x, const double& y, const double& z, const double& w);
+RcppExport SEXP _ravetools_Quaternion__set(SEXP selfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP wSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const double& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const double& >::type w(wSEXP);
+    Quaternion__set(self, x, y, z, w);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__copy
+void Quaternion__copy(const SEXP& self, const SEXP& quaternion);
+RcppExport SEXP _ravetools_Quaternion__copy(SEXP selfSEXP, SEXP quaternionSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type quaternion(quaternionSEXP);
+    Quaternion__copy(self, quaternion);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__to_array
+std::vector<double> Quaternion__to_array(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__to_array(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__to_array(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Vector3__new
+SEXP Vector3__new();
+static SEXP _ravetools_Vector3__new_try() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    rcpp_result_gen = Rcpp::wrap(Vector3__new());
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__new() {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__new_try());
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__from_array
+void Vector3__from_array(const SEXP& self, std::vector<double>& array, const int& offset, const int& n_elems);
+static SEXP _ravetools_Vector3__from_array_try(SEXP selfSEXP, SEXP arraySEXP, SEXP offsetSEXP, SEXP n_elemsSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type array(arraySEXP);
+    Rcpp::traits::input_parameter< const int& >::type offset(offsetSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_elems(n_elemsSEXP);
+    Vector3__from_array(self, array, offset, n_elems);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__from_array(SEXP selfSEXP, SEXP arraySEXP, SEXP offsetSEXP, SEXP n_elemsSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__from_array_try(selfSEXP, arraySEXP, offsetSEXP, n_elemsSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__resize
+void Vector3__resize(const SEXP& self, const int& n_elems);
+static SEXP _ravetools_Vector3__resize_try(SEXP selfSEXP, SEXP n_elemsSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_elems(n_elemsSEXP);
+    Vector3__resize(self, n_elems);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__resize(SEXP selfSEXP, SEXP n_elemsSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__resize_try(selfSEXP, n_elemsSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__get_size
+size_t Vector3__get_size(const SEXP& self);
+static SEXP _ravetools_Vector3__get_size_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__get_size(self));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__get_size(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__get_size_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__to_array
+SEXP Vector3__to_array(const SEXP& self, const int& n_skip, const int& max_n_elems);
+static SEXP _ravetools_Vector3__to_array_try(SEXP selfSEXP, SEXP n_skipSEXP, SEXP max_n_elemsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_skip(n_skipSEXP);
+    Rcpp::traits::input_parameter< const int& >::type max_n_elems(max_n_elemsSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__to_array(self, n_skip, max_n_elems));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__to_array(SEXP selfSEXP, SEXP n_skipSEXP, SEXP max_n_elemsSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__to_array_try(selfSEXP, n_skipSEXP, max_n_elemsSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_scalar
+void Vector3__set_scalar(const SEXP& self, double& value);
+static SEXP _ravetools_Vector3__set_scalar_try(SEXP selfSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< double& >::type value(valueSEXP);
+    Vector3__set_scalar(self, value);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_scalar(SEXP selfSEXP, SEXP valueSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_scalar_try(selfSEXP, valueSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_x
+void Vector3__set_x(const SEXP& self, double& value);
+static SEXP _ravetools_Vector3__set_x_try(SEXP selfSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< double& >::type value(valueSEXP);
+    Vector3__set_x(self, value);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_x(SEXP selfSEXP, SEXP valueSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_x_try(selfSEXP, valueSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_y
+void Vector3__set_y(const SEXP& self, double& value);
+static SEXP _ravetools_Vector3__set_y_try(SEXP selfSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< double& >::type value(valueSEXP);
+    Vector3__set_y(self, value);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_y(SEXP selfSEXP, SEXP valueSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_y_try(selfSEXP, valueSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_z
+void Vector3__set_z(const SEXP& self, double& value);
+static SEXP _ravetools_Vector3__set_z_try(SEXP selfSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< double& >::type value(valueSEXP);
+    Vector3__set_z(self, value);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_z(SEXP selfSEXP, SEXP valueSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_z_try(selfSEXP, valueSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__get_x
+double Vector3__get_x(const SEXP& self, const size_t& i);
+static SEXP _ravetools_Vector3__get_x_try(SEXP selfSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const size_t& >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__get_x(self, i));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__get_x(SEXP selfSEXP, SEXP iSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__get_x_try(selfSEXP, iSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__get_y
+double Vector3__get_y(const SEXP& self, const size_t& i);
+static SEXP _ravetools_Vector3__get_y_try(SEXP selfSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const size_t& >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__get_y(self, i));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__get_y(SEXP selfSEXP, SEXP iSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__get_y_try(selfSEXP, iSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__get_z
+double Vector3__get_z(const SEXP& self, const size_t& i);
+static SEXP _ravetools_Vector3__get_z_try(SEXP selfSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const size_t& >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__get_z(self, i));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__get_z(SEXP selfSEXP, SEXP iSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__get_z_try(selfSEXP, iSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__get_item
+SEXP Vector3__get_item(const SEXP& self, const size_t& i);
+static SEXP _ravetools_Vector3__get_item_try(SEXP selfSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const size_t& >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__get_item(self, i));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__get_item(SEXP selfSEXP, SEXP iSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__get_item_try(selfSEXP, iSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__copy
+void Vector3__copy(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__copy_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__copy(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__copy(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__copy_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__add
+void Vector3__add(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__add_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__add(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__add(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__add_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__add_scalar
+void Vector3__add_scalar(const SEXP& self, std::vector<double>& s);
+static SEXP _ravetools_Vector3__add_scalar_try(SEXP selfSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type s(sSEXP);
+    Vector3__add_scalar(self, s);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__add_scalar(SEXP selfSEXP, SEXP sSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__add_scalar_try(selfSEXP, sSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__add_vectors
+void Vector3__add_vectors(const SEXP& self, const SEXP& a, const SEXP& b);
+static SEXP _ravetools_Vector3__add_vectors_try(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Vector3__add_vectors(self, a, b);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__add_vectors(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__add_vectors_try(selfSEXP, aSEXP, bSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__add_scaled
+void Vector3__add_scaled(const SEXP& self, const SEXP& v, const double& s);
+static SEXP _ravetools_Vector3__add_scaled_try(SEXP selfSEXP, SEXP vSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< const double& >::type s(sSEXP);
+    Vector3__add_scaled(self, v, s);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__add_scaled(SEXP selfSEXP, SEXP vSEXP, SEXP sSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__add_scaled_try(selfSEXP, vSEXP, sSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__sub
+void Vector3__sub(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__sub_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__sub(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__sub(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__sub_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__sub_scalar
+void Vector3__sub_scalar(const SEXP& self, std::vector<double>& s);
+static SEXP _ravetools_Vector3__sub_scalar_try(SEXP selfSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type s(sSEXP);
+    Vector3__sub_scalar(self, s);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__sub_scalar(SEXP selfSEXP, SEXP sSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__sub_scalar_try(selfSEXP, sSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__sub_vectors
+void Vector3__sub_vectors(const SEXP& self, const SEXP& a, const SEXP& b);
+static SEXP _ravetools_Vector3__sub_vectors_try(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Vector3__sub_vectors(self, a, b);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__sub_vectors(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__sub_vectors_try(selfSEXP, aSEXP, bSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__multiply
+void Vector3__multiply(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__multiply_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__multiply(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__multiply(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__multiply_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__multiply_scalar
+void Vector3__multiply_scalar(const SEXP& self, std::vector<double>& s);
+static SEXP _ravetools_Vector3__multiply_scalar_try(SEXP selfSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type s(sSEXP);
+    Vector3__multiply_scalar(self, s);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__multiply_scalar(SEXP selfSEXP, SEXP sSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__multiply_scalar_try(selfSEXP, sSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__multiply_vectors
+void Vector3__multiply_vectors(const SEXP& self, const SEXP& a, const SEXP& b);
+static SEXP _ravetools_Vector3__multiply_vectors_try(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Vector3__multiply_vectors(self, a, b);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__multiply_vectors(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__multiply_vectors_try(selfSEXP, aSEXP, bSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__apply_matrix3
+void Vector3__apply_matrix3(const SEXP& self, const std::vector<double>& m);
+static SEXP _ravetools_Vector3__apply_matrix3_try(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type m(mSEXP);
+    Vector3__apply_matrix3(self, m);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__apply_matrix3(SEXP selfSEXP, SEXP mSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__apply_matrix3_try(selfSEXP, mSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__apply_matrix4
+void Vector3__apply_matrix4(const SEXP& self, const std::vector<double>& m);
+static SEXP _ravetools_Vector3__apply_matrix4_try(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type m(mSEXP);
+    Vector3__apply_matrix4(self, m);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__apply_matrix4(SEXP selfSEXP, SEXP mSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__apply_matrix4_try(selfSEXP, mSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__apply_quaternion
+void Vector3__apply_quaternion(const SEXP& self, const std::vector<double>& q);
+static SEXP _ravetools_Vector3__apply_quaternion_try(SEXP selfSEXP, SEXP qSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type q(qSEXP);
+    Vector3__apply_quaternion(self, q);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__apply_quaternion(SEXP selfSEXP, SEXP qSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__apply_quaternion_try(selfSEXP, qSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__transform_direction
+void Vector3__transform_direction(const SEXP& self, const SEXP& m);
+static SEXP _ravetools_Vector3__transform_direction_try(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Vector3__transform_direction(self, m);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__transform_direction(SEXP selfSEXP, SEXP mSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__transform_direction_try(selfSEXP, mSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__divide
+void Vector3__divide(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__divide_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__divide(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__divide(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__divide_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__divide_scalar
+void Vector3__divide_scalar(const SEXP& self, std::vector<double>& s);
+static SEXP _ravetools_Vector3__divide_scalar_try(SEXP selfSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type s(sSEXP);
+    Vector3__divide_scalar(self, s);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__divide_scalar(SEXP selfSEXP, SEXP sSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__divide_scalar_try(selfSEXP, sSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__min
+void Vector3__min(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__min_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__min(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__min(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__min_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__max
+void Vector3__max(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__max_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__max(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__max(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__max_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__clamp
+void Vector3__clamp(const SEXP& self, const SEXP& min, const SEXP& max);
+static SEXP _ravetools_Vector3__clamp_try(SEXP selfSEXP, SEXP minSEXP, SEXP maxSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type min(minSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type max(maxSEXP);
+    Vector3__clamp(self, min, max);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__clamp(SEXP selfSEXP, SEXP minSEXP, SEXP maxSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__clamp_try(selfSEXP, minSEXP, maxSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__floor
+void Vector3__floor(const SEXP& self);
+static SEXP _ravetools_Vector3__floor_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Vector3__floor(self);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__floor(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__floor_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__ceil
+void Vector3__ceil(const SEXP& self);
+static SEXP _ravetools_Vector3__ceil_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Vector3__ceil(self);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__ceil(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__ceil_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__round
+void Vector3__round(const SEXP& self);
+static SEXP _ravetools_Vector3__round_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Vector3__round(self);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__round(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__round_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__round_to_zero
+void Vector3__round_to_zero(const SEXP& self);
+static SEXP _ravetools_Vector3__round_to_zero_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Vector3__round_to_zero(self);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__round_to_zero(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__round_to_zero_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__negate
+void Vector3__negate(const SEXP& self);
+static SEXP _ravetools_Vector3__negate_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Vector3__negate(self);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__negate(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__negate_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__dot
+std::vector<double> Vector3__dot(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__dot_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__dot(self, v));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__dot(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__dot_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__length_squared
+std::vector<double> Vector3__length_squared(const SEXP& self);
+static SEXP _ravetools_Vector3__length_squared_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__length_squared(self));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__length_squared(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__length_squared_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__length
+std::vector<double> Vector3__length(const SEXP& self);
+static SEXP _ravetools_Vector3__length_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__length(self));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__length(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__length_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__length_manhattan
+std::vector<double> Vector3__length_manhattan(const SEXP& self);
+static SEXP _ravetools_Vector3__length_manhattan_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__length_manhattan(self));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__length_manhattan(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__length_manhattan_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__normalize
+void Vector3__normalize(const SEXP& self);
+static SEXP _ravetools_Vector3__normalize_try(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Vector3__normalize(self);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__normalize(SEXP selfSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__normalize_try(selfSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_length
+void Vector3__set_length(const SEXP& self, std::vector<double>& length);
+static SEXP _ravetools_Vector3__set_length_try(SEXP selfSEXP, SEXP lengthSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type length(lengthSEXP);
+    Vector3__set_length(self, length);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_length(SEXP selfSEXP, SEXP lengthSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_length_try(selfSEXP, lengthSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__lerp
+void Vector3__lerp(const SEXP& self, const SEXP& v, std::vector<double>& alpha);
+static SEXP _ravetools_Vector3__lerp_try(SEXP selfSEXP, SEXP vSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type alpha(alphaSEXP);
+    Vector3__lerp(self, v, alpha);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__lerp(SEXP selfSEXP, SEXP vSEXP, SEXP alphaSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__lerp_try(selfSEXP, vSEXP, alphaSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__lerp_vectors
+void Vector3__lerp_vectors(const SEXP& self, const SEXP& v1, const SEXP& v2, std::vector<double>& alpha);
+static SEXP _ravetools_Vector3__lerp_vectors_try(SEXP selfSEXP, SEXP v1SEXP, SEXP v2SEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v1(v1SEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v2(v2SEXP);
+    Rcpp::traits::input_parameter< std::vector<double>& >::type alpha(alphaSEXP);
+    Vector3__lerp_vectors(self, v1, v2, alpha);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__lerp_vectors(SEXP selfSEXP, SEXP v1SEXP, SEXP v2SEXP, SEXP alphaSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__lerp_vectors_try(selfSEXP, v1SEXP, v2SEXP, alphaSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__cross
+void Vector3__cross(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__cross_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__cross(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__cross(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__cross_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__cross_vectors
+void Vector3__cross_vectors(const SEXP& self, const SEXP& a, const SEXP& b);
+static SEXP _ravetools_Vector3__cross_vectors_try(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Vector3__cross_vectors(self, a, b);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__cross_vectors(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__cross_vectors_try(selfSEXP, aSEXP, bSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__project_on_vector
+void Vector3__project_on_vector(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__project_on_vector_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Vector3__project_on_vector(self, v);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__project_on_vector(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__project_on_vector_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__project_on_plane
+void Vector3__project_on_plane(const SEXP& self, const SEXP& planeNormal);
+static SEXP _ravetools_Vector3__project_on_plane_try(SEXP selfSEXP, SEXP planeNormalSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type planeNormal(planeNormalSEXP);
+    Vector3__project_on_plane(self, planeNormal);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__project_on_plane(SEXP selfSEXP, SEXP planeNormalSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__project_on_plane_try(selfSEXP, planeNormalSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__reflect
+void Vector3__reflect(const SEXP& self, const SEXP& normal);
+static SEXP _ravetools_Vector3__reflect_try(SEXP selfSEXP, SEXP normalSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type normal(normalSEXP);
+    Vector3__reflect(self, normal);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__reflect(SEXP selfSEXP, SEXP normalSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__reflect_try(selfSEXP, normalSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__angle_to
+std::vector<double> Vector3__angle_to(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__angle_to_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__angle_to(self, v));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__angle_to(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__angle_to_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__distance_to
+std::vector<double> Vector3__distance_to(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__distance_to_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__distance_to(self, v));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__distance_to(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__distance_to_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__distance_to_squared
+std::vector<double> Vector3__distance_to_squared(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__distance_to_squared_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__distance_to_squared(self, v));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__distance_to_squared(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__distance_to_squared_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__distance_to_manhattan
+std::vector<double> Vector3__distance_to_manhattan(const SEXP& self, const SEXP& v);
+static SEXP _ravetools_Vector3__distance_to_manhattan_try(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Vector3__distance_to_manhattan(self, v));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__distance_to_manhattan(SEXP selfSEXP, SEXP vSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__distance_to_manhattan_try(selfSEXP, vSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_from_spherical_coords
+void Vector3__set_from_spherical_coords(const SEXP& self, const double& radius, const double& phi, const double& theta);
+static SEXP _ravetools_Vector3__set_from_spherical_coords_try(SEXP selfSEXP, SEXP radiusSEXP, SEXP phiSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type radius(radiusSEXP);
+    Rcpp::traits::input_parameter< const double& >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< const double& >::type theta(thetaSEXP);
+    Vector3__set_from_spherical_coords(self, radius, phi, theta);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_from_spherical_coords(SEXP selfSEXP, SEXP radiusSEXP, SEXP phiSEXP, SEXP thetaSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_from_spherical_coords_try(selfSEXP, radiusSEXP, phiSEXP, thetaSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_from_matrix_position
+void Vector3__set_from_matrix_position(const SEXP& self, const SEXP& m);
+static SEXP _ravetools_Vector3__set_from_matrix_position_try(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Vector3__set_from_matrix_position(self, m);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_from_matrix_position(SEXP selfSEXP, SEXP mSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_from_matrix_position_try(selfSEXP, mSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// Vector3__set_from_matrix_scale
+void Vector3__set_from_matrix_scale(const SEXP& self, const SEXP& m);
+static SEXP _ravetools_Vector3__set_from_matrix_scale_try(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Vector3__set_from_matrix_scale(self, m);
+    return R_NilValue;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _ravetools_Vector3__set_from_matrix_scale(SEXP selfSEXP, SEXP mSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_ravetools_Vector3__set_from_matrix_scale_try(selfSEXP, mSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error(CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
 // rawToUInt8
 SEXP rawToUInt8(SEXP x);
 RcppExport SEXP _ravetools_rawToUInt8(SEXP xSEXP) {
@@ -848,6 +3206,64 @@ static int _ravetools_RcppExport_validate(const char* sig) {
         signatures.insert("SEXP(*fftw_c2c_3d)(SEXP,int,int,SEXP)");
         signatures.insert("SEXP(*conjugate)(SEXP)");
         signatures.insert("SEXP(*cpp_filter)(SEXP,SEXP,SEXP,SEXP)");
+        signatures.insert("SEXP(*Vector3__new)()");
+        signatures.insert("void(*Vector3__from_array)(const SEXP&,std::vector<double>&,const int&,const int&)");
+        signatures.insert("void(*Vector3__resize)(const SEXP&,const int&)");
+        signatures.insert("size_t(*Vector3__get_size)(const SEXP&)");
+        signatures.insert("SEXP(*Vector3__to_array)(const SEXP&,const int&,const int&)");
+        signatures.insert("void(*Vector3__set_scalar)(const SEXP&,double&)");
+        signatures.insert("void(*Vector3__set_x)(const SEXP&,double&)");
+        signatures.insert("void(*Vector3__set_y)(const SEXP&,double&)");
+        signatures.insert("void(*Vector3__set_z)(const SEXP&,double&)");
+        signatures.insert("double(*Vector3__get_x)(const SEXP&,const size_t&)");
+        signatures.insert("double(*Vector3__get_y)(const SEXP&,const size_t&)");
+        signatures.insert("double(*Vector3__get_z)(const SEXP&,const size_t&)");
+        signatures.insert("SEXP(*Vector3__get_item)(const SEXP&,const size_t&)");
+        signatures.insert("void(*Vector3__copy)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__add)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__add_scalar)(const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__add_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__add_scaled)(const SEXP&,const SEXP&,const double&)");
+        signatures.insert("void(*Vector3__sub)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__sub_scalar)(const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__sub_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__multiply)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__multiply_scalar)(const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__multiply_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__apply_matrix3)(const SEXP&,const std::vector<double>&)");
+        signatures.insert("void(*Vector3__apply_matrix4)(const SEXP&,const std::vector<double>&)");
+        signatures.insert("void(*Vector3__apply_quaternion)(const SEXP&,const std::vector<double>&)");
+        signatures.insert("void(*Vector3__transform_direction)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__divide)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__divide_scalar)(const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__min)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__max)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__clamp)(const SEXP&,const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__floor)(const SEXP&)");
+        signatures.insert("void(*Vector3__ceil)(const SEXP&)");
+        signatures.insert("void(*Vector3__round)(const SEXP&)");
+        signatures.insert("void(*Vector3__round_to_zero)(const SEXP&)");
+        signatures.insert("void(*Vector3__negate)(const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__dot)(const SEXP&,const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__length_squared)(const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__length)(const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__length_manhattan)(const SEXP&)");
+        signatures.insert("void(*Vector3__normalize)(const SEXP&)");
+        signatures.insert("void(*Vector3__set_length)(const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__lerp)(const SEXP&,const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__lerp_vectors)(const SEXP&,const SEXP&,const SEXP&,std::vector<double>&)");
+        signatures.insert("void(*Vector3__cross)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__cross_vectors)(const SEXP&,const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__project_on_vector)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__project_on_plane)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__reflect)(const SEXP&,const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__angle_to)(const SEXP&,const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__distance_to)(const SEXP&,const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__distance_to_squared)(const SEXP&,const SEXP&)");
+        signatures.insert("std::vector<double>(*Vector3__distance_to_manhattan)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__set_from_spherical_coords)(const SEXP&,const double&,const double&,const double&)");
+        signatures.insert("void(*Vector3__set_from_matrix_position)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__set_from_matrix_scale)(const SEXP&,const SEXP&)");
     }
     return signatures.find(sig) != signatures.end();
 }
@@ -872,6 +3288,64 @@ RcppExport SEXP _ravetools_RcppExport_registerCCallable() {
     R_RegisterCCallable("ravetools", "_ravetools_fftw_c2c_3d", (DL_FUNC)_ravetools_fftw_c2c_3d_try);
     R_RegisterCCallable("ravetools", "_ravetools_conjugate", (DL_FUNC)_ravetools_conjugate_try);
     R_RegisterCCallable("ravetools", "_ravetools_cpp_filter", (DL_FUNC)_ravetools_cpp_filter_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__new", (DL_FUNC)_ravetools_Vector3__new_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__from_array", (DL_FUNC)_ravetools_Vector3__from_array_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__resize", (DL_FUNC)_ravetools_Vector3__resize_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__get_size", (DL_FUNC)_ravetools_Vector3__get_size_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__to_array", (DL_FUNC)_ravetools_Vector3__to_array_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_scalar", (DL_FUNC)_ravetools_Vector3__set_scalar_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_x", (DL_FUNC)_ravetools_Vector3__set_x_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_y", (DL_FUNC)_ravetools_Vector3__set_y_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_z", (DL_FUNC)_ravetools_Vector3__set_z_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__get_x", (DL_FUNC)_ravetools_Vector3__get_x_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__get_y", (DL_FUNC)_ravetools_Vector3__get_y_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__get_z", (DL_FUNC)_ravetools_Vector3__get_z_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__get_item", (DL_FUNC)_ravetools_Vector3__get_item_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__copy", (DL_FUNC)_ravetools_Vector3__copy_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__add", (DL_FUNC)_ravetools_Vector3__add_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__add_scalar", (DL_FUNC)_ravetools_Vector3__add_scalar_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__add_vectors", (DL_FUNC)_ravetools_Vector3__add_vectors_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__add_scaled", (DL_FUNC)_ravetools_Vector3__add_scaled_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__sub", (DL_FUNC)_ravetools_Vector3__sub_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__sub_scalar", (DL_FUNC)_ravetools_Vector3__sub_scalar_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__sub_vectors", (DL_FUNC)_ravetools_Vector3__sub_vectors_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__multiply", (DL_FUNC)_ravetools_Vector3__multiply_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__multiply_scalar", (DL_FUNC)_ravetools_Vector3__multiply_scalar_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__multiply_vectors", (DL_FUNC)_ravetools_Vector3__multiply_vectors_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__apply_matrix3", (DL_FUNC)_ravetools_Vector3__apply_matrix3_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__apply_matrix4", (DL_FUNC)_ravetools_Vector3__apply_matrix4_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__apply_quaternion", (DL_FUNC)_ravetools_Vector3__apply_quaternion_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__transform_direction", (DL_FUNC)_ravetools_Vector3__transform_direction_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__divide", (DL_FUNC)_ravetools_Vector3__divide_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__divide_scalar", (DL_FUNC)_ravetools_Vector3__divide_scalar_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__min", (DL_FUNC)_ravetools_Vector3__min_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__max", (DL_FUNC)_ravetools_Vector3__max_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__clamp", (DL_FUNC)_ravetools_Vector3__clamp_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__floor", (DL_FUNC)_ravetools_Vector3__floor_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__ceil", (DL_FUNC)_ravetools_Vector3__ceil_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__round", (DL_FUNC)_ravetools_Vector3__round_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__round_to_zero", (DL_FUNC)_ravetools_Vector3__round_to_zero_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__negate", (DL_FUNC)_ravetools_Vector3__negate_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__dot", (DL_FUNC)_ravetools_Vector3__dot_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__length_squared", (DL_FUNC)_ravetools_Vector3__length_squared_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__length", (DL_FUNC)_ravetools_Vector3__length_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__length_manhattan", (DL_FUNC)_ravetools_Vector3__length_manhattan_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__normalize", (DL_FUNC)_ravetools_Vector3__normalize_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_length", (DL_FUNC)_ravetools_Vector3__set_length_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__lerp", (DL_FUNC)_ravetools_Vector3__lerp_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__lerp_vectors", (DL_FUNC)_ravetools_Vector3__lerp_vectors_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__cross", (DL_FUNC)_ravetools_Vector3__cross_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__cross_vectors", (DL_FUNC)_ravetools_Vector3__cross_vectors_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__project_on_vector", (DL_FUNC)_ravetools_Vector3__project_on_vector_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__project_on_plane", (DL_FUNC)_ravetools_Vector3__project_on_plane_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__reflect", (DL_FUNC)_ravetools_Vector3__reflect_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__angle_to", (DL_FUNC)_ravetools_Vector3__angle_to_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__distance_to", (DL_FUNC)_ravetools_Vector3__distance_to_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__distance_to_squared", (DL_FUNC)_ravetools_Vector3__distance_to_squared_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__distance_to_manhattan", (DL_FUNC)_ravetools_Vector3__distance_to_manhattan_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_from_spherical_coords", (DL_FUNC)_ravetools_Vector3__set_from_spherical_coords_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_from_matrix_position", (DL_FUNC)_ravetools_Vector3__set_from_matrix_position_try);
+    R_RegisterCCallable("ravetools", "_ravetools_Vector3__set_from_matrix_scale", (DL_FUNC)_ravetools_Vector3__set_from_matrix_scale_try);
     R_RegisterCCallable("ravetools", "_ravetools_RcppExport_validate", (DL_FUNC)_ravetools_RcppExport_validate);
     return R_NilValue;
 }
@@ -897,6 +3371,95 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_fftw_c2c_3d", (DL_FUNC) &_ravetools_fftw_c2c_3d, 4},
     {"_ravetools_conjugate", (DL_FUNC) &_ravetools_conjugate, 1},
     {"_ravetools_cpp_filter", (DL_FUNC) &_ravetools_cpp_filter, 4},
+    {"_ravetools_Matrix4__new", (DL_FUNC) &_ravetools_Matrix4__new, 0},
+    {"_ravetools_Matrix4__to_array", (DL_FUNC) &_ravetools_Matrix4__to_array, 1},
+    {"_ravetools_Matrix4__from_array", (DL_FUNC) &_ravetools_Matrix4__from_array, 3},
+    {"_ravetools_Matrix4__identity", (DL_FUNC) &_ravetools_Matrix4__identity, 1},
+    {"_ravetools_Matrix4__copy", (DL_FUNC) &_ravetools_Matrix4__copy, 2},
+    {"_ravetools_Matrix4__copy_position", (DL_FUNC) &_ravetools_Matrix4__copy_position, 2},
+    {"_ravetools_Matrix4__extract_basis", (DL_FUNC) &_ravetools_Matrix4__extract_basis, 4},
+    {"_ravetools_Matrix4__make_basis", (DL_FUNC) &_ravetools_Matrix4__make_basis, 4},
+    {"_ravetools_Matrix4__extract_rotation", (DL_FUNC) &_ravetools_Matrix4__extract_rotation, 2},
+    {"_ravetools_Matrix4__look_at", (DL_FUNC) &_ravetools_Matrix4__look_at, 4},
+    {"_ravetools_Matrix4__multiply_matrices", (DL_FUNC) &_ravetools_Matrix4__multiply_matrices, 3},
+    {"_ravetools_Matrix4__multiply_scalar", (DL_FUNC) &_ravetools_Matrix4__multiply_scalar, 2},
+    {"_ravetools_Matrix4__determinant", (DL_FUNC) &_ravetools_Matrix4__determinant, 1},
+    {"_ravetools_Matrix4__transpose", (DL_FUNC) &_ravetools_Matrix4__transpose, 1},
+    {"_ravetools_Matrix4__set_position", (DL_FUNC) &_ravetools_Matrix4__set_position, 4},
+    {"_ravetools_Matrix4__invert", (DL_FUNC) &_ravetools_Matrix4__invert, 1},
+    {"_ravetools_Matrix4__scale", (DL_FUNC) &_ravetools_Matrix4__scale, 2},
+    {"_ravetools_Matrix4__get_max_scale_on_axis", (DL_FUNC) &_ravetools_Matrix4__get_max_scale_on_axis, 1},
+    {"_ravetools_Matrix4__make_translation", (DL_FUNC) &_ravetools_Matrix4__make_translation, 4},
+    {"_ravetools_Matrix4__make_rotation_x", (DL_FUNC) &_ravetools_Matrix4__make_rotation_x, 2},
+    {"_ravetools_Matrix4__make_rotation_y", (DL_FUNC) &_ravetools_Matrix4__make_rotation_y, 2},
+    {"_ravetools_Matrix4__make_rotation_z", (DL_FUNC) &_ravetools_Matrix4__make_rotation_z, 2},
+    {"_ravetools_Matrix4__make_rotation_axis", (DL_FUNC) &_ravetools_Matrix4__make_rotation_axis, 3},
+    {"_ravetools_Matrix4__make_scale", (DL_FUNC) &_ravetools_Matrix4__make_scale, 4},
+    {"_ravetools_Matrix4__make_shear", (DL_FUNC) &_ravetools_Matrix4__make_shear, 7},
+    {"_ravetools_Matrix4__make_perspective", (DL_FUNC) &_ravetools_Matrix4__make_perspective, 7},
+    {"_ravetools_Matrix4__make_orthographic", (DL_FUNC) &_ravetools_Matrix4__make_orthographic, 7},
+    {"_ravetools_Quaternion__new", (DL_FUNC) &_ravetools_Quaternion__new, 0},
+    {"_ravetools_Quaternion__set", (DL_FUNC) &_ravetools_Quaternion__set, 5},
+    {"_ravetools_Quaternion__copy", (DL_FUNC) &_ravetools_Quaternion__copy, 2},
+    {"_ravetools_Quaternion__to_array", (DL_FUNC) &_ravetools_Quaternion__to_array, 1},
+    {"_ravetools_Vector3__new", (DL_FUNC) &_ravetools_Vector3__new, 0},
+    {"_ravetools_Vector3__from_array", (DL_FUNC) &_ravetools_Vector3__from_array, 4},
+    {"_ravetools_Vector3__resize", (DL_FUNC) &_ravetools_Vector3__resize, 2},
+    {"_ravetools_Vector3__get_size", (DL_FUNC) &_ravetools_Vector3__get_size, 1},
+    {"_ravetools_Vector3__to_array", (DL_FUNC) &_ravetools_Vector3__to_array, 3},
+    {"_ravetools_Vector3__set_scalar", (DL_FUNC) &_ravetools_Vector3__set_scalar, 2},
+    {"_ravetools_Vector3__set_x", (DL_FUNC) &_ravetools_Vector3__set_x, 2},
+    {"_ravetools_Vector3__set_y", (DL_FUNC) &_ravetools_Vector3__set_y, 2},
+    {"_ravetools_Vector3__set_z", (DL_FUNC) &_ravetools_Vector3__set_z, 2},
+    {"_ravetools_Vector3__get_x", (DL_FUNC) &_ravetools_Vector3__get_x, 2},
+    {"_ravetools_Vector3__get_y", (DL_FUNC) &_ravetools_Vector3__get_y, 2},
+    {"_ravetools_Vector3__get_z", (DL_FUNC) &_ravetools_Vector3__get_z, 2},
+    {"_ravetools_Vector3__get_item", (DL_FUNC) &_ravetools_Vector3__get_item, 2},
+    {"_ravetools_Vector3__copy", (DL_FUNC) &_ravetools_Vector3__copy, 2},
+    {"_ravetools_Vector3__add", (DL_FUNC) &_ravetools_Vector3__add, 2},
+    {"_ravetools_Vector3__add_scalar", (DL_FUNC) &_ravetools_Vector3__add_scalar, 2},
+    {"_ravetools_Vector3__add_vectors", (DL_FUNC) &_ravetools_Vector3__add_vectors, 3},
+    {"_ravetools_Vector3__add_scaled", (DL_FUNC) &_ravetools_Vector3__add_scaled, 3},
+    {"_ravetools_Vector3__sub", (DL_FUNC) &_ravetools_Vector3__sub, 2},
+    {"_ravetools_Vector3__sub_scalar", (DL_FUNC) &_ravetools_Vector3__sub_scalar, 2},
+    {"_ravetools_Vector3__sub_vectors", (DL_FUNC) &_ravetools_Vector3__sub_vectors, 3},
+    {"_ravetools_Vector3__multiply", (DL_FUNC) &_ravetools_Vector3__multiply, 2},
+    {"_ravetools_Vector3__multiply_scalar", (DL_FUNC) &_ravetools_Vector3__multiply_scalar, 2},
+    {"_ravetools_Vector3__multiply_vectors", (DL_FUNC) &_ravetools_Vector3__multiply_vectors, 3},
+    {"_ravetools_Vector3__apply_matrix3", (DL_FUNC) &_ravetools_Vector3__apply_matrix3, 2},
+    {"_ravetools_Vector3__apply_matrix4", (DL_FUNC) &_ravetools_Vector3__apply_matrix4, 2},
+    {"_ravetools_Vector3__apply_quaternion", (DL_FUNC) &_ravetools_Vector3__apply_quaternion, 2},
+    {"_ravetools_Vector3__transform_direction", (DL_FUNC) &_ravetools_Vector3__transform_direction, 2},
+    {"_ravetools_Vector3__divide", (DL_FUNC) &_ravetools_Vector3__divide, 2},
+    {"_ravetools_Vector3__divide_scalar", (DL_FUNC) &_ravetools_Vector3__divide_scalar, 2},
+    {"_ravetools_Vector3__min", (DL_FUNC) &_ravetools_Vector3__min, 2},
+    {"_ravetools_Vector3__max", (DL_FUNC) &_ravetools_Vector3__max, 2},
+    {"_ravetools_Vector3__clamp", (DL_FUNC) &_ravetools_Vector3__clamp, 3},
+    {"_ravetools_Vector3__floor", (DL_FUNC) &_ravetools_Vector3__floor, 1},
+    {"_ravetools_Vector3__ceil", (DL_FUNC) &_ravetools_Vector3__ceil, 1},
+    {"_ravetools_Vector3__round", (DL_FUNC) &_ravetools_Vector3__round, 1},
+    {"_ravetools_Vector3__round_to_zero", (DL_FUNC) &_ravetools_Vector3__round_to_zero, 1},
+    {"_ravetools_Vector3__negate", (DL_FUNC) &_ravetools_Vector3__negate, 1},
+    {"_ravetools_Vector3__dot", (DL_FUNC) &_ravetools_Vector3__dot, 2},
+    {"_ravetools_Vector3__length_squared", (DL_FUNC) &_ravetools_Vector3__length_squared, 1},
+    {"_ravetools_Vector3__length", (DL_FUNC) &_ravetools_Vector3__length, 1},
+    {"_ravetools_Vector3__length_manhattan", (DL_FUNC) &_ravetools_Vector3__length_manhattan, 1},
+    {"_ravetools_Vector3__normalize", (DL_FUNC) &_ravetools_Vector3__normalize, 1},
+    {"_ravetools_Vector3__set_length", (DL_FUNC) &_ravetools_Vector3__set_length, 2},
+    {"_ravetools_Vector3__lerp", (DL_FUNC) &_ravetools_Vector3__lerp, 3},
+    {"_ravetools_Vector3__lerp_vectors", (DL_FUNC) &_ravetools_Vector3__lerp_vectors, 4},
+    {"_ravetools_Vector3__cross", (DL_FUNC) &_ravetools_Vector3__cross, 2},
+    {"_ravetools_Vector3__cross_vectors", (DL_FUNC) &_ravetools_Vector3__cross_vectors, 3},
+    {"_ravetools_Vector3__project_on_vector", (DL_FUNC) &_ravetools_Vector3__project_on_vector, 2},
+    {"_ravetools_Vector3__project_on_plane", (DL_FUNC) &_ravetools_Vector3__project_on_plane, 2},
+    {"_ravetools_Vector3__reflect", (DL_FUNC) &_ravetools_Vector3__reflect, 2},
+    {"_ravetools_Vector3__angle_to", (DL_FUNC) &_ravetools_Vector3__angle_to, 2},
+    {"_ravetools_Vector3__distance_to", (DL_FUNC) &_ravetools_Vector3__distance_to, 2},
+    {"_ravetools_Vector3__distance_to_squared", (DL_FUNC) &_ravetools_Vector3__distance_to_squared, 2},
+    {"_ravetools_Vector3__distance_to_manhattan", (DL_FUNC) &_ravetools_Vector3__distance_to_manhattan, 2},
+    {"_ravetools_Vector3__set_from_spherical_coords", (DL_FUNC) &_ravetools_Vector3__set_from_spherical_coords, 4},
+    {"_ravetools_Vector3__set_from_matrix_position", (DL_FUNC) &_ravetools_Vector3__set_from_matrix_position, 2},
+    {"_ravetools_Vector3__set_from_matrix_scale", (DL_FUNC) &_ravetools_Vector3__set_from_matrix_scale, 2},
     {"_ravetools_rawToUInt8", (DL_FUNC) &_ravetools_rawToUInt8, 1},
     {"_ravetools_rawToInt8", (DL_FUNC) &_ravetools_rawToInt8, 1},
     {"_ravetools_rawToUInt16", (DL_FUNC) &_ravetools_rawToUInt16, 1},

@@ -29,7 +29,7 @@
 #' to be automatically determined by \code{std}
 #' @param std the standard deviation of the channel signals used to determine
 #' \code{boundary}; default is plus-minus 3 standard deviation
-#' @return A list of boundary and y-axis limit used to draw the channel
+#' @returns A list of boundary and y-axis limit used to draw the channel
 #' @examples
 #' library(ravetools)
 #'

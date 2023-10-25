@@ -14,7 +14,7 @@
 #' @param trend choices are \code{'constant'}: center the signal at zero;
 #' \code{'linear'}: remove the linear trend; \code{'none'} do nothing
 #' @param ... further passed to \code{\link{detrend}};
-#' @return \code{wavelet_kernels} returns wavelet kernels to be
+#' @returns \code{wavelet_kernels} returns wavelet kernels to be
 #' used for wavelet function; \code{morlet_wavelet} returns a file-based array
 #' if \code{precision} is \code{'float'}, or a list of real and imaginary
 #' arrays if \code{precision} is \code{'double'}

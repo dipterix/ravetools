@@ -24,7 +24,7 @@
 #' @param grid whether to draw rectangular grid lines to the plot; only
 #' respected when \code{add=FALSE}; default is true
 #' @param margin the margin in which \code{pwelch} should be applied to
-#' @return A list with class \code{'ravetools-pwelch'} that contains the
+#' @returns A list with class \code{'ravetools-pwelch'} that contains the
 #' following items:
 #' \describe{
 #' \item{\code{freq}}{frequencies used to calculate the 'periodogram'}

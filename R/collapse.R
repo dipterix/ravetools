@@ -8,7 +8,7 @@
 #' collapse)
 #' @param ... passed to other methods
 #'
-#' @return a collapsed array with values to be mean or summation along
+#' @returns a collapsed array with values to be mean or summation along
 #' collapsing dimensions
 #'
 #'

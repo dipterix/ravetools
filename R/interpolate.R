@@ -175,7 +175,7 @@ interpolate_missing_signal <- function(x, time, nknots = 100, ord = 4L, ...) {
 #' @param nsd number of standard deviation to detect stimulation signals, default is 1
 #' @param nstim number of stimulation pulses, default is to auto-detect
 #' @param regularization regularization parameter in case of inverting singular matrices, default is 0.5
-#' @return Interpolated signal with an attribute of which sample points are interpolated
+#' @returns Interpolated signal with an attribute of which sample points are interpolated
 #' @examples
 #'
 #' x0 <- rnorm(1000) / 5 + sin(1:1000 / 300)

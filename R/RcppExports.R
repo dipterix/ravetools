@@ -81,6 +81,362 @@ cpp_filter <- function(b, a, x, z) {
     .Call(`_ravetools_cpp_filter`, b, a, x, z)
 }
 
+Matrix4__new <- function() {
+    .Call(`_ravetools_Matrix4__new`)
+}
+
+Matrix4__to_array <- function(self) {
+    .Call(`_ravetools_Matrix4__to_array`, self)
+}
+
+Matrix4__from_array <- function(self, array, offset = 0L) {
+    invisible(.Call(`_ravetools_Matrix4__from_array`, self, array, offset))
+}
+
+Matrix4__identity <- function(self) {
+    invisible(.Call(`_ravetools_Matrix4__identity`, self))
+}
+
+Matrix4__copy <- function(self, m) {
+    invisible(.Call(`_ravetools_Matrix4__copy`, self, m))
+}
+
+Matrix4__copy_position <- function(self, m) {
+    invisible(.Call(`_ravetools_Matrix4__copy_position`, self, m))
+}
+
+Matrix4__extract_basis <- function(self, x, y, z) {
+    invisible(.Call(`_ravetools_Matrix4__extract_basis`, self, x, y, z))
+}
+
+Matrix4__make_basis <- function(self, x, y, z) {
+    invisible(.Call(`_ravetools_Matrix4__make_basis`, self, x, y, z))
+}
+
+Matrix4__extract_rotation <- function(self, m) {
+    invisible(.Call(`_ravetools_Matrix4__extract_rotation`, self, m))
+}
+
+Matrix4__look_at <- function(self, eye, target, up) {
+    invisible(.Call(`_ravetools_Matrix4__look_at`, self, eye, target, up))
+}
+
+Matrix4__multiply_matrices <- function(self, a, b) {
+    invisible(.Call(`_ravetools_Matrix4__multiply_matrices`, self, a, b))
+}
+
+Matrix4__multiply_scalar <- function(self, s) {
+    invisible(.Call(`_ravetools_Matrix4__multiply_scalar`, self, s))
+}
+
+Matrix4__determinant <- function(self) {
+    .Call(`_ravetools_Matrix4__determinant`, self)
+}
+
+Matrix4__transpose <- function(self) {
+    invisible(.Call(`_ravetools_Matrix4__transpose`, self))
+}
+
+Matrix4__set_position <- function(self, x, y, z) {
+    invisible(.Call(`_ravetools_Matrix4__set_position`, self, x, y, z))
+}
+
+Matrix4__invert <- function(self) {
+    invisible(.Call(`_ravetools_Matrix4__invert`, self))
+}
+
+Matrix4__scale <- function(self, v) {
+    invisible(.Call(`_ravetools_Matrix4__scale`, self, v))
+}
+
+Matrix4__get_max_scale_on_axis <- function(self) {
+    .Call(`_ravetools_Matrix4__get_max_scale_on_axis`, self)
+}
+
+Matrix4__make_translation <- function(self, x, y, z) {
+    invisible(.Call(`_ravetools_Matrix4__make_translation`, self, x, y, z))
+}
+
+Matrix4__make_rotation_x <- function(self, theta) {
+    invisible(.Call(`_ravetools_Matrix4__make_rotation_x`, self, theta))
+}
+
+Matrix4__make_rotation_y <- function(self, theta) {
+    invisible(.Call(`_ravetools_Matrix4__make_rotation_y`, self, theta))
+}
+
+Matrix4__make_rotation_z <- function(self, theta) {
+    invisible(.Call(`_ravetools_Matrix4__make_rotation_z`, self, theta))
+}
+
+Matrix4__make_rotation_axis <- function(self, axis, angle) {
+    invisible(.Call(`_ravetools_Matrix4__make_rotation_axis`, self, axis, angle))
+}
+
+Matrix4__make_scale <- function(self, x, y, z) {
+    invisible(.Call(`_ravetools_Matrix4__make_scale`, self, x, y, z))
+}
+
+Matrix4__make_shear <- function(self, xy, xz, yx, yz, zx, zy) {
+    invisible(.Call(`_ravetools_Matrix4__make_shear`, self, xy, xz, yx, yz, zx, zy))
+}
+
+Matrix4__make_perspective <- function(self, left, right, top, bottom, near, far) {
+    invisible(.Call(`_ravetools_Matrix4__make_perspective`, self, left, right, top, bottom, near, far))
+}
+
+Matrix4__make_orthographic <- function(self, left, right, top, bottom, near, far) {
+    invisible(.Call(`_ravetools_Matrix4__make_orthographic`, self, left, right, top, bottom, near, far))
+}
+
+Quaternion__new <- function() {
+    .Call(`_ravetools_Quaternion__new`)
+}
+
+Quaternion__set <- function(self, x, y, z, w) {
+    invisible(.Call(`_ravetools_Quaternion__set`, self, x, y, z, w))
+}
+
+Quaternion__copy <- function(self, quaternion) {
+    invisible(.Call(`_ravetools_Quaternion__copy`, self, quaternion))
+}
+
+Quaternion__to_array <- function(self) {
+    .Call(`_ravetools_Quaternion__to_array`, self)
+}
+
+Vector3__new <- function() {
+    .Call(`_ravetools_Vector3__new`)
+}
+
+Vector3__from_array <- function(self, array, offset = 0L, n_elems = -1L) {
+    invisible(.Call(`_ravetools_Vector3__from_array`, self, array, offset, n_elems))
+}
+
+Vector3__resize <- function(self, n_elems) {
+    invisible(.Call(`_ravetools_Vector3__resize`, self, n_elems))
+}
+
+Vector3__get_size <- function(self) {
+    .Call(`_ravetools_Vector3__get_size`, self)
+}
+
+Vector3__to_array <- function(self, n_skip = 0L, max_n_elems = -1L) {
+    .Call(`_ravetools_Vector3__to_array`, self, n_skip, max_n_elems)
+}
+
+Vector3__set_scalar <- function(self, value) {
+    invisible(.Call(`_ravetools_Vector3__set_scalar`, self, value))
+}
+
+Vector3__set_x <- function(self, value) {
+    invisible(.Call(`_ravetools_Vector3__set_x`, self, value))
+}
+
+Vector3__set_y <- function(self, value) {
+    invisible(.Call(`_ravetools_Vector3__set_y`, self, value))
+}
+
+Vector3__set_z <- function(self, value) {
+    invisible(.Call(`_ravetools_Vector3__set_z`, self, value))
+}
+
+Vector3__get_x <- function(self, i) {
+    .Call(`_ravetools_Vector3__get_x`, self, i)
+}
+
+Vector3__get_y <- function(self, i) {
+    .Call(`_ravetools_Vector3__get_y`, self, i)
+}
+
+Vector3__get_z <- function(self, i) {
+    .Call(`_ravetools_Vector3__get_z`, self, i)
+}
+
+Vector3__get_item <- function(self, i) {
+    .Call(`_ravetools_Vector3__get_item`, self, i)
+}
+
+Vector3__copy <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__copy`, self, v))
+}
+
+Vector3__add <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__add`, self, v))
+}
+
+Vector3__add_scalar <- function(self, s) {
+    invisible(.Call(`_ravetools_Vector3__add_scalar`, self, s))
+}
+
+Vector3__add_vectors <- function(self, a, b) {
+    invisible(.Call(`_ravetools_Vector3__add_vectors`, self, a, b))
+}
+
+Vector3__add_scaled <- function(self, v, s) {
+    invisible(.Call(`_ravetools_Vector3__add_scaled`, self, v, s))
+}
+
+Vector3__sub <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__sub`, self, v))
+}
+
+Vector3__sub_scalar <- function(self, s) {
+    invisible(.Call(`_ravetools_Vector3__sub_scalar`, self, s))
+}
+
+Vector3__sub_vectors <- function(self, a, b) {
+    invisible(.Call(`_ravetools_Vector3__sub_vectors`, self, a, b))
+}
+
+Vector3__multiply <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__multiply`, self, v))
+}
+
+Vector3__multiply_scalar <- function(self, s) {
+    invisible(.Call(`_ravetools_Vector3__multiply_scalar`, self, s))
+}
+
+Vector3__multiply_vectors <- function(self, a, b) {
+    invisible(.Call(`_ravetools_Vector3__multiply_vectors`, self, a, b))
+}
+
+Vector3__apply_matrix3 <- function(self, m) {
+    invisible(.Call(`_ravetools_Vector3__apply_matrix3`, self, m))
+}
+
+Vector3__apply_matrix4 <- function(self, m) {
+    invisible(.Call(`_ravetools_Vector3__apply_matrix4`, self, m))
+}
+
+Vector3__apply_quaternion <- function(self, q) {
+    invisible(.Call(`_ravetools_Vector3__apply_quaternion`, self, q))
+}
+
+Vector3__transform_direction <- function(self, m) {
+    invisible(.Call(`_ravetools_Vector3__transform_direction`, self, m))
+}
+
+Vector3__divide <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__divide`, self, v))
+}
+
+Vector3__divide_scalar <- function(self, s) {
+    invisible(.Call(`_ravetools_Vector3__divide_scalar`, self, s))
+}
+
+Vector3__min <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__min`, self, v))
+}
+
+Vector3__max <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__max`, self, v))
+}
+
+Vector3__clamp <- function(self, min, max) {
+    invisible(.Call(`_ravetools_Vector3__clamp`, self, min, max))
+}
+
+Vector3__floor <- function(self) {
+    invisible(.Call(`_ravetools_Vector3__floor`, self))
+}
+
+Vector3__ceil <- function(self) {
+    invisible(.Call(`_ravetools_Vector3__ceil`, self))
+}
+
+Vector3__round <- function(self) {
+    invisible(.Call(`_ravetools_Vector3__round`, self))
+}
+
+Vector3__round_to_zero <- function(self) {
+    invisible(.Call(`_ravetools_Vector3__round_to_zero`, self))
+}
+
+Vector3__negate <- function(self) {
+    invisible(.Call(`_ravetools_Vector3__negate`, self))
+}
+
+Vector3__dot <- function(self, v) {
+    .Call(`_ravetools_Vector3__dot`, self, v)
+}
+
+Vector3__length_squared <- function(self) {
+    .Call(`_ravetools_Vector3__length_squared`, self)
+}
+
+Vector3__length <- function(self) {
+    .Call(`_ravetools_Vector3__length`, self)
+}
+
+Vector3__length_manhattan <- function(self) {
+    .Call(`_ravetools_Vector3__length_manhattan`, self)
+}
+
+Vector3__normalize <- function(self) {
+    invisible(.Call(`_ravetools_Vector3__normalize`, self))
+}
+
+Vector3__set_length <- function(self, length) {
+    invisible(.Call(`_ravetools_Vector3__set_length`, self, length))
+}
+
+Vector3__lerp <- function(self, v, alpha) {
+    invisible(.Call(`_ravetools_Vector3__lerp`, self, v, alpha))
+}
+
+Vector3__lerp_vectors <- function(self, v1, v2, alpha) {
+    invisible(.Call(`_ravetools_Vector3__lerp_vectors`, self, v1, v2, alpha))
+}
+
+Vector3__cross <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__cross`, self, v))
+}
+
+Vector3__cross_vectors <- function(self, a, b) {
+    invisible(.Call(`_ravetools_Vector3__cross_vectors`, self, a, b))
+}
+
+Vector3__project_on_vector <- function(self, v) {
+    invisible(.Call(`_ravetools_Vector3__project_on_vector`, self, v))
+}
+
+Vector3__project_on_plane <- function(self, planeNormal) {
+    invisible(.Call(`_ravetools_Vector3__project_on_plane`, self, planeNormal))
+}
+
+Vector3__reflect <- function(self, normal) {
+    invisible(.Call(`_ravetools_Vector3__reflect`, self, normal))
+}
+
+Vector3__angle_to <- function(self, v) {
+    .Call(`_ravetools_Vector3__angle_to`, self, v)
+}
+
+Vector3__distance_to <- function(self, v) {
+    .Call(`_ravetools_Vector3__distance_to`, self, v)
+}
+
+Vector3__distance_to_squared <- function(self, v) {
+    .Call(`_ravetools_Vector3__distance_to_squared`, self, v)
+}
+
+Vector3__distance_to_manhattan <- function(self, v) {
+    .Call(`_ravetools_Vector3__distance_to_manhattan`, self, v)
+}
+
+Vector3__set_from_spherical_coords <- function(self, radius, phi, theta) {
+    invisible(.Call(`_ravetools_Vector3__set_from_spherical_coords`, self, radius, phi, theta))
+}
+
+Vector3__set_from_matrix_position <- function(self, m) {
+    invisible(.Call(`_ravetools_Vector3__set_from_matrix_position`, self, m))
+}
+
+Vector3__set_from_matrix_scale <- function(self, m) {
+    invisible(.Call(`_ravetools_Vector3__set_from_matrix_scale`, self, m))
+}
+
 rawToUInt8 <- function(x) {
     .Call(`_ravetools_rawToUInt8`, x)
 }

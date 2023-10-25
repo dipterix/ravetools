@@ -17,7 +17,7 @@
 #' @param df a scalar indicating the degrees of freedom; default is
 #' \code{nrow(x)-1}
 #'
-#' @return A covariance matrix of \code{x} and \code{y}. Note that there is no
+#' @returns A covariance matrix of \code{x} and \code{y}. Note that there is no
 #' \code{NA} handling. Any missing values will lead to \code{NA} in the
 #' resulting covariance matrices.
 #'

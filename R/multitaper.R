@@ -16,7 +16,7 @@
 #' @param detrend_opt how you want to remove the trend from data window; options
 #' are \code{'linear'} (default), \code{'constant'}, and \code{'off'}
 #' @param nfft 'NFFT' size, positive; see 'Details'
-#' @return \code{multitaper_config} returns a list of configuration parameters
+#' @returns \code{multitaper_config} returns a list of configuration parameters
 #' for the filters; \code{multitaper} also returns the time, frequency and
 #' corresponding spectral power.
 #'

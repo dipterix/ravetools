@@ -169,7 +169,7 @@ polyval <- function (coef, z)
 #' if \code{ftype='fir'}, or \code{8} if \code{ftype='iir'}
 #' @param ftype filter type, choices are \code{'fir'} (default) and
 #' \code{'iir'}
-#' @return Decimated signal
+#' @returns Decimated signal
 #' @details This function is migrated from \code{signal} package,
 #' but with bugs fixed on 'FIR' filters. The result agrees with 'Matlab'
 #' \code{decimate} function with 'FIR' filters. Under 'IIR'

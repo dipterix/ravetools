@@ -7,7 +7,7 @@
 #' @param na.rm logical; if true, any \code{NA} are removed from \code{x}
 #' before the quantiles are computed
 #' @param ... reserved for future use
-#' @return \code{fast_quantile} and \code{fast_median} calculate univariate
+#' @returns \code{fast_quantile} and \code{fast_median} calculate univariate
 #' quantiles (single-value return); \code{fast_mvquantile} and \code{fast_mvmedian}
 #' calculate multivariate quantiles (for each column, result lengths equal to
 #' the number of columns).
