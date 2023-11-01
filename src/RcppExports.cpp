@@ -1071,6 +1071,185 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Quaternion__set_from_axis_angle
+void Quaternion__set_from_axis_angle(const SEXP& self, const SEXP& axis, const double& angle);
+RcppExport SEXP _ravetools_Quaternion__set_from_axis_angle(SEXP selfSEXP, SEXP axisSEXP, SEXP angleSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type axis(axisSEXP);
+    Rcpp::traits::input_parameter< const double& >::type angle(angleSEXP);
+    Quaternion__set_from_axis_angle(self, axis, angle);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__set_from_rotation_matrix
+void Quaternion__set_from_rotation_matrix(const SEXP& self, const SEXP& m);
+RcppExport SEXP _ravetools_Quaternion__set_from_rotation_matrix(SEXP selfSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Quaternion__set_from_rotation_matrix(self, m);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__set_from_unit_vectors
+void Quaternion__set_from_unit_vectors(const SEXP& self, const SEXP& v_from, const SEXP& v_to);
+RcppExport SEXP _ravetools_Quaternion__set_from_unit_vectors(SEXP selfSEXP, SEXP v_fromSEXP, SEXP v_toSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v_from(v_fromSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v_to(v_toSEXP);
+    Quaternion__set_from_unit_vectors(self, v_from, v_to);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__angle_to
+double Quaternion__angle_to(const SEXP& self, const SEXP& q);
+RcppExport SEXP _ravetools_Quaternion__angle_to(SEXP selfSEXP, SEXP qSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__angle_to(self, q));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__rotate_towards
+void Quaternion__rotate_towards(const SEXP& self, const SEXP& q, const double& step);
+RcppExport SEXP _ravetools_Quaternion__rotate_towards(SEXP selfSEXP, SEXP qSEXP, SEXP stepSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< const double& >::type step(stepSEXP);
+    Quaternion__rotate_towards(self, q, step);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__slerp
+void Quaternion__slerp(const SEXP& self, const SEXP& qb, const double& t);
+RcppExport SEXP _ravetools_Quaternion__slerp(SEXP selfSEXP, SEXP qbSEXP, SEXP tSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type qb(qbSEXP);
+    Rcpp::traits::input_parameter< const double& >::type t(tSEXP);
+    Quaternion__slerp(self, qb, t);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__identity
+void Quaternion__identity(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__identity(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Quaternion__identity(self);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__invert
+void Quaternion__invert(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__invert(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Quaternion__invert(self);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__conjugate
+void Quaternion__conjugate(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__conjugate(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Quaternion__conjugate(self);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__dot
+double Quaternion__dot(const SEXP& self, const SEXP& v);
+RcppExport SEXP _ravetools_Quaternion__dot(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__dot(self, v));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__length_squared
+double Quaternion__length_squared(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__length_squared(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__length_squared(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__length
+double Quaternion__length(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__length(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__length(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__normalize
+void Quaternion__normalize(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__normalize(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Quaternion__normalize(self);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__multiply
+void Quaternion__multiply(const SEXP& self, const SEXP& q);
+RcppExport SEXP _ravetools_Quaternion__multiply(SEXP selfSEXP, SEXP qSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Quaternion__multiply(self, q);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__premultiply
+void Quaternion__premultiply(const SEXP& self, const SEXP& q);
+RcppExport SEXP _ravetools_Quaternion__premultiply(SEXP selfSEXP, SEXP qSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Quaternion__premultiply(self, q);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__multiply_quaternions
+void Quaternion__multiply_quaternions(const SEXP& self, const SEXP& a, const SEXP& b);
+RcppExport SEXP _ravetools_Quaternion__multiply_quaternions(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Quaternion__multiply_quaternions(self, a, b);
+    return R_NilValue;
+END_RCPP
+}
 // Vector3__new
 SEXP Vector3__new();
 static SEXP _ravetools_Vector3__new_try() {
@@ -1933,11 +2112,11 @@ RcppExport SEXP _ravetools_Vector3__apply_matrix3(SEXP selfSEXP, SEXP mSEXP) {
     return rcpp_result_gen;
 }
 // Vector3__apply_matrix4
-void Vector3__apply_matrix4(const SEXP& self, const std::vector<double>& m);
+void Vector3__apply_matrix4(const SEXP& self, const SEXP& m);
 static SEXP _ravetools_Vector3__apply_matrix4_try(SEXP selfSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const std::vector<double>& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
     Vector3__apply_matrix4(self, m);
     return R_NilValue;
 END_RCPP_RETURN_ERROR
@@ -1967,11 +2146,11 @@ RcppExport SEXP _ravetools_Vector3__apply_matrix4(SEXP selfSEXP, SEXP mSEXP) {
     return rcpp_result_gen;
 }
 // Vector3__apply_quaternion
-void Vector3__apply_quaternion(const SEXP& self, const std::vector<double>& q);
+void Vector3__apply_quaternion(const SEXP& self, const SEXP& q);
 static SEXP _ravetools_Vector3__apply_quaternion_try(SEXP selfSEXP, SEXP qSEXP) {
 BEGIN_RCPP
     Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const std::vector<double>& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
     Vector3__apply_quaternion(self, q);
     return R_NilValue;
 END_RCPP_RETURN_ERROR
@@ -3231,8 +3410,8 @@ static int _ravetools_RcppExport_validate(const char* sig) {
         signatures.insert("void(*Vector3__multiply_scalar)(const SEXP&,std::vector<double>&)");
         signatures.insert("void(*Vector3__multiply_vectors)(const SEXP&,const SEXP&,const SEXP&)");
         signatures.insert("void(*Vector3__apply_matrix3)(const SEXP&,const std::vector<double>&)");
-        signatures.insert("void(*Vector3__apply_matrix4)(const SEXP&,const std::vector<double>&)");
-        signatures.insert("void(*Vector3__apply_quaternion)(const SEXP&,const std::vector<double>&)");
+        signatures.insert("void(*Vector3__apply_matrix4)(const SEXP&,const SEXP&)");
+        signatures.insert("void(*Vector3__apply_quaternion)(const SEXP&,const SEXP&)");
         signatures.insert("void(*Vector3__transform_direction)(const SEXP&,const SEXP&)");
         signatures.insert("void(*Vector3__divide)(const SEXP&,const SEXP&)");
         signatures.insert("void(*Vector3__divide_scalar)(const SEXP&,std::vector<double>&)");
@@ -3402,6 +3581,22 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_Quaternion__set", (DL_FUNC) &_ravetools_Quaternion__set, 5},
     {"_ravetools_Quaternion__copy", (DL_FUNC) &_ravetools_Quaternion__copy, 2},
     {"_ravetools_Quaternion__to_array", (DL_FUNC) &_ravetools_Quaternion__to_array, 1},
+    {"_ravetools_Quaternion__set_from_axis_angle", (DL_FUNC) &_ravetools_Quaternion__set_from_axis_angle, 3},
+    {"_ravetools_Quaternion__set_from_rotation_matrix", (DL_FUNC) &_ravetools_Quaternion__set_from_rotation_matrix, 2},
+    {"_ravetools_Quaternion__set_from_unit_vectors", (DL_FUNC) &_ravetools_Quaternion__set_from_unit_vectors, 3},
+    {"_ravetools_Quaternion__angle_to", (DL_FUNC) &_ravetools_Quaternion__angle_to, 2},
+    {"_ravetools_Quaternion__rotate_towards", (DL_FUNC) &_ravetools_Quaternion__rotate_towards, 3},
+    {"_ravetools_Quaternion__slerp", (DL_FUNC) &_ravetools_Quaternion__slerp, 3},
+    {"_ravetools_Quaternion__identity", (DL_FUNC) &_ravetools_Quaternion__identity, 1},
+    {"_ravetools_Quaternion__invert", (DL_FUNC) &_ravetools_Quaternion__invert, 1},
+    {"_ravetools_Quaternion__conjugate", (DL_FUNC) &_ravetools_Quaternion__conjugate, 1},
+    {"_ravetools_Quaternion__dot", (DL_FUNC) &_ravetools_Quaternion__dot, 2},
+    {"_ravetools_Quaternion__length_squared", (DL_FUNC) &_ravetools_Quaternion__length_squared, 1},
+    {"_ravetools_Quaternion__length", (DL_FUNC) &_ravetools_Quaternion__length, 1},
+    {"_ravetools_Quaternion__normalize", (DL_FUNC) &_ravetools_Quaternion__normalize, 1},
+    {"_ravetools_Quaternion__multiply", (DL_FUNC) &_ravetools_Quaternion__multiply, 2},
+    {"_ravetools_Quaternion__premultiply", (DL_FUNC) &_ravetools_Quaternion__premultiply, 2},
+    {"_ravetools_Quaternion__multiply_quaternions", (DL_FUNC) &_ravetools_Quaternion__multiply_quaternions, 3},
     {"_ravetools_Vector3__new", (DL_FUNC) &_ravetools_Vector3__new, 0},
     {"_ravetools_Vector3__from_array", (DL_FUNC) &_ravetools_Vector3__from_array, 4},
     {"_ravetools_Vector3__resize", (DL_FUNC) &_ravetools_Vector3__resize, 2},

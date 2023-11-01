@@ -1,5 +1,6 @@
 #include "glVector3.h"
 #include "glMatrix4.h"
+#include "glQuaternion.h"
 // #include "threepp/math/MathUtils.hpp"
 // #include "threepp/math/Matrix3.hpp"
 // #include "threepp/math/Quaternion.hpp"
@@ -17,9 +18,9 @@ using namespace rave3d;
 
 
 
-// namespace {
-// thread_local Quaternion _quaternion;
-// }
+namespace {
+thread_local Quaternion _quaternion;
+}
 
 Vector3::Vector3() : data({}) {}
 Vector3::~Vector3() {}
@@ -605,12 +606,16 @@ void Vector3__multiply_vectors(const SEXP& self, const SEXP& a, const SEXP& b) {
 }
 
 
-//
-// Vector3& Vector3::applyAxisAngle(const Vector3& axis, double angle) {
-//
-//   return this->applyQuaternion(_quaternion.setFromAxisAngle(axis, angle));
-// }
-//
+Vector3& Vector3::applyAxisAngle(Vector3& axis, const double& angle) {
+  return this->applyQuaternion(_quaternion.setFromAxisAngle(axis, angle));
+}
+
+void Vector3__apply_axis_angle(const SEXP& self, const SEXP& axis, const double& angle) {
+  Rcpp::XPtr<Vector3> ptr_self(self);
+  Rcpp::XPtr<Vector3> ptr_axis(axis);
+  ptr_self->applyAxisAngle(*ptr_axis, angle);
+}
+
 // Vector3& Vector3::applyEuler(const Euler& euler) {
 //
 //   return this->applyQuaternion(_quaternion.setFromEuler(euler));
@@ -686,11 +691,34 @@ Vector3& Vector3::applyMatrix4(Matrix4& m) {
 
 
 // [[Rcpp::export]]
-void Vector3__apply_matrix4(const SEXP& self, const std::vector<double>& m) {
+void Vector3__apply_matrix4(const SEXP& self, const SEXP& m) {
   Rcpp::XPtr<Vector3> ptr_self(self);
-  ptr_self->applyMatrix4(m);
+  Rcpp::XPtr<Matrix4> ptr_m(m);
+  ptr_self->applyMatrix4(ptr_m->elements);
 }
 
+
+Vector3& Vector3::applyQuaternion(const Quaternion& q) {
+  if( this->data.empty() ) { return *this; }
+  double qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+  double ix, iy, iz, iw;
+
+  std::vector<double>::iterator ptr = this->data.begin();
+  for(size_t i = 0 ; i < this->getSize(); i++, ptr += 3) {
+    // calculate quat * vector
+    ix = qw * ptr[0] + qy * ptr[2] - qz * ptr[1];
+    iy = qw * ptr[1] + qz * ptr[0] - qx * ptr[2];
+    iz = qw * ptr[2] + qx * ptr[1] - qy * ptr[0];
+    iw = -qx * ptr[0] - qy * ptr[1] - qz * ptr[2];
+
+    // calculate result * inverse quat
+    ptr[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+    ptr[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+    ptr[2] = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+  }
+
+  return *this;
+}
 
 
 Vector3& Vector3::applyQuaternion(const std::vector<double>& q) {
@@ -721,9 +749,10 @@ Vector3& Vector3::applyQuaternion(const std::vector<double>& q) {
 }
 
 // [[Rcpp::export]]
-void Vector3__apply_quaternion(const SEXP& self, const std::vector<double>& q) {
+void Vector3__apply_quaternion(const SEXP& self, const SEXP& q) {
   Rcpp::XPtr<Vector3> ptr_self(self);
-  ptr_self->applyQuaternion(q);
+  Rcpp::XPtr<Quaternion> ptr_q(q);
+  ptr_self->applyQuaternion(*ptr_q);
 }
 
 // Vector3& Vector3::project(const Camera& camera) {

@@ -18,9 +18,12 @@ Matrix4 <- R6::R6Class(
       private$.extern_ptr <- Matrix4__new()
     },
     format = function(...) {
-      sprintf(
-        "<Matrix4>\n%s",
-        paste(apply(format(self$to_array()), 1, paste, collapse = " "), collapse = "\n")
+      m <- self$to_array()
+      c(
+        "<Matrix4>",
+        utils::capture.output({
+          print(m)
+        })
       )
     },
     clone2 = function(...) {
@@ -54,7 +57,7 @@ Matrix4 <- R6::R6Class(
       self
     },
     copy_position = function(m) {
-      stopifnot(R6::is.R6(m) && isTRUE(m$is_matrix4))
+      m <- as_matrix4(m)
       Matrix4__copy_position(private$.extern_ptr, m$pointer)
       self
     },
@@ -62,17 +65,17 @@ Matrix4 <- R6::R6Class(
       if(is.null(x_axis)) {
         x_axis <- new_vector3()
       } else {
-        stopifnot(R6::is.R6(x_axis) && isTRUE(x_axis$is_vector3))
+        x_axis <- as_vector3(x_axis)
       }
       if(is.null(y_axis)) {
         y_axis <- new_vector3()
       } else {
-        stopifnot(R6::is.R6(y_axis) && isTRUE(y_axis$is_vector3))
+        y_axis <- as_vector3(y_axis)
       }
       if(is.null(z_axis)) {
         z_axis <- new_vector3()
       } else {
-        stopifnot(R6::is.R6(z_axis) && isTRUE(z_axis$is_vector3))
+        z_axis <- as_vector3(z_axis)
       }
       Matrix4__extract_basis(private$.extern_ptr, x_axis$pointer, y_axis$pointer, z_axis$pointer)
       self
@@ -80,62 +83,47 @@ Matrix4 <- R6::R6Class(
     make_basis = function(x_axis = NULL, y_axis = NULL, z_axis = NULL) {
       if(is.null(x_axis)) {
         x_axis <- new_vector3()
-      } else if(is.numeric(x_axis) && length(x_axis) >= 3) {
-        x_axis <- new_vector3(x_axis[1], x_axis[2], x_axis[3])
       } else {
-        stopifnot(R6::is.R6(x_axis) && isTRUE(x_axis$is_vector3))
+        x_axis <- as_vector3(x_axis)
       }
       if(is.null(y_axis)) {
         y_axis <- new_vector3()
-      } else if(is.numeric(y_axis) && length(y_axis) >= 3) {
-        y_axis <- new_vector3(y_axis[1], y_axis[2], y_axis[3])
       } else {
-        stopifnot(R6::is.R6(y_axis) && isTRUE(y_axis$is_vector3))
+        y_axis <- as_vector3(y_axis)
       }
       if(is.null(z_axis)) {
         z_axis <- new_vector3()
-      } else if(is.numeric(z_axis) && length(z_axis) >= 3) {
-        z_axis <- new_vector3(z_axis[1], z_axis[2], z_axis[3])
       } else {
-        stopifnot(R6::is.R6(z_axis) && isTRUE(z_axis$is_vector3))
+        z_axis <- as_vector3(z_axis)
       }
       Matrix4__make_basis(private$.extern_ptr, x_axis$pointer, y_axis$pointer, z_axis$pointer)
       self
     },
     extract_rotation = function(m) {
-      stopifnot(R6::is.R6(m) && isTRUE(m$is_matrix4))
+      m <- as_matrix4(m)
       Matrix4__extract_rotation(private$.extern_ptr, m$pointer)
       self
     },
     look_at = function(eye, target, up) {
-      if(is.numeric(eye) && length(eye) >= 3) {
-        eye <- new_vector3(eye[1], eye[2], eye[3])
-      }
-      if(is.numeric(target) && length(target) >= 3) {
-        target <- new_vector3(target[1], target[2], target[3])
-      }
-      if(is.numeric(up) && length(up) >= 3) {
-        up <- new_vector3(up[1], up[2], up[3])
-      }
-      stopifnot(R6::is.R6(eye) && isTRUE(eye$is_vector3))
-      stopifnot(R6::is.R6(target) && isTRUE(target$is_vector3))
-      stopifnot(R6::is.R6(up) && isTRUE(up$is_vector3))
+      eye <- as_vector3(eye)
+      target <- as_vector3(target)
+      up <- as_vector3(up)
       Matrix4__look_at(private$.extern_ptr, eye$pointer, target$pointer, up$pointer)
       self
     },
     multiply_matrices = function(a, b) {
-      stopifnot(R6::is.R6(a) && isTRUE(a$is_matrix4))
-      stopifnot(R6::is.R6(b) && isTRUE(b$is_matrix4))
+      a <- as_matrix4(a)
+      b <- as_matrix4(b)
       Matrix4__multiply_matrices(private$.extern_ptr, a$pointer, b$pointer)
       self
     },
     multiply = function(m) {
-      stopifnot(R6::is.R6(m) && isTRUE(m$is_matrix4))
+      m <- as_matrix4(m)
       Matrix4__multiply_matrices(private$.extern_ptr, private$.extern_ptr, m$pointer)
       self
     },
     premultiply = function(m) {
-      stopifnot(R6::is.R6(m) && isTRUE(m$is_matrix4))
+      m <- as_matrix4(m)
       Matrix4__multiply_matrices(private$.extern_ptr, m$pointer, private$.extern_ptr)
       self
     },
@@ -170,8 +158,7 @@ Matrix4 <- R6::R6Class(
     },
     scale = function(v, ...) {
       if(!R6::is.R6(v) || !isTRUE(v$is_vector3)) {
-        v <- as.numeric(c(v, ...))[1:3]
-        v <- new_vector3(v[[1]], v[[2]], v[[3]])
+        v <- as_vector3(c(v, ...))
       }
       Matrix4__scale(private$.extern_ptr, v$pointer)
       self
@@ -204,10 +191,7 @@ Matrix4 <- R6::R6Class(
       self
     },
     make_rotation_axis = function(axis, angle) {
-      if(!R6::is.R6(axis) || !isTRUE(axis$is_vector3)) {
-        axis <- as.numeric(axis)[1:3]
-        axis <- new_vector3(axis[[1]], axis[[2]], axis[[3]])
-      }
+      axis <- as_vector3(axis)
       angle <- as.double(angle)[[1]]
       Matrix4__make_rotation_axis(private$.extern_ptr, axis$pointer, angle)
       self
@@ -255,6 +239,12 @@ Matrix4 <- R6::R6Class(
 )
 
 #' Create a \code{Matrix4} instance for \code{'Affine'} transform
+#' @param m a matrix or a vector to be converted to the \code{Matrix4} instance;
+#' \code{m} must be one of the followings: for matrices, the dimension must be
+#' \code{4x4}, \code{3x4} (the last row will be \code{0 0 0 1}), or
+#' \code{3x3} (linear transform); for vectors, the length must be
+#' \code{16}, \code{12} (will append \code{0 0 0 1} internally),
+#' \code{3} (translation), or \code{1} (scale).
 #' @returns A \code{Matrix4} instance
 #' @seealso \code{\link{new_vector3}}, \code{\link{new_quaternion}}
 #' @export
@@ -292,3 +282,39 @@ dim.Matrix4 <- function(x) {
   e2 == e1$to_array()
 }
 
+#' @rdname new_matrix4
+#' @export
+as_matrix4 <- function(m) {
+  if(R6::is.R6(m) && isTRUE(m$is_matrix4)) { return(m) }
+  if(is.matrix(m)) {
+    nc <- ncol(m)
+    nr <- nrow(m)
+    if(!nc %in% c(3, 4)) {
+      stop("`as_matrix4`: when input `m` is a matrix, its column numbers must be 3 or 4")
+    }
+    if(!nr %in% c(3, 4)) {
+      stop("`as_matrix4`: when input `m` is a matrix, its row numbers must be 3 or 4")
+    }
+    if( nc == 3 && nr == 3 ) {
+      m <- cbind(rbind(m, c(0, 0, 0)), c(0, 0, 0, 1))
+    } else if ( nc == 3 ) {
+      m <- cbind(m, c(0, 0, 0, 1))
+    } else if ( nr == 3 ){
+      m <- rbind(m, c(0, 0, 0, 1))
+    }
+    return(new_matrix4()$set(m))
+  }
+  m <- as.numeric(m)
+  if(length(m) == 12) {
+    m <- c(m, 0, 0, 0, 1)
+  } else if(length(m) == 3) {
+    m <- matrix(c(
+      1,0,0,m[[1]],
+      0,1,0,m[[2]],
+      0,0,1,m[[3]],
+      0,0,0,1
+    ), nrow = 4, byrow = TRUE)
+    return(new_matrix4()$set(m))
+  }
+  new_matrix4()$set(m)
+}

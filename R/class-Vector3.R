@@ -17,32 +17,21 @@ Vector3 <- R6::R6Class(
     format = function(...) {
       l <- self$get_size()
       s <- sprintf("<Vector3: len=%d>", l)
-      if(l == 1) {
-        s <- do.call(sprintf, c(
-          list(
-            "%s {x=%.2g,y=%.2g,z=%.2g}",
-            s
-          ),
-          as.list(as.vector(self$to_array(max_n_elems = 1)))
-        ))
-      } else if (l >= 2) {
-        if(l == 2) {
-          s <- do.call(sprintf, c(
-            list(
-              "%s {x=%.2g,y=%.2g,z=%.2g}, {x=%.2g,y=%.2g,z=%.2g}",
-              s
-            ),
-            as.list(as.vector(self$to_array(max_n_elems = 2)))
-          ))
-        } else {
-          s <- do.call(sprintf, c(
-            list(
-              "%s {x=%.2g,y=%.2g,z=%.2g}, {x=%.2g,y=%.2g,z=%.2g}, ...",
-              s
-            ),
-            as.list(as.vector(self$to_array(max_n_elems = 2)))
-          ))
-        }
+      if(l == 0) { return(s) }
+      arr <- self$to_array(max_n_elems = 5)
+      s <- c(
+        s,
+        utils::capture.output({
+          print(data.frame(
+            x = arr[1, ],
+            y = arr[2, ],
+            z = arr[3, ]
+          ), ...)
+        })
+      )
+
+      if( l > 5 ) {
+        s <- c(s, "...")
       }
       s
     },
@@ -105,7 +94,7 @@ Vector3 <- R6::R6Class(
       self
     },
     add = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__add(private$.extern_ptr, v$pointer)
       self
     },
@@ -114,18 +103,18 @@ Vector3 <- R6::R6Class(
       self
     },
     add_vectors = function(a, b) {
-      stopifnot(R6::is.R6(a) && isTRUE(a$is_vector3))
-      stopifnot(R6::is.R6(b) && isTRUE(b$is_vector3))
+      a <- as_vector3(a)
+      b <- as_vector3(b)
       Vector3__add_vectors(private$.extern_ptr, a$pointer, b$pointer)
       self
     },
     add_scaled = function(v, s) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__add_scaled(private$.extern_ptr, v$pointer, as.numeric(s))
       self
     },
     sub = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__sub(private$.extern_ptr, v$pointer)
       self
     },
@@ -134,13 +123,13 @@ Vector3 <- R6::R6Class(
       self
     },
     sub_vectors = function(a, b) {
-      stopifnot(R6::is.R6(a) && isTRUE(a$is_vector3))
-      stopifnot(R6::is.R6(b) && isTRUE(b$is_vector3))
+      a <- as_vector3(a)
+      b <- as_vector3(b)
       Vector3__sub_vectors(private$.extern_ptr, a$pointer, b$pointer)
       self
     },
     multiply = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__multiply(private$.extern_ptr, v$pointer)
       self
     },
@@ -149,13 +138,13 @@ Vector3 <- R6::R6Class(
       self
     },
     multiply_vectors = function(a, b) {
-      stopifnot(R6::is.R6(a) && isTRUE(a$is_vector3))
-      stopifnot(R6::is.R6(b) && isTRUE(b$is_vector3))
+      a <- as_vector3(a)
+      b <- as_vector3(b)
       Vector3__multiply_vectors(private$.extern_ptr, a$pointer, b$pointer)
       self
     },
     divide = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__divide(private$.extern_ptr, v$pointer)
       self
     },
@@ -164,18 +153,18 @@ Vector3 <- R6::R6Class(
       self
     },
     min = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__min(private$.extern_ptr, v$pointer)
       self
     },
     max = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__max(private$.extern_ptr, v$pointer)
       self
     },
     clamp = function(min_v, max_v) {
-      stopifnot(R6::is.R6(min_v) && isTRUE(min_v$is_vector3))
-      stopifnot(R6::is.R6(max_v) && isTRUE(max_v$is_vector3))
+      min_v <- as_vector3(min_v)
+      max_v <- as_vector3(max_v)
       Vector3__clamp(private$.extern_ptr, min_v$pointer, max_v$pointer)
       self
     },
@@ -200,7 +189,7 @@ Vector3 <- R6::R6Class(
       self
     },
     dot = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__dot(private$.extern_ptr, v$pointer)
     },
     length_squared = function() {
@@ -221,24 +210,24 @@ Vector3 <- R6::R6Class(
       self
     },
     lerp = function(v, alpha) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__lerp(private$.extern_ptr, v$pointer, as.numeric(alpha))
       self
     },
     lerp_vectors = function(v1, v2, alpha) {
-      stopifnot(R6::is.R6(v1) && isTRUE(v1$is_vector3))
-      stopifnot(R6::is.R6(v2) && isTRUE(v2$is_vector3))
+      v1 <- as_vector3(v1)
+      v2 <- as_vector3(v2)
       Vector3__lerp_vectors(private$.extern_ptr, v1$pointer, v2$pointer, as.numeric(alpha))
       self
     },
     cross = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__cross(private$.extern_ptr, v$pointer)
       self
     },
     cross_vectors = function(a, b) {
-      stopifnot(R6::is.R6(a) && isTRUE(a$is_vector3))
-      stopifnot(R6::is.R6(b) && isTRUE(b$is_vector3))
+      a <- as_vector3(a)
+      b <- as_vector3(b)
       Vector3__cross_vectors(private$.extern_ptr, a$pointer, b$pointer)
       self
     },
@@ -250,69 +239,64 @@ Vector3 <- R6::R6Class(
       self
     },
     apply_matrix4 = function(m) {
-      if(R6::is.R6(m) && isTRUE(m$is_matrix4)) {
-        m <- m$to_array()
-      }
-      stopifnot(length(m) == 16)
-      if(!is.numeric(m)) { m <- as.numeric(m) }
-      Vector3__apply_matrix4(private$.extern_ptr, m)
+      m <- as_matrix4(m)
+      Vector3__apply_matrix4(private$.extern_ptr, m$pointer)
       self
     },
     apply_quaternion = function(q) {
-      stopifnot(length(q) == 4)
-      if(!is.numeric(q)) { q <- as.numeric(q) }
-      Vector3__apply_quaternion(private$.extern_ptr, q)
+      q <- as_quaternion(q)
+      Vector3__apply_quaternion(private$.extern_ptr, q$pointer)
+      self
+    },
+    apply_axis_angle = function(axis, angle) {
+      axis <- as_vector3(axis)
+      angle <- as.double(angle)[[1]]
+      Vector3__apply_axis_angle(axis, angle)
       self
     },
     transform_direction = function(m) {
-      if(!R6::is.R6(m) || !isTRUE(m$is_matrix4)) {
-        m <- new_matrix4()$set(m)
-      }
+      m <- as_matrix4(m)
       Vector3__transform_direction(private$.extern_ptr, m$pointer)
       self
     },
     project_on_vector = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       Vector3__project_on_vector(private$.extern_ptr, v$pointer)
       self
     },
     project_on_plane = function(normal) {
-      stopifnot(R6::is.R6(normal) && isTRUE(normal$is_vector3))
+      normal <- as_vector3(normal)
       Vector3__project_on_plane(private$.extern_ptr, normal$pointer)
       self
     },
     reflect = function(normal) {
-      stopifnot(R6::is.R6(normal) && isTRUE(normal$is_vector3))
+      normal <- as_vector3(normal)
       Vector3__reflect(private$.extern_ptr, normal$pointer)
       self
     },
     angle_to = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       return ( Vector3__angle_to(private$.extern_ptr, v$pointer) )
     },
     distance_to = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       return ( Vector3__distance_to(private$.extern_ptr, v$pointer) )
     },
     distance_to_squared = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       return ( Vector3__distance_to_squared(private$.extern_ptr, v$pointer) )
     },
     distance_to_manhattan = function(v) {
-      stopifnot(R6::is.R6(v) && isTRUE(v$is_vector3))
+      v <- as_vector3(v)
       return ( Vector3__distance_to_manhattan(private$.extern_ptr, v$pointer) )
     },
     set_from_matrix_position = function(m) {
-      if(!R6::is.R6(m) || !isTRUE(m$is_matrix4)) {
-        m <- new_matrix4()$set(m)
-      }
+      m <- as_matrix4(m)
       Vector3__set_from_matrix_position(private$.extern_ptr, m$pointer)
       self
     },
     set_from_matrix_scale = function(m) {
-      if(!R6::is.R6(m) || !isTRUE(m$is_matrix4)) {
-        m <- new_matrix4()$set(m)
-      }
+      m <- as_matrix4(m)
       Vector3__set_from_matrix_scale(private$.extern_ptr, m$pointer)
       self
     },
@@ -331,6 +315,7 @@ Vector3 <- R6::R6Class(
 #' Create instances that mimic the \code{'three.js'} syntax.
 #'
 #' @param x,y,z numeric, must have the same length, \code{'xyz'} positions
+#' @param v R object to be converted to \code{Vector3} instance
 #' @returns A \code{Vector3} instance
 #'
 #' @examples
@@ -352,6 +337,8 @@ Vector3 <- R6::R6Class(
 #' vec3$apply_matrix4(m)
 #'
 #' vec3[]
+#'
+#' as_vector3(c(1,2,3))
 #'
 #' @seealso \code{\link{new_matrix4}}, \code{\link{new_quaternion}}
 #' @export
@@ -389,3 +376,16 @@ dim.Vector3 <- function(x) {
   e2 == e1$to_array()
 }
 
+#' @rdname new_vector3
+#' @export
+as_vector3 <- function(v) {
+  if( R6::is.R6(v) && isTRUE(v$is_vector3) ) { return(v) }
+  x_ <- as.double(v)
+  if(length(x_) == 1) {
+    return(new_vector3(x_, x_, x_))
+  }
+  if(length(x_) < 3) {
+    stop("Input cannot be converted to a Vector3 instance. Please make sure input is a numeric vector of which the length is greater equal to 3.")
+  }
+  new_vector3()$from_array(x_)
+}

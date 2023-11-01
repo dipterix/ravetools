@@ -31,42 +31,42 @@ public:
 
   // Quaternion& setFromEuler(const Euler& euler, bool update = true);
   //
-  // Quaternion& setFromAxisAngle(const Vector3& axis, double angle);
-  //
-  // Quaternion& setFromRotationMatrix(const Matrix4& m);
-  //
-  // Quaternion& setFromUnitVectors(const Vector3& vFrom, const Vector3& vTo);
-  //
-  // [[nodiscard]] double angleTo(const Quaternion& q) const;
-  //
-  // Quaternion& rotateTowards(const Quaternion& q, double step);
-  //
-  // Quaternion& identity();
-  //
-  // Quaternion& invert();
-  //
-  // Quaternion& conjugate();
-  //
-  // [[nodiscard]] double dot(const Quaternion& v) const;
-  //
-  // [[nodiscard]] double lengthSq() const;
-  //
-  // [[nodiscard]] double length() const;
-  //
-  // Quaternion& normalize();
-  //
-  // Quaternion& multiply(const Quaternion& q);
-  //
-  // Quaternion& premultiply(const Quaternion& q);
-  //
-  // Quaternion& multiplyQuaternions(const Quaternion& a, const Quaternion& b);
-  //
-  // Quaternion& slerp(const Quaternion& qb, double t);
-  //
-  // [[nodiscard]] Quaternion clone() const;
-  //
-  // [[nodiscard]] bool equals(const Quaternion& v) const;
-  //
+  Quaternion& setFromAxisAngle(Vector3& axis, const double& angle);
+
+  Quaternion& setFromRotationMatrix(Matrix4& m);
+
+  Quaternion& setFromUnitVectors(Vector3& vFrom, Vector3& vTo);
+
+  double angleTo(Quaternion& q);
+
+  Quaternion& rotateTowards(Quaternion& q, const double& step);
+
+  Quaternion& identity();
+
+  Quaternion& invert();
+
+  Quaternion& conjugate();
+
+  double dot(const Quaternion& v);
+
+  double lengthSq();
+
+  double length();
+
+  Quaternion& normalize();
+
+  Quaternion& multiply(const Quaternion& q);
+
+  Quaternion& premultiply(const Quaternion& q);
+
+  Quaternion& multiplyQuaternions(const Quaternion& a, const Quaternion& b);
+
+  Quaternion& slerp(const Quaternion& qb, const double& t);
+
+  Quaternion clone() const;
+
+  bool equals(const Quaternion& v) const;
+
   // bool operator==(const Quaternion& other) const;
   //
   // bool operator!=(const Quaternion& other) const;

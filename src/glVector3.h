@@ -9,7 +9,7 @@ namespace rave3d {
 // class Matrix3;
 class Matrix4;
 // class Spherical;
-// class Quaternion;
+class Quaternion;
 // class Camera;
 
 class Vector3 {
@@ -70,9 +70,9 @@ public:
 
   // Sets this vector equal to a * b, component-wise.
   Vector3& multiplyVectors(Vector3& a, Vector3& b);
-//
-//   // Applies a rotation specified by an axis and an angle to this vector.
-//   Vector3& applyAxisAngle(const Vector3& axis, double angle);
+
+  // Applies a rotation specified by an axis and an angle to this vector.
+  Vector3& applyAxisAngle(Vector3& axis, const double& angle);
 
   // // Applies euler transform to this vector by converting the Euler object to a Quaternion and applying.
   // Vector3& applyEuler(const Euler& euler);
@@ -88,6 +88,7 @@ public:
   Vector3& applyMatrix4(Matrix4& m);
 
   // Applies a Quaternion transform to this vector.
+  Vector3& applyQuaternion(const Quaternion& q);
   Vector3& applyQuaternion(const std::vector<double>& q);
 
   // // Projects this vector from world space into the camera's normalized device coordinate (NDC) space.

@@ -15,9 +15,10 @@ Quaternion <- R6::R6Class(
       private$.extern_ptr <- Quaternion__new()
     },
     format = function(...) {
+      q <- format(self$to_array())
       sprintf(
-        "<Quaternion>\n%s",
-        paste(apply(format(self$to_array()), 1, paste, collapse = " "), collapse = "\n")
+        "<Quaternion>\nx = %s, y = %s, z = %s, w = %s",
+        q[[1]], q[[2]], q[[3]], q[[4]]
       )
     },
     clone2 = function(...) {
@@ -35,6 +36,81 @@ Quaternion <- R6::R6Class(
       stopifnot(R6::is.R6(m) && isTRUE(m$is_quaternion))
       Quaternion__copy(private$.extern_ptr, m$pointer)
       self
+    },
+    normalize = function() {
+      Quaternion__normalize(private$.extern_ptr)
+      self
+    },
+    set_from_axis_angle = function(axis, angle) {
+      axis <- as_vector3(axis)
+      angle <- as.numeric(angle)[[1]]
+      Quaternion__set_from_axis_angle(private$.extern_ptr, axis$pointer, angle)
+      self
+    },
+    set_from_rotation_matrix = function(m) {
+      m <- as_matrix4(m)
+      Quaternion__set_from_rotation_matrix(private$.extern_ptr, m$pointer)
+      self
+    },
+    set_from_unit_vectors = function(v_from, v_to) {
+      v_from <- as_vector3(v_from)
+      v_to <- as_vector3(v_to)
+      Quaternion__set_from_unit_vectors(private$.extern_ptr, v_from$pointer, v_to$pointer)
+      self
+    },
+    angle_to = function(q) {
+      q <- as_quaternion(q)
+      Quaternion__angle_to(private$.extern_ptr, q$pointer)
+    },
+    rotate_towards = function(q, step) {
+      q <- as_quaternion(q)
+      step <- as.double(step)[[1]]
+      Quaternion__rotate_towards(private$.extern_ptr, q$pointer, step)
+      self
+    },
+    slerp = function(qb, t) {
+      qb <- as_quaternion(qb)
+      t <- as.double(t)[[1]]
+      Quaternion__slerp(private$.extern_ptr, qb$pointer, t)
+      self
+    },
+    identity = function() {
+      Quaternion__identity(private$.extern_ptr)
+      self
+    },
+    invert = function() {
+      Quaternion__invert(private$.extern_ptr)
+      self
+    },
+    conjugate = function() {
+      Quaternion__conjugate(private$.extern_ptr)
+      self
+    },
+    dot = function(q) {
+      q <- as_quaternion(q)
+      Quaternion__dot(private$.extern_ptr, q$pointer)
+    },
+    length_squared = function() {
+      Quaternion__length_squared(private$.extern_ptr)
+    },
+    length = function() {
+      Quaternion__length(private$.extern_ptr)
+    },
+    multiply = function(q) {
+      q <- as_quaternion(q)
+      Quaternion__multiply(private$.extern_ptr, q$pointer)
+      self
+    },
+    premultiply = function(q) {
+      q <- as_quaternion(q)
+      Quaternion__premultiply(private$.extern_ptr, q$pointer)
+      self
+    },
+    multiply_quaternions = function(qa, qb) {
+      qa <- as_quaternion(qa)
+      qb <- as_quaternion(qb)
+      Quaternion__multiply_quaternions(private$.extern_ptr, qa$pointer, qb$pointer)
+      self
     }
   )
 )
@@ -43,6 +119,7 @@ Quaternion <- R6::R6Class(
 #' @description
 #' Create instances that mimic the \code{'three.js'} syntax.
 #' @param x,y,z,w numeric of length one
+#' @param q R object to be converted to \code{Quaternion}
 #' @returns A \code{Quaternion} instance
 #' @seealso \code{\link{new_vector3}}, \code{\link{new_matrix4}}
 #' @export
@@ -65,3 +142,12 @@ new_quaternion <- function(x = 0, y = 0, z = 0, w = 1) {
   e2 == e1$to_array()
 }
 
+#' @rdname new_quaternion
+#' @export
+as_quaternion <- function(q) {
+  if(R6::is.R6(q) && isTRUE(q$is_quaternion)) { return(q) }
+  if(length(q) != 4) {
+    stop("`as_quaternion`: length of `q` must be a vector of 4 numbers.")
+  }
+  new_quaternion(q[[1]], q[[2]], q[[3]], q[[4]])
+}

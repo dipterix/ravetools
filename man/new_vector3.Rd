@@ -2,12 +2,17 @@
 % Please edit documentation in R/class-Vector3.R
 \name{new_vector3}
 \alias{new_vector3}
+\alias{as_vector3}
 \title{Create a \code{Vector3} instance to store '3D' points}
 \usage{
 new_vector3(x = 0, y = 0, z = 0)
+
+as_vector3(v)
 }
 \arguments{
 \item{x, y, z}{numeric, must have the same length, \code{'xyz'} positions}
+
+\item{v}{R object to be converted to \code{Vector3} instance}
 }
 \value{
 A \code{Vector3} instance
@@ -34,6 +39,8 @@ m$make_rotation_z(pi / 6)
 vec3$apply_matrix4(m)
 
 vec3[]
+
+as_vector3(c(1,2,3))
 
 }
 \seealso{

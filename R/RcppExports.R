@@ -205,6 +205,70 @@ Quaternion__to_array <- function(self) {
     .Call(`_ravetools_Quaternion__to_array`, self)
 }
 
+Quaternion__set_from_axis_angle <- function(self, axis, angle) {
+    invisible(.Call(`_ravetools_Quaternion__set_from_axis_angle`, self, axis, angle))
+}
+
+Quaternion__set_from_rotation_matrix <- function(self, m) {
+    invisible(.Call(`_ravetools_Quaternion__set_from_rotation_matrix`, self, m))
+}
+
+Quaternion__set_from_unit_vectors <- function(self, v_from, v_to) {
+    invisible(.Call(`_ravetools_Quaternion__set_from_unit_vectors`, self, v_from, v_to))
+}
+
+Quaternion__angle_to <- function(self, q) {
+    .Call(`_ravetools_Quaternion__angle_to`, self, q)
+}
+
+Quaternion__rotate_towards <- function(self, q, step) {
+    invisible(.Call(`_ravetools_Quaternion__rotate_towards`, self, q, step))
+}
+
+Quaternion__slerp <- function(self, qb, t) {
+    invisible(.Call(`_ravetools_Quaternion__slerp`, self, qb, t))
+}
+
+Quaternion__identity <- function(self) {
+    invisible(.Call(`_ravetools_Quaternion__identity`, self))
+}
+
+Quaternion__invert <- function(self) {
+    invisible(.Call(`_ravetools_Quaternion__invert`, self))
+}
+
+Quaternion__conjugate <- function(self) {
+    invisible(.Call(`_ravetools_Quaternion__conjugate`, self))
+}
+
+Quaternion__dot <- function(self, v) {
+    .Call(`_ravetools_Quaternion__dot`, self, v)
+}
+
+Quaternion__length_squared <- function(self) {
+    .Call(`_ravetools_Quaternion__length_squared`, self)
+}
+
+Quaternion__length <- function(self) {
+    .Call(`_ravetools_Quaternion__length`, self)
+}
+
+Quaternion__normalize <- function(self) {
+    invisible(.Call(`_ravetools_Quaternion__normalize`, self))
+}
+
+Quaternion__multiply <- function(self, q) {
+    invisible(.Call(`_ravetools_Quaternion__multiply`, self, q))
+}
+
+Quaternion__premultiply <- function(self, q) {
+    invisible(.Call(`_ravetools_Quaternion__premultiply`, self, q))
+}
+
+Quaternion__multiply_quaternions <- function(self, a, b) {
+    invisible(.Call(`_ravetools_Quaternion__multiply_quaternions`, self, a, b))
+}
+
 Vector3__new <- function() {
     .Call(`_ravetools_Vector3__new`)
 }

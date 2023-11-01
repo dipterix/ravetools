@@ -909,11 +909,11 @@ namespace ravetools {
             throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
     }
 
-    inline void Vector3__apply_matrix4(const SEXP& self, const std::vector<double>& m) {
+    inline void Vector3__apply_matrix4(const SEXP& self, const SEXP& m) {
         typedef SEXP(*Ptr_Vector3__apply_matrix4)(SEXP,SEXP);
         static Ptr_Vector3__apply_matrix4 p_Vector3__apply_matrix4 = NULL;
         if (p_Vector3__apply_matrix4 == NULL) {
-            validateSignature("void(*Vector3__apply_matrix4)(const SEXP&,const std::vector<double>&)");
+            validateSignature("void(*Vector3__apply_matrix4)(const SEXP&,const SEXP&)");
             p_Vector3__apply_matrix4 = (Ptr_Vector3__apply_matrix4)R_GetCCallable("ravetools", "_ravetools_Vector3__apply_matrix4");
         }
         RObject rcpp_result_gen;
@@ -929,11 +929,11 @@ namespace ravetools {
             throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
     }
 
-    inline void Vector3__apply_quaternion(const SEXP& self, const std::vector<double>& q) {
+    inline void Vector3__apply_quaternion(const SEXP& self, const SEXP& q) {
         typedef SEXP(*Ptr_Vector3__apply_quaternion)(SEXP,SEXP);
         static Ptr_Vector3__apply_quaternion p_Vector3__apply_quaternion = NULL;
         if (p_Vector3__apply_quaternion == NULL) {
-            validateSignature("void(*Vector3__apply_quaternion)(const SEXP&,const std::vector<double>&)");
+            validateSignature("void(*Vector3__apply_quaternion)(const SEXP&,const SEXP&)");
             p_Vector3__apply_quaternion = (Ptr_Vector3__apply_quaternion)R_GetCCallable("ravetools", "_ravetools_Vector3__apply_quaternion");
         }
         RObject rcpp_result_gen;
