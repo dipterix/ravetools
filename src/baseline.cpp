@@ -107,15 +107,16 @@ void next_array_index(
     dim++;
   }
 }
-double add_sqrt(const double e1, const double e2){
+double add_sqrt(const double& e1, const double& e2){
   return e1 + std::sqrt(e2);
 }
 
-double add_log10(const double e1, const double e2){
+double add_log10(const double& e1, const double& e2){
+  if( e2 == 0.0 ) { return( 0.0 ); }
   return e1 + std::log10(e2);
 }
 
-double add_square(const double e1, const double e2){
+double add_square(const double& e1, const double& e2){
   return e1 + e2 * e2;
 }
 
@@ -209,27 +210,51 @@ struct Baseliner : public TinyParallel::Worker
         // }
 
         // Element-wise (e1 / e2 - 1) * 100
-        for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
-          arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
-          y[ arr_idx ] = (x[ arr_idx ] / bl_mean - 1.0) * 100.0;
+        if( bl_mean == 0.0 ) {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = 0.0;
+          }
+        } else {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = (x[ arr_idx ] / bl_mean - 1.0) * 100.0;
+          }
         }
+
         break;
 
       case 1: // 1. sqrt then baseline
         bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_sqrt) / bl_len;
         // Element-wise (e1 / e2 - 1) * 100
-        for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
-          arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
-          y[ arr_idx ] = (std::sqrt(x[ arr_idx ]) / bl_mean - 1.0) * 100.0;
+
+        if( bl_mean == 0.0 ) {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = 0.0;
+          }
+        } else {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = (std::sqrt(x[ arr_idx ]) / bl_mean - 1.0) * 100.0;
+          }
         }
+
         break;
 
       case 2: // 2. 10*log10 then baseline
         bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_log10) / bl_len;
         // Element-wise (e1 - e2)
-        for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
-          arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
-          y[ arr_idx ] = (std::log10(x[ arr_idx ]) - bl_mean) * 10.0;
+        if( bl_mean == 0.0 ) {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = 0.0;
+          }
+        } else {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = (std::log10(x[ arr_idx ]) - bl_mean) * 10.0;
+          }
         }
         break;
 
@@ -239,10 +264,18 @@ struct Baseliner : public TinyParallel::Worker
         bl_sd = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_square) / bl_len;
         bl_sd = std::sqrt( (bl_sd - bl_mean*bl_mean) / ( bl_len - 1 ) * bl_len );
         // Element-wise (e1 - e2) / sd
-        for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
-          arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
-          y[ arr_idx ] = (x[ arr_idx ] - bl_mean) / bl_sd;
+        if( bl_sd == 0.0 ) {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = 0.0;
+          }
+        } else {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = (x[ arr_idx ] - bl_mean) / bl_sd;
+          }
         }
+
         break;
 
 
@@ -251,9 +284,16 @@ struct Baseliner : public TinyParallel::Worker
         bl_sd = std::accumulate( bl_container.begin(), bl_container.end(), 0.0) / bl_len;
         bl_sd = std::sqrt( (bl_sd - bl_mean*bl_mean) / ( bl_len - 1 ) * bl_len );
         // Element-wise (e1 - e2) / sd
-        for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
-          arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
-          y[ arr_idx ] = (std::sqrt(x[ arr_idx ]) - bl_mean) / bl_sd;
+        if( bl_sd == 0.0 ) {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = 0.0;
+          }
+        } else {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = (std::sqrt(x[ arr_idx ]) - bl_mean) / bl_sd;
+          }
         }
         break;
 

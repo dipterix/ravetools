@@ -1,7 +1,7 @@
 Package: ravetools
 Type: Package
 Title: Signal and Image Processing Toolbox for Analyzing Intracranial 'Electroencephalography' Data
-Version: 0.1.2.9001
+Version: 0.1.2.9002
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -26,7 +26,7 @@ License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Depends: R (>= 4.0.0)
-SystemRequirements: C++17, fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
+SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm))
 Imports:
     graphics,
     stats,
