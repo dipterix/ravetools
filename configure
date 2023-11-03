@@ -2134,8 +2134,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Find R home
 : ${R_HOME=`R RHOME`}
 if test -z "${R_HOME}"; then
-    as_fn_error $? "Could not determine R_HOME." "$LINENO" 5
+  as_fn_error $? "Could not determine R_HOME." "$LINENO" 5
 fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: R_HOME found: ${R_HOME}" >&5
+printf "%s\n" "R_HOME found: ${R_HOME}" >&6; }
 CC=`"${R_HOME}/bin/R" CMD config CC`
 CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
 
@@ -4000,13 +4002,14 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-# RCPP_PKG_LIBS=`${R_HOME}/bin/Rscript -e "Rcpp:::LdFlags()"`
-
 if test `uname` = "Darwin" ; then
   darwin="yes"
 else
   darwin="no"
 fi
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Running under OSX... ${darwin}" >&5
+printf "%s\n" "$as_me: Running under OSX... ${darwin}" >&6;}
 
 ## Check pkg-config
 

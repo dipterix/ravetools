@@ -8,20 +8,21 @@ AC_CONFIG_SRCDIR([ravetools])
 # Find R home
 : ${R_HOME=`R RHOME`}
 if test -z "${R_HOME}"; then
-    AC_MSG_ERROR([Could not determine R_HOME.])
+  AC_MSG_ERROR([Could not determine R_HOME.])
 fi
+AC_MSG_RESULT([R_HOME found: ${R_HOME}])
 CC=`"${R_HOME}/bin/R" CMD config CC`
 CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
 AC_REQUIRE_CPP
 AC_PROG_CC
-
-# RCPP_PKG_LIBS=`${R_HOME}/bin/Rscript -e "Rcpp:::LdFlags()"`
 
 if test `uname` = "Darwin" ; then
   darwin="yes"
 else
   darwin="no"
 fi
+
+AC_MSG_NOTICE([Running under OSX... ${darwin}])
 
 ## Check pkg-config
 AC_DEFUN([AC_PROG_PKGCONFIG], [AC_CHECK_PROG(PKGCONFIG,pkg-config,yes)])

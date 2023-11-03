@@ -27,7 +27,7 @@ public:
 
   Quaternion& set(const double& x, const double& y, const double& z, const double& w);
 
-  Quaternion& copy(const Quaternion& quaternion);
+  Quaternion& copy(Quaternion& quaternion);
 
   // Quaternion& setFromEuler(const Euler& euler, bool update = true);
   //
@@ -47,7 +47,7 @@ public:
 
   Quaternion& conjugate();
 
-  double dot(const Quaternion& v);
+  double dot(Quaternion& v);
 
   double lengthSq();
 
@@ -55,13 +55,13 @@ public:
 
   Quaternion& normalize();
 
-  Quaternion& multiply(const Quaternion& q);
+  Quaternion& multiply(Quaternion& q);
 
-  Quaternion& premultiply(const Quaternion& q);
+  Quaternion& premultiply(Quaternion& q);
 
-  Quaternion& multiplyQuaternions(const Quaternion& a, const Quaternion& b);
+  Quaternion& multiplyQuaternions(Quaternion& a, Quaternion& b);
 
-  Quaternion& slerp(const Quaternion& qb, const double& t);
+  Quaternion& slerp(Quaternion& qb, const double& t);
 
   Quaternion clone() const;
 

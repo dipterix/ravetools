@@ -62,7 +62,7 @@ void Quaternion__set(const SEXP& self,
   ptr->set(x, y, z, w);
 }
 
-Quaternion& Quaternion::copy(const Quaternion& quaternion) {
+Quaternion& Quaternion::copy(Quaternion& quaternion) {
 
   this->x = quaternion.x;
   this->y = quaternion.y;
@@ -357,7 +357,7 @@ void Quaternion__rotate_towards(const SEXP& self, const SEXP& q, const double& s
   ptr->rotateTowards(*ptr_q, step);
 }
 
-Quaternion& Quaternion::slerp(const Quaternion& qb, const double& t) {
+Quaternion& Quaternion::slerp(Quaternion& qb, const double& t) {
 
   if (t == 0) return *this;
   if (t == 1) return this->copy(qb);
@@ -462,7 +462,7 @@ void Quaternion__conjugate(const SEXP& self) {
   ptr->conjugate();
 }
 
-double Quaternion::dot(const Quaternion& v) {
+double Quaternion::dot(Quaternion& v) {
 
   return this->x * v.x + this->y * v.y + this->z * v.z + this->w * v.w;
 }
@@ -523,7 +523,7 @@ void Quaternion__normalize(const SEXP& self) {
   ptr->normalize();
 }
 
-Quaternion& Quaternion::multiply(const Quaternion& q) {
+Quaternion& Quaternion::multiply(Quaternion& q) {
 
   return this->multiplyQuaternions(*this, q);
 }
@@ -535,7 +535,7 @@ void Quaternion__multiply(const SEXP& self, const SEXP& q) {
   ptr->multiply(*ptr_q);
 }
 
-Quaternion& Quaternion::premultiply(const Quaternion& q) {
+Quaternion& Quaternion::premultiply(Quaternion& q) {
 
   return this->multiplyQuaternions(q, *this);
 }
@@ -547,7 +547,7 @@ void Quaternion__premultiply(const SEXP& self, const SEXP& q) {
   ptr->premultiply(*ptr_q);
 }
 
-Quaternion& Quaternion::multiplyQuaternions(const Quaternion& a, const Quaternion& b) {
+Quaternion& Quaternion::multiplyQuaternions(Quaternion& a, Quaternion& b) {
 
   // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
 
