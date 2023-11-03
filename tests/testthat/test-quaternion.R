@@ -75,6 +75,12 @@ test_that("Quaternion", {
     sqrt(sum((1:4)^2))
   )
 
+  # q = new THREE.Quaternion(); q.multipleQuaternions(new THREE.Quaternion().set(4,3,2,1), q.set(1,2,3,4)).toArray()
+  expect_equal(
+    q$multiply_quaternions(q1$set(4,3,2,1), q$set(1,2,3,4))[],
+    c(22, 4, 16, -12)
+  )
+
   # new THREE.Quaternion().set(1,2,3,4).multiply(new THREE.Quaternion().set(4,3,2,1)).toArray()
   expect_equal(
     q$set(1,2,3,4)$multiply(q1$set(4,3,2,1))[],
@@ -82,17 +88,16 @@ test_that("Quaternion", {
   )
 
   # new THREE.Quaternion().set(1,2,3,4).premultiply(new THREE.Quaternion().set(4,3,2,1)).toArray()
+  q$set(1,2,3,4)
+  q1$set(4,3,2,1)
   expect_equal(
-    q$set(1,2,3,4)$premultiply(q1$set(4,3,2,1))[],
+    q$premultiply(q1)[],
     c(22, 4, 16, -12)
   )
-
-  # q = new THREE.Quaternion(); q.multipleQuaternions(new THREE.Quaternion().set(4,3,2,1), q.set(1,2,3,4)).toArray()
-  expect_equal(
-    q$multiply_quaternions(q1$set(4,3,2,1), q$set(1,2,3,4))[],
-    c(22, 4, 16, -12)
-  )
-
+  # expect_equal(
+  #   q$set(1,2,3,4)$premultiply(q1$set(4,3,2,1))[],
+  #   c(22, 4, 16, -12)
+  # )
 
 
 })
