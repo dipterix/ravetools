@@ -551,8 +551,8 @@ Quaternion& Quaternion::multiplyQuaternions(const Quaternion& a, const Quaternio
 
   // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
 
-  const auto qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
-  const auto qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
+  const double qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
+  const double qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
 
   this->x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
   this->y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
