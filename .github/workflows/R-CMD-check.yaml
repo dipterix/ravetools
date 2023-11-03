@@ -19,6 +19,7 @@ jobs:
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
+          - {os: macos-latest,   r: 'oldrel'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
