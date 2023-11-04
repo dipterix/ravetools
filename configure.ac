@@ -13,7 +13,8 @@ fi
 AC_MSG_RESULT([R_HOME found: ${R_HOME}])
 CC=`"${R_HOME}/bin/R" CMD config CC`
 CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
-AC_REQUIRE_CPP
+# AC_REQUIRE_CPP
+# AC_PROG_CC
 
 if test `uname` = "Darwin" ; then
   darwin="yes"
