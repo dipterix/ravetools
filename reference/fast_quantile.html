@@ -116,9 +116,9 @@ the number of columns).</p>
 <span class="r-in"><span>  times <span class="op">=</span> <span class="fl">100</span>, unit <span class="op">=</span> <span class="st">"milliseconds"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         expr    min      lq     mean  median      uq    max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.1162 0.17175 0.202436 0.19515 0.23535 0.2807   100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 0.2304 0.24105 0.279376 0.30550 0.31105 0.3401   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         expr   min      lq     mean  median      uq    max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.105 0.14975 0.199542 0.18055 0.23045 0.4658   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 0.200 0.22640 0.304194 0.28165 0.35325 0.6658   100</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multivariate cases</span></span></span>
 <span class="r-in"><span><span class="co"># (5~7x faster than base R)</span></span></span>
@@ -131,9 +131,9 @@ the number of columns).</p>
 <span class="r-in"><span>  times <span class="op">=</span> <span class="fl">10</span>, unit <span class="op">=</span> <span class="st">"milliseconds"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         expr    min     lq    mean  median     uq    max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 1.1036 1.1122 1.18093 1.14610 1.2414 1.3495    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 3.4606 3.5601 3.95498 3.66065 3.7201 5.3555    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         expr    min     lq    mean median     uq    max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.9461 0.9794 1.07833 1.0110 1.1936 1.2701    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 3.7131 3.9157 4.49817 4.0915 4.6074 6.4770    10</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
