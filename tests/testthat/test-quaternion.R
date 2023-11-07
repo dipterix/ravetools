@@ -90,8 +90,15 @@ test_that("Quaternion", {
   # new THREE.Quaternion().set(1,2,3,4).premultiply(new THREE.Quaternion().set(4,3,2,1)).toArray()
   q$set(1,2,3,4)
   q1$set(4,3,2,1)
+  q$premultiply(q1)
+
+  if(!all(q[] == c(22, 4, 16, -12))) {
+    print(q)
+    stop(format(q))
+  }
+
   expect_equal(
-    q$premultiply(q1)[],
+    q[],
     c(22, 4, 16, -12)
   )
   # expect_equal(

@@ -554,21 +554,10 @@ Quaternion& Quaternion::multiplyQuaternions(Quaternion& a, Quaternion& b) {
   double qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
   double qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
 
-  std::string s = "";
-
-  s += std::to_string(qax) + " " + std::to_string(qay) + " " +
-    std::to_string(qaz) + " " + std::to_string(qaw) + ", " +
-    std::to_string(qbx) + " " + std::to_string(qby) + " " +
-    std::to_string(qbz) + " " + std::to_string(qbw) + ", ";
   this->x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
   this->y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
   this->z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
   this->w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
-
-  s += std::to_string(this->x) + " " + std::to_string(this->y) + " " +
-    std::to_string(this->z) + " " + std::to_string(this->w);
-
-  Rcpp::stop(s);
 
   return *this;
 }
