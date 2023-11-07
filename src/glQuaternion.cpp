@@ -16,10 +16,10 @@ using namespace rave3d;
 
 
 Quaternion::Quaternion() {
-  this->x = 0;
-  this->y = 0;
-  this->z = 0;
-  this->w = 1;
+  this->x = 0.0;
+  this->y = 0.0;
+  this->z = 0.0;
+  this->w = 1.0;
 }
 
 // [[Rcpp::export]]
@@ -80,13 +80,25 @@ void Quaternion__copy(const SEXP& self, const SEXP& quaternion) {
 }
 
 std::vector<double> Quaternion::toArray() {
-  return {this->x, this->y, this->z, this->w};
+  std::vector<double> arr(4);
+  arr[0] = this->x;
+  arr[1] = this->y;
+  arr[2] = this->z;
+  arr[3] = this->w;
+  return arr;
 }
 
 // [[Rcpp::export]]
-std::vector<double> Quaternion__to_array(const SEXP& self) {
+SEXP Quaternion__to_array(const SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
-  return ptr->toArray();
+  SEXP re = PROTECT(Rf_allocVector(REALSXP, 4));
+  double* ptr_re = REAL(re);
+  *ptr_re++ = ptr->x;
+  *ptr_re++ = ptr->y;
+  *ptr_re++ = ptr->z;
+  *ptr_re = ptr->w;
+  UNPROTECT(1);
+  return re;
 }
 
 // Quaternion& Quaternion::setFromEuler(const Euler& euler, bool update) {

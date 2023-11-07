@@ -1061,7 +1061,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__to_array
-std::vector<double> Quaternion__to_array(const SEXP& self);
+SEXP Quaternion__to_array(const SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__to_array(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
