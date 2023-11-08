@@ -73,7 +73,7 @@ Quaternion& Quaternion::copy(Quaternion& quaternion) {
 }
 
 // [[Rcpp::export]]
-void Quaternion__copy(SEXP& self, const SEXP& quaternion) {
+void Quaternion__copy(SEXP& self, SEXP& quaternion) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> q(quaternion);
   ptr->copy(*q);
@@ -97,13 +97,12 @@ SEXP Quaternion__to_array(SEXP& self) {
   *ptr_re++ = ptr->y;
   *ptr_re++ = ptr->z;
   *ptr_re = ptr->w;
-  Rcpp::print(re);
   UNPROTECT(1);
   return re;
 }
 
 // [[Rcpp::export]]
-double Quaternion__getX(const SEXP& self) {
+double Quaternion__getX(SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
   return ptr->x;
 }
@@ -113,7 +112,7 @@ void Quaternion__setX(SEXP& self, const double& v) {
   ptr->x = v;
 }
 // [[Rcpp::export]]
-double Quaternion__getY(const SEXP& self) {
+double Quaternion__getY(SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
   return ptr->y;
 }
@@ -123,7 +122,7 @@ void Quaternion__setY(SEXP& self, const double& v) {
   ptr->y = v;
 }
 // [[Rcpp::export]]
-double Quaternion__getZ(const SEXP& self) {
+double Quaternion__getZ(SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
   return ptr->z;
 }
@@ -133,7 +132,7 @@ void Quaternion__setZ(SEXP& self, const double& v) {
   ptr->z = v;
 }
 // [[Rcpp::export]]
-double Quaternion__getW(const SEXP& self) {
+double Quaternion__getW(SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
   return ptr->w;
 }
@@ -234,7 +233,7 @@ Quaternion& Quaternion::setFromAxisAngle(Vector3& axis, const double& angle) {
 
 // [[Rcpp::export]]
 void Quaternion__set_from_axis_angle(
-    SEXP& self, const SEXP& axis, const double& angle) {
+    SEXP& self, SEXP& axis, const double& angle) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Vector3> ptr_axis(axis);
   ptr->setFromAxisAngle(*ptr_axis, angle);
@@ -298,7 +297,7 @@ Quaternion& Quaternion::setFromRotationMatrix(Matrix4& m) {
 
 // [[Rcpp::export]]
 void Quaternion__set_from_rotation_matrix(
-    SEXP& self, const SEXP& m) {
+    SEXP& self, SEXP& m) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Matrix4> ptr_m(m);
   ptr->setFromRotationMatrix(*ptr_m);
@@ -368,7 +367,7 @@ Quaternion& Quaternion::setFromUnitVectors(Vector3& vFrom, Vector3& vTo) {
 
 // [[Rcpp::export]]
 void Quaternion__set_from_unit_vectors(
-    SEXP& self, const SEXP& v_from, const SEXP& v_to) {
+    SEXP& self, SEXP& v_from, SEXP& v_to) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Vector3> ptr_f(v_from);
   Rcpp::XPtr<Vector3> ptr_t(v_to);
@@ -384,7 +383,7 @@ double Quaternion::angleTo(Quaternion& q) {
 }
 
 // [[Rcpp::export]]
-double Quaternion__angle_to(SEXP& self, const SEXP& q) {
+double Quaternion__angle_to(SEXP& self, SEXP& q) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_q(q);
   return ptr->angleTo(*ptr_q);
@@ -405,7 +404,7 @@ Quaternion& Quaternion::rotateTowards(Quaternion& q, const double& step) {
 }
 
 // [[Rcpp::export]]
-void Quaternion__rotate_towards(SEXP& self, const SEXP& q, const double& step) {
+void Quaternion__rotate_towards(SEXP& self, SEXP& q, const double& step) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_q(q);
   ptr->rotateTowards(*ptr_q, step);
@@ -475,7 +474,7 @@ Quaternion& Quaternion::slerp(Quaternion& qb, const double& t) {
 }
 
 // [[Rcpp::export]]
-void Quaternion__slerp(SEXP& self, const SEXP& qb, const double& t) {
+void Quaternion__slerp(SEXP& self, SEXP& qb, const double& t) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_qb(qb);
   ptr->slerp(*ptr_qb, t);
@@ -522,7 +521,7 @@ double Quaternion::dot(Quaternion& v) {
 }
 
 // [[Rcpp::export]]
-double Quaternion__dot(const SEXP& self, const SEXP& v) {
+double Quaternion__dot(SEXP& self, SEXP& v) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_v(v);
   return ptr->dot(*ptr_v);
@@ -534,7 +533,7 @@ double Quaternion::lengthSq() {
 }
 
 // [[Rcpp::export]]
-double Quaternion__length_squared(const SEXP& self) {
+double Quaternion__length_squared(SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
   return ptr->lengthSq();
 }
@@ -546,7 +545,7 @@ double Quaternion::length() {
 }
 
 // [[Rcpp::export]]
-double Quaternion__length(const SEXP& self) {
+double Quaternion__length(SEXP& self) {
   Rcpp::XPtr<Quaternion> ptr(self);
   return ptr->length();
 }
@@ -583,7 +582,7 @@ Quaternion& Quaternion::multiply(Quaternion& q) {
 }
 
 // [[Rcpp::export]]
-void Quaternion__multiply(SEXP& self, const SEXP& q) {
+void Quaternion__multiply(SEXP& self, SEXP& q) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_q(q);
   ptr->multiply(*ptr_q);
@@ -595,7 +594,7 @@ Quaternion& Quaternion::premultiply(Quaternion& q) {
 }
 
 // [[Rcpp::export]]
-void Quaternion__premultiply(SEXP& self, const SEXP& q) {
+void Quaternion__premultiply(SEXP& self, SEXP& q) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_q(q);
   ptr->premultiply(*ptr_q);
@@ -605,8 +604,8 @@ Quaternion& Quaternion::multiplyQuaternions(Quaternion& a, Quaternion& b) {
 
   // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
 
-  double qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
-  double qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
+  const double qax = a.x, qay = a.y, qaz = a.z, qaw = a.w;
+  const double qbx = b.x, qby = b.y, qbz = b.z, qbw = b.w;
 
   this->x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
   this->y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
@@ -617,11 +616,13 @@ Quaternion& Quaternion::multiplyQuaternions(Quaternion& a, Quaternion& b) {
 }
 
 // [[Rcpp::export]]
-void Quaternion__multiply_quaternions(SEXP& self, const SEXP& a, const SEXP& b) {
+void Quaternion__multiply_quaternions(SEXP& self, SEXP& a, SEXP& b) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Quaternion> ptr_a(a);
   Rcpp::XPtr<Quaternion> ptr_b(b);
   ptr->multiplyQuaternions(*ptr_a, *ptr_b);
+
+  Rcpp::print(Rcpp::wrap(ptr->toArray()));
 }
 
 Quaternion Quaternion::clone() const {

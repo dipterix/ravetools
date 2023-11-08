@@ -1050,12 +1050,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__copy
-void Quaternion__copy(SEXP& self, const SEXP& quaternion);
+void Quaternion__copy(SEXP& self, SEXP& quaternion);
 RcppExport SEXP _ravetools_Quaternion__copy(SEXP selfSEXP, SEXP quaternionSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type quaternion(quaternionSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type quaternion(quaternionSEXP);
     Quaternion__copy(self, quaternion);
     return R_NilValue;
 END_RCPP
@@ -1072,12 +1072,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__getX
-double Quaternion__getX(const SEXP& self);
+double Quaternion__getX(SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__getX(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__getX(self));
     return rcpp_result_gen;
 END_RCPP
@@ -1094,12 +1094,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__getY
-double Quaternion__getY(const SEXP& self);
+double Quaternion__getY(SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__getY(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__getY(self));
     return rcpp_result_gen;
 END_RCPP
@@ -1116,12 +1116,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__getZ
-double Quaternion__getZ(const SEXP& self);
+double Quaternion__getZ(SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__getZ(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__getZ(self));
     return rcpp_result_gen;
 END_RCPP
@@ -1138,12 +1138,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__getW
-double Quaternion__getW(const SEXP& self);
+double Quaternion__getW(SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__getW(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__getW(self));
     return rcpp_result_gen;
 END_RCPP
@@ -1160,71 +1160,71 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__set_from_axis_angle
-void Quaternion__set_from_axis_angle(SEXP& self, const SEXP& axis, const double& angle);
+void Quaternion__set_from_axis_angle(SEXP& self, SEXP& axis, const double& angle);
 RcppExport SEXP _ravetools_Quaternion__set_from_axis_angle(SEXP selfSEXP, SEXP axisSEXP, SEXP angleSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type axis(axisSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type axis(axisSEXP);
     Rcpp::traits::input_parameter< const double& >::type angle(angleSEXP);
     Quaternion__set_from_axis_angle(self, axis, angle);
     return R_NilValue;
 END_RCPP
 }
 // Quaternion__set_from_rotation_matrix
-void Quaternion__set_from_rotation_matrix(SEXP& self, const SEXP& m);
+void Quaternion__set_from_rotation_matrix(SEXP& self, SEXP& m);
 RcppExport SEXP _ravetools_Quaternion__set_from_rotation_matrix(SEXP selfSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type m(mSEXP);
     Quaternion__set_from_rotation_matrix(self, m);
     return R_NilValue;
 END_RCPP
 }
 // Quaternion__set_from_unit_vectors
-void Quaternion__set_from_unit_vectors(SEXP& self, const SEXP& v_from, const SEXP& v_to);
+void Quaternion__set_from_unit_vectors(SEXP& self, SEXP& v_from, SEXP& v_to);
 RcppExport SEXP _ravetools_Quaternion__set_from_unit_vectors(SEXP selfSEXP, SEXP v_fromSEXP, SEXP v_toSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type v_from(v_fromSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type v_to(v_toSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type v_from(v_fromSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type v_to(v_toSEXP);
     Quaternion__set_from_unit_vectors(self, v_from, v_to);
     return R_NilValue;
 END_RCPP
 }
 // Quaternion__angle_to
-double Quaternion__angle_to(SEXP& self, const SEXP& q);
+double Quaternion__angle_to(SEXP& self, SEXP& q);
 RcppExport SEXP _ravetools_Quaternion__angle_to(SEXP selfSEXP, SEXP qSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type q(qSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__angle_to(self, q));
     return rcpp_result_gen;
 END_RCPP
 }
 // Quaternion__rotate_towards
-void Quaternion__rotate_towards(SEXP& self, const SEXP& q, const double& step);
+void Quaternion__rotate_towards(SEXP& self, SEXP& q, const double& step);
 RcppExport SEXP _ravetools_Quaternion__rotate_towards(SEXP selfSEXP, SEXP qSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type q(qSEXP);
     Rcpp::traits::input_parameter< const double& >::type step(stepSEXP);
     Quaternion__rotate_towards(self, q, step);
     return R_NilValue;
 END_RCPP
 }
 // Quaternion__slerp
-void Quaternion__slerp(SEXP& self, const SEXP& qb, const double& t);
+void Quaternion__slerp(SEXP& self, SEXP& qb, const double& t);
 RcppExport SEXP _ravetools_Quaternion__slerp(SEXP selfSEXP, SEXP qbSEXP, SEXP tSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type qb(qbSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type qb(qbSEXP);
     Rcpp::traits::input_parameter< const double& >::type t(tSEXP);
     Quaternion__slerp(self, qb, t);
     return R_NilValue;
@@ -1261,35 +1261,35 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__dot
-double Quaternion__dot(const SEXP& self, const SEXP& v);
+double Quaternion__dot(SEXP& self, SEXP& v);
 RcppExport SEXP _ravetools_Quaternion__dot(SEXP selfSEXP, SEXP vSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type v(vSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__dot(self, v));
     return rcpp_result_gen;
 END_RCPP
 }
 // Quaternion__length_squared
-double Quaternion__length_squared(const SEXP& self);
+double Quaternion__length_squared(SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__length_squared(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__length_squared(self));
     return rcpp_result_gen;
 END_RCPP
 }
 // Quaternion__length
-double Quaternion__length(const SEXP& self);
+double Quaternion__length(SEXP& self);
 RcppExport SEXP _ravetools_Quaternion__length(SEXP selfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     rcpp_result_gen = Rcpp::wrap(Quaternion__length(self));
     return rcpp_result_gen;
 END_RCPP
@@ -1305,35 +1305,35 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__multiply
-void Quaternion__multiply(SEXP& self, const SEXP& q);
+void Quaternion__multiply(SEXP& self, SEXP& q);
 RcppExport SEXP _ravetools_Quaternion__multiply(SEXP selfSEXP, SEXP qSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type q(qSEXP);
     Quaternion__multiply(self, q);
     return R_NilValue;
 END_RCPP
 }
 // Quaternion__premultiply
-void Quaternion__premultiply(SEXP& self, const SEXP& q);
+void Quaternion__premultiply(SEXP& self, SEXP& q);
 RcppExport SEXP _ravetools_Quaternion__premultiply(SEXP selfSEXP, SEXP qSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type q(qSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type q(qSEXP);
     Quaternion__premultiply(self, q);
     return R_NilValue;
 END_RCPP
 }
 // Quaternion__multiply_quaternions
-void Quaternion__multiply_quaternions(SEXP& self, const SEXP& a, const SEXP& b);
+void Quaternion__multiply_quaternions(SEXP& self, SEXP& a, SEXP& b);
 RcppExport SEXP _ravetools_Quaternion__multiply_quaternions(SEXP selfSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type a(aSEXP);
-    Rcpp::traits::input_parameter< const SEXP& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type b(bSEXP);
     Quaternion__multiply_quaternions(self, a, b);
     return R_NilValue;
 END_RCPP

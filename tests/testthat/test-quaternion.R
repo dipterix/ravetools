@@ -99,7 +99,6 @@ test_that("Quaternion", {
 
   q$premultiply(q1)
   if(!all(q[] == c(22, 4, 16, -12))) {
-    print(q)
     stop(format(q), "\n", q$x, " ", q$y, " ", q$z, " ", q$w)
   }
 
