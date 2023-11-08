@@ -8,7 +8,35 @@ Quaternion <- R6::R6Class(
   ),
   active = list(
     is_quaternion = function() { TRUE },
-    pointer = function() { private$.extern_ptr }
+    pointer = function() { private$.extern_ptr },
+    x = function( v ) {
+      if(!missing(v)) {
+        v <- as.double(v)[[1]]
+        Quaternion__setX(private$.extern_ptr, v)
+      }
+      Quaternion__getX(private$.extern_ptr)
+    },
+    y = function( v ) {
+      if(!missing(v)) {
+        v <- as.double(v)[[1]]
+        Quaternion__setY(private$.extern_ptr, v)
+      }
+      Quaternion__getY(private$.extern_ptr)
+    },
+    z = function( v ) {
+      if(!missing(v)) {
+        v <- as.double(v)[[1]]
+        Quaternion__setZ(private$.extern_ptr, v)
+      }
+      Quaternion__getZ(private$.extern_ptr)
+    },
+    w = function( v ) {
+      if(!missing(v)) {
+        v <- as.double(v)[[1]]
+        Quaternion__setW(private$.extern_ptr, v)
+      }
+      Quaternion__getW(private$.extern_ptr)
+    }
   ),
   public = list(
     initialize = function() {

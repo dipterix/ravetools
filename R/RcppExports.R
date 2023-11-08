@@ -205,6 +205,38 @@ Quaternion__to_array <- function(self) {
     .Call(`_ravetools_Quaternion__to_array`, self)
 }
 
+Quaternion__getX <- function(self) {
+    .Call(`_ravetools_Quaternion__getX`, self)
+}
+
+Quaternion__setX <- function(self, v) {
+    invisible(.Call(`_ravetools_Quaternion__setX`, self, v))
+}
+
+Quaternion__getY <- function(self) {
+    .Call(`_ravetools_Quaternion__getY`, self)
+}
+
+Quaternion__setY <- function(self, v) {
+    invisible(.Call(`_ravetools_Quaternion__setY`, self, v))
+}
+
+Quaternion__getZ <- function(self) {
+    .Call(`_ravetools_Quaternion__getZ`, self)
+}
+
+Quaternion__setZ <- function(self, v) {
+    invisible(.Call(`_ravetools_Quaternion__setZ`, self, v))
+}
+
+Quaternion__getW <- function(self) {
+    .Call(`_ravetools_Quaternion__getW`, self)
+}
+
+Quaternion__setW <- function(self, v) {
+    invisible(.Call(`_ravetools_Quaternion__setW`, self, v))
+}
+
 Quaternion__set_from_axis_angle <- function(self, axis, angle) {
     invisible(.Call(`_ravetools_Quaternion__set_from_axis_angle`, self, axis, angle))
 }

@@ -90,11 +90,17 @@ test_that("Quaternion", {
   # new THREE.Quaternion().set(1,2,3,4).premultiply(new THREE.Quaternion().set(4,3,2,1)).toArray()
   q$set(1,2,3,4)
   q1$set(4,3,2,1)
-  q$premultiply(q1)
 
+  expect_equal(q[], 1:4)
+  expect_equal(q1[], 4:1)
+
+  expect_equal(c(q$x, q$y, q$z, q$w), 1:4)
+  expect_equal(c(q1$x, q1$y, q1$z, q1$w), 4:1)
+
+  q$premultiply(q1)
   if(!all(q[] == c(22, 4, 16, -12))) {
     print(q)
-    stop(format(q))
+    stop(format(q), "\n", q$x, " ", q$y, " ", q$z, " ", q$w)
   }
 
   expect_equal(

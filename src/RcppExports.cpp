@@ -1071,6 +1071,94 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Quaternion__getX
+double Quaternion__getX(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__getX(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__getX(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__setX
+void Quaternion__setX(const SEXP& self, const double& v);
+RcppExport SEXP _ravetools_Quaternion__setX(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type v(vSEXP);
+    Quaternion__setX(self, v);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__getY
+double Quaternion__getY(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__getY(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__getY(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__setY
+void Quaternion__setY(const SEXP& self, const double& v);
+RcppExport SEXP _ravetools_Quaternion__setY(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type v(vSEXP);
+    Quaternion__setY(self, v);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__getZ
+double Quaternion__getZ(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__getZ(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__getZ(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__setZ
+void Quaternion__setZ(const SEXP& self, const double& v);
+RcppExport SEXP _ravetools_Quaternion__setZ(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type v(vSEXP);
+    Quaternion__setZ(self, v);
+    return R_NilValue;
+END_RCPP
+}
+// Quaternion__getW
+double Quaternion__getW(const SEXP& self);
+RcppExport SEXP _ravetools_Quaternion__getW(SEXP selfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    rcpp_result_gen = Rcpp::wrap(Quaternion__getW(self));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Quaternion__setW
+void Quaternion__setW(const SEXP& self, const double& v);
+RcppExport SEXP _ravetools_Quaternion__setW(SEXP selfSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type self(selfSEXP);
+    Rcpp::traits::input_parameter< const double& >::type v(vSEXP);
+    Quaternion__setW(self, v);
+    return R_NilValue;
+END_RCPP
+}
 // Quaternion__set_from_axis_angle
 void Quaternion__set_from_axis_angle(const SEXP& self, const SEXP& axis, const double& angle);
 RcppExport SEXP _ravetools_Quaternion__set_from_axis_angle(SEXP selfSEXP, SEXP axisSEXP, SEXP angleSEXP) {
@@ -3581,6 +3669,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_Quaternion__set", (DL_FUNC) &_ravetools_Quaternion__set, 5},
     {"_ravetools_Quaternion__copy", (DL_FUNC) &_ravetools_Quaternion__copy, 2},
     {"_ravetools_Quaternion__to_array", (DL_FUNC) &_ravetools_Quaternion__to_array, 1},
+    {"_ravetools_Quaternion__getX", (DL_FUNC) &_ravetools_Quaternion__getX, 1},
+    {"_ravetools_Quaternion__setX", (DL_FUNC) &_ravetools_Quaternion__setX, 2},
+    {"_ravetools_Quaternion__getY", (DL_FUNC) &_ravetools_Quaternion__getY, 1},
+    {"_ravetools_Quaternion__setY", (DL_FUNC) &_ravetools_Quaternion__setY, 2},
+    {"_ravetools_Quaternion__getZ", (DL_FUNC) &_ravetools_Quaternion__getZ, 1},
+    {"_ravetools_Quaternion__setZ", (DL_FUNC) &_ravetools_Quaternion__setZ, 2},
+    {"_ravetools_Quaternion__getW", (DL_FUNC) &_ravetools_Quaternion__getW, 1},
+    {"_ravetools_Quaternion__setW", (DL_FUNC) &_ravetools_Quaternion__setW, 2},
     {"_ravetools_Quaternion__set_from_axis_angle", (DL_FUNC) &_ravetools_Quaternion__set_from_axis_angle, 3},
     {"_ravetools_Quaternion__set_from_rotation_matrix", (DL_FUNC) &_ravetools_Quaternion__set_from_rotation_matrix, 2},
     {"_ravetools_Quaternion__set_from_unit_vectors", (DL_FUNC) &_ravetools_Quaternion__set_from_unit_vectors, 3},

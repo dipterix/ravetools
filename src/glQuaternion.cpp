@@ -102,6 +102,47 @@ SEXP Quaternion__to_array(const SEXP& self) {
   return re;
 }
 
+// [[Rcpp::export]]
+double Quaternion__getX(const SEXP& self) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  return ptr->x;
+}
+// [[Rcpp::export]]
+void Quaternion__setX(const SEXP& self, const double& v) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  ptr->x = v;
+}
+// [[Rcpp::export]]
+double Quaternion__getY(const SEXP& self) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  return ptr->y;
+}
+// [[Rcpp::export]]
+void Quaternion__setY(const SEXP& self, const double& v) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  ptr->y = v;
+}
+// [[Rcpp::export]]
+double Quaternion__getZ(const SEXP& self) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  return ptr->z;
+}
+// [[Rcpp::export]]
+void Quaternion__setZ(const SEXP& self, const double& v) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  ptr->z = v;
+}
+// [[Rcpp::export]]
+double Quaternion__getW(const SEXP& self) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  return ptr->w;
+}
+// [[Rcpp::export]]
+void Quaternion__setW(const SEXP& self, const double& v) {
+  Rcpp::XPtr<Quaternion> ptr(self);
+  ptr->w = v;
+}
+
 // Quaternion& Quaternion::setFromEuler(const Euler& euler, bool update) {
 //
 //   const auto x = euler.x(), y = euler.y(), z = euler.z();
