@@ -97,6 +97,7 @@ SEXP Quaternion__to_array(const SEXP& self) {
   *ptr_re++ = ptr->y;
   *ptr_re++ = ptr->z;
   *ptr_re = ptr->w;
+  Rcpp::print(re);
   UNPROTECT(1);
   return re;
 }
