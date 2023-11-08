@@ -621,8 +621,6 @@ void Quaternion__multiply_quaternions(SEXP& self, SEXP& a, SEXP& b) {
   Rcpp::XPtr<Quaternion> ptr_a(a);
   Rcpp::XPtr<Quaternion> ptr_b(b);
   ptr->multiplyQuaternions(*ptr_a, *ptr_b);
-
-  Rcpp::print(Rcpp::wrap(ptr->toArray()));
 }
 
 Quaternion Quaternion::clone() const {
