@@ -126,12 +126,12 @@ Quaternion <- R6::R6Class(
     },
     multiply = function(q) {
       q <- as_quaternion(q)
-      Quaternion__multiply(private$.extern_ptr, q$pointer)
+      Quaternion__multiply_quaternions(private$.extern_ptr, private$.extern_ptr, q$pointer)
       self
     },
     premultiply = function(q) {
       q <- as_quaternion(q)
-      Quaternion__premultiply(private$.extern_ptr, q$pointer)
+      Quaternion__multiply_quaternions(private$.extern_ptr, q$pointer, private$.extern_ptr)
       self
     },
     multiply_quaternions = function(qa, qb) {
