@@ -1,3 +1,10 @@
+# ravetools 0.1.3
+
+* Rewrote `band_pass2` to avoid `NA` generated when upper band frequency is `Nyquist`
+* Added `Vector3`, `Matrix4`, `Quaternion` for in-place calculation
+* Added support for `WASM`
+* Fixed issues reported by `CRAN`: "format string is not a string literal (potentially insecure)"
+
 # ravetools 0.1.2
 
 * Compatible with the latest `filearray`
