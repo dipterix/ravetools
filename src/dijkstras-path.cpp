@@ -13,10 +13,66 @@ double pointDistance(const double* a, const double *b, const size_t len) {
   return std::sqrt(re);
 }
 
+void findIndex(const int* indexBegin, const int* idxOrderBegin,
+               const R_xlen_t &indexLen, const int &idx, R_xlen_t &ii, R_xlen_t &len) {
+
+  if( indexLen == 0 ) {
+    len = 0;
+    return;
+  }
+
+  ii = indexLen / 2;
+  R_xlen_t jj = indexLen;
+  int* indexBegin_ = (int*)indexBegin;
+  int* ptr;
+  while( ii < jj ) {
+    ptr = indexBegin_ + *(idxOrderBegin + ii);
+    // Rcout << "ii=" << ii << " " << *ptr << ", jj=" << jj << "\n";
+    if( *ptr < idx ) {
+      ii = (ii + jj + 1) / 2;
+    } else if ( *ptr > idx ) {
+      jj = ii;
+      ii /= 2;
+    } else {
+      break;
+    }
+  }
+
+  if( ii == jj || *ptr != idx ) {
+    len = 0;
+    return;
+  }
+
+  while( *ptr == idx ) {
+    ii++;
+    ptr = indexBegin_ + *(idxOrderBegin + ii);
+    if( ii == indexLen ) { break; }
+  }
+  len = 0;
+
+  ptr = indexBegin_ + *(idxOrderBegin + ii - 1);
+  // Rcout << "ii=" << ii << " len=" << len << "\n";
+
+  while( *ptr == idx ) {
+    ii--;
+    len++;
+    // Rcout << "ii=" << ii << " len=" << len << "\n";
+    if( ii == 0 ) {
+      break;
+    }
+    ptr = indexBegin_ + *(idxOrderBegin + ii - 1);
+  }
+
+  // Rcout << "id=" << idx << " start=" << ii << " len=" << len << "\n";
+  return;
+
+}
+
 // [[Rcpp::export]]
 SEXP dijkstras_path(
     const SEXP& position,
     const SEXP& index,
+    const SEXP& indexOrder,
     const size_t& nPoints,
     const size_t& nIndices,
     const size_t& startIndex,
@@ -34,13 +90,19 @@ SEXP dijkstras_path(
     re = PROTECT(make_error("C++ `dijkstras_path`: `position` length is not a multiple of `nPoints`"));
     UNPROTECT(1);
     return re;
-  } else {
-    Rcout << "Detected point size: " << pointSize << "\n";
+  // } else {
+  //   Rcout << "Detected point size: " << pointSize << "\n";
   }
   const R_xlen_t idxLen = Rf_xlength(index);
   const R_xlen_t faceSize = idxLen / (R_xlen_t) nIndices;
   if ( faceSize < 1 || faceSize * nIndices - idxLen != 0 ) {
     re = PROTECT(make_error("C++ `dijkstras_path`: `index` length is not a multiple of `nIndices`, or `faceSize` is too small (needs to be at least 1)"));
+    UNPROTECT(1);
+    return re;
+  }
+  // Unless you call this c++ function directly, this error shouldn't occur.
+  if( Rf_xlength(indexOrder) != idxLen ) {
+    re = PROTECT(make_error("C++ `dijkstras_path`: `indexOrder` needs to be `order(index)`"));
     UNPROTECT(1);
     return re;
   }
@@ -68,7 +130,7 @@ SEXP dijkstras_path(
   R_xlen_t idxCurrent = (R_xlen_t) startIndex;
 
   // used as temporary iterator index
-  R_xlen_t ii, idxTmp;
+  R_xlen_t ii, jj, idxTmp, idxMatchStart, idxMatchLen;
   R_xlen_t iiMask = faceSize - 1;
   double edgeDistance, minDistance, currentDistance;
 
@@ -109,10 +171,6 @@ SEXP dijkstras_path(
   // loop
   for(size_t loopIdx = 0; loopIdx < nPoints; loopIdx++) {
 
-    if( (loopIdx * 1023) == 0 ) {
-      Rcpp::checkUserInterrupt();
-    }
-
     // Find node visited (not finished) with the shortest distance
     minDistance = -1.0;
     // Rcpp::print(visited);
@@ -136,12 +194,25 @@ SEXP dijkstras_path(
     // current distance to starting point
     currentDistance = *( ptrDistance0 + idxCurrent );
     ptrCurrent = ptrPosition + (idxCurrent * pointSize);
-    Rcout << loopIdx << ": Current node is: " << idxCurrent << " (dist=" << currentDistance << ")       \n";
 
-    for(ii = 0; ii < idxLen; ii++, ptrIndex++) {
+
+    // findIndex(const int* &indexBegin, const int* &idxOrderBegin,
+    //           const R_xlen_t &indexLen, const int& idx, int* &ptr, R_xlen_t* &len)
+    findIndex(INTEGER(index_), INTEGER(indexOrder), idxLen, idxCurrent, idxMatchStart, idxMatchLen);
+
+    if( (loopIdx & 1023) == 0 ) {
+      Rcout << loopIdx << ": Current node is: " << idxCurrent << " (dist=" << currentDistance << ",size=" << idxMatchLen << ")       \r";
+      Rcpp::checkUserInterrupt();
+    }
+
+    for(jj = 0; jj < idxMatchLen; jj++) {
+
+      ii = *( INTEGER(indexOrder) + idxMatchStart + jj );
+      ptrIndex = INTEGER(index_) + ii;
+
       // find adjacent node with NA prevNode
       if( *ptrIndex == idxCurrent ) {
-        if( (ii & iiMask) > 0 ) {
+        if( (ii % faceSize) > 0 ) {
           idxTmp = *(ptrIndex - 1);
           ptrVisited = ptrVisited0 + idxTmp;
           if( *ptrVisited < 2 ) {
@@ -160,10 +231,12 @@ SEXP dijkstras_path(
               //   minDistance = edgeDistance;
               // }
               *ptrVisited = 1;
+            } else if ( !maxEdgeLenUnset && edgeDistance > maxEdgeLen ){
+              Rcout << "idxCurrent=" << idxCurrent << "; idxMatchStart=" << idxMatchStart << "; (jj=" << jj << ")" << "; ii=" << ii << "; idxTmp=" << idxTmp << "; #(ii % faceSize)=" << (ii % faceSize) << " edgeDistance=" << edgeDistance << "\n";
             }
           }
         }
-        if( (ii & iiMask) < iiMask ) {
+        if( (ii % faceSize) < iiMask ) {
           idxTmp = *(ptrIndex + 1);
           ptrVisited = ptrVisited0 + idxTmp;
           if( *ptrVisited < 2 ) {
@@ -182,6 +255,8 @@ SEXP dijkstras_path(
               // }
               *ptrVisited = 1;
               // Rcout << "Current node: " << idxCurrent << " Found node " << idxTmp << " (dist=" << *ptrDistance << ")\n";
+            } else if ( !maxEdgeLenUnset && edgeDistance > maxEdgeLen ){
+              Rcout << "idxCurrent=" << idxCurrent << "; idxMatchStart=" << idxMatchStart << "; (jj=" << jj << ")" << "; ii=" << ii << "; idxTmp=" << idxTmp << "; #(ii % faceSize)=" << (ii % faceSize) << " edgeDistance=" << edgeDistance << "\n";
             }
           }
         }
@@ -208,19 +283,24 @@ index <- matrix(nrow = 2, byrow = FALSE, data = c(
   0, 2,
   0, 3,
   1, 2,
-  1, 3
+  1, 3,
+  3, 2
 ))
+indexOrder = order(index) - 1L
 dijkstras_path(
-  position, index = index[c(2,1), ], nPoints = 4L, nIndices = 4L, startIndex = 0L
+  position = position, index = index, indexOrder = indexOrder,
+  nPoints = 4L, nIndices = 5L, startIndex = 0L, maxDistance = 0.0, maxEdgeLen = 0.0
 )
 mesh <- freesurferformats::read.fs.surface("~/rave_data/others/three_brain/N27/surf/lh.pial")
 re <- dijkstras_path(
   position = t(mesh$vertices),
   index = t(mesh$faces) - min(mesh$faces),
+  indexOrder = order(mesh$faces) - 1L,
   nPoints = nrow(mesh$vertices),
   nIndices = nrow(mesh$faces),
   startIndex = 0L,
-  maxDistance = 521
+  maxDistance = 521,
+  maxEdgeLen = 0.0
 )
 
 */

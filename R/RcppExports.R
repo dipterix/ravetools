@@ -25,8 +25,8 @@ columnMedian <- function(x, naRm) {
     .Call(`_ravetools_columnMedian`, x, naRm)
 }
 
-dijkstras_path <- function(position, index, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen) {
-    .Call(`_ravetools_dijkstras_path`, position, index, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen)
+dijkstras_path <- function(position, index, indexOrder, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen) {
+    .Call(`_ravetools_dijkstras_path`, position, index, indexOrder, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen)
 }
 
 fastColMeans <- function(x, col, xDim) {

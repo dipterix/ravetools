@@ -5,6 +5,7 @@
 SEXP dijkstras_path(
     const SEXP& position,
     const SEXP& index,
+    const SEXP& indexOrder,
     const size_t& nPoints,
     const size_t& nIndices,
     const size_t& startIndex,
