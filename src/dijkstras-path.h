@@ -10,7 +10,8 @@ SEXP dijkstras_path(
     const size_t& nIndices,
     const size_t& startIndex,
     const double& maxDistance = 0.0,
-    const double& maxEdgeLen = 0.0
+    const double& maxEdgeLen = 0.0,
+    const bool& verbose = true
 );
 
 #endif // RAVETOOLS_DIJKSTRA_H

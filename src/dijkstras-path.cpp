@@ -77,7 +77,8 @@ SEXP dijkstras_path(
     const size_t& nIndices,
     const size_t& startIndex,
     const double& maxDistance,
-    const double& maxEdgeLen
+    const double& maxEdgeLen,
+    const bool& verbose
 ) {
   SEXP re = R_NilValue;
 
@@ -201,8 +202,11 @@ SEXP dijkstras_path(
     findIndex(INTEGER(index_), INTEGER(indexOrder), idxLen, idxCurrent, idxMatchStart, idxMatchLen);
 
     if( (loopIdx & 1023) == 0 ) {
-      Rcout << loopIdx << ": Current node is: " << idxCurrent << " (dist=" << currentDistance << ",size=" << idxMatchLen << ")       \r";
       Rcpp::checkUserInterrupt();
+      if(verbose) {
+        Rcout << (loopIdx + 1) << ": Current node is: " << (idxCurrent + 1) <<
+          " (dist=" << currentDistance << ",size=" << idxMatchLen << ")       \r";
+      }
     }
 
     for(jj = 0; jj < idxMatchLen; jj++) {
@@ -231,8 +235,8 @@ SEXP dijkstras_path(
               //   minDistance = edgeDistance;
               // }
               *ptrVisited = 1;
-            } else if ( !maxEdgeLenUnset && edgeDistance > maxEdgeLen ){
-              Rcout << "idxCurrent=" << idxCurrent << "; idxMatchStart=" << idxMatchStart << "; (jj=" << jj << ")" << "; ii=" << ii << "; idxTmp=" << idxTmp << "; #(ii % faceSize)=" << (ii % faceSize) << " edgeDistance=" << edgeDistance << "\n";
+            // } else if ( !maxEdgeLenUnset && edgeDistance > maxEdgeLen ){
+            //   Rcout << "idxCurrent=" << idxCurrent << "; idxMatchStart=" << idxMatchStart << "; (jj=" << jj << ")" << "; ii=" << ii << "; idxTmp=" << idxTmp << "; #(ii % faceSize)=" << (ii % faceSize) << " edgeDistance=" << edgeDistance << "\n";
             }
           }
         }
@@ -255,8 +259,8 @@ SEXP dijkstras_path(
               // }
               *ptrVisited = 1;
               // Rcout << "Current node: " << idxCurrent << " Found node " << idxTmp << " (dist=" << *ptrDistance << ")\n";
-            } else if ( !maxEdgeLenUnset && edgeDistance > maxEdgeLen ){
-              Rcout << "idxCurrent=" << idxCurrent << "; idxMatchStart=" << idxMatchStart << "; (jj=" << jj << ")" << "; ii=" << ii << "; idxTmp=" << idxTmp << "; #(ii % faceSize)=" << (ii % faceSize) << " edgeDistance=" << edgeDistance << "\n";
+            // } else if ( !maxEdgeLenUnset && edgeDistance > maxEdgeLen ){
+            //   Rcout << "idxCurrent=" << idxCurrent << "; idxMatchStart=" << idxMatchStart << "; (jj=" << jj << ")" << "; ii=" << ii << "; idxTmp=" << idxTmp << "; #(ii % faceSize)=" << (ii % faceSize) << " edgeDistance=" << edgeDistance << "\n";
             }
           }
         }

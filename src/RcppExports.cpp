@@ -192,8 +192,8 @@ RcppExport SEXP _ravetools_columnMedian(SEXP xSEXP, SEXP naRmSEXP) {
     return rcpp_result_gen;
 }
 // dijkstras_path
-SEXP dijkstras_path(const SEXP& position, const SEXP& index, const SEXP& indexOrder, const size_t& nPoints, const size_t& nIndices, const size_t& startIndex, const double& maxDistance, const double& maxEdgeLen);
-RcppExport SEXP _ravetools_dijkstras_path(SEXP positionSEXP, SEXP indexSEXP, SEXP indexOrderSEXP, SEXP nPointsSEXP, SEXP nIndicesSEXP, SEXP startIndexSEXP, SEXP maxDistanceSEXP, SEXP maxEdgeLenSEXP) {
+SEXP dijkstras_path(const SEXP& position, const SEXP& index, const SEXP& indexOrder, const size_t& nPoints, const size_t& nIndices, const size_t& startIndex, const double& maxDistance, const double& maxEdgeLen, const bool& verbose);
+RcppExport SEXP _ravetools_dijkstras_path(SEXP positionSEXP, SEXP indexSEXP, SEXP indexOrderSEXP, SEXP nPointsSEXP, SEXP nIndicesSEXP, SEXP startIndexSEXP, SEXP maxDistanceSEXP, SEXP maxEdgeLenSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -205,7 +205,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const size_t& >::type startIndex(startIndexSEXP);
     Rcpp::traits::input_parameter< const double& >::type maxDistance(maxDistanceSEXP);
     Rcpp::traits::input_parameter< const double& >::type maxEdgeLen(maxEdgeLenSEXP);
-    rcpp_result_gen = Rcpp::wrap(dijkstras_path(position, index, indexOrder, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen));
+    Rcpp::traits::input_parameter< const bool& >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(dijkstras_path(position, index, indexOrder, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -3642,7 +3643,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
     {"_ravetools_columnQuantile", (DL_FUNC) &_ravetools_columnQuantile, 3},
     {"_ravetools_columnMedian", (DL_FUNC) &_ravetools_columnMedian, 2},
-    {"_ravetools_dijkstras_path", (DL_FUNC) &_ravetools_dijkstras_path, 8},
+    {"_ravetools_dijkstras_path", (DL_FUNC) &_ravetools_dijkstras_path, 9},
     {"_ravetools_fastColMeans", (DL_FUNC) &_ravetools_fastColMeans, 3},
     {"_ravetools_quickQuantile", (DL_FUNC) &_ravetools_quickQuantile, 3},
     {"_ravetools_quickMedian", (DL_FUNC) &_ravetools_quickMedian, 2},
