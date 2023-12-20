@@ -37,6 +37,9 @@
     <loc>https://dipterix.org/ravetools/reference/diagnose_channel.html</loc>
   </url>
   <url>
+    <loc>https://dipterix.org/ravetools/reference/dijkstras-path.html</loc>
+  </url>
+  <url>
     <loc>https://dipterix.org/ravetools/reference/fast_cov.html</loc>
   </url>
   <url>
@@ -56,6 +59,9 @@
   </url>
   <url>
     <loc>https://dipterix.org/ravetools/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/internal_rave_function.html</loc>
   </url>
   <url>
     <loc>https://dipterix.org/ravetools/reference/interpolate_stimulation.html</loc>
