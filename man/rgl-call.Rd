@@ -23,9 +23,14 @@ rgl_plot_normals(x, length = 1, lwd = 1, col = 1, ...)
 \item{quoted}{whether \code{expr} is quoted}
 
 \item{env}{environment in which \code{expr} is evaluated}
+
+\item{x}{triangular \code{'mesh3d'} object}
+
+\item{length, lwd, col}{normal vector length, size, and color}
 }
 \description{
-Safe ways to call package \code{'rgl'} without requiring \code{'x11'}
+Internally used for example show-cases. Please install package \code{'rgl'}
+manually to use these functions.
 }
 \examples{
 

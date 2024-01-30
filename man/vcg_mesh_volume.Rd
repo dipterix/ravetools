@@ -10,20 +10,16 @@ vcg_mesh_volume(mesh)
 \item{mesh}{triangular mesh of class \code{'mesh3d'}}
 }
 \value{
-numeric; the volume of the mesh
+The numeric volume of the mesh
 }
 \description{
 Compute volume for manifold meshes
 }
 \examples{
 
-
-volume <- array(0, dim = c(8,8,8))
-volume[4:5, 4:5, 4:5] <- 1
-mesh <- mesh_from_volume(
-  volume, verbose = FALSE, remesh = FALSE, smooth = FALSE)
+# Initial mesh
+mesh <- vcg_sphere()
 
 vcg_mesh_volume(mesh)
-
 
 }

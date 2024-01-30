@@ -2,7 +2,7 @@
 % Please edit documentation in R/vcg.R
 \name{vcg_uniform_remesh}
 \alias{vcg_uniform_remesh}
-\title{Resample a surface mesh uniformly}
+\title{Sample a surface mesh uniformly}
 \usage{
 vcg_uniform_remesh(
   x,
@@ -39,8 +39,27 @@ double-surfaces will be built around the original surface, like a sandwich.}
 \item{verbose}{whether to verbose the progress; default is \code{TRUE}}
 }
 \value{
-A surface mesh
+A triangular mesh of class \code{'mesh3d'}
+
+sphere <- vcg_sphere()
+mesh <- vcg_uniform_remesh(sphere, voxel_size = 0.45)
+
+if(is_not_cran()) {
+
+rgl_view({
+
+  rgl_call("mfrow3d", 1, 2)
+
+  rgl_call("title3d", "Input")
+  rgl_call("wire3d", sphere, col = 2)
+  rgl_call("next3d")
+
+  rgl_call("title3d", "Re-meshed to 0.1mm edge distance")
+  rgl_call("wire3d", mesh, col = 3)
+})
+
+}
 }
 \description{
-Resample a surface mesh uniformly
+Sample a surface mesh uniformly
 }

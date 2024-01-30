@@ -62,11 +62,6 @@ meshintegrity <- function(mesh, facecheck = FALSE, normcheck = FALSE) {
   return(mesh)
 }
 
-#
-# rgl_view({
-#   call_rgl("shade3d", mesh)
-# })
-
 cSizeMesh <- function(mesh) {
   x <- t(mesh$vb[1:3, ])
   X <- scale(x, scale = FALSE)
@@ -125,23 +120,28 @@ invertFaces <- function (mesh) {
 #' specifies the number of neighboring points to consider; the second
 #' entry specifies the amount of smoothing iterations to be performed.
 #' @param verbose whether to verbose the progress
+#' @returns A \code{'mesh3d'} object with \code{'normals'} values.
 #' @examples
 #'
-#' volume <- array(0, dim = c(8,8,8))
-#' volume[4:5, 4:5, 4:5] <- 1
-#' mesh <- mesh_from_volume(volume, verbose = FALSE)
+#'
+#' if(is_not_cran()) {
+#'
+#' # Prepare mesh with no normals
+#' data("left_hippocampus_mask")
+#' mesh <- vcg_isosurface(left_hippocampus_mask)
 #' mesh$normals <- NULL
+#'
+#' # Start: examples
 #' new_mesh <- vcg_update_normals(mesh, weight = "angle",
 #'                                pointcloud = c(10, 10))
 #'
-#' if(!is_not_cran()) {
-#'   rgl_view({
-#'     rgl_call("mfrow3d", 1, 2)
-#'     rgl_call("shade3d", mesh, col = 2)
+#' rgl_view({
+#'   rgl_call("mfrow3d", 1, 2)
+#'   rgl_call("shade3d", mesh, col = 2)
 #'
-#'     rgl_call("next3d")
-#'     rgl_call("shade3d", new_mesh, col = 2)
-#'   })
+#'   rgl_call("next3d")
+#'   rgl_call("shade3d", new_mesh, col = 2)
+#' })
 #' }
 #'
 #'
@@ -187,8 +187,6 @@ vcg_update_normals <- function(
 #' Applies smoothing algorithms on a triangular mesh.
 #'
 #' @param mesh triangular mesh stored as object of class 'mesh3d'.
-#' @param lambda the amount of smoothness, useful only if
-#' \code{use_mass_matrix} is \code{TRUE}; default is \code{0.2}
 #' @param use_mass_matrix logical: whether to use mass matrix to keep the mesh
 #' close to its original position (weighted per area distributed on vertices);
 #' default is \code{TRUE}
@@ -199,30 +197,87 @@ vcg_update_normals <- function(
 #' @param laplacian_weight numeric: weight when \code{use_cot_weight} is \code{FALSE};
 #' default is \code{1.0}
 #' @param degree integer: degrees of 'Laplacian'; default is \code{1}
-#' @param smooth_quality logical: whether to smooth the quality (distances to target).
-#' @return returns an object of class "mesh3d" with:
+#' @param type method name of explicit smooth, choices are \code{'taubin'},
+#' \code{'laplace'}, \code{'HClaplace'}, \code{'fujiLaplace'},
+#' \code{'angWeight'}, \code{'surfPreserveLaplace'}.
+#' @param iteration number of iterations
+#' @param lambda In \code{vcg_smooth_implicit}, the amount of smoothness,
+#' useful only if \code{use_mass_matrix} is \code{TRUE}; default is \code{0.2}.
+#' In \code{vcg_smooth_explicit}, parameter for \code{'taubin'} smoothing.
+#' @param mu parameter for \code{'taubin'} explicit smoothing.
+#' @param delta parameter for scale-dependent 'Laplacian' smoothing or
+#' maximum allowed angle (in 'Radian') for deviation between surface preserving
+#' 'Laplacian'.
+#' @returns An object of class "mesh3d" with:
 #' \item{vb }{4xn matrix containing n vertices as homolougous coordinates.}
 #' \item{normals}{4xn matrix containing vertex normals.}
 #' \item{it }{4xm matrix containing vertex indices forming triangular
 #' faces.}
 #' @author Zhengjia Wang
-#' @seealso \code{\link{vcgPlyRead},\link{vcgClean},\link{vcgSmooth}}
 #' @examples
 #'
-#' data(humface)
-#' smoothface <- vcgSmoothImplicit(humface)
-#' ## view
-#' \dontrun{
-#' require(rgl)
-#' shade3d(smoothface, col=3)
+#' if(is_not_cran()) {
+#'
+#' # Prepare mesh with no normals
+#' data("left_hippocampus_mask")
+#'
+#' # Grow 2mm on each direction to fill holes
+#' volume <- grow_volume(left_hippocampus_mask, 2)
+#'
+#' # Initial mesh
+#' mesh <- vcg_isosurface(volume)
+#'
+#' # Start: examples
+#' rgl_view({
+#'   rgl_call("mfrow3d", 2, 4)
+#'   rgl_call("title3d", "Naive ISOSurface")
+#'   rgl_call("shade3d", mesh, col = 2)
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Implicit Smooth")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_implicit(mesh, degree = 2))
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Explicit Smooth - taubin")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_explicit(mesh, "taubin"))
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Explicit Smooth - laplace")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_explicit(mesh, "laplace"))
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Explicit Smooth - angWeight")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_explicit(mesh, "angWeight"))
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Explicit Smooth - HClaplace")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_explicit(mesh, "HClaplace"))
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Explicit Smooth - fujiLaplace")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_explicit(mesh, "fujiLaplace"))
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "Explicit Smooth - surfPreserveLaplace")
+#'   rgl_call("shade3d", col = 2,
+#'            x = vcg_smooth_explicit(mesh, "surfPreserveLaplace"))
+#' })
+#'
 #' }
 #'
 #' @export
 vcg_smooth_implicit <- function(
     mesh, lambda = 0.2, use_mass_matrix = TRUE, fix_border = FALSE,
-    use_cot_weight = FALSE, degree = 1L, laplacian_weight = 1.0, smooth_quality = FALSE
+    use_cot_weight = FALSE, degree = 1L, laplacian_weight = 1.0
 ) {
   mesh <- meshintegrity(mesh)
+  smooth_quality <- FALSE
   vb <- mesh$vb[1:3, , drop = FALSE]
   it <- (mesh$it - 1L)
   storage.mode(it) <- "integer"
@@ -276,25 +331,29 @@ vcg_smooth_explicit <- function(
 
 #' @title Compute volume for manifold meshes
 #' @param mesh triangular mesh of class \code{'mesh3d'}
-#' @returns numeric; the volume of the mesh
+#' @returns The numeric volume of the mesh
 #'
 #' @examples
 #'
-#'
-#' volume <- array(0, dim = c(8,8,8))
-#' volume[4:5, 4:5, 4:5] <- 1
-#' mesh <- mesh_from_volume(
-#'   volume, verbose = FALSE, remesh = FALSE, smooth = FALSE)
+#' # Initial mesh
+#' mesh <- vcg_sphere()
 #'
 #' vcg_mesh_volume(mesh)
-#'
 #'
 #' @export
 vcg_mesh_volume <- function(mesh) {
   vcgVolume( meshintegrity(mesh) )
 }
 
-
+#' Simple 3-dimensional sphere mesh
+#' @param sub_division density of vertex in the resulting mesh
+#' @param normals whether the normal vectors should be calculated
+#' @returns A \code{'mesh3d'} object
+#' @examples
+#'
+#' vcg_sphere()
+#'
+#' @export
 vcg_sphere <- function(sub_division = 3L, normals = TRUE) {
   vcgSphere(sub_division, normals)
 }
@@ -304,35 +363,40 @@ vcg_sphere <- function(sub_division = 3L, normals = TRUE) {
 #' Create surface from 3D-array using marching cubes algorithm
 #'
 #' @param volume a volume or a mask volume
-#' @param threshold threshold for creating the surface
-#' @param from numeric: the lower threshold of a range (overrides \code{threshold})
-#' @param to numeric: the upper threshold of a range (overrides \code{threshold})
-#' @param vox_to_ras a \code{4x4} 'affine' transform matrix indicating the voxel-to-world transform.
+#' @param threshold_lb lower-bound threshold for creating the surface; default
+#' is \code{0}
+#' @param threshold_ub upper-bound threshold for creating the surface; default
+#' is \code{NA} (no upper-bound)
+#' @param vox_to_ras a \code{4x4} 'affine' transform matrix indicating the
+#' 'voxel'-to-world transform.
 #'
-#' @return returns a triangular mesh of class \code{'mesh3d'}
+#' @return A triangular mesh of class \code{'mesh3d'}
 #'
 #' @examples
 #'
-#' x <- seq(-2, 2, len = 50)
-#' g <- expand.grid(x = x, y = x, z = x)
-#' v <- array(g$x ^ 4 + g$y ^ 4 + g$z ^ 4,
-#'            rep(length(x), 3))
-#' mesh <- vcg_isosurface(v, threshold_lb = 10)
 #'
 #' if(is_not_cran()) {
 #'
-#'   rgl_view({
+#' library(ravetools)
+#' data("left_hippocampus_mask")
 #'
-#'     rgl_call("mfrow3d", 1, 2)
+#' mesh <- vcg_isosurface(left_hippocampus_mask)
 #'
-#'     rgl_call("shade3d", mesh)
 #'
-#'     rgl_call("next3d")
+#' rgl_view({
 #'
-#'     rgl_call("shade3d",
-#'              vcg_smooth_implicit(mesh, lambda = 1),
-#'              col = 3)
-#'   })
+#'   rgl_call("mfrow3d", 1, 2)
+#'
+#'   rgl_call("title3d", "Direct ISOSurface")
+#'   rgl_call("shade3d", mesh, col = 2)
+#'
+#'   rgl_call("next3d")
+#'   rgl_call("title3d", "ISOSurface + Implicit Smooth")
+#'
+#'   rgl_call("shade3d",
+#'            vcg_smooth_implicit(mesh, degree = 2),
+#'            col = 3)
+#' })
 #'
 #' }
 #' @export
@@ -366,7 +430,7 @@ vcg_isosurface <- function(
 
 
 
-#' Resample a surface mesh uniformly
+#' Sample a surface mesh uniformly
 #' @param x surface
 #' @param voxel_size 'voxel' size for space 'discretization'
 #' @param offset offset position shift of the new surface from the input
@@ -381,8 +445,26 @@ vcg_isosurface <- function(
 #' double-surfaces will be built around the original surface, like a sandwich.
 #' @param merge_clost whether to merge close vertices; default is \code{TRUE}
 #' @param verbose whether to verbose the progress; default is \code{TRUE}
-#' @returns A surface mesh
+#' @return A triangular mesh of class \code{'mesh3d'}
 #'
+#' sphere <- vcg_sphere()
+#' mesh <- vcg_uniform_remesh(sphere, voxel_size = 0.45)
+#'
+#' if(is_not_cran()) {
+#'
+#' rgl_view({
+#'
+#'   rgl_call("mfrow3d", 1, 2)
+#'
+#'   rgl_call("title3d", "Input")
+#'   rgl_call("wire3d", sphere, col = 2)
+#'   rgl_call("next3d")
+#'
+#'   rgl_call("title3d", "Re-meshed to 0.1mm edge distance")
+#'   rgl_call("wire3d", mesh, col = 3)
+#' })
+#'
+#' }
 #'
 #' @export
 vcg_uniform_remesh <- function(

@@ -439,9 +439,9 @@ SEXP vcgVolume( SEXP mesh_ )
     if (Volume < 0.0)
       Volume = -Volume;
     if (!Watertight)
-      ::Rf_warning("Mesh is not watertight! USE RESULT WITH CARE!");
+      ::Rf_warning("Mesh is not watertight! USE RESULT WITH CARE!\n");
     if (!Oriented)
-      ::Rf_warning("Mesh is not coherently oriented! USE RESULT WITH CARE!");
+      ::Rf_warning("Mesh is not coherently oriented! USE RESULT WITH CARE!\n");
 
     return Rcpp::wrap(Volume);
 

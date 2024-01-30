@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <Rcpp.h>
 
-#include "vcg/complex/complex.h"
+#include <vcg/complex/complex.h>
 
 #include <vcg/complex/algorithms/update/topology.h>
 

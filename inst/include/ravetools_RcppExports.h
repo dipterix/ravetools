@@ -4,6 +4,7 @@
 #ifndef RCPP_ravetools_RCPPEXPORTS_H_GEN_
 #define RCPP_ravetools_RCPPEXPORTS_H_GEN_
 
+#include <RcppEigen.h>
 #include <Rcpp.h>
 
 namespace ravetools {

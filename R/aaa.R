@@ -131,7 +131,11 @@ ravetools_threads <- function (n_threads = "auto", stack_size = "auto") {
   invisible()
 }
 
-
+#' @title Internal function
+#' @description
+#' Do not call this function directly
+#' @param if_interactive,verbose default is \code{TRUE}
+#' @returns logical
 #' @keywords internal
 #' @export
 is_not_cran <- function (if_interactive = TRUE, verbose = FALSE) {
@@ -163,3 +167,12 @@ is_not_cran <- function (if_interactive = TRUE, verbose = FALSE) {
   }
   return(FALSE)
 }
+
+
+#' Left 'Hippocampus' of 'N27-Collin' brain
+#'
+#' @format
+#' A three-mode integer mask array with values of \code{1} ('Hippocampus')
+#' and \code{0} (other brain tissues)
+#'
+"left_hippocampus_mask"

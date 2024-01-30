@@ -40,7 +40,8 @@ Imports:
     RNiftyReg (>= 2.7.1),
     R6 (>= 2.5.1)
 LinkingTo: 
-    Rcpp
+    Rcpp,
+    RcppEigen
 Suggests: 
     fftwtools,
     bit64,
@@ -48,3 +49,4 @@ Suggests:
     microbenchmark,
     freesurferformats,
     testthat
+LazyData: true

@@ -32,7 +32,7 @@
 #' if(interactive()) { # takes > 5s to run example
 #'
 #' # Generate a sphere
-#' surface <- Rvcg::vcgSphere()
+#' surface <- vcg_sphere()
 #' surface$vb[1:3, ] <- surface$vb[1:3, ] * 50
 #'
 #' fill_surface(surface, preview = TRUE)

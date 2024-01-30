@@ -14,42 +14,46 @@ vcg_isosurface(
 \arguments{
 \item{volume}{a volume or a mask volume}
 
-\item{vox_to_ras}{a \code{4x4} 'affine' transform matrix indicating the voxel-to-world transform.}
+\item{threshold_lb}{lower-bound threshold for creating the surface; default
+is \code{0}}
 
-\item{threshold}{threshold for creating the surface}
+\item{threshold_ub}{upper-bound threshold for creating the surface; default
+is \code{NA} (no upper-bound)}
 
-\item{from}{numeric: the lower threshold of a range (overrides \code{threshold})}
-
-\item{to}{numeric: the upper threshold of a range (overrides \code{threshold})}
+\item{vox_to_ras}{a \code{4x4} 'affine' transform matrix indicating the
+'voxel'-to-world transform.}
 }
 \value{
-returns a triangular mesh of class \code{'mesh3d'}
+A triangular mesh of class \code{'mesh3d'}
 }
 \description{
 Create surface from 3D-array using marching cubes algorithm
 }
 \examples{
 
-x <- seq(-2, 2, len = 50)
-g <- expand.grid(x = x, y = x, z = x)
-v <- array(g$x ^ 4 + g$y ^ 4 + g$z ^ 4,
-           rep(length(x), 3))
-mesh <- vcg_isosurface(v, threshold_lb = 10)
 
 if(is_not_cran()) {
 
-  rgl_view({
+library(ravetools)
+data("left_hippocampus_mask")
 
-    rgl_call("mfrow3d", 1, 2)
+mesh <- vcg_isosurface(left_hippocampus_mask)
 
-    rgl_call("shade3d", mesh)
 
-    rgl_call("next3d")
+rgl_view({
 
-    rgl_call("shade3d",
-             vcg_smooth_implicit(mesh, lambda = 1),
-             col = 3)
-  })
+  rgl_call("mfrow3d", 1, 2)
+
+  rgl_call("title3d", "Direct ISOSurface")
+  rgl_call("shade3d", mesh, col = 2)
+
+  rgl_call("next3d")
+  rgl_call("title3d", "ISOSurface + Implicit Smooth")
+
+  rgl_call("shade3d",
+           vcg_smooth_implicit(mesh, degree = 2),
+           col = 3)
+})
 
 }
 }

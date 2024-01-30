@@ -70,18 +70,18 @@ mesh_from_volume <- function(
         0, 0, 0, 1))
   }
 
-  mesh <- Rvcg::vcgIsosurface(volume, threshold = threshold, IJK2RAS = IJK2RAS)
+  mesh <- vcg_isosurface(volume, threshold_lb = threshold, vox_to_ras = IJK2RAS)
 
   debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", mesh_volume(mesh)))
 
   if( remesh ) {
-    mesh <- Rvcg::vcgUniformRemesh(
-      mesh, voxelSize = remesh_voxel_size, multiSample = remesh_multisample,
-      mergeClost = remesh_automerge, silent = !verbose)
+    mesh <- vcg_uniform_remesh(
+      mesh, voxel_size = remesh_voxel_size, multi_sample = remesh_multisample,
+      merge_clost = remesh_automerge, verbose = verbose)
     debug(sprintf("The re-meshed surface volume is %.1f mm^3", mesh_volume(mesh)))
   }
   if( smooth ) {
-    mesh <- Rvcg::vcgSmooth(
+    mesh <- vcg_smooth_explicit(
       mesh = mesh, type = smooth_method,
       lambda = smooth_lambda, delta = smooth_delta
     )

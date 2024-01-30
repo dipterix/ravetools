@@ -25,26 +25,33 @@ entry specifies the amount of smoothing iterations to be performed.}
 
 \item{verbose}{whether to verbose the progress}
 }
+\value{
+A \code{'mesh3d'} object with \code{'normals'} values.
+}
 \description{
 Update vertex normal
 }
 \examples{
 
-volume <- array(0, dim = c(8,8,8))
-volume[4:5, 4:5, 4:5] <- 1
-mesh <- mesh_from_volume(volume, verbose = FALSE)
+
+if(is_not_cran()) {
+
+# Prepare mesh with no normals
+data("left_hippocampus_mask")
+mesh <- vcg_isosurface(left_hippocampus_mask)
 mesh$normals <- NULL
+
+# Start: examples
 new_mesh <- vcg_update_normals(mesh, weight = "angle",
                                pointcloud = c(10, 10))
 
-if(!is_not_cran()) {
-  rgl_view({
-    rgl_call("mfrow3d", 1, 2)
-    rgl_call("shade3d", mesh, col = 2)
+rgl_view({
+  rgl_call("mfrow3d", 1, 2)
+  rgl_call("shade3d", mesh, col = 2)
 
-    rgl_call("next3d")
-    rgl_call("shade3d", new_mesh, col = 2)
-  })
+  rgl_call("next3d")
+  rgl_call("shade3d", new_mesh, col = 2)
+})
 }
 
 

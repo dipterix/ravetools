@@ -1,10 +1,16 @@
 #' @name rgl-call
 #' @title Safe ways to call package \code{'rgl'} without requiring \code{'x11'}
+#' @description
+#' Internally used for example show-cases. Please install package \code{'rgl'}
+#' manually to use these functions.
+#'
 #' @param FUN \code{'rgl'} function name
 #' @param ... passed to \code{'rgl'} function
 #' @param expr expression within which \code{'rgl'} functions are called
 #' @param quoted whether \code{expr} is quoted
 #' @param env environment in which \code{expr} is evaluated
+#' @param x triangular \code{'mesh3d'} object
+#' @param length,lwd,col normal vector length, size, and color
 #' @examples
 #'
 #'

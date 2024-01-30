@@ -13,8 +13,7 @@ vcg_smooth_implicit(
   fix_border = FALSE,
   use_cot_weight = FALSE,
   degree = 1L,
-  laplacian_weight = 1,
-  smooth_quality = FALSE
+  laplacian_weight = 1
 )
 
 vcg_smooth_explicit(
@@ -30,8 +29,9 @@ vcg_smooth_explicit(
 \arguments{
 \item{mesh}{triangular mesh stored as object of class 'mesh3d'.}
 
-\item{lambda}{the amount of smoothness, useful only if
-\code{use_mass_matrix} is \code{TRUE}; default is \code{0.2}}
+\item{lambda}{In \code{vcg_smooth_implicit}, the amount of smoothness,
+useful only if \code{use_mass_matrix} is \code{TRUE}; default is \code{0.2}.
+In \code{vcg_smooth_explicit}, parameter for \code{'taubin'} smoothing.}
 
 \item{use_mass_matrix}{logical: whether to use mass matrix to keep the mesh
 close to its original position (weighted per area distributed on vertices);
@@ -48,10 +48,20 @@ default is \code{FALSE}}
 \item{laplacian_weight}{numeric: weight when \code{use_cot_weight} is \code{FALSE};
 default is \code{1.0}}
 
-\item{smooth_quality}{logical: whether to smooth the quality (distances to target).}
+\item{type}{method name of explicit smooth, choices are \code{'taubin'},
+\code{'laplace'}, \code{'HClaplace'}, \code{'fujiLaplace'},
+\code{'angWeight'}, \code{'surfPreserveLaplace'}.}
+
+\item{iteration}{number of iterations}
+
+\item{mu}{parameter for \code{'taubin'} explicit smoothing.}
+
+\item{delta}{parameter for scale-dependent 'Laplacian' smoothing or
+maximum allowed angle (in 'Radian') for deviation between surface preserving
+'Laplacian'.}
 }
 \value{
-returns an object of class "mesh3d" with:
+An object of class "mesh3d" with:
 \item{vb }{4xn matrix containing n vertices as homolougous coordinates.}
 \item{normals}{4xn matrix containing vertex normals.}
 \item{it }{4xm matrix containing vertex indices forming triangular
@@ -62,17 +72,61 @@ Applies smoothing algorithms on a triangular mesh.
 }
 \examples{
 
-data(humface)
-smoothface <- vcgSmoothImplicit(humface)
-## view
-\dontrun{
-require(rgl)
-shade3d(smoothface, col=3)
-}
+if(is_not_cran()) {
+
+# Prepare mesh with no normals
+data("left_hippocampus_mask")
+
+# Grow 2mm on each direction to fill holes
+volume <- grow_volume(left_hippocampus_mask, 2)
+
+# Initial mesh
+mesh <- vcg_isosurface(volume)
+
+# Start: examples
+rgl_view({
+  rgl_call("mfrow3d", 2, 4)
+  rgl_call("title3d", "Naive ISOSurface")
+  rgl_call("shade3d", mesh, col = 2)
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Implicit Smooth")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_implicit(mesh, degree = 2))
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Explicit Smooth - taubin")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_explicit(mesh, "taubin"))
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Explicit Smooth - laplace")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_explicit(mesh, "laplace"))
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Explicit Smooth - angWeight")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_explicit(mesh, "angWeight"))
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Explicit Smooth - HClaplace")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_explicit(mesh, "HClaplace"))
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Explicit Smooth - fujiLaplace")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_explicit(mesh, "fujiLaplace"))
+
+  rgl_call("next3d")
+  rgl_call("title3d", "Explicit Smooth - surfPreserveLaplace")
+  rgl_call("shade3d", col = 2,
+           x = vcg_smooth_explicit(mesh, "surfPreserveLaplace"))
+})
 
 }
-\seealso{
-\code{\link{vcgPlyRead},\link{vcgClean},\link{vcgSmooth}}
+
 }
 \author{
 Zhengjia Wang
