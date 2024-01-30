@@ -1,7 +1,7 @@
 mesh_volume <- function(mesh) {
   suppressWarnings({
     tryCatch({
-      return(Rvcg::vcgVolume(mesh))
+      return(vcg_mesh_volume(mesh))
     }, error = function(e) {
       NA_real_
     })

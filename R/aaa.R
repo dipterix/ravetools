@@ -131,3 +131,35 @@ ravetools_threads <- function (n_threads = "auto", stack_size = "auto") {
   invisible()
 }
 
+
+#' @keywords internal
+#' @export
+is_not_cran <- function (if_interactive = TRUE, verbose = FALSE) {
+  not_cran_flag <- identical(toupper(as.character(Sys.getenv("NOT_CRAN", ""))), "TRUE")
+  limit_core_flag <- identical(toupper(Sys.getenv("_R_CHECK_LIMIT_CORES_")), "TRUE")
+  interactive_flag <- interactive()
+  if (limit_core_flag) {
+    if (verbose) {
+      message("_R_CHECK_LIMIT_CORES_ is TRUE/true (on CRAN)")
+    }
+    return(FALSE)
+  }
+  if (not_cran_flag) {
+    if (verbose) {
+      message("NOT_CRAN is TRUE/true (not on CRAN)")
+    }
+    return(TRUE)
+  }
+  if (interactive_flag) {
+    if_interactive <- isTRUE(if_interactive)
+    if (verbose) {
+      message(sprintf("Session is interactive (%son CRAN)",
+                      ifelse(if_interactive, "", "not ")))
+    }
+    return(if_interactive)
+  }
+  if (verbose) {
+    message("No flag detected, default is on CRAN")
+  }
+  return(FALSE)
+}

@@ -46,12 +46,26 @@ ensure_mesh3d <- function(surface) {
   # check if surface is read from `freesurferformats`
   if (inherits(surface, "fs.surface")) {
     # surface <- freesurferformats::fs.surface.to.tmesh3d( surface )
+    face <- t(surface$faces)
+    if( min(face, na.rm = TRUE) == 0 ) {
+      face <- face + 1
+    }
     surface <- structure(list(
       vb = rbind(t(surface$vertices), 1),
-      it = t(surface$faces)), class = "mesh3d")
+      it = face), class = "mesh3d")
   }
   if (!inherits(surface, "mesh3d")) {
-    stop("ravetools:::ensure_mesh3d: `surface` must be a mesh3d object (package rgl) or a fs.surface object (package freesurferformats")
+    # check if surface has names
+    if(
+      is.list(surface) &&
+      "vb" %in% names(surface) &&
+      is.matrix(surface$vb) &&
+      nrow(surface$vb) %in% c(3L, 4L)
+    ) {
+      surface <- structure(surface, class = "mesh3d")
+    } else {
+      stop("ravetools:::ensure_mesh3d: `surface` must be a mesh3d object (package rgl) or a fs.surface object (package freesurferformats)")
+    }
   }
   return(surface)
 }

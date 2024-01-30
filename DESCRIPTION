@@ -24,7 +24,7 @@ BugReports: https://github.com/dipterix/ravetools/issues
 URL: https://dipterix.org/ravetools/
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Depends: R (>= 4.0.0)
 SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm)), pkg-config
 Imports:
@@ -38,7 +38,6 @@ Imports:
     digest (>= 0.6.29),
     splines,
     RNiftyReg (>= 2.7.1),
-    Rvcg (>= 0.22.1),
     R6 (>= 2.5.1)
 LinkingTo: 
     Rcpp
