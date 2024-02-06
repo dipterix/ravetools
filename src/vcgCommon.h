@@ -245,7 +245,7 @@ public:
   typedef typename MeshType::VertContainer  VertContainer;
 
   // Fill an empty mesh with vertices and faces from R
-  static int RvcgReadR(
+  static int vcgReadR(
       MeshType &m, SEXP vb_, SEXP it_ = Rcpp::wrap(0), SEXP normals_ = Rcpp::wrap(0),
       bool zerobegin = true, bool readnormals = true, bool readfaces = true
   ) {
@@ -313,7 +313,7 @@ public:
     }
   };
 
-  static Rcpp::List RvcgToR(MeshType &m, bool exnormals=false) {
+  static Rcpp::List vcgToR(MeshType &m, bool exnormals=false) {
     try {
       Rcpp::List out;
       vcg::SimpleTempData<typename MeshType::VertContainer,unsigned int> indices(m.vert);
@@ -374,7 +374,7 @@ public:
     }
   }
 
-  static void mesh3d2Rvcg(MeshType &m, SEXP mesh_, bool zerobegin = false,
+  static void mesh3d2vcg(MeshType &m, SEXP mesh_, bool zerobegin = false,
                          bool readnormals = true,bool readfaces = true) {
     Rcpp::List mesh(mesh_);
     Rcpp::CharacterVector mychar = Rcpp::CharacterVector::create("vb","it","normals");
@@ -389,7 +389,7 @@ public:
     if (!test[0]) {
       ::Rf_error("mesh has no vertices");
     }
-    int out = RvcgReadR(m, mesh["vb"], mesh["it"], mesh["normals"], zerobegin, readnormals, readfaces);
+    int out = vcgReadR(m, mesh["vb"], mesh["it"], mesh["normals"], zerobegin, readnormals, readfaces);
 
     if( out != 0 ) {
       ::Rf_error("Unable to convert mesh");

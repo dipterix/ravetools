@@ -446,6 +446,7 @@ vcg_isosurface <- function(
 #' @param merge_clost whether to merge close vertices; default is \code{TRUE}
 #' @param verbose whether to verbose the progress; default is \code{TRUE}
 #' @return A triangular mesh of class \code{'mesh3d'}
+#' @examples
 #'
 #' sphere <- vcg_sphere()
 #' mesh <- vcg_uniform_remesh(sphere, voxel_size = 0.45)

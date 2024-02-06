@@ -40,6 +40,11 @@ double-surfaces will be built around the original surface, like a sandwich.}
 }
 \value{
 A triangular mesh of class \code{'mesh3d'}
+}
+\description{
+Sample a surface mesh uniformly
+}
+\examples{
 
 sphere <- vcg_sphere()
 mesh <- vcg_uniform_remesh(sphere, voxel_size = 0.45)
@@ -59,7 +64,5 @@ rgl_view({
 })
 
 }
-}
-\description{
-Sample a surface mesh uniformly
+
 }

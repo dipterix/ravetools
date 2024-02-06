@@ -101,7 +101,7 @@ SEXP vcgSmoothImplicit(
     ravetools::ScalarType lapWeight = lapWeight_;
 
     //allocate mesh and fill it
-    ravetools::IOMesh<ravetools::MyMesh>::RvcgReadR(m,vb_,it_);
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m,vb_,it_);
 
 
     vcg::ImplicitSmoother<ravetools::MyMesh>::Parameter par;
@@ -180,7 +180,7 @@ SEXP vcgSmooth(SEXP vb_, SEXP it_, int iter, int method, float lambda, float mu,
     //set up parameters
     ravetools::ScalarType delta = delta_;
     //allocate mesh and fill it
-    ravetools::IOMesh<ravetools::MyMesh>::RvcgReadR(m,vb_,it_);
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m,vb_,it_);
 
     Rcpp::checkUserInterrupt();
 
@@ -270,7 +270,7 @@ SEXP vcgUniformResample(
     const bool& mergeCloseVert, const bool& silent) {
   try {
     ravetools::MyMesh m, baseMesh, offsetMesh;
-    ravetools::IOMesh< ravetools::MyMesh >::RvcgReadR( baseMesh , vb_ , it_ );
+    ravetools::IOMesh< ravetools::MyMesh >::vcgReadR( baseMesh , vb_ , it_ );
     if ( baseMesh.fn == 0 ) {
       ::Rf_error( "This filter requires a mesh with some faces, it does not work on point cloud");
     }
@@ -351,7 +351,7 @@ SEXP vcgUpdateNormals(SEXP vb_, SEXP it_, const int & select,
     ravetools::VertexIterator vi;
 
     // allocate mesh and fill it
-    int check = ravetools::IOMesh< ravetools::MyMesh >::RvcgReadR(m,vb_,it_);
+    int check = ravetools::IOMesh< ravetools::MyMesh >::vcgReadR(m,vb_,it_);
     Rcpp::NumericMatrix normals(3, m.vn);
     if (check < 0) {
       Rcpp::stop("mesh has no faces and/or no vertices");
@@ -403,7 +403,7 @@ SEXP vcgVolume( SEXP mesh_ )
 {
   try {
     ravetools::MyMesh m;
-    ravetools::IOMesh<ravetools::MyMesh>::mesh3d2Rvcg(m, mesh_);
+    ravetools::IOMesh<ravetools::MyMesh>::mesh3d2vcg(m, mesh_);
     bool Watertight, Oriented = false;
     int VManifold, FManifold;
     float Volume = 0;
@@ -460,7 +460,7 @@ SEXP vcgSphere(const int& subdiv, bool normals) {
     Sphere(m,subdiv);
     if (normals)
       vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexNormalized(m);
-    Rcpp::List out = ravetools::IOMesh<ravetools::MyMesh>::RvcgToR(m,normals);
+    Rcpp::List out = ravetools::IOMesh<ravetools::MyMesh>::vcgToR(m,normals);
     return out;
   } catch (std::exception& e) {
     ::Rf_error( e.what());

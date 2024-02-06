@@ -9,8 +9,9 @@ mesh_volume <- function(mesh) {
 }
 
 #' @title Generate 3D mesh surface from volume data
-#' @description Internally calls \code{\link[Rvcg]{vcgIsosurface}}, optionally
-#' calls \code{\link[Rvcg]{vcgUniformRemesh}} and \code{\link[Rvcg]{vcgSmooth}}.
+#' @description This function is soft-deprecated. Please use
+#' \code{\link{vcg_mesh_volume}}, \code{\link{vcg_uniform_remesh}}, and
+#' \code{\link{vcg_smooth_explicit}} or \code{\link{vcg_smooth_implicit}}.
 #' @param volume 3-dimensional volume array
 #' @param output_format resulting data format, choices are \code{'rgl'} and
 #' \code{'freesurfer'}
@@ -19,11 +20,11 @@ mesh_volume <- function(mesh) {
 #' @param threshold threshold used to create volume mask; the surface will be
 #' created to fit the mask boundaries
 #' @param verbose whether to verbose the progress
-#' @param remesh whether to re-sample the mesh using \code{\link[Rvcg]{vcgUniformRemesh}}
+#' @param remesh whether to re-sample the mesh using \code{\link{vcg_uniform_remesh}}
 #' @param remesh_voxel_size,remesh_multisample,remesh_automerge see
-#' arguments in \code{\link[Rvcg]{vcgUniformRemesh}}
-#' @param smooth whether to smooth the mesh via \code{\link[Rvcg]{vcgSmooth}}
-#' @param smooth_lambda,smooth_delta,smooth_method see \code{\link[Rvcg]{vcgSmooth}}
+#' arguments in \code{\link{vcg_uniform_remesh}}
+#' @param smooth whether to smooth the mesh via \code{\link{vcg_smooth_explicit}}
+#' @param smooth_lambda,smooth_delta,smooth_method see \code{\link{vcg_smooth_explicit}}
 #' @returns A \code{'mesh3d'} surface if \code{output_format} is 'rgl', or
 #' \code{'fs.surface'} surface otherwise.
 #' @examples

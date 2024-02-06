@@ -34,22 +34,23 @@ created to fit the mask boundaries}
 
 \item{verbose}{whether to verbose the progress}
 
-\item{remesh}{whether to re-sample the mesh using \code{\link[Rvcg]{vcgUniformRemesh}}}
+\item{remesh}{whether to re-sample the mesh using \code{\link{vcg_uniform_remesh}}}
 
 \item{remesh_voxel_size, remesh_multisample, remesh_automerge}{see
-arguments in \code{\link[Rvcg]{vcgUniformRemesh}}}
+arguments in \code{\link{vcg_uniform_remesh}}}
 
-\item{smooth}{whether to smooth the mesh via \code{\link[Rvcg]{vcgSmooth}}}
+\item{smooth}{whether to smooth the mesh via \code{\link{vcg_smooth_explicit}}}
 
-\item{smooth_lambda, smooth_delta, smooth_method}{see \code{\link[Rvcg]{vcgSmooth}}}
+\item{smooth_lambda, smooth_delta, smooth_method}{see \code{\link{vcg_smooth_explicit}}}
 }
 \value{
 A \code{'mesh3d'} surface if \code{output_format} is 'rgl', or
 \code{'fs.surface'} surface otherwise.
 }
 \description{
-Internally calls \code{\link[Rvcg]{vcgIsosurface}}, optionally
-calls \code{\link[Rvcg]{vcgUniformRemesh}} and \code{\link[Rvcg]{vcgSmooth}}.
+This function is soft-deprecated. Please use
+\code{\link{vcg_mesh_volume}}, \code{\link{vcg_uniform_remesh}}, and
+\code{\link{vcg_smooth_explicit}} or \code{\link{vcg_smooth_implicit}}.
 }
 \examples{
 
