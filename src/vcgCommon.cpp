@@ -77,9 +77,9 @@ SEXP vcgIsoSurface(SEXP array_, double thresh) {
                               Rcpp::Named("it") = itout,
                               Rcpp::Named("normals") = normals);
   } catch (std::exception& e) {
-    ::Rf_error( e.what());
+    Rcpp::stop( e.what());
   } catch (...) {
-    ::Rf_error("unknown exception");
+    Rcpp::stop("unknown exception");
   }
 
 }
@@ -161,10 +161,10 @@ SEXP vcgSmoothImplicit(
     );
 
   } catch (std::exception& e) {
-    ::Rf_error( e.what());
+    Rcpp::stop( e.what());
     return Rcpp::wrap(1);
   } catch (...) {
-    ::Rf_error("unknown exception");
+    Rcpp::stop("unknown exception");
   }
 }
 
@@ -254,10 +254,10 @@ SEXP vcgSmooth(SEXP vb_, SEXP it_, int iter, int method, float lambda, float mu,
     );
 
   } catch (std::exception& e) {
-    ::Rf_error(e.what());
+    Rcpp::stop(e.what());
     return Rcpp::wrap(1);
   } catch (...) {
-    ::Rf_error("unknown exception");
+    Rcpp::stop("unknown exception");
   }
 }
 
@@ -272,7 +272,7 @@ SEXP vcgUniformResample(
     ravetools::MyMesh m, baseMesh, offsetMesh;
     ravetools::IOMesh< ravetools::MyMesh >::vcgReadR( baseMesh , vb_ , it_ );
     if ( baseMesh.fn == 0 ) {
-      ::Rf_error( "This filter requires a mesh with some faces, it does not work on point cloud");
+      Rcpp::stop( "This filter requires a mesh with some faces, it does not work on point cloud");
     }
     vcg::tri::UpdateBounding< ravetools::MyMesh >::Box(baseMesh);
     baseMesh.face.EnableNormal();
@@ -336,7 +336,7 @@ SEXP vcgUniformResample(
   } catch ( std::exception& e ) {
     Rcpp::stop( e.what() );
   } catch (...) {
-    ::Rf_error("unknown exception");
+    Rcpp::stop("unknown exception");
   }
 }
 
@@ -418,7 +418,7 @@ SEXP vcgVolume( SEXP mesh_ )
     FManifold = vcg::tri::Clean<ravetools::MyMesh>::CountNonManifoldEdgeFF(m);
 
     if ((VManifold>0) || (FManifold>0)) {
-      ::Rf_error(
+      throw std::runtime_error(
         (
             "Mesh is not manifold\n  Non-manifold vertices: " +
               std::to_string(VManifold) +"\n" +
@@ -446,9 +446,9 @@ SEXP vcgVolume( SEXP mesh_ )
     return Rcpp::wrap(Volume);
 
   } catch (std::exception& e) {
-    ::Rf_error( e.what());
+    Rcpp::stop( e.what());
   } catch (...) {
-    ::Rf_error("unknown exception");
+    Rcpp::stop("unknown exception");
   }
 }
 
@@ -463,8 +463,8 @@ SEXP vcgSphere(const int& subdiv, bool normals) {
     Rcpp::List out = ravetools::IOMesh<ravetools::MyMesh>::vcgToR(m,normals);
     return out;
   } catch (std::exception& e) {
-    ::Rf_error( e.what());
+    Rcpp::stop( e.what());
   } catch (...) {
-    ::Rf_error("unknown exception");
+    Rcpp::stop("unknown exception");
   }
 }

@@ -9,6 +9,7 @@
 #include <vector>
 #include <stdio.h>
 #include <cstddef>
+#include <stdexcept>
 #include <Rcpp.h>
 
 #include <vcg/complex/complex.h>
@@ -305,10 +306,10 @@ public:
         return -1;
       }
     } catch (std::exception& e) {
-      ::Rf_error( e.what());
+      Rcpp::stop( e.what());
       return 1;
     } catch (...) {
-      ::Rf_error("unknown exception");
+      Rcpp::stop("unknown exception");
       return 1;
     }
   };
@@ -354,9 +355,9 @@ public:
       return out;
 
     } catch (std::exception& e) {
-      ::Rf_error( e.what());
+      Rcpp::stop( e.what());
     } catch (...) {
-      ::Rf_error("unknown exception");
+      Rcpp::stop("unknown exception");
     }
   };
 
@@ -368,9 +369,9 @@ public:
       std::vector<bool> out = Rcpp::as<std::vector<bool> >(log);
       return out;
     } catch (std::exception& e) {
-      ::Rf_error( e.what());
+      Rcpp::stop( e.what());
     } catch (...) {
-      ::Rf_error("unknown exception");
+      Rcpp::stop("unknown exception");
     }
   }
 
@@ -387,12 +388,12 @@ public:
       }
     }
     if (!test[0]) {
-      ::Rf_error("mesh has no vertices");
+      Rcpp::stop("mesh has no vertices");
     }
     int out = vcgReadR(m, mesh["vb"], mesh["it"], mesh["normals"], zerobegin, readnormals, readfaces);
 
     if( out != 0 ) {
-      ::Rf_error("Unable to convert mesh");
+      Rcpp::stop("Unable to convert mesh");
     }
   };
 
