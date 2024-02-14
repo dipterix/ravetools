@@ -97,7 +97,7 @@ struct ColumnQuantile : public TinyParallel::Worker
 
         buf1 = buf0;
         buf2 = buf1 + this->nrows;
-        *yptr = quickQuantileInternal(buf1, buf2, rowLen, this->prob);
+        *yptr = quickQuantileInternal<T>(buf1, buf2, rowLen, this->prob);
       }
 
     }
