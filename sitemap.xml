@@ -67,6 +67,12 @@
     <loc>https://dipterix.org/ravetools/reference/interpolate_stimulation.html</loc>
   </url>
   <url>
+    <loc>https://dipterix.org/ravetools/reference/is_not_cran.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/left_hippocampus_mask.html</loc>
+  </url>
+  <url>
     <loc>https://dipterix.org/ravetools/reference/matlab_palette.html</loc>
   </url>
   <url>
@@ -103,7 +109,28 @@
     <loc>https://dipterix.org/ravetools/reference/register_volume.html</loc>
   </url>
   <url>
+    <loc>https://dipterix.org/ravetools/reference/rgl-call.html</loc>
+  </url>
+  <url>
     <loc>https://dipterix.org/ravetools/reference/shift_array.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/vcg_mesh_volume.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/vcg_smooth.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/vcg_sphere.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/vcg_uniform_remesh.html</loc>
+  </url>
+  <url>
+    <loc>https://dipterix.org/ravetools/reference/vcg_update_normals.html</loc>
   </url>
   <url>
     <loc>https://dipterix.org/ravetools/reference/wavelet.html</loc>
