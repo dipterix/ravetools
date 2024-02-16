@@ -2030,7 +2030,7 @@ fi
 
 ## --- Output ----------------------------------------------------------------
 ## Substitute and generate Makevars
-PKG_CFLAGS="${FFTW_CFLAGS} ${PKG_CFLAGS} -I../inst/include"
+PKG_CFLAGS="${FFTW_CFLAGS} ${PKG_CFLAGS} -Ivcglib -I../inst/include"
 
 PKG_LIBS="${FFTW_LIBS} ${PKG_LIBS}"
 

@@ -1,7 +1,7 @@
 mesh_volume <- function(mesh) {
   suppressWarnings({
     tryCatch({
-      return(Rvcg::vcgVolume(mesh))
+      return(vcg_mesh_volume(mesh))
     }, error = function(e) {
       NA_real_
     })
@@ -9,8 +9,9 @@ mesh_volume <- function(mesh) {
 }
 
 #' @title Generate 3D mesh surface from volume data
-#' @description Internally calls \code{\link[Rvcg]{vcgIsosurface}}, optionally
-#' calls \code{\link[Rvcg]{vcgUniformRemesh}} and \code{\link[Rvcg]{vcgSmooth}}.
+#' @description This function is soft-deprecated. Please use
+#' \code{\link{vcg_mesh_volume}}, \code{\link{vcg_uniform_remesh}}, and
+#' \code{\link{vcg_smooth_explicit}} or \code{\link{vcg_smooth_implicit}}.
 #' @param volume 3-dimensional volume array
 #' @param output_format resulting data format, choices are \code{'rgl'} and
 #' \code{'freesurfer'}
@@ -19,11 +20,11 @@ mesh_volume <- function(mesh) {
 #' @param threshold threshold used to create volume mask; the surface will be
 #' created to fit the mask boundaries
 #' @param verbose whether to verbose the progress
-#' @param remesh whether to re-sample the mesh using \code{\link[Rvcg]{vcgUniformRemesh}}
+#' @param remesh whether to re-sample the mesh using \code{\link{vcg_uniform_remesh}}
 #' @param remesh_voxel_size,remesh_multisample,remesh_automerge see
-#' arguments in \code{\link[Rvcg]{vcgUniformRemesh}}
-#' @param smooth whether to smooth the mesh via \code{\link[Rvcg]{vcgSmooth}}
-#' @param smooth_lambda,smooth_delta,smooth_method see \code{\link[Rvcg]{vcgSmooth}}
+#' arguments in \code{\link{vcg_uniform_remesh}}
+#' @param smooth whether to smooth the mesh via \code{\link{vcg_smooth_explicit}}
+#' @param smooth_lambda,smooth_delta,smooth_method see \code{\link{vcg_smooth_explicit}}
 #' @returns A \code{'mesh3d'} surface if \code{output_format} is 'rgl', or
 #' \code{'fs.surface'} surface otherwise.
 #' @examples
@@ -70,18 +71,18 @@ mesh_from_volume <- function(
         0, 0, 0, 1))
   }
 
-  mesh <- Rvcg::vcgIsosurface(volume, threshold = threshold, IJK2RAS = IJK2RAS)
+  mesh <- vcg_isosurface(volume, threshold_lb = threshold, vox_to_ras = IJK2RAS)
 
   debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", mesh_volume(mesh)))
 
   if( remesh ) {
-    mesh <- Rvcg::vcgUniformRemesh(
-      mesh, voxelSize = remesh_voxel_size, multiSample = remesh_multisample,
-      mergeClost = remesh_automerge, silent = !verbose)
+    mesh <- vcg_uniform_remesh(
+      mesh, voxel_size = remesh_voxel_size, multi_sample = remesh_multisample,
+      merge_clost = remesh_automerge, verbose = verbose)
     debug(sprintf("The re-meshed surface volume is %.1f mm^3", mesh_volume(mesh)))
   }
   if( smooth ) {
-    mesh <- Rvcg::vcgSmooth(
+    mesh <- vcg_smooth_explicit(
       mesh = mesh, type = smooth_method,
       lambda = smooth_lambda, delta = smooth_delta
     )

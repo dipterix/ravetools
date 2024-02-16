@@ -185,7 +185,7 @@ PKG_CHECK_MODULES(FFTW, fftw3)
 
 ## --- Output ----------------------------------------------------------------
 ## Substitute and generate Makevars
-AC_SUBST([PKG_CFLAGS],["${FFTW_CFLAGS} ${PKG_CFLAGS} -I../inst/include"])
+AC_SUBST([PKG_CFLAGS],["${FFTW_CFLAGS} ${PKG_CFLAGS} -Ivcglib -I../inst/include"])
 AC_SUBST([PKG_LIBS],["${FFTW_LIBS} ${PKG_LIBS}"])
 AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT

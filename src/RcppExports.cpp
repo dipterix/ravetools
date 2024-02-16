@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include "../inst/include/ravetools.h"
+#include <RcppEigen.h>
 #include <Rcpp.h>
 #include <string>
 #include <set>
@@ -3469,6 +3470,111 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgIsoSurface
+SEXP vcgIsoSurface(SEXP array_, double thresh);
+RcppExport SEXP _ravetools_vcgIsoSurface(SEXP array_SEXP, SEXP threshSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type array_(array_SEXP);
+    Rcpp::traits::input_parameter< double >::type thresh(threshSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgIsoSurface(array_, thresh));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgSmoothImplicit
+SEXP vcgSmoothImplicit(SEXP vb_, SEXP it_, float lambda_, bool useMassMatrix, bool fixBorder, bool useCotWeight, int degree, float lapWeight_, bool SmoothQ);
+RcppExport SEXP _ravetools_vcgSmoothImplicit(SEXP vb_SEXP, SEXP it_SEXP, SEXP lambda_SEXP, SEXP useMassMatrixSEXP, SEXP fixBorderSEXP, SEXP useCotWeightSEXP, SEXP degreeSEXP, SEXP lapWeight_SEXP, SEXP SmoothQSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< float >::type lambda_(lambda_SEXP);
+    Rcpp::traits::input_parameter< bool >::type useMassMatrix(useMassMatrixSEXP);
+    Rcpp::traits::input_parameter< bool >::type fixBorder(fixBorderSEXP);
+    Rcpp::traits::input_parameter< bool >::type useCotWeight(useCotWeightSEXP);
+    Rcpp::traits::input_parameter< int >::type degree(degreeSEXP);
+    Rcpp::traits::input_parameter< float >::type lapWeight_(lapWeight_SEXP);
+    Rcpp::traits::input_parameter< bool >::type SmoothQ(SmoothQSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgSmoothImplicit(vb_, it_, lambda_, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight_, SmoothQ));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgSmooth
+SEXP vcgSmooth(SEXP vb_, SEXP it_, int iter, int method, float lambda, float mu, float delta_);
+RcppExport SEXP _ravetools_vcgSmooth(SEXP vb_SEXP, SEXP it_SEXP, SEXP iterSEXP, SEXP methodSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP delta_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< float >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< float >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< float >::type delta_(delta_SEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgSmooth(vb_, it_, iter, method, lambda, mu, delta_));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgUniformResample
+SEXP vcgUniformResample(const SEXP& vb_, const SEXP& it_, const float& voxelSize, const float& offsetThr, const bool& discretizeFlag, const bool& multiSampleFlag, const bool& absDistFlag, const bool& mergeCloseVert, const bool& silent);
+RcppExport SEXP _ravetools_vcgUniformResample(SEXP vb_SEXP, SEXP it_SEXP, SEXP voxelSizeSEXP, SEXP offsetThrSEXP, SEXP discretizeFlagSEXP, SEXP multiSampleFlagSEXP, SEXP absDistFlagSEXP, SEXP mergeCloseVertSEXP, SEXP silentSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< const float& >::type voxelSize(voxelSizeSEXP);
+    Rcpp::traits::input_parameter< const float& >::type offsetThr(offsetThrSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type discretizeFlag(discretizeFlagSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type multiSampleFlag(multiSampleFlagSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type absDistFlag(absDistFlagSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type mergeCloseVert(mergeCloseVertSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type silent(silentSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgUniformResample(vb_, it_, voxelSize, offsetThr, discretizeFlag, multiSampleFlag, absDistFlag, mergeCloseVert, silent));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgUpdateNormals
+SEXP vcgUpdateNormals(SEXP vb_, SEXP it_, const int& select, const Rcpp::IntegerVector& pointcloud, const bool& silent);
+RcppExport SEXP _ravetools_vcgUpdateNormals(SEXP vb_SEXP, SEXP it_SEXP, SEXP selectSEXP, SEXP pointcloudSEXP, SEXP silentSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< const int& >::type select(selectSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type pointcloud(pointcloudSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type silent(silentSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgUpdateNormals(vb_, it_, select, pointcloud, silent));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgVolume
+SEXP vcgVolume(SEXP mesh_);
+RcppExport SEXP _ravetools_vcgVolume(SEXP mesh_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type mesh_(mesh_SEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgVolume(mesh_));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgSphere
+SEXP vcgSphere(const int& subdiv, bool normals);
+RcppExport SEXP _ravetools_vcgSphere(SEXP subdivSEXP, SEXP normalsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type subdiv(subdivSEXP);
+    Rcpp::traits::input_parameter< bool >::type normals(normalsSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgSphere(subdiv, normals));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 // validate (ensure exported C++ functions exist before calling them)
 static int _ravetools_RcppExport_validate(const char* sig) { 
@@ -3782,6 +3888,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_rawToString", (DL_FUNC) &_ravetools_rawToString, 1},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
     {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},
+    {"_ravetools_vcgIsoSurface", (DL_FUNC) &_ravetools_vcgIsoSurface, 2},
+    {"_ravetools_vcgSmoothImplicit", (DL_FUNC) &_ravetools_vcgSmoothImplicit, 9},
+    {"_ravetools_vcgSmooth", (DL_FUNC) &_ravetools_vcgSmooth, 7},
+    {"_ravetools_vcgUniformResample", (DL_FUNC) &_ravetools_vcgUniformResample, 9},
+    {"_ravetools_vcgUpdateNormals", (DL_FUNC) &_ravetools_vcgUpdateNormals, 5},
+    {"_ravetools_vcgVolume", (DL_FUNC) &_ravetools_vcgVolume, 1},
+    {"_ravetools_vcgSphere", (DL_FUNC) &_ravetools_vcgSphere, 2},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };

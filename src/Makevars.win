@@ -1,7 +1,7 @@
 # Rtools contains fftw3, use that version
 
 CXX_STD=CXX17
-PKG_CXXFLAGS=-I../inst/include
+PKG_CXXFLAGS=-Ivcglib -I../inst/include
 PKG_CPPFLAGS=
 PKG_LIBS= -lfftw3 -lm
 
