@@ -57,7 +57,9 @@ pwelch(
 mv_pwelch(x, margin, fs, nfft)
 }
 \arguments{
-\item{x}{\code{'pwelch'} instance returned by \code{pwelch} function}
+\item{x}{numerical vector or a row-major vector, signals.
+If \code{x} is a matrix, then each row is a channel. For \code{plot}
+function, \code{x} is the instance returned by \code{pwelch} function.}
 
 \item{fs}{sample rate, average number of time points per second}
 

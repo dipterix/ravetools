@@ -2,8 +2,9 @@
 #' @description \code{pwelch} is for single signal trace only; \code{mv_pwelch}
 #' is for multiple traces. Currently \code{mv_pwelch} is experimental and
 #' should not be called directly.
-#' @param x numerical vector or a row-major vector, analog voltage signals.
-#' If \code{x} is a matrix, then each row is a channel
+#' @param x numerical vector or a row-major vector, signals.
+#' If \code{x} is a matrix, then each row is a channel. For \code{plot}
+#' function, \code{x} is the instance returned by \code{pwelch} function.
 #' @param fs sample rate, average number of time points per second
 #' @param window window length in time points, default size is \code{64}
 #' @param nfft number of basis functions to apply
@@ -12,7 +13,6 @@
 #' @param plot integer, whether to plot the result or not; choices are \code{0}, no plot; \code{1} plot on a new canvas; \code{2} add to existing canvas
 #' @param add logical, whether the plot should be added to existing canvas
 #' @param ... will be passed to \code{plot.pwelch} or ignored
-#' @param x \code{'pwelch'} instance returned by \code{pwelch} function
 #' @param col,xlim,ylim,main,type,cex,las,xlab,ylab,lty,lwd,xaxs,yaxs,mar,mgp,tck parameters passed to \code{\link[graphics]{plot.default}}
 #' @param se logical or a positive number indicating whether to plot standard
 #' error of mean; default is false. If provided with a number, then a multiple
@@ -237,6 +237,17 @@ plot.pwelch <- function(
     xline = 1.2 * cex, yline = 2.0 * cex,
     mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex / 2), mgp = cex * c(2, 0.5, 0),
     tck = -0.02 * cex, grid = TRUE, ...) {
+  # DIPSAUS DEBUG START
+  # x <- mv_pwelch(rbind(rep(0, 2000), rep(0, 2000)), 1, 100)
+  # x <- mv_pwelch(rbind(rnorm(2000), rnorm(2000)), 1, 100)
+  # log = "xy"; se = FALSE; type = 'l'; add = FALSE
+  # col = graphics::par("fg"); col.se = "orange"; alpha.se = 0.5; lty = 1; lwd = 1
+  # cex = 1; las = 1; main = 'Welch periodogram'
+  # xlim = NULL; ylim = NULL; xaxs ="i"; yaxs = "i"
+  # xline = 1.2 * cex; yline = 2.0 * cex
+  # mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex / 2); mgp = cex * c(2, 0.5, 0);
+  # tck = -0.02 * cex; grid = TRUE
+
   if(!is.null(log) && !identical(log, "")){
     log <- match.arg(log)
   } else {
@@ -284,9 +295,9 @@ plot.pwelch <- function(
       freq <- log10(freq)
       spec <- 10 * log10(spec)
 
-      xlim <- range(xat)
-      if(xlim[1] < min(freq)) {
-        xlim[1] <- min(freq)
+      xlim <- range(xat, na.rm = TRUE)
+      if(xlim[1] < min(freq, na.rm = TRUE)) {
+        xlim[1] <- min(freq, na.rm = TRUE)
       }
     },
     "x" = {
@@ -298,9 +309,9 @@ plot.pwelch <- function(
       freq <- log10(freq)
       spec <- x$spec
 
-      xlim <- range(xat)
-      if(xlim[1] < min(freq)) {
-        xlim[1] <- min(freq)
+      xlim <- range(xat, na.rm = TRUE)
+      if(xlim[1] < min(freq, na.rm = TRUE)) {
+        xlim[1] <- min(freq, na.rm = TRUE)
       }
       se <- FALSE
     },
@@ -319,7 +330,16 @@ plot.pwelch <- function(
     }
   )
   if(!length(ylim)){
-    ylim <- range(pretty(spec))
+    spec_ <- spec[is.finite(spec)]
+    if(!length(spec_)) {
+      ylim <- c(-100, 0)
+      spec_range <- c(-100, 0)
+    } else {
+      ylim <- range(pretty(spec), na.rm = TRUE)
+      spec_range <- range(spec, na.rm = TRUE)
+    }
+  } else {
+    spec_range <- range(spec, na.rm = TRUE)
   }
 
   if(!is.matrix(spec)) {
@@ -336,7 +356,7 @@ plot.pwelch <- function(
     })
 
     graphics::plot(
-      range(freq), range(spec), type = "n", xlab = "", ylab = "",
+      range(freq, na.rm = TRUE), spec_range, type = "n", xlab = "", ylab = "",
       xlim = xlim, ylim = ylim, main = main, las = las,
       axes = FALSE, xaxs = xaxs, yaxs = yaxs,
       cex = cex, cex.main = cex_params$cex.main * cex,
@@ -356,6 +376,7 @@ plot.pwelch <- function(
     graphics::mtext(side = 1, text = xlab, line = xline,
                     cex = cex_params$cex.lab * cex)
 
+
     if(grid) {
       graphics::grid()
     }
@@ -372,10 +393,16 @@ plot.pwelch <- function(
 
   }
 
-  graphics::matpoints(freq, t(spec), type = type, col = col, lty = lty, lwd = lwd,
-                   cex = cex, cex.main = cex_params$cex.main * cex,
-                   cex.lab = cex_params$cex.lab * cex,
-                   cex.axis = cex_params$cex.axis * cex, ...)
+  spec_t <- t(spec)
+  sel <- is.finite(freq) & (rowSums(!is.finite(spec_t)) == 0)
+  if(any(sel)) {
+    graphics::matpoints(freq[sel], spec_t[sel,,drop = FALSE], type = type, col = col, lty = lty, lwd = lwd,
+                        cex = cex, cex.main = cex_params$cex.main * cex,
+                        cex.lab = cex_params$cex.lab * cex,
+                        cex.axis = cex_params$cex.axis * cex, ...)
+
+  }
+
   invisible(list(
     xlim = xlim,
     ylim = ylim
@@ -404,7 +431,7 @@ mv_pwelch <- function(x, margin, fs, nfft){
   spec <- spec[seq_len(NN)]
   freq <- seq(1, fs / 2, length.out = NN)
 
-  res <- structure(list(
+  structure(list(
     freq = freq,
     spec = spec,
     window = window,
@@ -412,6 +439,7 @@ mv_pwelch <- function(x, margin, fs, nfft){
     nfft = nfft,
     fs = fs,
     x_len = xlen,
-    method = "Welch"
+    method = "Welch",
+    nchannels = 1L
   ), class = c("ravetools-pwelch", "pwelch"))
 }
