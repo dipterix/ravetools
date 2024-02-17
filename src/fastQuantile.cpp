@@ -211,6 +211,10 @@ double quickQuantileInternal(T* &xptr, T* &bufptr, R_xlen_t &xlen, const double 
 }
 
 
+template double quickQuantileInternal<double>(double* &xptr, double* &bufptr, R_xlen_t &xlen, const double &prob);
+template double quickQuantileInternal<int>(int* &xptr, int* &bufptr, R_xlen_t &xlen, const double &prob);
+
+
 SEXP quickQuantile_double(const SEXP &x, const double &prob, const bool &naRm,
                           const bool &inplace) {
 
