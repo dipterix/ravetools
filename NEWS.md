@@ -1,3 +1,9 @@
+# ravetools 0.1.4
+
+* Implemented `dijkstra` to find shortest paths in mesh
+* Migrated and incorporated `vcglib`
+* Fixed a `C++` template issue via type explicit calls
+
 # ravetools 0.1.3
 
 * Rewrote `band_pass2` to avoid `NA` generated when upper band frequency is `Nyquist`
