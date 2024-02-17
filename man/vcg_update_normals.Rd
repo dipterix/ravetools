@@ -15,8 +15,8 @@ vcg_update_normals(
 \item{mesh}{triangular mesh or a point-cloud (matrix of 3 columns)}
 
 \item{weight}{method to compute per-vertex normal vectors: \code{"area"}
-weighted average of surrounding face 'normals', or \code{"angle"} weighted
-vertex 'normals'.}
+weighted average of surrounding face normal, or \code{"angle"} weighted
+vertex normal vectors.}
 
 \item{pointcloud}{integer vector of length 2: containing optional
 parameters for normal calculation of point clouds; the first entry
@@ -26,7 +26,7 @@ entry specifies the amount of smoothing iterations to be performed.}
 \item{verbose}{whether to verbose the progress}
 }
 \value{
-A \code{'mesh3d'} object with \code{'normals'} values.
+A \code{'mesh3d'} object with normal vectors.
 }
 \description{
 Update vertex normal
@@ -36,7 +36,7 @@ Update vertex normal
 
 if(is_not_cran()) {
 
-# Prepare mesh with no normals
+# Prepare mesh with no normal
 data("left_hippocampus_mask")
 mesh <- vcg_isosurface(left_hippocampus_mask)
 mesh$normals <- NULL

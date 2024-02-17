@@ -113,20 +113,20 @@ invertFaces <- function (mesh) {
 #' @title Update vertex normal
 #' @param mesh triangular mesh or a point-cloud (matrix of 3 columns)
 #' @param weight method to compute per-vertex normal vectors: \code{"area"}
-#' weighted average of surrounding face 'normals', or \code{"angle"} weighted
-#' vertex 'normals'.
+#' weighted average of surrounding face normal, or \code{"angle"} weighted
+#' vertex normal vectors.
 #' @param pointcloud integer vector of length 2: containing optional
 #' parameters for normal calculation of point clouds; the first entry
 #' specifies the number of neighboring points to consider; the second
 #' entry specifies the amount of smoothing iterations to be performed.
 #' @param verbose whether to verbose the progress
-#' @returns A \code{'mesh3d'} object with \code{'normals'} values.
+#' @returns A \code{'mesh3d'} object with normal vectors.
 #' @examples
 #'
 #'
 #' if(is_not_cran()) {
 #'
-#' # Prepare mesh with no normals
+#' # Prepare mesh with no normal
 #' data("left_hippocampus_mask")
 #' mesh <- vcg_isosurface(left_hippocampus_mask)
 #' mesh$normals <- NULL
@@ -182,7 +182,7 @@ vcg_update_normals <- function(
 
 
 #' @name vcg_smooth
-#' @title Implicit Smoothes a triangular mesh
+#' @title Implicitly smooth a triangular mesh
 #' @description
 #' Applies smoothing algorithms on a triangular mesh.
 #'
@@ -209,11 +209,9 @@ vcg_update_normals <- function(
 #' maximum allowed angle (in 'Radian') for deviation between surface preserving
 #' 'Laplacian'.
 #' @returns An object of class "mesh3d" with:
-#' \item{vb }{4xn matrix containing n vertices as homolougous coordinates.}
-#' \item{normals}{4xn matrix containing vertex normals.}
-#' \item{it }{4xm matrix containing vertex indices forming triangular
-#' faces.}
-#' @author Zhengjia Wang
+#' \item{\code{vb}}{vertex coordinates}
+#' \item{\code{normals}}{vertex normal vectors}
+#' \item{\code{it}}{triangular face index}
 #' @examples
 #'
 #' if(is_not_cran()) {
@@ -367,7 +365,7 @@ vcg_sphere <- function(sub_division = 3L, normals = TRUE) {
 #' is \code{0}
 #' @param threshold_ub upper-bound threshold for creating the surface; default
 #' is \code{NA} (no upper-bound)
-#' @param vox_to_ras a \code{4x4} 'affine' transform matrix indicating the
+#' @param vox_to_ras a \code{4x4} \code{'affine'} transform matrix indicating the
 #' 'voxel'-to-world transform.
 #'
 #' @return A triangular mesh of class \code{'mesh3d'}

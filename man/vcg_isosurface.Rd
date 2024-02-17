@@ -20,7 +20,7 @@ is \code{0}}
 \item{threshold_ub}{upper-bound threshold for creating the surface; default
 is \code{NA} (no upper-bound)}
 
-\item{vox_to_ras}{a \code{4x4} 'affine' transform matrix indicating the
+\item{vox_to_ras}{a \code{4x4} \code{'affine'} transform matrix indicating the
 'voxel'-to-world transform.}
 }
 \value{

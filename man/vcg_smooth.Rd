@@ -4,7 +4,7 @@
 \alias{vcg_smooth}
 \alias{vcg_smooth_implicit}
 \alias{vcg_smooth_explicit}
-\title{Implicit Smoothes a triangular mesh}
+\title{Implicitly smooth a triangular mesh}
 \usage{
 vcg_smooth_implicit(
   mesh,
@@ -62,10 +62,9 @@ maximum allowed angle (in 'Radian') for deviation between surface preserving
 }
 \value{
 An object of class "mesh3d" with:
-\item{vb }{4xn matrix containing n vertices as homolougous coordinates.}
-\item{normals}{4xn matrix containing vertex normals.}
-\item{it }{4xm matrix containing vertex indices forming triangular
-faces.}
+\item{\code{vb}}{vertex coordinates}
+\item{\code{normals}}{vertex normal vectors}
+\item{\code{it}}{triangular face index}
 }
 \description{
 Applies smoothing algorithms on a triangular mesh.
@@ -127,7 +126,4 @@ rgl_view({
 
 }
 
-}
-\author{
-Zhengjia Wang
 }

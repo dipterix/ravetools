@@ -64,9 +64,12 @@ fir1 <- function(
 
   if(w[[length(w)]] >= 1) {
     w <- w[-length(w)]
-  }
-
-  if(missing(type)) {
+    if(length(w) == 1) {
+      type <- "high"
+    } else {
+      type <- "DC-0"
+    }
+  } else if(missing(type)) {
     if(nw == 1) {
       type <- "low"
     } else if (nw == 2) {
@@ -77,6 +80,7 @@ fir1 <- function(
   } else {
     type <- match.arg(type)
   }
+
   nw <- length(w)
 
   nbands <- nw + 1
@@ -85,8 +89,6 @@ fir1 <- function(
   if( type == "pass" ) {
     if( nbands > 2 ) {
       type <- "DC-0"
-    } else if ( nbands == 2 ) {
-      type <- "high"
     }
   }
 
@@ -97,7 +99,7 @@ fir1 <- function(
   use_first_band <- !type %in% c("DC-0", "high")
   magnitude <- rep( (use_first_band + seq(0, nbands - 1)) %% 2, each = 2)
 
-  n <- fir_validate(n, freq[[length(freq)]], magnitude, odd_allowed = !hilbert)
+  n <- fir_validate(n, freq[[length(freq)]], magnitude, odd_allowed = hilbert)
 
   # filter length is order+1
   filter_len <- n + 1

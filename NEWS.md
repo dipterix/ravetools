@@ -3,6 +3,7 @@
 * Implemented `dijkstra` to find shortest paths in mesh
 * Migrated and incorporated `vcglib`
 * Fixed a `C++` template issue via type explicit calls
+* Fixed `fir1` filter when band-passing signals with incorrect `n`
 
 # ravetools 0.1.3
 
