@@ -4,6 +4,7 @@
 * Migrated and incorporated `vcglib`
 * Fixed a `C++` template issue via type explicit calls
 * Fixed `fir1` filter when band-passing signals with incorrect `n`
+* `pwelch` plot works with zero power now; `mv_pwelch` plot error fixed
 
 # ravetools 0.1.3
 
