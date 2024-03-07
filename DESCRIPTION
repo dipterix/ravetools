@@ -4,9 +4,9 @@ Title: Signal and Image Processing Toolbox for Analyzing Intracranial 'Electroen
 Version: 0.1.5
 Language: en-US
 Authors@R: c(
-    person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
+    person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre")),
     person("University of Pennsylvania", role = c("cph")),
-    person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph"), comment = "Contributed to src/ffts.h and stc/ffts.cpp"),
+    person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph", "ctb"), comment = "Contributed to src/ffts.h and stc/ffts.cpp"),
     person("Thomas", "Possidente", role = c("cph", "ctb"), comment = "Contributed to R/multitaper.R"),
     person("Michael", "Prerau", role = c("cph", "ctb"), comment = "Contributed to R/multitaper.R"),
     person("Marcus", "Geelnard", role = c("ctb", "cph"), comment = "TinyThread library, tinythreadpp.bitsnbites.eu, located at inst/include/tthread/"),
