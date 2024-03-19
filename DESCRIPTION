@@ -5,13 +5,22 @@ Version: 0.1.5
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre")),
-    person("University of Pennsylvania", role = c("cph")),
-    person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph", "ctb"), comment = "Contributed to src/ffts.h and stc/ffts.cpp"),
-    person("Thomas", "Possidente", role = c("cph", "ctb"), comment = "Contributed to R/multitaper.R"),
-    person("Michael", "Prerau", role = c("cph", "ctb"), comment = "Contributed to R/multitaper.R"),
-    person("Marcus", "Geelnard", role = c("ctb", "cph"), comment = "TinyThread library, tinythreadpp.bitsnbites.eu, located at inst/include/tthread/"),
-    person("Stefan", "Schlager", role = c("ctb", "cph"), comment = "R-vcg interface, located at src/vcgCommon.h"),
-    person("ISTI-CNR", role = c("ctb", "cph"), comment = "Copyright holder of vcglib, located at src/vcglib/")
+    person("John", "Magnotti", email = "john.magnotti@pennmedicine.upenn.edu", role = c("aut")),
+    person("Michael", "Beauchamp", email = "michael.beauchamp@pennmedicine.upenn.edu", role = c("aut")),
+    person("Trustees of the University of Pennsylvania", role = c("cph"), 
+            comment = "All files in this package unless explicitly stated in the file or listed in the 'Copyright' section below."),
+    person("Karim", "Rahim", email = "karim.rahim@queensu.ca", role = c("cph", "ctb"), 
+            comment = "Contributed to src/ffts.h and stc/ffts.cpp"),
+    person("Thomas", "Possidente", role = c("cph", "ctb"), 
+            comment = "Contributed to R/multitaper.R"),
+    person("Michael", "Prerau", role = c("cph", "ctb"), 
+            comment = "Contributed to R/multitaper.R"),
+    person("Marcus", "Geelnard", role = c("ctb", "cph"), 
+            comment = "TinyThread library, tinythreadpp.bitsnbites.eu, located at inst/include/tthread/"),
+    person("Stefan", "Schlager", role = c("ctb", "cph"), 
+            comment = "R-vcg interface, located at src/vcgCommon.h"),
+    person("Visual Computing Lab", role = c("ctb", "cph"), 
+            comment = "Copyright holder of vcglib, located at src/vcglib/")
     )
 Description: Implemented fast and memory-efficient 'Notch'-filter, 
     'Welch-periodogram', discrete wavelet spectrogram for hours of 
@@ -24,11 +33,20 @@ Description: Implemented fast and memory-efficient 'Notch'-filter,
     details.
 BugReports: https://github.com/dipterix/ravetools/issues
 URL: https://dipterix.org/ravetools/
-License: GPL-3
+License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 Depends: R (>= 4.0.0)
 SystemRequirements: fftw3 (libfftw3-dev (deb), or fftw-devel (rpm)), pkg-config
+Copyright: Karim Rahim (author of R package 'fftwtools', licensed under 'GPL-2'
+    or later) is the original author of 'src/ffts.h' and 'src/ffts.cpp'. 
+    Prerau's Lab wrote the original 'R/multitaper.R', licensed under 'MIT'.
+    Marcus Geelnard wrote the source code of 'TinyThread' library ('MIT' license) 
+    located at 'inst/include/tthread'. Stefan Schlager
+    wrote the original code that converts R objects to 'vcg' (see 
+    'src/vcgCommon.h', licensed under 'GPL-2' or later). Visual Computing Lab 
+    is the copyright holder of 'vcglib' source code (see 'src/vcglib', licensed
+    under GPL-2 or later). 
 Imports:
     graphics,
     stats,
