@@ -33,7 +33,7 @@ Each contribution has been specified explicitly under DESCRIPTION. We also added
 
 > 'Beauchamp lab' does not appear to comply with the manual's "(copyright holder, which should be the legal name for an institution or corporate body)". From the website, the legal entity would appear to be 'University of Pennsylvania'. Please decide whether you or your institution owns the copyright to your contributions.
 
-Corrected. 
+Corrected. You might also notice that `vcglib` copyright holder is "Visual Computing Lab, ISTI". This is what's in their copyright statement.
 
 #### Issues brought up during last submission
 

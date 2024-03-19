@@ -19,7 +19,7 @@ Authors@R: c(
             comment = "TinyThread library, tinythreadpp.bitsnbites.eu, located at inst/include/tthread/"),
     person("Stefan", "Schlager", role = c("ctb", "cph"), 
             comment = "R-vcg interface, located at src/vcgCommon.h"),
-    person("Visual Computing Lab", role = c("ctb", "cph"), 
+    person("Visual Computing Lab, ISTI", role = c("ctb", "cph"), 
             comment = "Copyright holder of vcglib, located at src/vcglib/")
     )
 Description: Implemented fast and memory-efficient 'Notch'-filter, 
