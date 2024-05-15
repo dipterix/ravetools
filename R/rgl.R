@@ -54,6 +54,9 @@ check_rgl <- function(strict = NA) {
 #' @export
 rgl_call <- function(FUN, ...) {
   check_rgl()
+
+  # Cannot set this option back with on.exit, rgl may throw warning/errors
+  # when X11 is unavailable. This option forces rgl to use webgl renderers.
   options(rgl.useNULL = TRUE)
   rgl <- asNamespace("rgl")
   f <- rgl[[FUN]]

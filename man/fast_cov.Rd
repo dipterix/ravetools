@@ -47,7 +47,7 @@ fast_cov(x)
 # Calculate covariance of subsets
 fast_cov(x, col_x = 1, col_y = 1:2)
 
-if(interactive()){
+\donttest{
 
 # Speed comparison, better to use multiple cores (4, 8, or more)
 # to show the differences.

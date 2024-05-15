@@ -99,10 +99,9 @@ matlab_palette <- function(){
 #'
 #' @examples
 #'
-#' if(interactive()){
-#'   detect_threads()
-#'   ravetools_threads(n_threads = 2)
-#' }
+#' detect_threads()
+#'
+#' ravetools_threads(n_threads = 2)
 #'
 #' @export
 detect_threads <- function() {

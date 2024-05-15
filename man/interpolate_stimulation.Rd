@@ -49,7 +49,7 @@ x[420:430] <- 100
 
 fitted <- interpolate_stimulation(x, 100, duration = 0.3, nknots = 10, nsd = 2)
 
-par(mfrow = c(2, 1))
+oldpar <- par(mfrow = c(2, 1))
 
 plot(fitted, type = 'l', col = 'blue', lwd = 2)
 lines(x, col = 'red')
@@ -60,6 +60,8 @@ legend("topleft", c("Interpolated", "Observed", "Underlying"),
 pwelch(x0, 100, 200, 100, plot = 1, col = 'black', ylim = c(-50, 50))
 pwelch(x, 100, 200, 100, plot = 2, col = 'red')
 pwelch(fitted, 100, 200, 100, plot = 2, col = 'blue')
+
+par(oldpar)
 
 
 }

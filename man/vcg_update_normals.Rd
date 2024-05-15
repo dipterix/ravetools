@@ -33,7 +33,6 @@ Update vertex normal
 }
 \examples{
 
-
 if(is_not_cran()) {
 
 # Prepare mesh with no normal

@@ -37,7 +37,7 @@ Registers 'CT' to 'MRI', or 'MRI' to another 'MRI'
 }
 \examples{
 
-if(interactive()) {
+\donttest{
 
 source <- system.file("extdata", "epi_t2.nii.gz", package="RNiftyReg")
 target <- system.file("extdata", "flash_t1.nii.gz", package="RNiftyReg")
@@ -47,7 +47,7 @@ source_img <- aligned$source[[1]]
 target_img <- aligned$target
 aligned_img <- aligned$image
 
-par(mfrow = c(2, 2), mar = c(0.1, 0.1, 3.1, 0.1))
+oldpar <- par(mfrow = c(2, 2), mar = c(0.1, 0.1, 3.1, 0.1))
 
 pal <- grDevices::grey.colors(256, alpha = 1)
 image(source_img[,,30], asp = 1, axes = FALSE,
@@ -63,6 +63,8 @@ target_img[is.nan(target_img) | aligned_img <= 1] <- 1
 diff <- abs(aligned_img / target_img - 1)
 image(diff[,,64], asp = 1, axes = FALSE,
       col = pal, main = "Percentage Difference")
+
+par(oldpar)
 
 }
 

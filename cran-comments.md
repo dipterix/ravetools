@@ -2,8 +2,28 @@
 
 0 errors | 0 warnings | 0 note
 
+## Address CRAN submission check issues
 
-## Additional note summary:
+> Please only write package names, software names and API (application programming interface) names in single quotes in title and description and remove it from all other words.
+> e.g.: 'Electroencephalography' -> Electroencephalography
+
+Single quotes are removed on `Electroencephalography`, `Notch`, and `iEEG`. Two other single quotes remain unchanged because
+
+* `'RAVE'` is a package and project name
+* `'citation("ravetools")'` is a piece of code and seems to appear in other package descriptions too
+
+> Only which are supposed to only run interactively (e.g. shiny) should be wrapped in if(interactive()). Please replace if(interactive()){} with \donttest{} if possible.
+> e.g.: in man/wavelet.Rd, etc.
+
+Removed all `interactive()` from the examples, replaced with `donttest`. One case (`dijkstras`) used `donttest` as it requires external optional data.
+
+
+> Please always make sure to reset to user's options(), working directory or par() after you changed it in examples and vignettes and demos.
+> man/band_pass.Rd; man/convolve.Rd;  man/dijkstras-path.Rd; man/grow_volume.Rd; man/interpolate_stimulation.Rd; man/register_volume.Rd; man/shift_array.Rd
+
+I have searched `options` and `par` calls (both in code and in examples) and added `on.exit` or appended calls to reset these options.
+
+## Additional note on authorship:
 
 We have met with our IP office and open-source software lawyer to resolve proper declaration of IP/authorship/copyright and license and decided that the license should be GPL-2 or later.
 

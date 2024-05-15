@@ -144,8 +144,8 @@ re2 <- baseline_array(x, 3, c(1,2,4),
 # Check different, should be very tiny (double precisions)
 range(re2 - re1)
 
-# Check speed for large dataset
-if(interactive()){
+\donttest{
+# Check speed for large dataset, might take a while to profile
 
 ravetools_threads(n_threads = -1)
 

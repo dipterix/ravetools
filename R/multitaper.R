@@ -37,7 +37,9 @@
 #'
 #' @examples
 #'
-#' if(interactive()) {
+#' \donttest{
+#'
+#' # Takes long to run
 #'
 #' time <- seq(0, 3, by = 0.001)
 #' x <- sin(time * 20*pi) + exp(-time^2) * cos(time * 10*pi)

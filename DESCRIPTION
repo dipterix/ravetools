@@ -1,6 +1,6 @@
 Package: ravetools
 Type: Package
-Title: Signal and Image Processing Toolbox for Analyzing Intracranial 'Electroencephalography' Data
+Title: Signal and Image Processing Toolbox for Analyzing Intracranial Electroencephalography Data
 Version: 0.1.5
 Language: en-US
 Authors@R: c(
@@ -22,10 +22,11 @@ Authors@R: c(
     person("Visual Computing Lab, ISTI", role = c("ctb", "cph"), 
             comment = "Copyright holder of vcglib, located at src/vcglib/")
     )
-Description: Implemented fast and memory-efficient 'Notch'-filter, 
-    'Welch-periodogram', discrete wavelet spectrogram for hours of 
+Description: Implemented fast and memory-efficient Notch-filter, 
+    Welch-periodogram, discrete wavelet spectrogram for minutes of 
     high-resolution signals, fast 3D convolution, image registration,
-    3D mesh manipulation; providing fundamental toolbox for 'iEEG' pipelines. 
+    3D mesh manipulation; providing fundamental toolbox for intracranial 
+    Electroencephalography (iEEG) pipelines. 
     Documentation and examples about 'RAVE' project are provided at 
     <https://openwetware.org/wiki/RAVE>, and the paper by John F. Magnotti, 
     Zhengjia Wang, Michael S. Beauchamp (2020) 

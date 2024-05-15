@@ -123,7 +123,6 @@ invertFaces <- function (mesh) {
 #' @returns A \code{'mesh3d'} object with normal vectors.
 #' @examples
 #'
-#'
 #' if(is_not_cran()) {
 #'
 #' # Prepare mesh with no normal

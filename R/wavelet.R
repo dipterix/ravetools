@@ -27,7 +27,7 @@
 #'
 #' @examples
 #'
-#' if(interactive()){
+#' \donttest{
 #'
 #' # generate sine waves
 #' time <- seq(0, 3, by = 0.01)

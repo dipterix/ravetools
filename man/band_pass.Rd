@@ -65,7 +65,7 @@ Band-pass signals
 t <- seq(0, 1, by = 0.0005)
 x <- sin(t * 0.4 * pi) + sin(t * 4 * pi) + 2 * sin(t * 120 * pi)
 
-par(mfrow = c(2, 2), mar = c(3.1, 2.1, 3.1, 0.1))
+oldpar <- par(mfrow = c(2, 2), mar = c(3.1, 2.1, 3.1, 0.1))
 # ---- Using band_pass1 ------------------------------------------------
 
 y1 <- band_pass1(x, 2000, 0.1, 1)
@@ -120,6 +120,7 @@ pwelch(z2, fs = 2000, window = 4000, noverlap = 2000,
 pwelch(z3, fs = 2000, window = 4000, noverlap = 2000,
        plot = 2, col = "green")
 
-
+# ---- Clean this demo --------------------------------------------------
+par(oldpar)
 
 }

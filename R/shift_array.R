@@ -42,17 +42,14 @@
 #' shift_amount <- c(1,-1,0)
 #' z <- shift_array(x, 3, 1, shift_amount)
 #'
-#' if(interactive()){
-#'
-#' par(mfrow = c(3, 2), mai = c(0.8, 0.6, 0.4, 0.1))
+#' oldpar <- par(mfrow = c(3, 2), mai = c(0.8, 0.6, 0.4, 0.1))
 #' for( ii in 1:3 ){
 #'   image(t(x[ii, ,]), ylab = 'Frequency', xlab = 'Time',
 #'         main = paste('Trial', ii))
 #'   image(t(z[ii, ,]), ylab = 'Frequency', xlab = 'Time',
 #'         main = paste('Shifted amount:', shift_amount[ii]))
 #' }
-#'
-#' }
+#' par(oldpar)
 #'
 #' @export
 shift_array <- function(x, along_margin, unit_margin, shift_amount) {

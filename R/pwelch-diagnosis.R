@@ -88,8 +88,8 @@ diagnose_channel <- function(
   }
 
 
-  on.exit({graphics::par(par_opt)}, add = TRUE)
   graphics::par(mar = mar, mgp = mgp, cex.lab = par_opt$cex.lab)
+  on.exit({graphics::par(par_opt)}, add = TRUE)
 
   if(length(which) == 0){
     # grid::grid.newpage()

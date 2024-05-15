@@ -114,8 +114,8 @@
 #' # Check different, should be very tiny (double precisions)
 #' range(re2 - re1)
 #'
-#' # Check speed for large dataset
-#' if(interactive()){
+#' \donttest{
+#' # Check speed for large dataset, might take a while to profile
 #'
 #' ravetools_threads(n_threads = -1)
 #'

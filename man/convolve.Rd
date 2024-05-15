@@ -68,9 +68,10 @@ kernel <- kernel / sum(kernel)
 
 y <- convolve_image(x, kernel)
 
-par(mfrow = c(1,2))
+oldpar <- par(mfrow = c(1,2))
 image(x, asp = 1, axes = FALSE, main = "Origin")
 image(y, asp = 1, axes = FALSE, main = "Smoothed")
+par(oldpar)
 
 
 }

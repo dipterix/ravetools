@@ -119,13 +119,13 @@ points(positions[1,,drop=FALSE], pch = 16, col = "orangered")
 points(positions[6,,drop=FALSE], pch = 16, col = "purple3")
 
 # ---- Example with mesh ------------------------------------
-read.fs.surface <- internal_rave_function(
-  "read.fs.surface", "threeBrain")
 
-if(interactive() && is.function(read.fs.surface)) {
+\dontrun{
 
-  # Please install package `threeBrain`. and library(threeBrain)
+  # Please install the down-stream package `threeBrain`
+  # and call library(threeBrain)
   # the following code set up the files
+
   read.fs.surface <- internal_rave_function(
     "read.fs.surface", "threeBrain")
   default_template_directory <- internal_rave_function(
@@ -163,7 +163,7 @@ if(interactive() && is.function(read.fs.surface)) {
   col <- pal[ceiling(
     path$distance / max(path$distance, na.rm = TRUE) * 1000
   ) + 1]
-  par(mfrow = c(2, 2), mar = c(0, 0, 0, 0))
+  oldpar <- par(mfrow = c(2, 2), mar = c(0, 0, 0, 0))
   for(xdim in c(1, 2, 3)) {
     if( xdim < 3 ) {
       ydim <- xdim + 1
@@ -202,7 +202,7 @@ if(interactive() && is.function(read.fs.surface)) {
   )
 
   # reset graphic state
-  par(mfrow = c(1, 1), mar = c(5.1, 4.1, 4.1, 2.1))
+  par(oldpar)
 
 }
 

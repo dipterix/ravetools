@@ -48,7 +48,9 @@ so the mask boundary tightly fits the surface
 }
 \examples{
 
-if(interactive()) { # takes > 5s to run example
+\donttest{
+
+# takes > 5s to run example
 
 # Generate a sphere
 surface <- vcg_sphere()

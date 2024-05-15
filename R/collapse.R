@@ -31,7 +31,8 @@
 #' sum(abs(result - compare)) # The same, yield 0 or very small number (1e-10)
 #'
 #'
-#' if(interactive()){
+#' \donttest{
+#'
 #' ravetools_threads(n_threads = -1)
 #'
 #' # Example 3 (performance)

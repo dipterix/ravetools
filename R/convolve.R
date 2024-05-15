@@ -47,9 +47,10 @@
 #'
 #' y <- convolve_image(x, kernel)
 #'
-#' par(mfrow = c(1,2))
+#' oldpar <- par(mfrow = c(1,2))
 #' image(x, asp = 1, axes = FALSE, main = "Origin")
 #' image(y, asp = 1, axes = FALSE, main = "Smoothed")
+#' par(oldpar)
 #'
 #'
 NULL
@@ -192,7 +193,7 @@ convolve_volume <- function(x, filter) {
 #' @examples
 #'
 #'
-#' par(mfrow = c(2,3), mar = c(0.1,0.1,3.1,0.1))
+#' oldpar <- par(mfrow = c(2,3), mar = c(0.1,0.1,3.1,0.1))
 #'
 #' mask <- array(0, c(21,21,21))
 #' mask[11,11,11] <- 1
@@ -210,6 +211,8 @@ convolve_volume <- function(x, filter) {
 #'       main = "Dilated (size=2) mask", axes = FALSE)
 #' image(grow_volume(mask, 5)[11,,], asp = 1,
 #'       main = "Dilated (size=5) mask", axes = FALSE)
+#'
+#' par(oldpar)
 #'
 #'
 #' @export
