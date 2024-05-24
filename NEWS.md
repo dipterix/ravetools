@@ -2,6 +2,7 @@
 
 * Fixed `dijkstra` method occasionally causing memory error. New method is much faster now.
 * Fixed `plot.pwelch` not displaying the signal names correctly.
+* Removed `c++17` requirement and supports 11, 14, and 17 standards
 
 # ravetools 0.1.5
 
