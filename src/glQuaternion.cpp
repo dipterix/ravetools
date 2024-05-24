@@ -378,8 +378,11 @@ void Quaternion__set_from_unit_vectors(
 
 
 double Quaternion::angleTo(Quaternion& q) {
-
-  return 2 * std::acos(std::abs(std::clamp(this->dot(q), -1.0, 1.0)));
+  double d = std::abs( this->dot(q) );
+  if( d >= 1.0 ) {
+    d = 1.0;
+  }
+  return 2 * std::acos( d );
 }
 
 // [[Rcpp::export]]

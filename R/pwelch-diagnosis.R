@@ -142,11 +142,17 @@ diagnose_channel <- function(
              log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
+        if(length(name) && any(nzchar(name))) {
+          graphics::legend("topright", legend = name, col = col, lty = 1, bty = "n", cex = cex)
+        }
       } else {
         plot(ps1, add = FALSE, col = col[1], cex = cex, ylim = plim,
              log = 'y', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
+        if(length(name) && nzchar(name[[1]])) {
+          graphics::legend("topright", legend = name[[1]], col = col[[1]], lty = 1, bty = "n", cex = cex)
+        }
       }
 
     }
@@ -162,11 +168,17 @@ diagnose_channel <- function(
              log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
+        if(length(name) && any(nzchar(name))) {
+          graphics::legend("topright", legend = name, col = col, lty = 1, bty = "n", cex = cex)
+        }
       } else {
         plot(ps1, add = FALSE, col = col[1], cex = cex, ylim = plim,
              log = 'xy', xlim = xlim, xaxs = xaxs, yaxs = yaxs, mar = mar,
              xline = xline, yline = yline, main = "Welch Periodogram",
              mgp = mgp, tck = tck)
+        if(length(name) && nzchar(name[[1]])) {
+          graphics::legend("topright", legend = name[[1]], col = col[[1]], lty = 1, bty = "n", cex = cex)
+        }
       }
 
     }

@@ -4,85 +4,26 @@
 
 ## Address CRAN submission check issues
 
-> Please only write package names, software names and API (application programming interface) names in single quotes in title and description and remove it from all other words.
-> e.g.: 'Electroencephalography' -> Electroencephalography
 
-Single quotes are removed on `Electroencephalography`, `Notch`, and `iEEG`. Two other single quotes remain unchanged because
+Dear CRAN maintainer, I received Prof. Ripley's email on May 20, 2024:
 
-* `'RAVE'` is a package and project name
-* `'citation("ravetools")'` is a piece of code and seems to appear in other package descriptions too
+```
+Dear maintainer,
 
-> Only which are supposed to only run interactively (e.g. shiny) should be wrapped in if(interactive()). Please replace if(interactive()){} with \donttest{} if possible.
-> e.g.: in man/wavelet.Rd, etc.
+Please see the problems shown on
+<https://cran.r-project.org/web/checks/check_results_ravetools.html>.
 
-Removed all `interactive()` from the examples, replaced with `donttest`. One case (`dijkstras`) used `donttest` as it requires external optional data.
+Please correct before 2024-06-03 to safely retain your package on CRAN.
 
+The CRAN Team
+```
 
-> Please always make sure to reset to user's options(), working directory or par() after you changed it in examples and vignettes and demos.
-> man/band_pass.Rd; man/convolve.Rd;  man/dijkstras-path.Rd; man/grow_volume.Rd; man/interpolate_stimulation.Rd; man/register_volume.Rd; man/shift_array.Rd
+I was able to reproduce this issue.
 
-I have searched `options` and `par` calls (both in code and in examples) and added `on.exit` or appended calls to reset these options.
+The C++ code that caused this issue was completely removed from this new version.
 
-## Additional note on authorship:
+The new version was tested under the same environment and no more `valgrind` error was reported.
 
-We have met with our IP office and open-source software lawyer to resolve proper declaration of IP/authorship/copyright and license and decided that the license should be GPL-2 or later.
+Also checked with R-devel compiled with clang-ASAN, passed without error.
 
-By the University of Pennsylvania rules, the copyright holder of this package is UPenn due to how the project is funded. Two new authors have been added to the author list.
-
-Please see below for additional issues addressed. We believe this is our best effort to comply with rules set by both UPenn and CRAN.
-
-## Additional issues addressed:
-
-The authorship has been changed (fixed) according to the `CRAN` policy. 
-
-To address the issue brought by Uwe Ligges:
-
-#### Original reason for archiving
-
-> there is only one stated author. So you are claiming authorship of all the code copyrighted by others.  All that code has authors ... so these people are at least contributors.
-
-All contributors are added. 
-
-> We do not consider 'RcppParallel Authors' is precise enough for copyright holders, and in any case they are probably not the copyright holders (Posit seems to be).  The authors involved (not all of RcppParallel() need to be listed by name as authors or contributors.
-
-The `tinythread` code authorship and ownership has been corrected to its owner.
-
-> who owns what needs to be much more precise, probably listing file or directory names.
-
-Each contribution has been specified explicitly under DESCRIPTION. We also added `Copyright` section to provide details. 
-
-> 'Beauchamp lab' does not appear to comply with the manual's "(copyright holder, which should be the legal name for an institution or corporate body)". From the website, the legal entity would appear to be 'University of Pennsylvania'. Please decide whether you or your institution owns the copyright to your contributions.
-
-Corrected. You might also notice that `vcglib` copyright holder is "Visual Computing Lab, ISTI". This is what's in their copyright statement.
-
-#### Issues brought up during last submission
-
-> we still see
-> $ fgrep -r 'University of Pennsylvania' .
-> ./ravetools/DESCRIPTION:    person("University of Pennsylvania", role = c("cph")),
-> ./ravetools/DESCRIPTION:  University of Pennsylvania [cph],
->  and for what is it cph? Der is not a single copyright notice in any of the files about University of Pennsylvania
-
-UPenn owns the rest. We have added "All files in this package unless explicitly stated..." comment.
-
-
-> But then you have
-ravetools/inst/include/tthread/fast_mutex.h:Copyright (c) 2010-2012 Marcus Geelnard
-ravetools/inst/include/tthread/tinythread.inl:Copyright (c) 2010-2012 Marcus Geelnard
-ravetools/inst/include/tthread/tinythread.h:Copyright (c) 2010-2012 Marcus Geelnard
-
-Marcus Geelnard is in the author list, with explicit comment "TinyThread library, tinythreadpp.bitsnbites.eu, located at inst/include/tthread/"
-
-> ravetools/inst/sanity/global-baseline-comparison.html: * Copyright 2011-2015 Twitter, Inc.
-> ravetools/inst/sanity/global-baseline-comparison.html:<script>/*! Respond.js v1.4.2: min/max-width media query polyfill * Copyright 2013 Scott Jehl
-> and we do not see these in the DESCRIPTION.
-
-I have removed this compiled file. However...
-
-We all disagree with this one. `global-baseline-comparison.html` is considered as derivative compiled by `rmarkdown`. A more extreme example, this package contains `configure`, which is generated by `autoconf` and the file has a copyright statement inside. Does CRAN packages (or 99% C++/Python libraries on the internet) list the original author of "configure" as `ctb` or `cph`, or CRAN archive packages that use `autoconf` because of such "violation"?
-
-
-> After we complained  several times, you have still not checked carefully yourself, and each time we come further we still dinf issue. This is unacceptable.
-> Please do not resubmit unless you have a proper declaration of IP/authorship/copyright ...
-
-We have met with our IP office and open-source software lawyer to resolve proper declaration of IP/authorship/copyright and license. We believe that all issues above are properly addressed.
+All windows (oldrel, release, and devel) are checked.

@@ -1,3 +1,14 @@
+# ravetools 0.1.6
+
+* Fixed `dijkstra` method occasionally causing memory error. New method is much faster now.
+* Fixed `plot.pwelch` not displaying the signal names correctly.
+
+# ravetools 0.1.5
+
+* Fixed `FIR1` filter
+* Fixed `pwelch` throwing warnings when signal is zero (or zero power)
+* Updated authorship
+
 # ravetools 0.1.4
 
 * Implemented `dijkstra` to find shortest paths in mesh

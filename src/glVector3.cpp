@@ -1520,7 +1520,12 @@ std::vector<double> Vector3::angleTo(Vector3& v) {
         theta = x / y;
       }
       // clamp, to handle numerical problems
-      return std::acos(std::clamp(theta, -1.0, 1.0));
+      if( theta < -1.0 ) {
+        theta = -1.0;
+      } else if ( theta > 1.0 ) {
+        theta = 1.0;
+      }
+      return std::acos(theta);
     }
   );
 
