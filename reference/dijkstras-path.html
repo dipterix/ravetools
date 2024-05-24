@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,13 +52,12 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dijkstras_surface_distance</span><span class="op">(</span></span>
-<span>  <span class="va">start_node</span>,</span>
 <span>  <span class="va">positions</span>,</span>
 <span>  <span class="va">faces</span>,</span>
+<span>  <span class="va">start_node</span>,</span>
 <span>  face_index_start <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  max_search_distance <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  max_edge_length <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">surface_path</span><span class="op">(</span><span class="va">x</span>, <span class="va">target_node</span><span class="op">)</span></span></code></pre></div>
@@ -66,13 +65,7 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>start_node</dt>
-<dd><p>integer, row index of <code>positions</code> on where to start
-calculating the distances. This integer must be 1-indexed and cannot exceed
-the total number of <code>positions</code> rows</p></dd>
-
-
-<dt>positions</dt>
+    <dl><dt>positions</dt>
 <dd><p>numeric matrix with no <code>NA</code> values. The number of row
 is the total count of nodes (vertices), and the number of columns represent
 the node dimension. Each row represents a node.</p></dd>
@@ -83,6 +76,12 @@ the node dimension. Each row represents a node.</p></dd>
 graphs, <code>faces</code> is a matrix with two columns defining the connecting
 edges; for '3D' mesh, <code>faces</code> is a three-column matrix defining the
 face index of mesh triangles.</p></dd>
+
+
+<dt>start_node</dt>
+<dd><p>integer, row index of <code>positions</code> on where to start
+calculating the distances. This integer must be 1-indexed and cannot exceed
+the total number of <code>positions</code> rows</p></dd>
 
 
 <dt>face_index_start</dt>
@@ -100,16 +99,8 @@ default is <code>NA</code>,
 that is to iterate and search the whole mesh</p></dd>
 
 
-<dt>max_edge_length</dt>
-<dd><p>numeric, maximum edge length to consider;
-default is <code>NA</code>,
-that is to consider all edges. In triangular mesh objects, it is possible
-that some edges are too long to consider as "valid" path. User this input
-to ignore those edges.</p></dd>
-
-
-<dt>verbose</dt>
-<dd><p>whether to verbose the progress; default is false</p></dd>
+<dt>...</dt>
+<dd><p>reserved for backward compatibility</p></dd>
 
 
 <dt>x</dt>
