@@ -7,22 +7,17 @@
 \title{Calculate distances along a surface}
 \usage{
 dijkstras_surface_distance(
-  start_node,
   positions,
   faces,
+  start_node,
   face_index_start = NA,
   max_search_distance = NA,
-  max_edge_length = NA,
-  verbose = FALSE
+  ...
 )
 
 surface_path(x, target_node)
 }
 \arguments{
-\item{start_node}{integer, row index of \code{positions} on where to start
-calculating the distances. This integer must be 1-indexed and cannot exceed
-the total number of \code{positions} rows}
-
 \item{positions}{numeric matrix with no \code{NA} values. The number of row
 is the total count of nodes (vertices), and the number of columns represent
 the node dimension. Each row represents a node.}
@@ -31,6 +26,10 @@ the node dimension. Each row represents a node.}
 graphs, \code{faces} is a matrix with two columns defining the connecting
 edges; for '3D' mesh, \code{faces} is a three-column matrix defining the
 face index of mesh triangles.}
+
+\item{start_node}{integer, row index of \code{positions} on where to start
+calculating the distances. This integer must be 1-indexed and cannot exceed
+the total number of \code{positions} rows}
 
 \item{face_index_start}{integer, the start of the nodes in \code{faces};
 please specify this input explicitly if the first node is not contained
@@ -43,13 +42,7 @@ represent the first node, some start from \code{0}.}
 default is \code{NA},
 that is to iterate and search the whole mesh}
 
-\item{max_edge_length}{numeric, maximum edge length to consider;
-default is \code{NA},
-that is to consider all edges. In triangular mesh objects, it is possible
-that some edges are too long to consider as "valid" path. User this input
-to ignore those edges.}
-
-\item{verbose}{whether to verbose the progress; default is false}
+\item{...}{reserved for backward compatibility}
 
 \item{x}{distance calculation results returned by
 \code{dijkstras_surface_distance} function}

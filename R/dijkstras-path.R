@@ -21,12 +21,7 @@
 #' @param max_search_distance numeric, maximum distance to iterate;
 #' default is \code{NA},
 #' that is to iterate and search the whole mesh
-#' @param max_edge_length numeric, maximum edge length to consider;
-#' default is \code{NA},
-#' that is to consider all edges. In triangular mesh objects, it is possible
-#' that some edges are too long to consider as "valid" path. User this input
-#' to ignore those edges.
-#' @param verbose whether to verbose the progress; default is false
+#' @param ... reserved for backward compatibility
 #' @param x distance calculation results returned by
 #' \code{dijkstras_surface_distance} function
 #' @param target_node the target node number to reach (from the starting node);
@@ -182,7 +177,48 @@
 #'
 #'
 #' @export
-dijkstras_surface_distance <- function(start_node, positions, faces, face_index_start = NA, max_search_distance = NA, max_edge_length = NA, verbose = FALSE) {
+#' @export
+dijkstras_surface_distance <- function(positions, faces, start_node, face_index_start = NA, max_search_distance = NA, ...) {
+
+  # DIPSAUS DEBUG START
+  # read.fs.surface <- internal_rave_function(
+  #   "read.fs.surface", "threeBrain")
+  # default_template_directory <- internal_rave_function(
+  #   "default_template_directory", "threeBrain")
+  # surface_path <- file.path(default_template_directory(),
+  #                           "N27", "surf", "lh.pial")
+  # if(!file.exists(surface_path)) {
+  #   internal_rave_function(
+  #     "download_N27", "threeBrain")()
+  # }
+  #
+  # mesh <- read.fs.surface(surface_path)
+  # positions <- mesh$vertices
+  # faces <- mesh$faces
+  # start_node <- 1L
+  # face_index_start <- NA
+  # max_search_distance <- NA
+#
+#
+  # # Position is 2D, total 6 points
+  # positions <- matrix(runif(6 * 2), ncol = 2)
+  #
+  # # edges defines connected nodes
+  # faces <- matrix(ncol = 2, byrow = TRUE, data = c(
+  #   1,2,
+  #   2,3,
+  #   1,3,
+  #   2,4,
+  #   3,4,
+  #   2,5,
+  #   4,5,
+  #   2,5,
+  #   4,6,
+  #   5,6
+  # ))
+  #
+
+
   stopifnot(is.matrix(positions))
   stopifnot(is.matrix(faces))
 
@@ -190,31 +226,35 @@ dijkstras_surface_distance <- function(start_node, positions, faces, face_index_
     faces <- array(as.integer(faces), dim = dim(faces))
   }
 
+  nc_face <- ncol(faces)
+  nc_positions <- ncol(positions)
+  if(!nc_face %in% c(2, 3)) {
+    stop("`dijkstras_distance`: Face indices `faces` should have two or three columns")
+  }
+  if(!nc_positions %in% c(1,2,3)) {
+    stop("`dijkstras_distance`: Vertex `positions` dimension should be 1, 2, or 3")
+  }
+
   n_points <- nrow(positions)
   n_indices <- nrow(faces)
   max_index <- max(faces)
   min_index <- min(faces)
 
-  verbose <- isTRUE(as.logical(verbose))
-
+  if( !n_points || !n_indices ) {
+    stop("`dijkstras_distance`: cannot work with zero number vertices or empty face indices.")
+  }
 
   if(!isTRUE(max_search_distance > 0 && is.finite(max_search_distance))) {
-    max_search_distance <- 0.0
-  }
-  if(!isTRUE(max_edge_length > 0 && is.finite(max_edge_length))) {
-    max_edge_length <- 0.0
+    max_search_distance <- -1.0
   }
 
   if(anyNA(positions)) {
-    stop("Cannot handle NA vertex positions")
+    stop("`dijkstras_distance`: Cannot handle NA vertex positions")
   }
   if(is.na(min_index)) {
-    stop("Cannot handle NA face index")
+    stop("`dijkstras_distance`: Cannot handle NA face index")
   }
-  start_node <- as.integer(start_node)
-  if(!isTRUE( start_node >= 1 & start_node <= n_points)) {
-    stop("`surface_distance_dijkstras`: start_node must be an integer indicating the vertex node from which that distance calculation starts. The acceptable value must be from 1 to the number of nodes")
-  }
+
   # Check the face index start (0 or 1)
   face_index_start <- as.integer(face_index_start)
   if(length(face_index_start) != 1 || is.na(face_index_start)) {
@@ -225,50 +265,68 @@ dijkstras_surface_distance <- function(start_node, positions, faces, face_index_
 
   if( max_index - face_index_start + 1 > n_points ) {
     warning("`surface_distance_dijkstras`: face index starts from ", face_index_start,
-         ". Found face index [", max_index, "] that is greater than maximum allowed [",
-         n_points - 1 + face_index_start, "]. Some mesh triangles will be ignored.")
+            ". Found face index [", max_index, "] that is greater than maximum allowed [",
+            n_points - 1 + face_index_start, "]. Some mesh triangles will be ignored.")
     max_fidx <- n_points - 1
     sel <- rowSums(faces < 0 | faces > max_fidx) == 0
     faces <- faces[sel, , drop = FALSE]
     n_indices <- nrow(faces)
   }
+  if( n_indices == 0 ) {
+    stop("No valid face indices found.")
+  }
 
-  positions <- t(positions)
-  faces <- t(faces)
+  if(length(start_node) < 1) {
+    stop("`dijkstras_distance`: `start_node` must not be empty")
+  }
+  start_node <- as.integer(start_node - face_index_start)
+  if(!isTRUE( all( start_node >= 0 & start_node < n_points ) )) {
+    stop("`dijkstras_distance`: `start_node` is invalid. `start_node - face_index_start` must be integer(s) (no NA allowed) between 0 ~ ", n_points - 1)
+  }
 
-  re <- dijkstras_path(
-    position = positions,
-    index = faces,
-    indexOrder = order(faces) - 1L,
-    nPoints = n_points,
-    nIndices = n_indices,
-    startIndex = start_node - 1L,
-    maxDistance = max_search_distance,
-    maxEdgeLen = max_edge_length,
-    verbose = verbose
+  if( nc_positions == 1 ) {
+    positions <- cbind(positions, 0, 0)
+  } else if( nc_positions == 2 ) {
+    positions <- cbind(positions, 0)
+  }
+
+  if( nc_face == 2 ) {
+    positions <- rbind(positions, Inf)
+    faces <- rbind(
+      cbind(faces, n_points),
+      cbind(n_points, faces[,c(2,1)])
+    )
+  }
+
+  ret <- vcgDijkstra(
+    t(positions),
+    t(faces),
+    start_node,
+    max_search_distance
   )
 
-
-  # previous_node <- re[[1]] + 1
-  distance <- re[[2]]
-  distance[distance < 0] <- NA_real_
+  if( max_search_distance <= 0 ) {
+    max_search_distance <- Inf
+  }
 
   structure(
     list(
       paths = data.frame(
         node_id = seq_len(n_points),
-        prev_id = re[[1]] + 1,
-        distance = distance
+        prev_id = ret$parent[seq_len(n_points)] + 1L,
+        distance = ret$geodist[seq_len(n_points)]
       ),
       start_node = start_node,
-      max_search_distance = ifelse(max_search_distance <= 0, Inf, max_search_distance),
-      max_edge_length = ifelse(max_edge_length <= 0, Inf, max_edge_length),
+      face_index_start = face_index_start,
+      max_search_distance = max_search_distance,
       n_nodes = n_points,
       n_faces = n_indices
     ),
     class = c("ravetools-surf-dist-dijkstras", "ravetools-surf-dist")
   )
+
 }
+
 
 
 # x <- dijkstras_surface_distance(1, mesh$vertices, mesh$faces, max_search_distance = NA, verbose = TRUE)
@@ -299,23 +357,3 @@ surface_path <- function(x, target_node) {
   )
 }
 
-
-#' Get external function from 'RAVE'
-#' @description
-#' Internal function used for examples relative to 'RAVE' project and should
-#' not be used directly.
-#' @param name function or variable name
-#' @param pkg 'RAVE' package name
-#' @param inherit passed to \code{\link{get0}}
-#' @param on_missing default value to return of no function is found
-#' @returns Function object if found, otherwise \code{on_missing}.
-#' @export
-internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL) {
-  if(!pkg %in% c("raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
-                 "dipsaus", "filearray", "readNSx", "rpymat", "rpyANTs")) {
-    stop("`extern_function`: Package [", pkg, "] is not a RAVE package.")
-  }
-  if(system.file(package = pkg) == "") { return(on_missing) }
-  ns <- asNamespace(pkg)
-  get0(x = name, envir = ns, inherits = inherit, ifnotfound = on_missing)
-}

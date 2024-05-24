@@ -25,10 +25,6 @@ columnMedian <- function(x, naRm) {
     .Call(`_ravetools_columnMedian`, x, naRm)
 }
 
-dijkstras_path <- function(position, index, indexOrder, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen, verbose) {
-    .Call(`_ravetools_dijkstras_path`, position, index, indexOrder, nPoints, nIndices, startIndex, maxDistance, maxEdgeLen, verbose)
-}
-
 fastColMeans <- function(x, col, xDim) {
     .Call(`_ravetools_fastColMeans`, x, col, xDim)
 }
@@ -607,6 +603,10 @@ vcgVolume <- function(mesh_) {
 
 vcgSphere <- function(subdiv, normals) {
     .Call(`_ravetools_vcgSphere`, subdiv, normals)
+}
+
+vcgDijkstra <- function(vb_, it_, source, maxdist_) {
+    .Call(`_ravetools_vcgDijkstra`, vb_, it_, source, maxdist_)
 }
 
 # Register entry points for exported C++ functions

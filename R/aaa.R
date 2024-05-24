@@ -167,6 +167,27 @@ is_not_cran <- function (if_interactive = TRUE, verbose = FALSE) {
   return(FALSE)
 }
 
+#' Get external function from 'RAVE'
+#' @description
+#' Internal function used for examples relative to 'RAVE' project and should
+#' not be used directly.
+#' @param name function or variable name
+#' @param pkg 'RAVE' package name
+#' @param inherit passed to \code{\link{get0}}
+#' @param on_missing default value to return of no function is found
+#' @returns Function object if found, otherwise \code{on_missing}.
+#' @export
+internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL) {
+  if(!pkg %in% c("raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
+                 "dipsaus", "filearray", "readNSx", "rpymat", "rpyANTs")) {
+    stop("`extern_function`: Package [", pkg, "] is not a RAVE package.")
+  }
+  if(system.file(package = pkg) == "") { return(on_missing) }
+  ns <- asNamespace(pkg)
+  get0(x = name, envir = ns, inherits = inherit, ifnotfound = on_missing)
+}
+
+
 
 #' Left 'Hippocampus' of 'N27-Collin' brain
 #'

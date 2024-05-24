@@ -41,6 +41,7 @@
 #include <vcg/complex/algorithms/closest.h>
 #include <vcg/complex/algorithms/smooth.h>
 #include <vcg/complex/algorithms/implicit_smooth.h>
+#include <vcg/complex/algorithms/geodesic.h>
 //#include <vcg/complex/allocate.h>
 #include <wrap/callback.h>
 #include <vcg/complex/append.h>
