@@ -18,12 +18,10 @@ Please correct before 2024-06-03 to safely retain your package on CRAN.
 The CRAN Team
 ```
 
-I was able to reproduce this issue.
+The functions to calculate `dijkstras` distances have been completely removed 
+from this re-submission.
 
-The C++ code that caused this issue was completely removed from this new version.
+We will continue working on solving this issue and include the fix in the 
+next release.
 
-The new version was tested under the same environment and no more `valgrind` error was reported.
-
-Also checked with R-devel compiled with clang-ASAN, passed without error.
-
-All windows (oldrel, release, and devel) are checked.
+Thanks
