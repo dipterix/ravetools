@@ -1,135 +1,59 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://dipterix.org/ravetools/404.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/index.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/installation.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/band_pass.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/baseline_array.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/collapse.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/convolve.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/decimate.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/detrend.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/diagnose_channel.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/fast_cov.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/fast_quantile.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/fill_surface.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/filter_signal.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/filtfilt.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/grow_volume.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/internal_rave_function.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/interpolate_stimulation.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/is_not_cran.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/left_hippocampus_mask.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/matlab_palette.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/mesh_from_volume.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/multitaper.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/new_matrix4.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/new_quaternion.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/new_vector3.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/notch_filter.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/parallel-options.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/plot_signals.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/pwelch.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/raw-to-sexp.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/register_volume.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/rgl-call.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/shift_array.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/vcg_mesh_volume.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/vcg_smooth.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/vcg_sphere.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/vcg_uniform_remesh.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/vcg_update_normals.html</loc>
-  </url>
-  <url>
-    <loc>https://dipterix.org/ravetools/reference/wavelet.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://dipterix.org/ravetools/404.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/authors.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/index.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/installation.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/news/index.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/band_pass.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/baseline_array.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/butter_max_order.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/check_filter.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/collapse.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/convolve.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/decimate.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/design_filter.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/design_filter_fir.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/design_filter_iir.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/detrend.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/diagnose_channel.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/diagnose_filter.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/dijkstras-path.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/fast_cov.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/fast_quantile.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/fill_surface.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/filter_signal.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/filtfilt.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/fir1.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/firls.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/freqz2.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/grow_volume.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/index.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/internal_rave_function.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/interpolate_stimulation.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/is_not_cran.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/left_hippocampus_mask.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/matlab_palette.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/mesh_from_volume.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/multitaper.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/new_matrix4.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/new_quaternion.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/new_vector3.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/notch_filter.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/parallel-options.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/plot_signals.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/pwelch.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/raw-to-sexp.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/rcond_filter_ar.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/reexports.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/register_volume.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/rgl-call.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/shift_array.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_mesh_volume.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_smooth.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_sphere.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_uniform_remesh.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_update_normals.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/wavelet.html</loc></url>
 </urlset>
+
