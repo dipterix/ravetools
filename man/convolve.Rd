@@ -25,8 +25,9 @@ If \code{x} is complex, results will be complex, otherwise results will
 be real numbers.
 }
 \description{
-Use the 'Fast-Fourier' transform to compute the convolutions of
-two data with zero padding.
+Use the 'Fast-Fourier' transform to compute the convolutions of two data
+with zero padding. This function is mainly designed for image convolution.
+For forward and backward convolution/filter, see \code{\link{filtfilt}}.
 }
 \details{
 This implementation uses 'Fast-Fourier' transform to perform

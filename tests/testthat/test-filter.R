@@ -62,7 +62,7 @@ test_that("C++ signal filter", {
     list(y, z)
   }
 
-  bf <- signal::butter(10, c(0.15, 0.3))
+  bf <- gsignal::butter(10, c(0.15, 0.3))
   t <- seq(0, 1, by = 0.005)
   x <- as.double(sin(2*pi*t*2.3)) + rnorm(length(t), mean = t)
   b <- as.double(bf$b)

@@ -187,7 +187,19 @@ internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL)
   get0(x = name, envir = ns, inherits = inherit, ifnotfound = on_missing)
 }
 
+#' @export
+`print.ravetools-printable` <- function(x, ...) {
+  cat(paste(c(format(x, ...), ""), collapse = "\n"))
+}
 
+#' @export
+`format.ravetools-printable` <- function(x, ...) {
+  printable_message <- attr(x, "printable_message")
+  if(length(printable_message)) {
+    return(printable_message)
+  }
+  NextMethod("format")
+}
 
 #' Left 'Hippocampus' of 'N27-Collin' brain
 #'

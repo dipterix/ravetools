@@ -1,12 +1,4 @@
-sineint <- function(x) {
-  neg <- x < 0
-  x[neg] <- -x[neg]
 
-  re <- Im( pracma::expint( 1i * x ) ) + pi/2
-  re[neg] <- -re[neg]
-  re[x == 0] <- 0
-  re
-}
 
 
 scale_filter <- function(b, fband, freq, len) {
@@ -48,6 +40,30 @@ fir_validate <- function(n, max_freq, magnitude, odd_allowed = FALSE) {
 }
 
 
+#' Window-based \code{FIR} filter design
+#' @description
+#' Generate a \code{fir1} filter that is checked against \code{Matlab}
+#' \code{fir1} function.
+#'
+#' @param n filter order
+#' @param w band edges, non-decreasing vector in the range 0 to 1, where 1 is
+#' the \code{Nyquist} frequency. A scalar for high-pass or low-pass filters,
+#' a vector pair for band-pass or band-stop, or a vector for an
+#' alternating pass/stop filter.
+#' @param type type of the filter, one of \code{"low"} for a low-pass filter,
+#' \code{"high"} for a high-pass filter, \code{"stop"} for a stop-band
+#' (band-reject) filter, \code{"pass"} for a pass-band filter, \code{"DC-0"}
+#' for a band-pass as the first band of a multi-band filter, or \code{"DC-1"}
+#' for a band-stop as the first band of a multi-band filter; default \code{"low"}
+#' @param window smoothing window function or a numerical vector. The filter is
+#' the same shape as the smoothing window. When \code{window} is a function,
+#' \code{window(n+1)} will be called, otherwise the length of the window
+#' vector needs to have length of \code{n+1}; default: \code{hamming}
+#' @param scale whether to scale the filter; default is true
+#' @param hilbert whether to use 'Hilbert' transformer; default is false
+#' @returns The \code{FIR} filter coefficients with class \code{'Arma'}.
+#' The moving average coefficient is a vector of length \code{n+1}.
+#' @export
 fir1 <- function(
     n, w, type = c("low", "high", "stop", "pass", "DC-0", "DC-1"),
     window = hamming, scale = TRUE, hilbert = FALSE
@@ -117,10 +133,9 @@ fir1 <- function(
   }
 
   if(hilbert) {
-    stop("`fir1`: Hilbert option has not been implemented yet")
-    hh <- firls(n, freq, magnitude, ftype = "hilbert")$h
+    hh <- firls(n, freq, magnitude, ftype = "hilbert")$b
   } else {
-    hh <- firls(n, freq, magnitude)$h
+    hh <- firls(n, freq, magnitude)$b
   }
 
   b <- wind * hh
@@ -129,7 +144,7 @@ fir1 <- function(
     b <- scale_filter(b, use_first_band, freq, filter_len)
   }
 
-  return(b)
+  return(structure(list(b = b, a = 1), class = "Arma"))
 }
 
 sinc <- function(x) {
@@ -141,6 +156,23 @@ sinc <- function(x) {
   re
 }
 
+#' Least-squares linear-phase \code{FIR} filter design
+#' @description
+#' Produce a linear phase filter from the weighted mean squared such that error
+#' in the specified bands is minimized.
+#' @param N filter order, must be even (if odd, then will be increased by one)
+#' @param freq vector of frequency points in the range from 0 to 1, where 1
+#' corresponds to the \code{Nyquist} frequency.
+#' @param A vector of the same length as \code{freq} containing the desired
+#' amplitude at each of the points specified in \code{freq}.
+#' @param W weighting function that contains one value for each band that
+#' weights the mean squared error in that band. \code{W} must be half the
+#' length of \code{freq}.
+#' @param ftype transformer type; default is \code{""}; alternatively,
+#' \code{'h'} or \code{'hilbert'} for 'Hilbert' transformer.
+#' @returns The \code{FIR} filter coefficients with class \code{'Arma'}.
+#' The moving average coefficient is a vector of length \code{n+1}.
+#' @export
 firls <- function(N, freq, A, W = NULL, ftype = "") {
 
   if (!is.numeric(N) || length(N) != 1 || !is.finite(N) || N <= 0) {
@@ -168,6 +200,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     filtype <- 1
     differ <- 0
   } else if (identical(ftype, "d") || identical(ftype, "differentiator")) {
+    stop("Filter type 'differentiator' has not been implemented yet")
     filtype <- 1
     differ <- 1
   } else {
@@ -235,6 +268,9 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     b <- numeric(length(k))
 
     for (s in seq(1, length(Fn), by = 2)) {
+      if(Fn[s + 1] == Fn[s]) {
+        next
+      }
       m_s <- (A[s + 1] - A[s]) / (Fn[s + 1] - Fn[s])
       b1 <- A[s] - m_s * Fn[s]
 
@@ -257,7 +293,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     }
 
     if (need_matrix) {
-      a <- solve(G, b)
+      a <- qr.solve(G, b, tol = 1e-30)
     } else {
       a <- (wt[1]^2) * 4 * b
       if (Nodd) {
@@ -299,6 +335,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     }
 
     for (s in seq(1, length(Fn), by = 2)) {
+      if( Fn[s + 1] == Fn[s] ) { next }
       if (do_weight[(s + 1) / 2]) {
         if (Fn[s] == 0) {
           Fn[s] <- 1e-5
@@ -365,7 +402,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     h <- 0
   }
 
-  return(list(h = h, a = 1))
+  return(structure(list(b = h, a = 1), class = "Arma"))
 }
 
 
@@ -381,268 +418,47 @@ initMatrices <- function(m) {
   return(list(I1 = I1, I2 = I2, G = G))
 }
 
-# firls <- function(n, freq, magnitude, weight, type = c("default", "hilbert", "differentiator")) {
-#
-#   type <- match.arg(type)
-#   freq_length <- length(freq)
-#
-#   if(freq_length %% 2 != 0) {
-#     stop("`firls`: `filter` size must be even")
-#   }
-#   if(length(freq) != length(magnitude)) {
-#     stop("`firls`: `filter` size not equals to `magnitude` size")
-#   }
-#
-#   if(missing(weight)) {
-#     weight <- rep(1, floor(freq_length / 2))
-#   }
-#
-#   min_freq <- min(freq)
-#   max_freq <- max(freq)
-#
-#   n <- fir_validate(n, freq[[length(freq)]], magnitude, type != "default")
-#
-#   filter_length <- n + 1
-#   half_freq <- freq / 2
-#   amp <- as.double(magnitude)
-#   wt <- Mod(sqrt( as.complex(weight) ))
-#
-#   # difference of half-frequency
-#   diff_hf <- diff(half_freq)
-#   len_hf <- freq_length - 1
-#
-#   fullband <- FALSE
-#   if( len_hf > 1 ){
-#     if(all(diff_hf[seq(2, len_hf, by = 2)] == 0)) {
-#       fullband <- TRUE
-#     }
-#   }
-#
-#   # validate weight
-#   if(all(wt == wt[[1]])) {
-#     constant_weights <- TRUE
-#   } else {
-#     constant_weights <- FALSE
-#   }
-#
-#   l <- n / 2
-#   b0 <- 0
-#   a <- 1
-#   h <- 0
-#
-#   fl_is_even <- filter_length %% 2 == 0
-#   need_matrix <- !(fullband && constant_weights)
-#
-#   half_freq2 <- matrix(half_freq, nrow = 2, byrow = FALSE)
-#
-#   if( type == "default" ) {
-#
-#     if( fl_is_even ) {
-#       # type II filter
-#       m <- seq(0, l) + 0.5
-#     } else {
-#       m <- seq(0, l)
-#     }
-#
-#     if( need_matrix ) {
-#       # TODO init matrix
-#       I1 <- outer(m, m, "+")
-#       I2 <- outer(m, m, "-")
-#       G <- array(0.0, c(l, l))
-#     } else {
-#       I1 <- 0
-#       I2 <- 0
-#       G <- 0
-#     }
-#
-#     if( !fl_is_even ) {
-#       # the first element is 0, need to handle differently
-#       m <- m[-1]
-#     }
-#
-#     b <- rep(0.0, length(m))
-#
-#     for(ii in seq_len(ncol(half_freq2))) {
-#       s <- 2 * ii - 1
-#
-#       slope <- (amp[s + 1] - amp[s]) / (half_freq2[s + 1] - half_freq2[s])
-#       intercept <- amp[s] - slope * half_freq2[s]
-#
-#       if( !fl_is_even ) {
-#         b0 <- b0 + (
-#           intercept * (half_freq2[s + 1] - half_freq2[s]) +
-#             slope / 2 * (half_freq2[s + 1]^2 - half_freq2[s]^2)
-#         ) * (wt[(s + 1) / 2])^2
-#       }
-#
-#       b <- b +
-#         (
-#           slope * ( cos(2 * pi * m * half_freq2[s+1]) - cos(2 * pi * m * half_freq2[s]) ) /
-#             (2*pi*m)^2
-#         ) * (wt[(s+1) / 2]) ^ 2 +
-#         (
-#           half_freq2[s+1] * ( slope * half_freq2[s+1] + intercept ) * sinc( 2*m*half_freq2[s+1] ) -
-#             half_freq2[s] * ( slope * half_freq2[s] + intercept ) * sinc( 2*m*half_freq2[s] )
-#         ) * (wt[(s+1) / 2]) ^ 2
-#
-#       if( need_matrix ) {
-#         G <- G + (
-#           half_freq2[s+1] * ( sinc(2 * I1 * half_freq2[s+1]) + sinc(2 * I2 * half_freq2[s+1]) ) -
-#             half_freq2[s] * ( sinc(2 * I1 * half_freq2[s]) + sinc(2 * I2 * half_freq2[s]) )
-#         ) * (wt[(s+1) / 2]) ^ 2 / 2
-#       }
-#
-#     }
-#
-#     if(!fl_is_even) {
-#       b <- c(b0, b)
-#     }
-#
-#     if( need_matrix ) {
-#       a <- solve(G, b)
-#     } else {
-#       a <- (wt[1]^2) * 4 * b
-#       if(!fl_is_even) {
-#         a[[1]] <- a[[1]] / 2
-#       }
-#     }
-#
-#     if( !fl_is_even ) {
-#       sub <- a[seq(2, l + 1)] / 2
-#       h <- c(rev(sub), a[[1]], sub)
-#     } else {
-#       h <- c(rev(a), a) / 2
-#     }
-#
-#
-#   } else {
-#     # Type 3/4 FIR
-#
-#     amp2 <- matrix(amp, nrow = 2, byrow = FALSE)
-#     if( type == "differentiator" ) {
-#       do_weight <- abs(amp2[1,]) > abs(amp2[2,])
-#     } else {
-#       do_weight <- rep(FALSE, ncol(amp2))
-#     }
-#
-#     need_matrix <- need_matrix || any(do_weight)
-#     if( !fl_is_even ) {
-#       m <- seq_len(l)
-#     } else {
-#       m <- seq(0, l) + 0.5
-#     }
-#
-#     b <- 0
-#
-#     if( need_matrix ) {
-#       I1 <- outer(m, m, "+")
-#       I2 <- outer(m, m, "-")
-#       G <- array(0.0, c(l, l))
-#     } else {
-#       I1 <- 0
-#       I2 <- 0
-#       G <- 0
-#     }
-#
-#
-#     for(ii in seq_len(length(half_freq) / 2)) {
-#       s <- 2 * ii - 1
-#
-#       if(do_weight[[ii]]) {
-#         if(half_freq2[[s]] == 0) {
-#           half_freq2[[s]] <- 1e-5
-#         }
-#
-#         slope <- (amp[s + 1] - amp[s]) / (half_freq2[s + 1] - half_freq2[s])
-#         intercept <- amp[s] - slope * half_freq2[s]
-#
-#         tmp1 <- 2*pi * m * half_freq2[s + 1]
-#         tmp0 <- 2*pi * m * half_freq2[s]
-#         snint1 <- sineint( tmp1 ) - sineint( tmp0 )
-#         csint1 <- -0.5 * Re(
-#           pracma::expint( 1i * tmp1 ) + pracma::expint( -1i * tmp1 ) -
-#             pracma::expint( 1i * tmp0 ) - pracma::expint( -1i * tmp0 )
-#         )
-#
-#         slope * snint1 + intercept * 2*pi * m * (
-#           sinc( 2 * m * half_freq2[s] ) + csint1 - sinc( 2 * m * half_freq2[s + 1] )
-#         ) * wt[[ii]]^2
-#
-#
-#         tmp12 <- 2*pi * half_freq2[s + 1] * (-I2)
-#         tmp11 <- 2*pi * half_freq2[s + 1] * I1
-#         tmp02 <- 2*pi * half_freq2[s] * (-I2)
-#         tmp01 <- 2*pi * half_freq2[s] * I1
-#         snint1 <- sineint( tmp12 )
-#         snint2 <- sineint( tmp11 )
-#         snint3 <- sineint( tmp02 )
-#         snint4 <- sineint( tmp01 )
-#
-#         G <- G + 0.5 * (
-#           (
-#             cos( tmp12 ) / half_freq2[s + 1] -
-#               2 * snint1 * pi * I2 -
-#               cos( tmp11 ) / half_freq2[s + 1] -
-#               2 * snint2 * pi * I1 ) -
-#           (
-#             cos( tmp02 ) / half_freq2[s] -
-#               2 * snint3 * pi * I2 -
-#               cos( tmp01 ) / half_freq2[s] -
-#               2 * snint4 * pi * I1
-#           )
-#         ) * wt[[ii]]^2
-#
-#       } else {
-#
-#         slope <- (amp[s + 1] - amp[s]) / (half_freq2[s + 1] - half_freq2[s])
-#         intercept <- amp[s] - slope * half_freq2[s]
-#
-#         if( !fl_is_even ) {
-#           b0 <- b0 + (
-#             intercept * (half_freq2[s + 1] - half_freq2[s]) +
-#               slope / 2 * (half_freq2[s + 1]^2 - half_freq2[s]^2)
-#           ) * (wt[(s + 1) / 2])^2
-#         }
-#
-#         b <- b +
-#           (
-#             slope * ( sin(2 * pi * m * half_freq2[s+1]) - sin(2 * pi * m * half_freq2[s]) ) /
-#               (2*pi*m)^2
-#           ) * (wt[(s+1) / 2]) ^ 2 +
-#           (
-#             ( slope * half_freq2[s] + intercept ) * cos( 2*m*half_freq2[s] ) -
-#             ( slope * half_freq2[s+1] + intercept ) * cos( 2*m*half_freq2[s+1] )
-#           ) / (2 * pi * m) * (wt[(s+1) / 2]) ^ 2
-#
-#         if( need_matrix ) {
-#           G <- G + (
-#             half_freq2[s+1] * ( sinc(2 * I1 * half_freq2[s+1]) - sinc(2 * I2 * half_freq2[s+1]) ) -
-#               half_freq2[s] * ( sinc(2 * I1 * half_freq2[s]) - sinc(2 * I2 * half_freq2[s]) )
-#           ) * (wt[(s+1) / 2]) ^ 2 / 2
-#         }
-#
-#       }
-#     }
-#
-#
-#     if( need_matrix ) {
-#       a <- solve(G, b)
-#     } else {
-#       a <- -4 * b * wt[[1]]^2
-#     }
-#
-#     if( !fl_is_even ) {
-#       h <- c(rev(a), 0, -a) / 2
-#     } else {
-#       h <- c(rev(a), -a) / 2
-#     }
-#
-#     if ( type == "differentiator" ) {
-#       h <- -h
-#     }
-#
-#   }
-#
-#   return(list(h = h, b = b, a = a))
-#
-# }
+
+# Might not be implemented correctly, not used
+fir2 <- function (n, f, m, grid_n = 512,
+                  ramp_n = grid_n/20,
+                  window = hamming(n + 1))
+{
+  t <- length(f)
+  if (t < 2 || f[1] != 0 || f[t] != 1 || any(diff(f) < 0))
+    stop("frequency must be nondecreasing starting from 0 and ending at 1")
+  if (t != length(m))
+    stop("frequency and magnitude vectors must be the same length")
+  if (length(grid_n) > 1 || length(ramp_n) > 1)
+    stop("grid_n and ramp_n must be integers")
+  if (length(window) != n + 1)
+    stop("window must be of length n+1")
+  if (2 * grid_n < n + 1)
+    grid_n <- 2^ceiling(log2(abs(n + 1)))
+  if (ramp_n > 0) {
+    basef <- f
+    basem <- m
+    idx <- which(diff(f) == 0)
+    f[idx] <- f[idx] - ramp_n/grid_n/2
+    f[idx + 1] <- f[idx + 1] + ramp_n/grid_n/2
+    f <- c(f, basef[idx])
+    f[f < 0] <- 0
+    f[f > 1] <- 1
+    f <- sort(unique(c(f, basef[idx])))
+    m <- approx(basef, basem, f, ties = "ordered")$y
+  }
+  grid <- approx(f, m, seq(0, 1, length = grid_n + 1), ties = "ordered")$y
+  if ((n%%2) == 0) {
+    b <- ifft(c(grid, grid[seq(grid_n, 2, by = -1)]))
+    mid <- (n + 1)/2
+    b <- Re(c(b[(2 * grid_n - floor(mid) + 1):(2 * grid_n)],
+              b[1:ceiling(mid)]))
+  } else {
+    b <- ifft(c(grid, rep(0, grid_n * 2), grid[seq(grid_n, 2, by = -1)]))
+    b <- 2 * Re(c(b[seq(length(b) - n + 1, length(b), by = 2)],
+                  b[seq(2, n + 2, by = 2)]))
+  }
+  b <- b * window
+  b
+}
+

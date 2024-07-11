@@ -147,7 +147,7 @@ myFilter <- function(b, a, x, z) {
   list(y, z)
 }
 
-bf <- signal::butter(2, c(0.15, 0.3))
+bf <- gsignal::butter(2, c(0.15, 0.3))
 t <- seq(0, 1, by = 0.01)                     # 1 second sample
 x <- as.double(sin(2*pi*t*2.3))
 b <- as.double(bf$b)

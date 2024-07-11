@@ -2,8 +2,8 @@
 % Please edit documentation in R/pwelch.R
 \name{pwelch}
 \alias{pwelch}
-\alias{print.pwelch}
-\alias{plot.pwelch}
+\alias{print.ravetools-pwelch}
+\alias{plot.ravetools-pwelch}
 \alias{mv_pwelch}
 \title{Calculate 'Welch Periodogram'}
 \usage{
@@ -22,9 +22,9 @@ pwelch(
   ...
 )
 
-\method{print}{pwelch}(x, ...)
+\method{print}{`ravetools-pwelch`}(x, ...)
 
-\method{plot}{pwelch}(
+\method{plot}{`ravetools-pwelch`}(
   x,
   log = c("xy", "x", "y", ""),
   se = FALSE,

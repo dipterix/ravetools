@@ -214,7 +214,7 @@ pwelch.default <- function (
 
 #' @rdname pwelch
 #' @export
-print.pwelch <- function(x, ...){
+`print.ravetools-pwelch` <- function(x, ...){
   cat(paste0(
     "Welch Periodogram:\n",
     sprintf("  # channels: %.0f\n", x$nchannels),
@@ -229,7 +229,7 @@ print.pwelch <- function(x, ...){
 
 #' @rdname pwelch
 #' @export
-plot.pwelch <- function(
+`plot.ravetools-pwelch` <- function(
     x, log = c("xy", "x", "y", ""), se = FALSE, xticks, type = 'l', add = FALSE,
     col = graphics::par("fg"), col.se = "orange", alpha.se = 0.5, lty = 1, lwd = 1,
     cex = 1, las = 1, main = 'Welch periodogram', xlab, ylab,

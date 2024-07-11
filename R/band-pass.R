@@ -186,8 +186,8 @@ band_pass2 <- function(x, sample_rate, lb, ub, order,
   }
 
   if(is.character(window)) {
-    signal <- asNamespace("signal")
-    window <- signal[[window]]
+    gsignal <- asNamespace("gsignal")
+    window <- gsignal[[window]]
   }
 
 
@@ -204,13 +204,13 @@ band_pass2 <- function(x, sample_rate, lb, ub, order,
 
   w <- c(lb, ub) / fn
   if(method == "fir") {
-    b <- fir1(order, w = w, type = "pass", window = window)
+    b <- fir1(order, w = w, type = "pass", window = window)$b
     a <- 1
   } else {
     if(is.function(window)) {
       window <- window(order + 1)
     }
-    bf <- signal::butter(order, w, type = "pass", window = window)
+    bf <- gsignal::butter(order, w, type = "pass", window = window)
     b <- bf$b
     a <- bf$a
   }

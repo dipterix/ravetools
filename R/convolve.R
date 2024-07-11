@@ -1,7 +1,10 @@
 #' @name convolve
 #' @title Convolution of \code{1D}, \code{2D}, \code{3D} data via \code{FFT}
-#' @description Use the 'Fast-Fourier' transform to compute the convolutions of
-#' two data with zero padding.
+#' @description
+#' Use the 'Fast-Fourier' transform to compute the convolutions of two data
+#' with zero padding. This function is mainly designed for image convolution.
+#' For forward and backward convolution/filter, see \code{\link{filtfilt}}.
+#'
 #' @param x one-dimensional signal vector, two-dimensional image, or
 #' three-dimensional volume; numeric or complex
 #' @param filter kernel with the same number of dimensions as \code{x}
