@@ -475,3 +475,96 @@ SEXP vcgSphere(const int& subdiv, bool normals) {
   return R_NilValue; // -Wall
 }
 
+
+
+// [[Rcpp::export]]
+SEXP vcgDijkstra(SEXP vb_, SEXP it_, const Rcpp::IntegerVector & source, const double & maxdist_) {
+  try {
+
+    ravetools::ScalarType maxdist = std::numeric_limits<ravetools::ScalarType>::max();
+    if( maxdist_ != NA_REAL && maxdist_ > 0.0 ) {
+      maxdist = maxdist_;
+    }
+
+    // Declare Mesh and helper variables
+    ravetools::MyMesh m;
+    ravetools::VertexIterator vi;
+
+    // Allocate mesh and fill it
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m,vb_,it_);
+    m.vert.EnableVFAdjacency();
+    m.vert.EnableQuality();
+    m.face.EnableFFAdjacency();
+    m.face.EnableVFAdjacency();
+    vcg::tri::UpdateTopology<ravetools::MyMesh>::VertexFace(m);
+
+    // Create int vertex indices to return to R.
+    vcg::SimpleTempData<ravetools::MyMesh::VertContainer,int> indices(m.vert);
+    vi = m.vert.begin();
+    for (int i=0; i < m.vn; i++) {
+      indices[vi] = i;
+      ++vi;
+    }
+
+    // Prepare seed vector with source vertex
+    std::vector<ravetools::MyVertex*> seedVec;
+    for ( int i = 0; i < source.length(); i++ ) {
+      vi = m.vert.begin() + source[i];
+      seedVec.push_back( &*vi );
+    }
+
+    std::vector<ravetools::MyVertex*> inInterval;
+    ravetools::MyMesh::PerVertexAttributeHandle<ravetools::MyMesh::VertexPointer> sourcesHandle;
+    sourcesHandle = vcg::tri::Allocator<ravetools::MyMesh>::AddPerVertexAttribute<ravetools::MyMesh::VertexPointer> (m, "sources");
+    ravetools::MyMesh::PerVertexAttributeHandle<ravetools::MyMesh::VertexPointer> parentHandle;
+    parentHandle = vcg::tri::Allocator<ravetools::MyMesh>::AddPerVertexAttribute<ravetools::MyMesh::VertexPointer> (m, "parent");
+
+    // Compute pseudo-geodesic distance by summing dists along shortest path in graph.
+    vcg::tri::EuclideanDistance<ravetools::MyMesh> ed;
+    vcg::tri::Geodesic<ravetools::MyMesh>::PerVertexDijkstraCompute(m,seedVec,ed, maxdist, &inInterval, &sourcesHandle, &parentHandle);
+    std::vector<double> geodist;
+    std::vector<int> parentNode;
+
+    ravetools::MyMesh::VertexPointer parent;
+    // ravetools::MyMesh::VertexPointer source;
+    int parentidx = 0;
+
+    vi=m.vert.begin();
+    for ( int i = 0 ; i < m.vn ; i++, vi++ ) {
+      parent = parentHandle[ i ];
+      // source = sourcesHandle[ i ];
+      if( parent == NULL ) {
+        // Rcpp::Rcout << i << " -> NA";
+        parentNode.push_back( NA_INTEGER );
+        geodist.push_back( NA_REAL );
+      } else {
+        parentidx = indices[parent];
+        // Rcpp::Rcout << i << " -> " << parentidx;
+        if( parentidx == i ) {
+          // source node
+          parentNode.push_back( NA_INTEGER );
+        } else {
+          parentNode.push_back( parentidx );
+        }
+        geodist.push_back( (double) ( vi->Q() ) );
+      }
+      // if( source != NULL ) {
+      //   Rcpp::Rcout << "  src: " << indices[source];
+      // }
+      // Rcpp::Rcout << "\n";
+    }
+
+    // clean up
+    vcg::tri::Allocator<ravetools::MyMesh>::DeletePerVertexAttribute<ravetools::MyMesh::VertexPointer> (m, sourcesHandle);
+    vcg::tri::Allocator<ravetools::MyMesh>::DeletePerVertexAttribute<ravetools::MyMesh::VertexPointer> (m, parentHandle);
+
+    // parents are 0-indexed
+    Rcpp::List L = Rcpp::List::create(Rcpp::Named("parent") = parentNode , Rcpp::Named("geodist") = geodist);
+    return L;
+  } catch (std::exception& e) {
+    Rcpp::stop( e.what() );
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return R_NilValue; // -Wall
+}

@@ -605,6 +605,10 @@ vcgSphere <- function(subdiv, normals) {
     .Call(`_ravetools_vcgSphere`, subdiv, normals)
 }
 
+vcgDijkstra <- function(vb_, it_, source, maxdist_) {
+    .Call(`_ravetools_vcgDijkstra`, vb_, it_, source, maxdist_)
+}
+
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
     .Call(`_ravetools_RcppExport_registerCCallable`)

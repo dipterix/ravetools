@@ -3556,6 +3556,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgDijkstra
+SEXP vcgDijkstra(SEXP vb_, SEXP it_, const Rcpp::IntegerVector& source, const double& maxdist_);
+RcppExport SEXP _ravetools_vcgDijkstra(SEXP vb_SEXP, SEXP it_SEXP, SEXP sourceSEXP, SEXP maxdist_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type source(sourceSEXP);
+    Rcpp::traits::input_parameter< const double& >::type maxdist_(maxdist_SEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgDijkstra(vb_, it_, source, maxdist_));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 // validate (ensure exported C++ functions exist before calling them)
 static int _ravetools_RcppExport_validate(const char* sig) { 
@@ -3875,6 +3889,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgUpdateNormals", (DL_FUNC) &_ravetools_vcgUpdateNormals, 5},
     {"_ravetools_vcgVolume", (DL_FUNC) &_ravetools_vcgVolume, 1},
     {"_ravetools_vcgSphere", (DL_FUNC) &_ravetools_vcgSphere, 2},
+    {"_ravetools_vcgDijkstra", (DL_FUNC) &_ravetools_vcgDijkstra, 4},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };
