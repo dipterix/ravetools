@@ -4,7 +4,7 @@
 \alias{check_filter}
 \title{Check 'Arma' filter}
 \usage{
-check_filter(b, a, w = NULL, r_expected = NULL)
+check_filter(b, a, w = NULL, r_expected = NULL, fs = NULL)
 }
 \arguments{
 \item{b}{moving average (\code{MA}) polynomial coefficients.}
@@ -14,6 +14,9 @@ check_filter(b, a, w = NULL, r_expected = NULL)
 \item{w}{normalized frequency, ranging from 0 to 1, where 1 is 'Nyquist'}
 
 \item{r_expected}{attenuation in decibel of each \code{w}}
+
+\item{fs}{sample rate, used to infer the frequencies and formatting print
+message, not used in calculation; leave it blank by default}
 }
 \value{
 A list of power estimation and the reciprocal condition number

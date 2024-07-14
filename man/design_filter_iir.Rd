@@ -5,19 +5,19 @@
 \title{Design an 'IIR' filter}
 \usage{
 design_filter_iir(
-  family = c("butter", "cheby1", "cheby2", "ellip"),
+  method = c("butter", "cheby1", "cheby2", "ellip"),
   sample_rate,
   filter_order = NA,
   high_pass_freq = NA,
   high_pass_trans_freq = NA,
   low_pass_freq = NA,
   low_pass_trans_freq = NA,
-  peak_attenuation = NA,
-  trans_attenuation = NA
+  passband_ripple = 0.1,
+  stopband_attenuation = 40
 )
 }
 \arguments{
-\item{family}{filter family name, choices are \code{"butter"},
+\item{method}{filter method name, choices are \code{"butter"},
 \code{"cheby1"}, \code{"cheby2"}, and \code{"ellip"}}
 
 \item{sample_rate}{sampling frequency}
@@ -39,19 +39,14 @@ low-pass filter will be applied)}
 \item{low_pass_trans_freq}{low-pass frequency band-width; default
 is automatically inferred from filter type.}
 
-\item{peak_attenuation}{expected power attenuation (in decibel) at high-pass
-low pass frequencies. For 'Butterworth' filters, we recommend set to
-\code{NA} and let the algorithm estimate automatically;
-for all other filters, this is the allowable pass-band ripple, and
-default value is \code{1} dB.}
+\item{passband_ripple}{allowable pass-band ripple in decibel; default is
+\code{0.1}}
 
-\item{trans_attenuation}{power attenuation (in decibel) at
-transition frequency. For 'Butterworth' filters, default is \code{3} dB
-(half power); For all other filters, this is the minimum attenuation in the
-stop band and default is \code{12} dB.}
+\item{stopband_attenuation}{minimum stop-band attenuation (in decibel) at
+transition frequency; default is \code{40} dB.}
 }
 \value{
-A filter generator function.
+A filter in 'Arma' form.
 }
 \description{
 Design an 'IIR' filter
@@ -75,80 +70,68 @@ my_diagnose <- function(
 
 # Butterworth filter with cut-off frequency
 # 7 ~ 13 (default transition bandwidth is 1Hz) at -3 dB
-iir_generator <- design_filter_iir(
-  family = "butter",
+filter <- design_filter_iir(
+  method = "butter",
   low_pass_freq = 12,
   high_pass_freq = 8,
   sample_rate = 500
 )
 
-# magnitude decay is
-#  8-12 Hz: around -0.2 dB
-#  7-8 Hz and 12-13 Hz: -3 dB
-filter <- iir_generator()
-print(filter$check)
+filter
 
 my_diagnose(filter)
 
 ## explicit bandwidths and attenuation (sharper transition)
 
 # Butterworth filter with cut-off frequency
-# 7.75 ~ 12.25 Hz, at -6 dB
-iir_generator <- design_filter_iir(
-  family = "butter",
-  low_pass_freq = 12, low_pass_trans_freq = 0.25,
-  high_pass_freq = 8, high_pass_trans_freq = 0.25,
-  sample_rate = 500, trans_attenuation = 6
+# passband ripple is 0.5 dB (8-12 Hz)
+# stopband attenuation is 40 dB (5-18 Hz)
+filter <- design_filter_iir(
+  method = "butter",
+  low_pass_freq = 12, low_pass_trans_freq = 6,
+  high_pass_freq = 8, high_pass_trans_freq = 3,
+  sample_rate = 500,
+  passband_ripple = 0.5,
+  stopband_attenuation = 40
 )
 
-# magnitude decay is
-#  8-12 Hz: around -3 dB
-#  7-8 Hz and 12-13 Hz: -6 dB
-filter <- iir_generator()
-filter$check
+filter
 
 my_diagnose(filter)
 
 # ---- cheby1 --------------------------------
 
-# pass-band: 8-12 Hz with ripple 1 dB
-# stop-band: 7-13 Hz with minimum power attenuation 12 dB (default)
 filter <- design_filter_iir(
-  family = "cheby1",
+  method = "cheby1",
   low_pass_freq = 12,
   high_pass_freq = 8,
   sample_rate = 500
-)()
+)
 
 my_diagnose(filter)
 
 # ---- cheby2 --------------------------------
 
-# pass-band: 8-12 Hz with ripple 1 dB
-# stop-band: 7-13 Hz with minimum power attenuation 40 dB
 filter <- design_filter_iir(
-  family = "cheby2",
+  method = "cheby2",
   low_pass_freq = 12,
   high_pass_freq = 8,
-  trans_attenuation = 40,
   sample_rate = 500
-)()
+)
 
 my_diagnose(filter)
 
 # ----- ellip ---------------------------------
 
-# pass-band: 8-12 Hz with ripple 1 dB
-# stop-band: 7.75-12.25 Hz with minimum power attenuation 30 dB
 filter <- design_filter_iir(
-  family = "ellip",
-  low_pass_freq = 12, low_pass_trans_freq = 0.25,
-  high_pass_freq = 8, high_pass_trans_freq = 0.25,
-  trans_attenuation = 30,
+  method = "ellip",
+  low_pass_freq = 12,
+  high_pass_freq = 8,
   sample_rate = 500
-)()
+)
 
 my_diagnose(filter)
+
 
 
 

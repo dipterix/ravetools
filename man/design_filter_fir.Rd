@@ -12,7 +12,9 @@ design_filter_fir(
   high_pass_trans_freq = NA,
   low_pass_freq = NA,
   low_pass_trans_freq = NA,
-  trans_attenuation = 3
+  stopband_attenuation = 40,
+  scale = TRUE,
+  method = c("kaiser", "firls", "remez")
 )
 }
 \arguments{
@@ -24,31 +26,34 @@ design_filter_fir(
 decide the maximum filter order. For 'FIR' filter, data length must be
 greater than \code{3xfilter_order}}
 
-\item{high_pass_freq}{high-pass frequency; default is \code{0} (no high-pass
-filter will be applied)}
+\item{high_pass_freq}{high-pass frequency; default is \code{NA} (no
+high-pass filter will be applied)}
 
 \item{high_pass_trans_freq}{high-pass frequency band-width; default
 is automatically inferred from data size.
-Frequency \code{high_pass_freq - high_pass_trans_freq} if the cutoff
-frequency at power \code{-trans_attenuation}; see input
-\code{trans_attenuation} or run \code{print(design_filter_fir)}
-for illustration}
+Frequency \code{high_pass_freq - high_pass_trans_freq} is the corner
+of the stop-band}
 
-\item{low_pass_freq}{low-pass frequency; default is 'Nyquist' frequency (no
+\item{low_pass_freq}{low-pass frequency; default is \code{NA} (no
 low-pass filter will be applied)}
 
 \item{low_pass_trans_freq}{low-pass frequency band-width; default
 is automatically inferred from data size.
-Frequency \code{low_pass_freq + low_pass_trans_freq} if the cutoff
-frequency at power \code{-trans_attenuation}; see input
-\code{trans_attenuation} or run \code{print(design_filter_fir)} for
-illustration}
+Frequency \code{low_pass_freq + low_pass_trans_freq} is the corner
+of the stop-band}
 
-\item{trans_attenuation}{allowable power attenuation (in decibel) at
-transition frequency; default is \code{3} dB, which is half power.}
+\item{stopband_attenuation}{allowable power attenuation (in decibel) at
+transition frequency; default is \code{40} dB.}
+
+\item{scale}{whether to scale the filter for unity gain}
+
+\item{method}{method to generate 'FIR' filter, default is using
+\code{\link[gsignal]{kaiser}} estimate, other choices are
+\code{\link{firls}} (with \code{hamming} window) and
+\code{\link[gsignal]{remez}} design.}
 }
 \value{
-Function that generates the 'FIR' filter given filter order
+'FIR' filter in 'Arma' form.
 }
 \description{
 Design \code{'FIR'} filter using \code{\link{firls}}
@@ -56,14 +61,14 @@ Design \code{'FIR'} filter using \code{\link{firls}}
 \details{
 Filter type is determined from \code{high_pass_freq} and
 \code{low_pass_freq}. High-pass frequency is ignored if \code{high_pass_freq}
-is less equal to 0, hence the filter is low-pass filter. When
-\code{low_pass_freq} is greater equal to 'Nyquist' frequency, then
+is \code{NA}, hence the filter is low-pass filter. When
+\code{low_pass_freq} is \code{NA}, then
 the filter is high-pass filter. When both \code{high_pass_freq} and
 \code{low_pass_freq} are valid (positive, less than 'Nyquist'), then
 the filter is a band-pass filter if band-pass is less than low-pass
 frequency, otherwise the filter is band-stop.
 
-Although the peak amplitudes are set by \code{low_pass_freq} and
+Although the peak amplitudes are set at 1 by \code{low_pass_freq} and
 \code{high_pass_freq}, the transition from peak amplitude to zero require
 a transition, which is tricky but also important to set.
 When 'FIR' filters have too steep transition boundaries, the filter tends to
@@ -73,111 +78,66 @@ get aliased into the filtered signals. Ideally, the transition bandwidth
 cannot be too steep nor too flat. In this function, users may control
 the transition frequency bandwidths via \code{low_pass_trans_freq} and
 \code{high_pass_trans_freq}. The power at the end of transition is defined
-by \code{trans_attenuation}, with default value of \code{3} (i.e.
--3 dB, this number is automatically negated during the calculation).
+by \code{stopband_attenuation}, with default value of \code{40} (i.e.
+-40 dB, this number is automatically negated during the calculation).
 By design, a low-pass 5 Hz filter with 1 Hz transition bandwidth results in
-attenuating -3 dB power at 6 Hz, and -6 dB at 7 Hz (\code{5 + 1 x 2}).
-Common choices of \code{trans_attenuation} are \code{3} (half power at
-the transition boundary) and \code{6} (half amplitude at the transition
-boundary).
+around -40 dB power at 6 Hz.
 }
 \examples{
 
-# see illustration by `print(design_filter_fir)`
-
-# ---- FIR band-pass example -----------------------------
+# ---- Basic -----------------------------
 
 sample_rate <- 500
+data_size <- 1000
 
-fir_generator <- design_filter_fir(
+# low-pass at 5 Hz, with auto transition bandwidth
+# from kaiser's method, with default stopband attenuation = 40 dB
+filter <- design_filter_fir(
+  low_pass_freq = 5,
   sample_rate = sample_rate,
-  high_pass_freq = 1, high_pass_trans_freq = 0.25,
-  low_pass_freq = 50, low_pass_trans_freq = 6
+  data_size = data_size
 )
 
-# check generator information
-print(fir_generator)
+# Passband ripple is around 0.08 dB
+# stopband attenuation is around 40 dB
+print(filter)
 
-filter <- fir_generator()
-
-# -3dB cutoff (50\% power) should be roughly within
-# 0.75 (=1-0.25) ~ 56 (=50+6) Hz
 diagnose_filter(
   filter$b, filter$a,
   fs = sample_rate,
-  n = 1000,
-  vlines = c(1, 50)
+  n = data_size,
+  cutoffs = c(-3, -6, -40),
+  vlines = 5
 )
 
-# ---- High-pass filter with auto bandwith from data -----
+# ---- Advanced ---------------------------------------------
 
 sample_rate <- 500
+data_size <- 1000
 
-fir_generator <- design_filter_fir(
+# Rejecting 3-8 Hz, with transition bandwidth 0.5 Hz at both ends
+# Using least-square (firls) to generate FIR filter
+# Suggesting the filter order n=160
+filter <- design_filter_fir(
+  low_pass_freq = 3, low_pass_trans_freq = 0.5,
+  high_pass_freq = 8, high_pass_trans_freq = 0.5,
+  filter_order = 160,
   sample_rate = sample_rate,
-  data_size = 1000,
-  high_pass_freq = 6
+  data_size = data_size,
+  method = "firls"
 )
 
-print(fir_generator)
+#
+print(filter)
 
-filter <- fir_generator()
-
-# -3dB cutoff should cover 6 Hz to Nyquist frequency
 diagnose_filter(
   filter$b, filter$a,
   fs = sample_rate,
-  n = 1000,
-  vlines = 6,
-  xlim = c(0, 50)
+  n = data_size,
+  cutoffs = c(-1, -40),
+  vlines = c(3, 8)
 )
 
-# ---- Low-pass filter with auto bandwith from filter order -----
-
-sample_rate <- 500
-
-fir_generator <- design_filter_fir(
-  sample_rate = sample_rate,
-  filter_order = 200,
-  low_pass_freq = 6
-)
-
-print(fir_generator)
-
-filter <- fir_generator()
-
-# -3dB cutoff should cover 0-6 Hz
-diagnose_filter(
-  filter$b, filter$a,
-  fs = sample_rate,
-  n = 1000,
-  vlines = 6,
-  xlim = c(0, 50)
-)
-
-# ---- Band-stop filter when data size is small -----
-sample_rate <- 500
-
-# cannot have too sharp transition
-fir_generator <- design_filter_fir(
-  sample_rate = sample_rate,
-  filter_order = 200,
-  low_pass_freq = 6,
-  high_pass_freq = 8
-)
-
-print(fir_generator)
-
-filter <- fir_generator(scale = FALSE)
-
-# -3dB cutoff should cover 0-6 Hz & 8-Nyquist
-diagnose_filter(
-  filter$b, filter$a,
-  fs = sample_rate,
-  n = 1000,
-  vlines = 6,
-  xlim = c(0, 50)
-)
 
 
 }

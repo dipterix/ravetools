@@ -282,6 +282,8 @@ rcond_filter_ar <- function(a) {
 #' @param a auto-regressive (\code{AR}) polynomial coefficients.
 #' @param w normalized frequency, ranging from 0 to 1, where 1 is 'Nyquist'
 #' @param r_expected attenuation in decibel of each \code{w}
+#' @param fs sample rate, used to infer the frequencies and formatting print
+#' message, not used in calculation; leave it blank by default
 #' @returns A list of power estimation and the reciprocal condition number
 #' of the \code{AR} coefficients.
 #' @examples
@@ -317,7 +319,7 @@ rcond_filter_ar <- function(a) {
 #'
 #'
 #' @export
-check_filter <- function(b, a, w = NULL, r_expected = NULL) {
+check_filter <- function(b, a, w = NULL, r_expected = NULL, fs = NULL) {
 
   # r_expected <- abs(r_expected)
 
@@ -343,6 +345,7 @@ check_filter <- function(b, a, w = NULL, r_expected = NULL) {
     list(
       b = b,
       a = a,
+      fs = fs,
       attenuation = attenuation,
       reciprocal_condition = rcon
     ),
@@ -355,6 +358,14 @@ check_filter <- function(b, a, w = NULL, r_expected = NULL) {
   rcon <- x$reciprocal_condition
   rcond_passed <- rcon > .Machine$double.eps
   attenuation <- x$attenuation
+  sample_rate <- x$fs
+  if(length(sample_rate) == 1 && is.numeric(sample_rate) && !is.na(sample_rate)) {
+    nyquist <- sample_rate / 2
+    unit <- "Hz"
+  } else {
+    nyquist <- 1
+    unit <- "xPi rad/s"
+  }
 
   if(!isTRUE(rcon > .Machine$double.eps)) {
     warn <- c("", "WARNING: ", " * Unstable autoregressive (AR) polynomial coefficients")
@@ -364,8 +375,8 @@ check_filter <- function(b, a, w = NULL, r_expected = NULL) {
   c(
     "<RAVE filter quality test>",
     "Attenuation: ",
-    sprintf("  Freq=%.2g xNyquist, mag=%.4g dB (expected=%.4g dB)",
-            attenuation$frequency, attenuation$filtmag_db, attenuation$expected_db),
+    sprintf("  Freq=%.2g %s, mag=%.4g dB (expected=%.4g dB)",
+            attenuation$frequency * nyquist, unit, attenuation$filtmag_db, attenuation$expected_db),
     sprintf("Reciprocal condition number: %.2g %s .Machine$double.eps",
             rcon, ifelse(rcond_passed, ">", "<")),
     warn

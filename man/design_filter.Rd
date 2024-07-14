@@ -7,13 +7,13 @@
 design_filter(
   sample_rate,
   data = NULL,
-  family = c("fir", "butter", "cheby1", "cheby2", "ellip"),
+  method = c("fir_kaiser", "firls", "fir_remez", "butter", "cheby1", "cheby2", "ellip"),
   high_pass_freq = NA,
   high_pass_trans_freq = NA,
   low_pass_freq = NA,
   low_pass_trans_freq = NA,
-  peak_attenuation = NA,
-  trans_attenuation = 3,
+  passband_ripple = 0.1,
+  stopband_attenuation = 40,
   filter_order = NA,
   ...,
   data_size = length(data)
@@ -24,7 +24,7 @@ design_filter(
 
 \item{data}{data to be filtered, can be optional (\code{NULL})}
 
-\item{family}{filter family, options are \code{"fir"} (default),
+\item{method}{filter method, options are \code{"fir"} (default),
 \code{"butter"}, \code{"cheby1"}, \code{"cheby2"}, and \code{"ellip"}}
 
 \item{high_pass_freq, low_pass_freq}{high-pass or low-pass frequency,
@@ -33,12 +33,11 @@ see \code{\link{design_filter_fir}} or \code{\link{design_filter_iir}}}
 \item{high_pass_trans_freq, low_pass_trans_freq}{transition bandwidths,
 see \code{\link{design_filter_fir}} or \code{\link{design_filter_iir}}}
 
-\item{peak_attenuation}{desired magnitude (decibel) at low-pass high-pass
-frequencies, see \code{\link{design_filter_iir}}; ignored in 'FIR' filters.}
+\item{passband_ripple}{allowable pass-band ripple in decibel; default is
+\code{0.1}}
 
-\item{trans_attenuation}{desired magnitude (decibel) at edges of transition
-frequencies; see \code{\link{design_filter_fir}} or
-\code{\link{design_filter_iir}}}
+\item{stopband_attenuation}{minimum stop-band attenuation (in decibel) at
+transition frequency; default is \code{40} dB.}
 
 \item{filter_order}{suggested filter order; 'RAVE' may or may not adopt this
 suggestion depending on the data and numerical feasibility}
@@ -66,47 +65,35 @@ t <- seq(0, 10, by = 1 / sample_rate)
 x <- sin(t * 4 * pi) + sin(t * 20 * pi) +
   2 * sin(t * 120 * pi) + rnorm(length(t), sd = 0.4)
 
-oldpar <- par(mfrow = c(2, 1),
-              mar = c(3.1, 2.1, 3.1, 0.1))
 # ---- Using FIR ------------------------------------------------
 
-data_size <- length(x)
-
-# Low-pass filter with no window, with transition bandwidth 0.5Hz
-# with attenuation 3, i.e. expected -3dB power at 3.5Hz
-f1 <- design_filter(
-  data_size = data_size,
+# Low-pass filter
+y1 <- design_filter(
+  data = x,
   sample_rate = sample_rate,
-  low_pass_freq = 3, low_pass_trans_freq = 0.5,
-  trans_attenuation = 3
+  low_pass_freq = 3, low_pass_trans_freq = 0.5
 )
 
-# Band-pass filter 8-12 Hz with custom transition
-# of 1Hz, resulting in 3 dB decay around 7.75-12.25 Hz
-f2 <- design_filter(
-  data_size = data_size,
+# Band-pass cheby1 filter 8-12 Hz with custom transition
+y2 <- design_filter(
+  data = x,
+  method = "cheby1",
   sample_rate = sample_rate,
   low_pass_freq = 12, low_pass_trans_freq = .25,
   high_pass_freq = 8, high_pass_trans_freq = .25
 )
 
-
-f3 <- design_filter(
-  data_size = data_size,
+y3 <- design_filter(
+  data = x,
   sample_rate = sample_rate,
-  low_pass_freq = 80, low_pass_trans_freq = 10,
-  high_pass_freq = 30, high_pass_trans_freq = 5,
-  trans_attenuation = 12
+  low_pass_freq = 80,
+  high_pass_freq = 30
 )
 
-# Check power attenuation
-y1 <- f1(x)
-y2 <- f2(x)
-y3 <- f3(x)
-
-
+oldpar <- par(mfrow = c(2, 1),
+              mar = c(3.1, 2.1, 3.1, 0.1))
 plot(t, x, type = 'l', xlab = "Time", ylab = "",
-     main = "Mixture of 0.2, 2, and 60Hz", xlim = c(0,1))
+     main = "Mixture of 2, 10, and 60Hz", xlim = c(0,1))
 # lines(t, y, col = 'red')
 lines(t, y3, col = 'green')
 lines(t, y2, col = 'blue')
@@ -130,8 +117,6 @@ pwelch(y3, fs = sample_rate, window = sample_rate * 2,
 
 # ---- Clean this demo --------------------------------------------------
 par(oldpar)
-
-
 
 
 }

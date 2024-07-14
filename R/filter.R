@@ -8,17 +8,16 @@
 #'
 #' @param sample_rate data sample rate
 #' @param data data to be filtered, can be optional (\code{NULL})
-#' @param family filter family, options are \code{"fir"} (default),
+#' @param method filter method, options are \code{"fir"} (default),
 #' \code{"butter"}, \code{"cheby1"}, \code{"cheby2"}, and \code{"ellip"}
 #' @param high_pass_freq,low_pass_freq high-pass or low-pass frequency,
 #' see \code{\link{design_filter_fir}} or \code{\link{design_filter_iir}}
 #' @param high_pass_trans_freq,low_pass_trans_freq transition bandwidths,
 #' see \code{\link{design_filter_fir}} or \code{\link{design_filter_iir}}
-#' @param peak_attenuation desired magnitude (decibel) at low-pass high-pass
-#' frequencies, see \code{\link{design_filter_iir}}; ignored in 'FIR' filters.
-#' @param trans_attenuation desired magnitude (decibel) at edges of transition
-#' frequencies; see \code{\link{design_filter_fir}} or
-#' \code{\link{design_filter_iir}}
+#' @param passband_ripple allowable pass-band ripple in decibel; default is
+#' \code{0.1}
+#' @param stopband_attenuation minimum stop-band attenuation (in decibel) at
+#' transition frequency; default is \code{40} dB.
 #' @param filter_order suggested filter order; 'RAVE' may or may not adopt this
 #' suggestion depending on the data and numerical feasibility
 #' @param data_size used by 'FIR' filter design to determine maximum order,
@@ -36,47 +35,35 @@
 #' x <- sin(t * 4 * pi) + sin(t * 20 * pi) +
 #'   2 * sin(t * 120 * pi) + rnorm(length(t), sd = 0.4)
 #'
-#' oldpar <- par(mfrow = c(2, 1),
-#'               mar = c(3.1, 2.1, 3.1, 0.1))
 #' # ---- Using FIR ------------------------------------------------
 #'
-#' data_size <- length(x)
-#'
-#' # Low-pass filter with no window, with transition bandwidth 0.5Hz
-#' # with attenuation 3, i.e. expected -3dB power at 3.5Hz
-#' f1 <- design_filter(
-#'   data_size = data_size,
+#' # Low-pass filter
+#' y1 <- design_filter(
+#'   data = x,
 #'   sample_rate = sample_rate,
-#'   low_pass_freq = 3, low_pass_trans_freq = 0.5,
-#'   trans_attenuation = 3
+#'   low_pass_freq = 3, low_pass_trans_freq = 0.5
 #' )
 #'
-#' # Band-pass filter 8-12 Hz with custom transition
-#' # of 1Hz, resulting in 3 dB decay around 7.75-12.25 Hz
-#' f2 <- design_filter(
-#'   data_size = data_size,
+#' # Band-pass cheby1 filter 8-12 Hz with custom transition
+#' y2 <- design_filter(
+#'   data = x,
+#'   method = "cheby1",
 #'   sample_rate = sample_rate,
 #'   low_pass_freq = 12, low_pass_trans_freq = .25,
 #'   high_pass_freq = 8, high_pass_trans_freq = .25
 #' )
 #'
-#'
-#' f3 <- design_filter(
-#'   data_size = data_size,
+#' y3 <- design_filter(
+#'   data = x,
 #'   sample_rate = sample_rate,
-#'   low_pass_freq = 80, low_pass_trans_freq = 10,
-#'   high_pass_freq = 30, high_pass_trans_freq = 5,
-#'   trans_attenuation = 12
+#'   low_pass_freq = 80,
+#'   high_pass_freq = 30
 #' )
 #'
-#' # Check power attenuation
-#' y1 <- f1(x)
-#' y2 <- f2(x)
-#' y3 <- f3(x)
-#'
-#'
+#' oldpar <- par(mfrow = c(2, 1),
+#'               mar = c(3.1, 2.1, 3.1, 0.1))
 #' plot(t, x, type = 'l', xlab = "Time", ylab = "",
-#'      main = "Mixture of 0.2, 2, and 60Hz", xlim = c(0,1))
+#'      main = "Mixture of 2, 10, and 60Hz", xlim = c(0,1))
 #' # lines(t, y, col = 'red')
 #' lines(t, y3, col = 'green')
 #' lines(t, y2, col = 'blue')
@@ -102,20 +89,18 @@
 #' par(oldpar)
 #'
 #'
-#'
-#'
 #' @export
 design_filter <- function(
     sample_rate,
     data = NULL,
-    family = c("fir", "butter", "cheby1", "cheby2", "ellip"),
+    method = c("fir_kaiser", "firls", "fir_remez", "butter", "cheby1", "cheby2", "ellip"),
     high_pass_freq = NA, high_pass_trans_freq = NA,
     low_pass_freq = NA, low_pass_trans_freq = NA,
-    peak_attenuation = NA, trans_attenuation = 3,
+    passband_ripple = 0.1, stopband_attenuation = 40,
     filter_order = NA,
     ..., data_size = length(data)
 ) {
-  family <- match.arg(family)
+  method <- match.arg(method)
   if(data_size <= 0) {
     data_size <- NA
   }
@@ -123,8 +108,14 @@ design_filter <- function(
     data_size <- floor(length(data) - 1) / 3
   }
 
-  if( family == "fir" ) {
-    generator <- design_filter_fir(
+  if( startsWith(method, "fir") ) {
+    method <- list(
+      fir_kaiser = "kaiser",
+      firls = "firls",
+      fir_remez = "remez"
+    )[[ method ]]
+    filter <- design_filter_fir(
+      method = method,
       sample_rate = sample_rate,
       filter_order = filter_order,
       data_size = data_size,
@@ -132,26 +123,27 @@ design_filter <- function(
       high_pass_trans_freq = high_pass_trans_freq,
       low_pass_freq = low_pass_freq,
       low_pass_trans_freq = low_pass_trans_freq,
-      trans_attenuation = trans_attenuation
+      stopband_attenuation = stopband_attenuation,
+      ...
     )
   } else {
-    generator <- design_filter_iir(
-      family = family,
+    filter <- design_filter_iir(
+      method = method,
       sample_rate = sample_rate,
       filter_order = filter_order,
       high_pass_freq = high_pass_freq,
       high_pass_trans_freq = high_pass_trans_freq,
       low_pass_freq = low_pass_freq,
       low_pass_trans_freq = low_pass_trans_freq,
-      peak_attenuation = peak_attenuation,
-      trans_attenuation = trans_attenuation
+      passband_ripple = passband_ripple,
+      stopband_attenuation = stopband_attenuation
     )
   }
 
   if(length(data)) {
-    re <- generator(..., data = data, order = NULL)
+    re <- filtfilt(b = filter$b, a = filter$a, x = data)
   } else {
-    re <- generator
+    re <- filter
   }
 
   re
@@ -160,7 +152,7 @@ design_filter <- function(
 
 #' @title Design an 'IIR' filter
 #' @param sample_rate sampling frequency
-#' @param family filter family name, choices are \code{"butter"},
+#' @param method filter method name, choices are \code{"butter"},
 #' \code{"cheby1"}, \code{"cheby2"}, and \code{"ellip"}
 #' @param filter_order suggested filter order. Notice filters with higher orders
 #' may become numerically unstable, hence this number is only a suggested
@@ -174,16 +166,11 @@ design_filter <- function(
 #' low-pass filter will be applied)
 #' @param low_pass_trans_freq low-pass frequency band-width; default
 #' is automatically inferred from filter type.
-#' @param peak_attenuation expected power attenuation (in decibel) at high-pass
-#' low pass frequencies. For 'Butterworth' filters, we recommend set to
-#' \code{NA} and let the algorithm estimate automatically;
-#' for all other filters, this is the allowable pass-band ripple, and
-#' default value is \code{1} dB.
-#' @param trans_attenuation power attenuation (in decibel) at
-#' transition frequency. For 'Butterworth' filters, default is \code{3} dB
-#' (half power); For all other filters, this is the minimum attenuation in the
-#' stop band and default is \code{12} dB.
-#' @returns A filter generator function.
+#' @param passband_ripple allowable pass-band ripple in decibel; default is
+#' \code{0.1}
+#' @param stopband_attenuation minimum stop-band attenuation (in decibel) at
+#' transition frequency; default is \code{40} dB.
+#' @returns A filter in 'Arma' form.
 #'
 #' @examples
 #'
@@ -204,369 +191,228 @@ design_filter <- function(
 #'
 #' # Butterworth filter with cut-off frequency
 #' # 7 ~ 13 (default transition bandwidth is 1Hz) at -3 dB
-#' iir_generator <- design_filter_iir(
-#'   family = "butter",
+#' filter <- design_filter_iir(
+#'   method = "butter",
 #'   low_pass_freq = 12,
 #'   high_pass_freq = 8,
 #'   sample_rate = 500
 #' )
 #'
-#' # magnitude decay is
-#' #  8-12 Hz: around -0.2 dB
-#' #  7-8 Hz and 12-13 Hz: -3 dB
-#' filter <- iir_generator()
-#' print(filter$check)
+#' filter
 #'
 #' my_diagnose(filter)
 #'
 #' ## explicit bandwidths and attenuation (sharper transition)
 #'
 #' # Butterworth filter with cut-off frequency
-#' # 7.75 ~ 12.25 Hz, at -6 dB
-#' iir_generator <- design_filter_iir(
-#'   family = "butter",
-#'   low_pass_freq = 12, low_pass_trans_freq = 0.25,
-#'   high_pass_freq = 8, high_pass_trans_freq = 0.25,
-#'   sample_rate = 500, trans_attenuation = 6
+#' # passband ripple is 0.5 dB (8-12 Hz)
+#' # stopband attenuation is 40 dB (5-18 Hz)
+#' filter <- design_filter_iir(
+#'   method = "butter",
+#'   low_pass_freq = 12, low_pass_trans_freq = 6,
+#'   high_pass_freq = 8, high_pass_trans_freq = 3,
+#'   sample_rate = 500,
+#'   passband_ripple = 0.5,
+#'   stopband_attenuation = 40
 #' )
 #'
-#' # magnitude decay is
-#' #  8-12 Hz: around -3 dB
-#' #  7-8 Hz and 12-13 Hz: -6 dB
-#' filter <- iir_generator()
-#' filter$check
+#' filter
 #'
 #' my_diagnose(filter)
 #'
 #' # ---- cheby1 --------------------------------
 #'
-#' # pass-band: 8-12 Hz with ripple 1 dB
-#' # stop-band: 7-13 Hz with minimum power attenuation 12 dB (default)
 #' filter <- design_filter_iir(
-#'   family = "cheby1",
+#'   method = "cheby1",
 #'   low_pass_freq = 12,
 #'   high_pass_freq = 8,
 #'   sample_rate = 500
-#' )()
+#' )
 #'
 #' my_diagnose(filter)
 #'
 #' # ---- cheby2 --------------------------------
 #'
-#' # pass-band: 8-12 Hz with ripple 1 dB
-#' # stop-band: 7-13 Hz with minimum power attenuation 40 dB
 #' filter <- design_filter_iir(
-#'   family = "cheby2",
+#'   method = "cheby2",
 #'   low_pass_freq = 12,
 #'   high_pass_freq = 8,
-#'   trans_attenuation = 40,
 #'   sample_rate = 500
-#' )()
+#' )
 #'
 #' my_diagnose(filter)
 #'
 #' # ----- ellip ---------------------------------
 #'
-#' # pass-band: 8-12 Hz with ripple 1 dB
-#' # stop-band: 7.75-12.25 Hz with minimum power attenuation 30 dB
 #' filter <- design_filter_iir(
-#'   family = "ellip",
-#'   low_pass_freq = 12, low_pass_trans_freq = 0.25,
-#'   high_pass_freq = 8, high_pass_trans_freq = 0.25,
-#'   trans_attenuation = 30,
+#'   method = "ellip",
+#'   low_pass_freq = 12,
+#'   high_pass_freq = 8,
 #'   sample_rate = 500
-#' )()
+#' )
 #'
 #' my_diagnose(filter)
 #'
 #'
 #'
+#'
 #' @export
 design_filter_iir <- function(
-    family = c("butter", "cheby1", "cheby2", "ellip"),
+    method = c("butter", "cheby1", "cheby2", "ellip"),
     sample_rate, filter_order = NA,
     high_pass_freq = NA, high_pass_trans_freq = NA,
     low_pass_freq = NA, low_pass_trans_freq = NA,
-    peak_attenuation = NA, trans_attenuation = NA
+    passband_ripple = 0.1, stopband_attenuation = 40
 ) {
-  family <- match.arg(family)
+  method <- match.arg(method)
 
   # DIPSAUS DEBUG START
   # sample_rate <- 500
-  # data_size <- 1000
   # list2env(list(sample_rate = sample_rate,
   #                 high_pass_freq = 1, high_pass_trans_freq = 0.45,
   #                 low_pass_freq = 50, low_pass_trans_freq = 10), envir=.GlobalEnv)
-  # list2env(list(filter_order = NA, low_pass_freq = sample_rate/2, high_pass_freq = 4,
+  # list2env(list(filter_order = NA, low_pass_freq = NA, high_pass_freq = 4,
   #               low_pass_trans_freq = NA, high_pass_trans_freq = NA), envir=.GlobalEnv)
-  # trans_attenuation <- 3
-  # peak_attenuation <- NA
-  # family <- "butter"
+  # passband_ripple <- 0.1
+  # stopband_attenuation <- 40
+  # method <- "butter"
 
 
   nyquist <- sample_rate / 2
+  passband_ripple <- abs(passband_ripple)
+  stopband_attenuation <- abs(stopband_attenuation)
+
+  r_pass <- passband_ripple
+  r_stop <- stopband_attenuation
 
   stopifnot2(
     !is.na(low_pass_freq) || !is.na(high_pass_freq),
     msg = "Please specify low-pass and/or high-pass frequencies"
   )
+  stopifnot2(is.finite(passband_ripple) && passband_ripple > 0,
+             msg = "`passband_ripple` must be a finite positive number")
+  stopifnot2(is.finite(stopband_attenuation) && stopband_attenuation > 0,
+             msg = "`stopband_attenuation` must be a finite positive number")
 
-  # get transition
-  if(!is.na(low_pass_freq)) {
-    if(is.na(low_pass_trans_freq)) {
-      if(family %in% c("cheby2")) {
-        low_pass_trans_freq <- max(0.25 * low_pass_freq, 2.0)
-      } else {
-        low_pass_trans_freq <- min(0.25 * low_pass_freq, 1.0)
-      }
-    }
-    if (low_pass_trans_freq > low_pass_freq) {
-      low_pass_trans_freq <- low_pass_freq
-    }
+  # suggested bandwidth if bandwidths are NA
+
+  if(is.na(low_pass_trans_freq)) {
+    low_pass_trans_freq <- min(max(0.25 * low_pass_freq, 2), low_pass_freq)
   }
-  if(!is.na(high_pass_freq)) {
-    if(is.na(high_pass_trans_freq)) {
-      if(family %in% c("cheby2")) {
-        high_pass_trans_freq <- max(0.25 * high_pass_freq, 2.0)
-      } else {
-        high_pass_trans_freq <- min(0.25 * high_pass_freq, 1.0)
-      }
-    }
-    if (high_pass_trans_freq + high_pass_freq > nyquist) {
-      high_pass_trans_freq <- nyquist - high_pass_freq
-    }
+  if(is.na(high_pass_trans_freq)) {
+    high_pass_trans_freq <- min(max(0.25 * high_pass_freq, 2), sample_rate / 2 - high_pass_freq)
   }
 
-
-  if( is.na(high_pass_freq) || high_pass_freq <= 0 ) {
+  # determine the filter type
+  if( is.na(high_pass_freq) ) {
     ftype <- "low"
-    w_peak <- low_pass_freq / nyquist
-    w_pass <- clamp((low_pass_freq + low_pass_trans_freq) / nyquist, min = 0, max = 1)
-  } else if ( is.na(low_pass_freq) || low_pass_freq >= nyquist ) {
+    w_pass <- low_pass_freq / nyquist
+    w_trans <- low_pass_trans_freq / nyquist
+
+    w_stop <- w_pass + abs(w_trans)
+  } else if ( is.na(low_pass_freq) ) {
     ftype <- "high"
-    w_peak <- high_pass_freq / nyquist
-    w_pass <- clamp((high_pass_freq - high_pass_trans_freq) / nyquist, min = 0, max = 1)
-  } else if ( isTRUE(high_pass_freq < low_pass_freq) ) {
+    w_pass <- high_pass_freq / nyquist
+    w_trans <- high_pass_trans_freq / nyquist
+
+    w_stop <- w_pass - abs(w_trans)
+  } else if ( isTRUE(high_pass_freq <= low_pass_freq) ) {
     ftype <- "pass"
-    w_peak <- c(high_pass_freq, low_pass_freq) / nyquist
-    w_pass <- clamp(c(
-      high_pass_freq - high_pass_trans_freq,
-      low_pass_freq + low_pass_trans_freq
-    ) / nyquist, min = 0, max = 1)
+    w_pass <- c(high_pass_freq, low_pass_freq) / nyquist
+    w_trans <- c(high_pass_trans_freq, low_pass_trans_freq) / nyquist
+
+    w_stop <- clamp( w_pass + c(-1, 1) * abs(w_trans) , min = 0, max = 1)
   } else {
     ftype <- "stop"
-    w_peak <- c(high_pass_freq, low_pass_freq) / nyquist
-    w_pass <- clamp(c(
-      high_pass_freq - high_pass_trans_freq,
-      low_pass_freq + low_pass_trans_freq
-    ) / nyquist, min = 0, max = 1)
-    if( w_pass[[1]] < w_pass[[2]] ) {
-      if( high_pass_trans_freq + low_pass_trans_freq > 0 ) {
-        w_stop_fac <- (high_pass_freq - low_pass_freq) / (high_pass_trans_freq + low_pass_trans_freq) * 0.9
-        w_pass <- clamp(c(
-          max((high_pass_freq - high_pass_trans_freq * w_stop_fac) / nyquist, 0),
-          min((low_pass_freq + low_pass_trans_freq * w_stop_fac) / nyquist, 1)
-        ), min = 0, max = 1)
-      }
-    }
+    w_pass <- c(low_pass_freq, high_pass_freq) / nyquist
+    w_trans <- c(low_pass_trans_freq, high_pass_trans_freq) / nyquist
+
+    w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans) , min = 0, max = 1)
   }
 
-  trans_attenuation <- abs(trans_attenuation)
-
-  filter_max_order <- NULL
-  make_filter <- NULL
+  # get filter specs
+  get_specs <- function(fun_ord, fun_make, min_order = 1) {
+    spec <- fun_ord(Wp = w_pass, Ws = w_stop, Rp = r_pass, Rs = r_stop)
+    validator <- function(n) {
+      spec$n <- n
+      filter <- gsignal::as.Arma(fun_make(spec))
+      reciprocal_condition <- rcond_filter_ar(a = filter$a)
+      reciprocal_condition > .Machine$double.eps
+    }
+    max_order <- guess_max_integer(validator, initial = spec$n, min_v = min_order)
+    if(is.na(max_order)) {
+      max_order <- 1
+    }
+    if( spec$n > max_order ) {
+      spec$n <- max_order
+    }
+    spec
+  }
   switch(
-    family,
+    method,
     "cheby1" = {
-      if(is.na(peak_attenuation)) {
-        r_peak <- 1
-      } else {
-        r_peak <- abs(peak_attenuation)
-      }
-      if(is.na(trans_attenuation)) {
-        r_pass <- 12
-      } else {
-        r_pass <- abs(trans_attenuation)
-      }
-      filter_ord <- gsignal::cheb1ord
-      make_filter_impl <- gsignal::cheby1
+      fun_ord <- gsignal::cheb1ord
+      fun_make <- gsignal::cheby1
+      spec <- get_specs(fun_ord, fun_make)
+      filter <- fun_make(spec)
     },
     "cheby2" = {
-      if(is.na(peak_attenuation)) {
-        r_peak <- 1
-      } else {
-        r_peak <- abs(peak_attenuation)
-      }
-      if(is.na(trans_attenuation)) {
-        r_pass <- 12
-      } else {
-        r_pass <- abs(trans_attenuation)
-      }
-      filter_ord <- gsignal::cheb2ord
-      make_filter_impl <- gsignal::cheby2
+      fun_ord <- gsignal::cheb2ord
+      fun_make <- gsignal::cheby2
+      spec <- get_specs(fun_ord, fun_make, min_order = length(w_stop) * 2)
+      filter <- fun_make(spec)
     },
     "ellip" = {
-      if(is.na(peak_attenuation)) {
-        r_peak <- 1
-      } else {
-        r_peak <- abs(peak_attenuation)
-      }
-      if(is.na(trans_attenuation)) {
-        r_pass <- 12
-      } else {
-        r_pass <- abs(trans_attenuation)
-      }
-      filter_ord <- gsignal::ellipord
-      make_filter_impl <- gsignal::ellip
+      fun_ord <- gsignal::ellipord
+      fun_make <- gsignal::ellip
+      spec <- get_specs(fun_ord, fun_make, min_order = 1)
+      filter <- fun_make(spec)
     },
     {
       # "butter"
-      if(is.na(trans_attenuation)) {
-        r_pass <- 3
-      } else {
-        r_pass <- abs(trans_attenuation)
+      spec <- gsignal::buttord(Wp = w_pass, Ws = w_stop, Rp = r_pass, Rs = r_stop)
+      order <- butter_max_order(w = w_pass, r = r_pass, type = ftype)$n
+      if(spec$n < order) {
+        order <- spec$n
       }
-      if(is.na(peak_attenuation)) {
-        r_peak <- NA
-      } else {
-        r_peak <- min(abs(peak_attenuation), r_pass / 2)
-      }
-
-      filter_ord <- gsignal::buttord
-      make_filter_impl <- gsignal::butter
-
-      make_filter <- function(order, ...) {
-        Wc <- butter_cutoff(type = ftype, n = order, w = w_pass, r = r_pass)
-        gsignal::butter(n = order, w = Wc, type = ftype, ...)
-      }
-
-      filter_max_order <- function() {
-        butter_max_order(w = w_pass, type = ftype, r = r_pass)$n
-      }
+      w_cutoff <- butter_cutoff(type = ftype, n = order, w = w_pass, r = r_pass)
+      spec <- gsignal::FilterSpecs(n = order, Wc = w_cutoff, type = ftype)
+      filter <- gsignal::butter(spec)
     }
   )
 
-  if(!is.function(make_filter)) {
-    make_filter <- function(order, ...) {
-      spec <- filter_ord(Wp = sort(w_peak), Ws = sort(w_pass), Rp = r_peak, Rs = r_pass)
-      spec$n <- order
-      make_filter_impl(spec, ...)
-    }
-  }
-
-  if( !is.function(filter_max_order) ) {
-    filter_max_order <- function() {
-      spec <- filter_ord(Wp = sort(w_peak), Ws = sort(w_pass), Rp = r_peak, Rs = r_pass)
-      validator <- function(n) {
-        spec$n <- n
-        filter <- gsignal::as.Arma(make_filter_impl(spec))
-        check <- check_filter(b = filter$b, a = filter$a)
-        check$reciprocal_condition > .Machine$double.eps
-      }
-      n <- guess_max_integer(validator, min_v = spec$n)
-      if(is.na(n)) { n <- 1 }
-      n
-    }
-  }
-
-  # calculate stop-bandwidth relative to transition bandwidth
-  stopifnot2(is.na(r_peak) || r_peak > 0, msg = "`peak_attenuation` must be non-zero")
-  stopifnot2(is.finite(r_pass) && r_pass > 0, msg = "`trans_attenuation` must be non-zero")
-
-
-  params <- check_filter_params(
-    type = ftype,
-    w_peak = w_peak, w_pass = w_pass,
-    r_peak = min(0, r_peak, na.rm = TRUE), r_pass = r_pass, r_stop = Inf
+  checks <- check_filter(
+    b = filter$b,
+    a = filter$a,
+    w = c(w_pass, w_stop),
+    r_expected = -rep(c(r_pass, r_stop), each = length(w_pass)),
+    fs = sample_rate
   )
-  params$r_peak <- r_peak
 
-  # get max_available filter given w_pass
-  max_order <- filter_max_order()
-
-  if( is.na(filter_order) ) {
-    if( !is.na(r_peak) ) {
-      # get n from transfer function
-      spec <- filter_ord(Wp = sort(w_peak), Ws = sort(w_pass), Rp = r_peak, Rs = r_pass)
-      filter_order <- spec$n
-    } else {
-      filter_order <- max_order
-    }
-  }
-
-  filter_order <- min(filter_order, max_order)
-
-  printable_message <- c(
-    "<RAVE filter generator function>",
-    sprintf("  Filter type : %s (%s)", family, params$type),
-    sprintf("  Filter order: %.0f (suggested)", filter_order),
-    sprintf("    Max order: %.0f (restricted by reciprocal condition number)",
-            max_order),
-    sprintf("  Input parameters for `%s`: (not actual filter)", family),
-    sprintf("    Peak frequency: [%s] x Nyquist (%s, -%.4g dB)",
-            paste(sprintf("%.4g", params$w_peak), collapse = ","),
-            paste(sprintf("%.1f Hz", params$w_peak * nyquist), collapse = "~"),
-            params$r_peak),
-    sprintf("    Transition frequency: [%s] x Nyquist (%s, -%.4g dB)",
-            paste(sprintf("%.4g", params$w_pass), collapse = ","),
-            paste(sprintf("%.1f Hz", params$w_pass * nyquist), collapse = "~"),
-            params$r_pass),
-    "",
-    "Generator Function Definition:",
-    '  function(order, order = NULL, output = c("Arma", "Zpg", "Sos")) { ... }',
-    "Arguments:",
-    "  - `data`   : (optional) data to be filtered",
-    "  - `order`  : (optional) Integer(1) filter order if not default",
-    "  - `output` : (optional) String(1) filter form; default is ARMA model, only used if `data` is missing",
-    "Values: ",
-    "  Filtered data if `data` is provided (using `filtfilt`); otherwise will be the filter."
+  params <- list(
+    type = c("iir", ftype),
+    method = method,
+    order = spec$n,
+    passband = w_pass,
+    stopband = w_stop,
+    cutoff = spec$Wc,
+    sample_rate = sample_rate
   )
 
 
-  structure(
-    function(data, order = NULL, output = c("Arma", "Zpg", "Sos")) {
-      output <- match.arg(output)
-
-      if(!length(order) || !is.finite(order)) {
-        order <- filter_order
-      } else if(order > max_order) {
-        order <- max_order
-      }
-
-      filter <- make_filter(order = order, output = output)
-
-      arma <- gsignal::as.Arma(filter)
-
-      if(missing(data)) {
-        filter$check <- check_filter(
-          b = arma$b,
-          a = arma$a,
-          w = c(w_peak, w_pass),
-          r_expected = rep(c(r_peak, r_pass), each = length(w_peak))
-        )
-        re <- filter
-      } else {
-        re <- filtfilt(b = arma$b, a = arma$a, x = data)
-      }
+  filter$parameters <- params
+  filter$checks <- checks
 
 
-      re
-
-    },
-    sample_rate = sample_rate,
-    filter_type = c(family, params$type),
-    filter_order = list(suggested = filter_order, min = 1, max = max_order),
-    iir_args = data.frame(
-      w = c(w_peak, w_pass),
-      r = rep(c(r_peak, r_pass), each = length(w_peak))
-    ),
-    checks = params,
-    printable_message = printable_message,
-    class = c(sprintf("ravetools-design_filter_%s", ftype),
-              "ravetools-design_filter_iir",
-              "ravetools-design_filter",
-              "ravetools-printable", "function")
+  class(filter) <- c(
+    "ravetools-design_filter_iir",
+    sprintf("ravetools-design_filter_%s", method),
+    "ravetools-design_filter",
+    "ravetools-printable",
+    class(filter)
   )
+
+  filter
 }
 
 
