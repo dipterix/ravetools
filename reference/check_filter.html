@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_filter</span><span class="op">(</span><span class="va">b</span>, <span class="va">a</span>, w <span class="op">=</span> <span class="cn">NULL</span>, r_expected <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_filter</span><span class="op">(</span><span class="va">b</span>, <span class="va">a</span>, w <span class="op">=</span> <span class="cn">NULL</span>, r_expected <span class="op">=</span> <span class="cn">NULL</span>, fs <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -60,6 +60,11 @@
 
 <dt id="arg-r-expected">r_expected<a class="anchor" aria-label="anchor" href="#arg-r-expected"></a></dt>
 <dd><p>attenuation in decibel of each <code>w</code></p></dd>
+
+
+<dt id="arg-fs">fs<a class="anchor" aria-label="anchor" href="#arg-fs"></a></dt>
+<dd><p>sample rate, used to infer the frequencies and formatting print
+message, not used in calculation; leave it blank by default</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -101,10 +106,10 @@ of the <code>AR</code> coefficients.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;RAVE filter quality test&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Attenuation: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.1 xNyquist, mag=-4.094 dB (expected=3 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.5 xNyquist, mag=-3 dB (expected=3 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.05 xNyquist, mag=-129.7 dB (expected=60 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.6 xNyquist, mag=-63.23 dB (expected=60 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.1 xPi rad/s, mag=-4.094 dB (expected=3 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.5 xPi rad/s, mag=-3 dB (expected=3 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.05 xPi rad/s, mag=-129.7 dB (expected=60 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Freq=0.6 xPi rad/s, mag=-63.23 dB (expected=60 dB)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reciprocal condition number: 4.4e-21 &lt; .Machine$double.eps</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> WARNING: </span>

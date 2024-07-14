@@ -11,7 +11,7 @@ design_filter_iir."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,13 +48,13 @@ design_filter_iir."></head><body>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">design_filter</span><span class="op">(</span></span>
 <span>  <span class="va">sample_rate</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fir"</span>, <span class="st">"butter"</span>, <span class="st">"cheby1"</span>, <span class="st">"cheby2"</span>, <span class="st">"ellip"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fir_kaiser"</span>, <span class="st">"firls"</span>, <span class="st">"fir_remez"</span>, <span class="st">"butter"</span>, <span class="st">"cheby1"</span>, <span class="st">"cheby2"</span>, <span class="st">"ellip"</span><span class="op">)</span>,</span>
 <span>  high_pass_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  high_pass_trans_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  low_pass_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  low_pass_trans_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  peak_attenuation <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  trans_attenuation <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  passband_ripple <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  stopband_attenuation <span class="op">=</span> <span class="fl">40</span>,</span>
 <span>  filter_order <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  data_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
@@ -73,8 +73,8 @@ design_filter_iir."></head><body>
 <dd><p>data to be filtered, can be optional (<code>NULL</code>)</p></dd>
 
 
-<dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
-<dd><p>filter family, options are <code>"fir"</code> (default),
+<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
+<dd><p>filter method, options are <code>"fir"</code> (default),
 <code>"butter"</code>, <code>"cheby1"</code>, <code>"cheby2"</code>, and <code>"ellip"</code></p></dd>
 
 
@@ -88,15 +88,14 @@ see <code><a href="design_filter_fir.html">design_filter_fir</a></code> or <code
 see <code><a href="design_filter_fir.html">design_filter_fir</a></code> or <code><a href="design_filter_iir.html">design_filter_iir</a></code></p></dd>
 
 
-<dt id="arg-peak-attenuation">peak_attenuation<a class="anchor" aria-label="anchor" href="#arg-peak-attenuation"></a></dt>
-<dd><p>desired magnitude (decibel) at low-pass high-pass
-frequencies, see <code><a href="design_filter_iir.html">design_filter_iir</a></code>; ignored in 'FIR' filters.</p></dd>
+<dt id="arg-passband-ripple">passband_ripple<a class="anchor" aria-label="anchor" href="#arg-passband-ripple"></a></dt>
+<dd><p>allowable pass-band ripple in decibel; default is
+<code>0.1</code></p></dd>
 
 
-<dt id="arg-trans-attenuation">trans_attenuation<a class="anchor" aria-label="anchor" href="#arg-trans-attenuation"></a></dt>
-<dd><p>desired magnitude (decibel) at edges of transition
-frequencies; see <code><a href="design_filter_fir.html">design_filter_fir</a></code> or
-<code><a href="design_filter_iir.html">design_filter_iir</a></code></p></dd>
+<dt id="arg-stopband-attenuation">stopband_attenuation<a class="anchor" aria-label="anchor" href="#arg-stopband-attenuation"></a></dt>
+<dd><p>minimum stop-band attenuation (in decibel) at
+transition frequency; default is <code>40</code> dB.</p></dd>
 
 
 <dt id="arg-filter-order">filter_order<a class="anchor" aria-label="anchor" href="#arg-filter-order"></a></dt>
@@ -129,47 +128,35 @@ filtered data via forward and backward <code>filtfilt</code>; if <code>data</cod
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">t</span> <span class="op">*</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">t</span> <span class="op">*</span> <span class="fl">20</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>  <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">t</span> <span class="op">*</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">t</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>              mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.1</span>, <span class="fl">2.1</span>, <span class="fl">3.1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># ---- Using FIR ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data_size</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Low-pass filter with no window, with transition bandwidth 0.5Hz</span></span></span>
-<span class="r-in"><span><span class="co"># with attenuation 3, i.e. expected -3dB power at 3.5Hz</span></span></span>
-<span class="r-in"><span><span class="va">f1</span> <span class="op">&lt;-</span> <span class="fu">design_filter</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data_size <span class="op">=</span> <span class="va">data_size</span>,</span></span>
+<span class="r-in"><span><span class="co"># Low-pass filter</span></span></span>
+<span class="r-in"><span><span class="va">y1</span> <span class="op">&lt;-</span> <span class="fu">design_filter</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">x</span>,</span></span>
 <span class="r-in"><span>  sample_rate <span class="op">=</span> <span class="va">sample_rate</span>,</span></span>
-<span class="r-in"><span>  low_pass_freq <span class="op">=</span> <span class="fl">3</span>, low_pass_trans_freq <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
-<span class="r-in"><span>  trans_attenuation <span class="op">=</span> <span class="fl">3</span></span></span>
+<span class="r-in"><span>  low_pass_freq <span class="op">=</span> <span class="fl">3</span>, low_pass_trans_freq <span class="op">=</span> <span class="fl">0.5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Band-pass filter 8-12 Hz with custom transition</span></span></span>
-<span class="r-in"><span><span class="co"># of 1Hz, resulting in 3 dB decay around 7.75-12.25 Hz</span></span></span>
-<span class="r-in"><span><span class="va">f2</span> <span class="op">&lt;-</span> <span class="fu">design_filter</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data_size <span class="op">=</span> <span class="va">data_size</span>,</span></span>
+<span class="r-in"><span><span class="co"># Band-pass cheby1 filter 8-12 Hz with custom transition</span></span></span>
+<span class="r-in"><span><span class="va">y2</span> <span class="op">&lt;-</span> <span class="fu">design_filter</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">x</span>,</span></span>
+<span class="r-in"><span>  method <span class="op">=</span> <span class="st">"cheby1"</span>,</span></span>
 <span class="r-in"><span>  sample_rate <span class="op">=</span> <span class="va">sample_rate</span>,</span></span>
 <span class="r-in"><span>  low_pass_freq <span class="op">=</span> <span class="fl">12</span>, low_pass_trans_freq <span class="op">=</span> <span class="fl">.25</span>,</span></span>
 <span class="r-in"><span>  high_pass_freq <span class="op">=</span> <span class="fl">8</span>, high_pass_trans_freq <span class="op">=</span> <span class="fl">.25</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">f3</span> <span class="op">&lt;-</span> <span class="fu">design_filter</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data_size <span class="op">=</span> <span class="va">data_size</span>,</span></span>
+<span class="r-in"><span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="fu">design_filter</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">x</span>,</span></span>
 <span class="r-in"><span>  sample_rate <span class="op">=</span> <span class="va">sample_rate</span>,</span></span>
-<span class="r-in"><span>  low_pass_freq <span class="op">=</span> <span class="fl">80</span>, low_pass_trans_freq <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>  high_pass_freq <span class="op">=</span> <span class="fl">30</span>, high_pass_trans_freq <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>  trans_attenuation <span class="op">=</span> <span class="fl">12</span></span></span>
+<span class="r-in"><span>  low_pass_freq <span class="op">=</span> <span class="fl">80</span>,</span></span>
+<span class="r-in"><span>  high_pass_freq <span class="op">=</span> <span class="fl">30</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Check power attenuation</span></span></span>
-<span class="r-in"><span><span class="va">y1</span> <span class="op">&lt;-</span> <span class="fu">f1</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y2</span> <span class="op">&lt;-</span> <span class="fu">f2</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="fu">f3</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.1</span>, <span class="fl">2.1</span>, <span class="fl">3.1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">x</span>, type <span class="op">=</span> <span class="st">'l'</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span></span>
-<span class="r-in"><span>     main <span class="op">=</span> <span class="st">"Mixture of 0.2, 2, and 60Hz"</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>     main <span class="op">=</span> <span class="st">"Mixture of 2, 10, and 60Hz"</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># lines(t, y, col = 'red')</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">y3</span>, col <span class="op">=</span> <span class="st">'green'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">t</span>, <span class="va">y2</span>, col <span class="op">=</span> <span class="st">'blue'</span><span class="op">)</span></span></span>
@@ -194,8 +181,6 @@ filtered data via forward and backward <code>filtfilt</code>; if <code>data</cod
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---- Clean this demo --------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">oldpar</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
