@@ -91,27 +91,27 @@ public:
   {
     return pop(false,true);
   }
-  
-  /// It restore a saved selection. 
+
+  /// It restore a saved selection.
   /// The process can be done or in a straightforward manner (e.g. selection values are substituted)
-  /// or preserving selected or unselected elements (e.g. the restoring is combined in OR/AND) 
-  /// 
+  /// or preserving selected or unselected elements (e.g. the restoring is combined in OR/AND)
+  ///
   bool pop(bool orFlag=false, bool andFlag=false)
   {
     if(vsV.empty()) return false;
     if(orFlag && andFlag) return false;
-    
+
     vsHandle vsH = vsV.back();
     esHandle esH = esV.back();
     fsHandle fsH = fsV.back();
     tsHandle tsH = tsV.back();
 
-    if(! (Allocator<ComputeMeshType>::template IsValidHandle(*_m, vsH))) return false;
+    if(! (Allocator<ComputeMeshType>::template IsValidHandle< bool >(*_m, vsH))) return false;
 
     for(auto vi = _m->vert.begin(); vi != _m->vert.end(); ++vi)
       if( !(*vi).IsD() )
       {
-        if(vsH[*vi]) { 
+        if(vsH[*vi]) {
            if(!andFlag) (*vi).SetS();
         } else {
           if(!orFlag)   (*vi).ClearS();
@@ -121,18 +121,18 @@ public:
     for(auto ei = _m->edge.begin(); ei != _m->edge.end(); ++ei)
       if( !(*ei).IsD() )
       {
-        if(esH[*ei]) { 
+        if(esH[*ei]) {
            if(!andFlag) (*ei).SetS();
         } else {
           if(!orFlag)   (*ei).ClearS();
         }
       }
-    
-    
+
+
     for(auto fi = _m->face.begin(); fi != _m->face.end(); ++fi)
       if( !(*fi).IsD() )
-      {  
-        if(fsH[*fi]) { 
+      {
+        if(fsH[*fi]) {
            if(!andFlag) (*fi).SetS();
         } else {
           if(!orFlag)   (*fi).ClearS();
@@ -176,7 +176,7 @@ private:
 
 /// \brief Management, updating and conditional computation of selections  (per-vertex, per-edge, and per-face).
 /**
-This class is used to compute or update the selected bit flag that can be stored in the vertex, edge or face component of a mesh. 
+This class is used to compute or update the selected bit flag that can be stored in the vertex, edge or face component of a mesh.
 */
 
 template <class ComputeMeshType>
@@ -416,7 +416,7 @@ static size_t VertexFromEdgeLoose(MeshType &m, bool preserveSelection=false)
 static size_t VertexFromFaceStrict(MeshType &m, bool preserveSelection=false)
 {
   SelectionStack<MeshType> ss(m);
-  if(preserveSelection) ss.push();  
+  if(preserveSelection) ss.push();
   VertexFromFaceLoose(m);
   for(FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi)
     if( !(*fi).IsD() && !(*fi).IsS())
@@ -447,7 +447,7 @@ static size_t FaceFromVertexStrict(MeshType &m, bool preserveSelection=false)
         ++selCnt;
       }
     }
-  
+
   if(preserveSelection) ss.popOr();
   return selCnt;
 }
@@ -462,7 +462,7 @@ static size_t FaceFromVertexLoose(MeshType &m, bool preserveSelection=false)
     {
       bool selVert=false;
       for(int i = 0; i < (*fi).VN(); ++i)
-        if((*fi).V(i)->IsS()) 
+        if((*fi).V(i)->IsS())
             selVert=true;
 
       if(selVert) {
@@ -472,20 +472,20 @@ static size_t FaceFromVertexLoose(MeshType &m, bool preserveSelection=false)
     }
   return selCnt;
 }
-/// \brief This function dilate the face selection by simply first selecting all the vertices touched by the faces and then all the faces touched by these vertices 
-/// Note: it destroys the vertex selection. 
+/// \brief This function dilate the face selection by simply first selecting all the vertices touched by the faces and then all the faces touched by these vertices
+/// Note: it destroys the vertex selection.
 static size_t FaceDilate(MeshType &m)
 {
   tri::UpdateSelection<MeshType>::VertexFromFaceLoose(m);
-  return tri::UpdateSelection<MeshType>::FaceFromVertexLoose(m);  
+  return tri::UpdateSelection<MeshType>::FaceFromVertexLoose(m);
 }
 
-/// \brief This function erode the face selection by simply first selecting only the vertices completely surrounded by face and then the only faces with all the selected vertices 
-/// Note: it destroys the vertex selection. 
+/// \brief This function erode the face selection by simply first selecting only the vertices completely surrounded by face and then the only faces with all the selected vertices
+/// Note: it destroys the vertex selection.
 static size_t FaceErode(MeshType &m)
 {
   tri::UpdateSelection<MeshType>::VertexFromFaceStrict(m);
-  return tri::UpdateSelection<MeshType>::FaceFromVertexStrict(m);  
+  return tri::UpdateSelection<MeshType>::FaceFromVertexStrict(m);
 }
 
 
@@ -558,13 +558,13 @@ static size_t FaceConnectedFF(MeshType &m)
   // it also assumes that the FF adjacency is well computed.
   RequireFFAdjacency(m);
   UpdateFlags<MeshType>::FaceClearV(m);
-  
+
   std::deque<FacePointer> visitStack;
   size_t selCnt=0;
   for(FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi)
     if( !(*fi).IsD() && (*fi).IsS() && !(*fi).IsV() )
       visitStack.push_back(&*fi);
-  
+
   while(!visitStack.empty())
   {
     FacePointer fp = visitStack.front();
@@ -645,13 +645,13 @@ static size_t VertexCornerBorder(MeshType &m, ScalarType angleRad, bool preserve
   int selCnt=0;
   for(auto vi=m.vert.begin();vi!=m.vert.end();++vi) if(!(*vi).IsD())
     angleSumH[vi]=0;
-  
+
   for(auto fi=m.face.begin();fi!=m.face.end();++fi) if(!(*fi).IsD())
   {
     for(int i=0;i<(*fi).VN();++i)
       angleSumH[fi->V(i)] += face::WedgeAngleRad(*fi,i);
   }
-  
+
   for(auto vi=m.vert.begin();vi!=m.vert.end();++vi) if(!(*vi).IsD())
   {
     if(angleSumH[vi]<angleRad && vi->IsB())
