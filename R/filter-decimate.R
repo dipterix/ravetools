@@ -61,11 +61,11 @@ decimate <- function (
       ba <- gsignal::cheby1(n, rip, w)
     }
 
-    y = filtfilt(ba$b, ba$a, x)
+    y <- filtfilt(ba$b, ba$a, x)
 
-    ny = ceiling(l_x / q)
+    ny <- ceiling(l_x / q)
 
-    nbeg = q - (q * ny - l_x)
+    nbeg <- q - (q * ny - l_x)
 
     y <- y[seq(nbeg, l_x, by = q)]
   }

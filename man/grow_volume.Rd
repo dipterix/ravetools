@@ -13,6 +13,9 @@ grow_volume(volume, x, y = x, z = x, threshold = 0.5)
 
 \item{threshold}{threshold after convolution}
 }
+\value{
+A binary volume mask
+}
 \description{
 Grow volume mask
 }

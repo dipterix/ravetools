@@ -193,6 +193,7 @@ convolve_volume <- function(x, filter) {
 #' @param volume volume mask array, must be 3-dimensional array
 #' @param x,y,z size of grow along each direction
 #' @param threshold threshold after convolution
+#' @returns A binary volume mask
 #' @examples
 #'
 #'

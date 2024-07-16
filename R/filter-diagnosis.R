@@ -354,7 +354,7 @@ sample_signal <- function(n) {
   for(i in seq_len(14)) {
     m <- seq(d[i], d[i + 1] - 1)
     slope <- (a[i + 1] - a[i]) / (d[i + 1] - d[i])
-    x[[length(x) + 1]] <- a[i] + slope * (m - d[i]);
+    x[[length(x) + 1]] <- a[i] + slope * (m - d[i])
   }
   unlist(x)
 }

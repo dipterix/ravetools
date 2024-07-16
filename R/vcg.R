@@ -367,7 +367,7 @@ vcg_sphere <- function(sub_division = 3L, normals = TRUE) {
 #' @param vox_to_ras a \code{4x4} \code{'affine'} transform matrix indicating the
 #' 'voxel'-to-world transform.
 #'
-#' @return A triangular mesh of class \code{'mesh3d'}
+#' @returns A triangular mesh of class \code{'mesh3d'}
 #'
 #' @examples
 #'
@@ -442,7 +442,7 @@ vcg_isosurface <- function(
 #' double-surfaces will be built around the original surface, like a sandwich.
 #' @param merge_clost whether to merge close vertices; default is \code{TRUE}
 #' @param verbose whether to verbose the progress; default is \code{TRUE}
-#' @return A triangular mesh of class \code{'mesh3d'}
+#' @returns A triangular mesh of class \code{'mesh3d'}
 #' @examples
 #'
 #' sphere <- vcg_sphere()

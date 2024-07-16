@@ -1,3 +1,16 @@
+# ravetools 0.1.7
+
+* Fixed a `c++` template issue caused by `vcglib`, which fails to compile under `clang19`
+* `decimate` agrees with `Matlab` now (both `fir` and `iir` filters)
+* Implemented `freqz2` to obtain the frequency response of a digital filter (similar to `gsignal::freqz` but with more accurate cutoff frequency calculation and more customize plots) 
+* Added filter diagnostic plot `diagnose_filter`
+* Added `check_filter` to obtain expected magnitude at given frequency and reciprocal condition number
+* Removed dependency `signal` and use `gsignal` instead
+* Added `design_filter` for both `fir` and `iir` filters, allowing both entry and intermediate users to design band-pass/stop, low/high pass filters easily. 
+* The `iir` filter order generated from `design_filter` will be checked against `rcond_filter_ar` (reciprocal condition number) to make improve the numeric stability
+* Fixed (hopefully) memory issues caused by `dijkstra`; the package passed `asan`, `valgrind` test provided by `rhub2`
+
+
 # ravetools 0.1.6
 
 * Fixed `dijkstra` method occasionally causing memory error. New method is much faster now.

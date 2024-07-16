@@ -117,14 +117,14 @@ fftfilt <- function (b, x, n = NULL) {
 
 filtmag_db <- function(b, a, f) {
   # Find filter's magnitude response in decibels at given frequency.
-  nb = length(b)
-  na = length(a)
+  nb <- length(b)
+  na <- length(a)
 
   sapply(f, function(fi) {
-    top = sum(exp(-1i * seq(0, nb - 1) * pi * fi) * b)
-    bot = sum(exp(-1i * seq(0, na - 1) * pi * fi) * a)
+    top <- sum(exp(-1i * seq(0, nb - 1) * pi * fi) * b)
+    bot <- sum(exp(-1i * seq(0, na - 1) * pi * fi) * a)
 
-    H = 20 * log10(abs(top / bot))
+    H <- 20 * log10(abs(top / bot))
 
     H
   })
