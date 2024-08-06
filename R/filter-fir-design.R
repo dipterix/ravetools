@@ -173,7 +173,7 @@ design_filter_fir <- function(
     w_trans <- low_pass_trans_freq / nyquist
     w_trans[is.na(w_trans)] <- suggested_trans_bandwidth
 
-    w_stop <- w_pass + abs(w_trans)
+    w_stop <- clamp(w_pass + abs(w_trans), min = 0, max = 1)
 
     # kaiserord
     bands <- c(w_pass, w_stop)
@@ -188,7 +188,7 @@ design_filter_fir <- function(
     w_trans <- high_pass_trans_freq / nyquist
     w_trans[is.na(w_trans)] <- suggested_trans_bandwidth
 
-    w_stop <- w_pass - abs(w_trans)
+    w_stop <- clamp(w_pass - abs(w_trans), min = 0, max = 1)
 
     # kaiserord
     bands <- c(w_stop, w_pass)
@@ -228,6 +228,8 @@ design_filter_fir <- function(
     # firls
     mag2 <- c(1, 1, 0, 0, 1, 1)
   }
+
+
 
   r_stop <- stopband_attenuation
   r_pass <- -20 * log10(1 - 10 ^ (-r_stop / 20))

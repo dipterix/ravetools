@@ -309,13 +309,13 @@ design_filter_iir <- function(
     w_pass <- low_pass_freq / nyquist
     w_trans <- low_pass_trans_freq / nyquist
 
-    w_stop <- w_pass + abs(w_trans)
+    w_stop <- clamp(w_pass + abs(w_trans), min = 0, max = 1)
   } else if ( is.na(low_pass_freq) ) {
     ftype <- "high"
     w_pass <- high_pass_freq / nyquist
     w_trans <- high_pass_trans_freq / nyquist
 
-    w_stop <- w_pass - abs(w_trans)
+    w_stop <- clamp(w_pass - abs(w_trans), min = 0, max = 1)
   } else if ( isTRUE(high_pass_freq <= low_pass_freq) ) {
     ftype <- "pass"
     w_pass <- c(high_pass_freq, low_pass_freq) / nyquist
@@ -329,6 +329,9 @@ design_filter_iir <- function(
 
     w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans) , min = 0, max = 1)
   }
+
+  w_stop[w_stop < 0] <- 0
+  w_stop[w_stop > 1] <- 1
 
   # get filter specs
   get_specs <- function(fun_ord, fun_make, min_order = 1) {
