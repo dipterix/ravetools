@@ -164,10 +164,10 @@ SEXP mvfftw_r2c(SEXP data,
     nprot++;
   } else {
     if( TYPEOF(ret) != CPLXSXP ){
-      stop("ravetools `fftw_r2c`: `ret` should be complex");
+      stop("ravetools `mvfftw_r2c`: `ret` should be complex");
     }
     if( Rf_xlength(ret) != retrows * ncols ){
-      stop("ravetools `fftw_r2c`: `ret` length should be " + std::to_string(retrows * ncols));
+      stop("ravetools `mvfftw_r2c`: `ret` length should be " + std::to_string(retrows * ncols));
     }
   }
 
@@ -198,6 +198,61 @@ SEXP mvfftw_r2c(SEXP data,
 
   return(ret);
 }
+
+// [[Rcpp::export]]
+SEXP mvfft_c2r(SEXP data,
+                int fftwplanopt = 0,
+                int retrows = 0,
+                SEXP ret = R_NilValue)
+{
+  int nprot = 0;
+
+  // check HermConj and ret
+  int nrows = Rf_nrows(data);
+  int ncols = Rf_ncols(data);
+  if( (nrows * 2 - retrows - 2) != 0 && (nrows * 2 - retrows - 1) != 0) {
+    stop("ravetools `mvfftw_c2r`: invalid `retrows`.");
+  }
+  if( ret == R_NilValue || ret == R_MissingArg ){
+    PROTECT(ret = Rf_allocMatrix(REALSXP, retrows, ncols));
+    nprot++;
+  } else {
+    if( TYPEOF(ret) != REALSXP ){
+      stop("ravetools `mvfftw_c2r`: `ret` should be double");
+    }
+    if( Rf_xlength(ret) != retrows * ncols ){
+      stop("ravetools `mvfftw_c2r`: `ret` length should be " + std::to_string(retrows * ncols));
+    }
+  }
+
+  if( TYPEOF(data) != CPLXSXP ){
+    PROTECT(data = Rf_coerceVector(data, CPLXSXP));
+    nprot++;
+    // } else if (MAYBE_REFERENCED(data)) {
+    // } else if(!inplace && fftwplanopt <= 0) {
+    // data need to be copied
+    // however fftwplanopt > 0 will copy eventually, so only
+    // copy when fftwplanopt <= 0
+    // UPDATE: FFTW3 official document mentions that with FFTW_ESTIMATE,
+    //   the input/output arrays are not overwritten during planning.
+
+    // data = PROTECT(Rf_duplicate(data));
+    // nprot++;
+  }
+
+  cmvfft_c2r(&retrows, &ncols,
+             reinterpret_cast<fftw_complex*>(&COMPLEX(data)[0]),
+             REAL(ret),
+             &fftwplanopt);
+
+  if(nprot > 0){
+    UNPROTECT(nprot);
+  }
+
+  return(ret);
+}
+
+
 
 
 // [[Rcpp::export]]

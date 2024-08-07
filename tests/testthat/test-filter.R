@@ -85,3 +85,41 @@ test_that("C++ signal filter", {
   )
 
 })
+
+
+test_that("multi-signal fftfilt", {
+  # sanity-check
+  x <- array(sample_signal(5000) + 1:5000, c(1000, 5))
+  filter <- design_filter_fir(sample_rate = 2000, high_pass_freq = 0.5, high_pass_trans_freq = 0.4, data_size = 1000)
+  b <- filter$b
+  expected <- apply(x, 2, function(xi) {
+    re <- fftfilt(b, xi, legacy = TRUE)
+    expect_vector(re)
+    expect_length(re, length(xi))
+    re
+  })
+  expect_equal( fftfilt(b, x, legacy = TRUE), expected )
+  expect_equal( fftfilt(b, x, legacy = FALSE), expected )
+
+
+  # scaled FIR
+  filter$a <- 2
+  expected <- apply(x, 2, function(xi) {
+    filtfilt(filter$b, filter$a, xi)
+  })
+
+
+  actual <- filtfilt(filter$b, filter$a, x)
+
+  testthat::expect_equal(actual, expected)
+
+
+  # # speed check
+  # microbenchmark::microbenchmark(
+  #   expected = apply(x, 2, function(xi) {
+  #     filtfilt(filter$b, filter$a, xi)
+  #   }),
+  #   actual = filtfilt(filter$b, filter$a, x),
+  #   times = 10
+  # )
+})

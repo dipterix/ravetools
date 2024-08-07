@@ -118,20 +118,93 @@ filtfilt_naive2 <- function(b, a, y, z, nfact) {
 #' @export
 filtfilt <- function(b, a, x) {
 
-  nx <- length(x)
-
   # DIPSAUS DEBUG START
   # filter <- ravetools::butter(5, c(1 / 250, 50 / 250), "pass")
   # b <- filter$b
   # a <- filter$a
   # x <- sample_signal(500)
-  init <- filter_initialize(b, a, x)
 
-  if(nx < 10000) {
-    re <- filtfilt_naive(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
+  if(is.matrix(x)) {
+    # DIPSAUS DEBUG START
+    # b <- rnorm(6)
+    # a <- 1
+    # x <- array(rnorm(500), c(250, 2))
+
+    init <- filter_initialize(b, a, x[, 1])
+    nx <- nrow(x)
+
+    if(length(a) == 1) {
+      # FIR filter
+      nfact <- init$nfact
+      pad_pre <- sweep(
+        - x[seq(nfact + 1, 2, by = -1), , drop = FALSE],
+        MARGIN = 2L, FUN = "+",
+        STATS = 2 * as.vector(x[1, ])
+      )
+      pad_post <- sweep(
+        - x[seq(nx - 1, nx - nfact, by = -1), , drop = FALSE],
+        MARGIN = 2L, FUN = "+",
+        STATS = 2 * as.vector(x[nx, ])
+      )
+      padded_x <- rbind(pad_pre, x, pad_post)
+      nr_px <- as.integer(nrow(padded_x))
+
+      cond <- outer(init$z, padded_x[1, ], "*")
+      ncond <- nrow(cond)
+      re <- fftfilt(b = init$b, x = padded_x)
+
+      # add initial condition response
+      re[seq_len(ncond), ] <- re[seq_len(ncond), ] + cond
+
+      # reverse
+      re <- re[seq.int(nr_px, 1L, by = -1L), , drop = FALSE]
+      cond <- outer(init$z, re[1, ], "*")
+      re <- fftfilt(b = init$b, x = re)
+      re[seq_len(ncond), ] <- re[seq_len(ncond), ] + cond
+
+      # subset
+      re <- re[seq(nr_px - nfact, nfact + 1, by = -1), , drop = FALSE]
+      return(re)
+    } else {
+      re <- apply(x, 2L, function(xi) {
+        if(nx < 10000) {
+          filtfilt_naive(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
+        } else {
+          filtfilt_naive2(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
+        }
+      })
+    }
   } else {
-    re <- filtfilt_naive2(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
+    nx <- length(x)
+    init <- filter_initialize(b, a, x)
+
+    if(nx < 10000) {
+      re <- filtfilt_naive(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
+    } else {
+      re <- filtfilt_naive2(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
+    }
   }
+
+  return(re)
+
+  # # sanity-check
+  # x <- array(sample_signal(5000), c(1000, 5))
+  # filter <- design_filter_fir(200, high_pass_freq = 0.5, filter_order = 50)
+  # expected <- apply(x, 2, function(xi) {
+  #   filtfilt(filter$b, filter$a, xi)
+  # })
+  # actual <- filtfilt(filter$b, filter$a, x)
+  # range(actual - expected)
+  #
+  # # speed check
+  # microbenchmark::microbenchmark(
+  #   expected = apply(x, 2, function(xi) {
+  #     filtfilt(filter$b, filter$a, xi)
+  #   }),
+  #   actual = filtfilt(filter$b, filter$a, x)
+  # )
+
+
   re
 }
 

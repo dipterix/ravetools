@@ -277,6 +277,27 @@ namespace ravetools {
         return Rcpp::as<SEXP >(rcpp_result_gen);
     }
 
+    inline SEXP mvfft_c2r(SEXP data, int fftwplanopt = 0, int retrows = 0, SEXP ret = R_NilValue) {
+        typedef SEXP(*Ptr_mvfft_c2r)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_mvfft_c2r p_mvfft_c2r = NULL;
+        if (p_mvfft_c2r == NULL) {
+            validateSignature("SEXP(*mvfft_c2r)(SEXP,int,int,SEXP)");
+            p_mvfft_c2r = (Ptr_mvfft_c2r)R_GetCCallable("ravetools", "_ravetools_mvfft_c2r");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_mvfft_c2r(Shield<SEXP>(Rcpp::wrap(data)), Shield<SEXP>(Rcpp::wrap(fftwplanopt)), Shield<SEXP>(Rcpp::wrap(retrows)), Shield<SEXP>(Rcpp::wrap(ret)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<SEXP >(rcpp_result_gen);
+    }
+
     inline SEXP fftw_r2c_2d(SEXP data, int HermConj = 1, int fftwplanopt = 0, SEXP ret = R_NilValue) {
         typedef SEXP(*Ptr_fftw_r2c_2d)(SEXP,SEXP,SEXP,SEXP);
         static Ptr_fftw_r2c_2d p_fftw_r2c_2d = NULL;

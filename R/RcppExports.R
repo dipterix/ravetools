@@ -57,6 +57,10 @@ mvfftw_r2c <- function(data, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, ret)
 }
 
+mvfft_c2r <- function(data, fftwplanopt = 0L, retrows = 0L, ret = NULL) {
+    .Call(`_ravetools_mvfft_c2r`, data, fftwplanopt, retrows, ret)
+}
+
 fftw_r2c_2d <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_r2c_2d`, data, HermConj, fftwplanopt, ret)
 }

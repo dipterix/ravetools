@@ -74,44 +74,7 @@ ifft <- function(x){
   fftw_c2r(x) / length(x)
 }
 
-# ---- fftfilt -----------------------------------------------------------------
 
-fftfilt <- function (b, x, n = NULL) {
-  N <- n
-  l_x <- length(x)
-  l_b <- length(b)
-  if (is.null(n)) {
-    N <- 2^(ceiling(log(l_x + l_b - 1)/log(2)))
-    B <- fft(postpad(b, N))
-    y <- ifft(fft(postpad(x, N)) * B)
-  } else {
-    if (length(n) > 1) {
-      stop("fftfilt: n has to be a scalar")
-    }
-    N <- 2^(ceiling(log(max(N, l_b))/log(2)))
-    L <- N - l_b + 1
-    B <- fft(postpad(b, N))
-    R <- ceiling(l_x/L)
-    y <- numeric(l_x)
-    for (r in 1:R) {
-      lo <- (r - 1) * L + 1
-      hi <- min(r * L, l_x)
-      tmp <- numeric(0)
-      tmp[1:(hi - lo + 1)] <- x[lo:hi]
-      tmp <- ifft(fft(postpad(tmp, N)) * B)
-      hi <- min(lo + N - 1, l_x)
-      y[lo:hi] <- y[lo:hi] + tmp[1:(hi - lo + 1)]
-    }
-  }
-  y <- y[1:l_x]
-  if (is.numeric(b) && is.numeric(x))
-    y <- Re(y)
-  if (!any(as.logical(b - round(b)))) {
-    idx <- !any(as.logical(x - round(x)))
-    y[idx] <- round(y[idx])
-  }
-  y
-}
 
 # ---- Estimation, validation,  ------------------------------------------------
 
