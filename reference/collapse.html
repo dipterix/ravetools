@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,8 +124,8 @@ collapsing dimensions</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: microseconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     expr     min      lq    mean  median      uq     max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   result 496.979 496.979 496.979 496.979 496.979 496.979     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 762.194 762.194 762.194 762.194 762.194 762.194     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   result 363.487 363.487 363.487 363.487 363.487 363.487     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 688.213 688.213 688.213 688.213 688.213 688.213     1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># large data big difference</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="fl">300</span>,<span class="fl">200</span>,<span class="fl">105</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>,<span class="fl">200</span>,<span class="fl">105</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -136,9 +136,9 @@ collapsing dimensions</p>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="st">'-'</span>, <span class="va">v</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1e-10</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     expr      min       lq     mean   median       uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   result  19.8632  19.8632  19.8632  19.8632  19.8632  19.8632     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 198.5940 198.5940 198.5940 198.5940 198.5940 198.5940     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     expr       min        lq      mean    median        uq       max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   result  19.39331  19.39331  19.39331  19.39331  19.39331  19.39331     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 199.35101 199.35101 199.35101 199.35101 199.35101 199.35101     1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

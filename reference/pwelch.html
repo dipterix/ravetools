@@ -11,7 +11,7 @@ should not be called directly."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,7 @@ should not be called directly.</p>
 <span>  window <span class="op">=</span> <span class="fl">64</span>,</span>
 <span>  noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>,</span>
 <span>  nfft <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  window_family <span class="op">=</span> <span class="va">hamming</span>,</span>
 <span>  col <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -94,7 +95,15 @@ should not be called directly.</p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">mv_pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="va">margin</span>, <span class="va">fs</span>, window <span class="op">=</span> <span class="fl">64</span>, noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>, nfft <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">mv_pwelch</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">margin</span>,</span>
+<span>  <span class="va">fs</span>,</span>
+<span>  window <span class="op">=</span> <span class="fl">64</span>,</span>
+<span>  noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>,</span>
+<span>  nfft <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  window_family <span class="op">=</span> <span class="va">hamming</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -123,6 +132,21 @@ points; default is half of the <code>window</code></p></dd>
 <dt id="arg-nfft">nfft<a class="anchor" aria-label="anchor" href="#arg-nfft"></a></dt>
 <dd><p>number of points in window function; default is automatically
 determined from input data and window, scaled up to the nearest power of 2</p></dd>
+
+
+<dt id="arg-window-family">window_family<a class="anchor" aria-label="anchor" href="#arg-window-family"></a></dt>
+<dd><p>function generator for generating filter windows,
+default is <code><a href="filter-window.html">hamming</a></code>. This can be any window function listed in
+the filter window family, or any window generator function from package
+<code>gsignal</code>. Default is <code><a href="filter-window.html">hamming</a></code>. For 'iEEG' users, both
+<code>hamming</code> and <code><a href="filter-window.html">blackmanharris</a></code> are offered by 'EEG-lab';
+while <code>blackmanharris</code> offers better attenuation than Hamming windows,
+it also has lower spectral resolution. <code>hamming</code> has a 42.5 dB side-lobe
+attenuation. This may mask spectral content below this value (relative
+to the peak spectral content). Choosing different windows enables
+you to make trade-off between resolution (e.g., using a rectangular
+window) and side-lobe attenuation (e.g., using a <code><a href="filter-window.html">hanning</a></code>
+window)</p></dd>
 
 
 <dt id="arg-col-xlim-ylim-main-type-cex-las-xlab-ylab-lty-lwd-xaxs-yaxs-mar-mgp-tck">col, xlim, ylim, main, type, cex, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar, mgp, tck<a class="anchor" aria-label="anchor" href="#arg-col-xlim-ylim-main-type-cex-las-xlab-ylab-lty-lwd-xaxs-yaxs-mar-mgp-tck"></a></dt>
