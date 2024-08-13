@@ -7,8 +7,10 @@
 #' function, \code{x} is the instance returned by \code{pwelch} function.
 #' @param fs sample rate, average number of time points per second
 #' @param window window length in time points, default size is \code{64}
-#' @param nfft number of basis functions to apply
-#' @param noverlap overlap between two adjacent windows, measured in time points; default is \code{8}
+#' @param nfft number of points in window function; default is automatically
+#' determined from input data and window, scaled up to the nearest power of 2
+#' @param noverlap overlap between two adjacent windows, measured in time
+#' points; default is half of the \code{window}
 #' @param log indicates which axis should be \code{log10}-transformed, used by the plot function. For \code{'x'} axis, it's \code{log10}-transform; for \code{'y'} axis, it's \code{10log10}-transform (decibel unit). Choices are \code{"xy"}, \code{"x"}, \code{"y"}, and \code{""}.
 #' @param plot integer, whether to plot the result or not; choices are \code{0}, no plot; \code{1} plot on a new canvas; \code{2} add to existing canvas
 #' @param add logical, whether the plot should be added to existing canvas
@@ -46,7 +48,7 @@
 #'
 #' @export
 pwelch <- function(
-    x, fs, window = 64, noverlap = 8, nfft = 256,
+    x, fs, window = 64, noverlap = window / 2, nfft = "auto",
     col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
     plot = 0, log = c("xy", "", "x", "y"), ...
 ) {
@@ -55,13 +57,25 @@ pwelch <- function(
 
 #' @export
 pwelch.matrix <- function(
-    x, fs, window = 64, noverlap = 8, nfft = 256,
+    x, fs, window = 64, noverlap = window / 2, nfft = "auto",
     col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
-    plot = 0, log = c("xy", "", "x", "y"), ...) {
+    plot = 0, log = c("xy", "", "x", "y"), margin = 1L, ...) {
 
-  x_len <- ncol(x)
+  if(margin != 2) {
+    # column-major
+    x <- t(x)
+  }
+  x_len <- nrow(x)
+  noverlap <- ceiling(noverlap)
 
-  nfft <- max(min(nfft, x_len), window)
+  if(identical(nfft, "auto") || nfft <= 1) {
+    nfft <- 256
+    nfft <- max(min(nfft, x_len), window)
+    nfft <- 2^ceiling(log2(nfft))
+  } else {
+    nfft <- max(min(nfft, x_len), window)
+  }
+  nfft <- ceiling(nfft)
 
   window <- hanning(window)
 
@@ -78,28 +92,29 @@ pwelch.matrix <- function(
   N <- length(offset)
 
   # re-slice data
-  nchannels <- nrow(x)
+  nchannels <- ncol(x)
   re <- sapply(offset, function(idx_start) {
-    t(x[, idx_start - 1 + seq_len(window_len), drop = FALSE])
+    x[idx_start - 1 + seq_len(window_len), , drop = FALSE]
   })
-  dim(re) <- c(window_len, nchannels * length(offset))
+  dim(re) <- c(window_len, length(re) / window_len)
 
   re <- apply(re, 2, function(slice) {
     a <- detrend_naive(slice)
     postpad(a$Y * window, nfft)
   })
 
-  re <- Mod(mvfftw_r2c(re))^2
+  re <- Mod(mvfftw_r2c(re)) ^ 2
 
-  NN <- floor((nfft + 1)/2)
-  re <- re[seq_len(NN), , drop = FALSE] / (window_len / 2)^2
+  NN <- ceiling((nfft + 1) / 2)
+  re <- re[seq_len(NN), , drop = FALSE] / window_len
 
   # calculate mean
   dim(re) <- c(NN, nchannels, N)
-  re <- apply(re, 1, rowMeans) # nchannels x NN
-  if(!is.matrix(re)) {
-    dim(re) <- c(nchannels, NN)
-  }
+  re <- collapse(re, keep = c(2L, 1L), average = TRUE)
+  # re <- apply(re, 1, rowMeans) # nchannels x NN
+  # if(!is.matrix(re)) {
+  #   dim(re) <- c(nchannels, NN)
+  # }
 
   freq <- seq(0, fs / 2, length.out = NN)
 
@@ -129,7 +144,7 @@ pwelch.matrix <- function(
 
 #' @export
 pwelch.default <- function (
-  x, fs, window = 64, noverlap = 8, nfft = 256,
+  x, fs, window = 64, noverlap = window / 2, nfft = "auto",
   col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
   plot = 0, log = c("xy", "", "x", "y"), ...) {
 
@@ -140,8 +155,17 @@ pwelch.default <- function (
 
   x <- as.vector(x)
   x_len <- length(x)
+  noverlap <- ceiling(noverlap)
 
-  nfft <- max(min(nfft, length(x)), window)
+  if(identical(nfft, "auto") || nfft <= 1) {
+    nfft <- 256
+    nfft <- max(min(nfft, x_len), window)
+    nfft <- 2^ceiling(log2(nfft))
+  } else {
+    nfft <- max(min(nfft, x_len), window)
+  }
+  nfft <- ceiling(nfft)
+
 
   window <- hanning(window)
 
@@ -169,9 +193,9 @@ pwelch.default <- function (
 
   re <- Mod(mvfftw_r2c(re))^2
 
-  NN <- floor((nfft + 1)/2)
+  NN <- ceiling((nfft + 1)/2)
 
-  re <- re[seq_len(NN), , drop = FALSE] / (window_len / 2)^2
+  re <- re[seq_len(NN), , drop = FALSE] / window_len
 
   spec <- rowMeans(re)
 
@@ -413,25 +437,53 @@ pwelch.default <- function (
 
 #' @rdname pwelch
 #' @export
-mv_pwelch <- function(x, margin, fs, nfft){
-  xlen <- length(x) / dim(x)[[margin]]
-  window_len <- xlen
-  window <- hanning(xlen)
-  if(missing(nfft)){
-    nfft <- 2^ceiling(log2(xlen))
+mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2, nfft = "auto"){
+  if(margin != 2L) {
+    x <- t(x)
   }
-  re <- apply(x, margin, function(s){
-    a <- detrend_naive(s)
-    postpad(a$Y * window, nfft)
-  })
-  re <- Mod(mvfftw_r2c(re))^2
+  noverlap <- ceiling(noverlap)
+  xlen <- length(x) / dim(x)[[2]]
 
-  NN <- floor((nfft + 1)/2)
-  spec <- rowMeans(re) / (window_len / 2)^2
+  if(identical(nfft, "auto") || nfft <= 1) {
+    nfft <- 256
+    nfft <- max(min(nfft, xlen), window)
+    nfft <- 2^ceiling(log2(nfft))
+  } else {
+    nfft <- max(min(nfft, xlen), window)
+  }
+  nfft <- ceiling(nfft)
+  window <- hanning(window)
+  window_len <- length(window)
+
+  if( noverlap >= window_len ) {
+    noverlap <- window_len - 1
+  } else if ( noverlap < 0 ) {
+    noverlap <- 0
+  }
+  if( xlen > window_len ) {
+    start <- seq(1, xlen - window_len + 1, by = window_len - noverlap)
+    slices <- sapply(start, function(si) {
+      x[seq(si, si + window_len - 1), , drop = FALSE]
+    })
+    dim(slices) <- c(window_len, length(slices) / window_len)
+    slices <- apply(slices, 2L, function(s) {
+      a <- detrend_naive(s)
+      postpad(a$Y * window, nfft)
+    })
+  } else {
+    slices <- apply(x, 2L, function(s) {
+      a <- detrend_naive(s)
+      postpad(a$Y * window, nfft)
+    })
+  }
+
+  re <- Mod(mvfftw_r2c(slices))^2
+  NN <- ceiling((nfft + 1)/2)
+  spec <- rowMeans(re) / window_len
   spec <- spec[seq_len(NN)]
-  freq <- seq(1, fs / 2, length.out = NN)
+  freq <- seq(0, fs / 2, length.out = NN)
 
-  structure(list(
+  re <- structure(list(
     freq = freq,
     spec = spec,
     window = window,
@@ -442,4 +494,35 @@ mv_pwelch <- function(x, margin, fs, nfft){
     method = "Welch",
     nchannels = 1L
   ), class = c("ravetools-pwelch", "pwelch"))
+
+  re
+  #
+  #
+  # xlen /
+  # window_len <- xlen
+  # window <- hanning(xlen)
+  #
+  #
+  # re <- apply(x, margin, function(s){
+  #   a <- detrend_naive(s)
+  #   postpad(a$Y * window, nfft)
+  # })
+  # re <- Mod(mvfftw_r2c(re))^2
+  #
+  # NN <- floor((nfft + 1)/2)
+  # spec <- rowMeans(re) / (window_len / 2)^2
+  # spec <- spec[seq_len(NN)]
+  # freq <- seq(1, fs / 2, length.out = NN)
+  #
+  # structure(list(
+  #   freq = freq,
+  #   spec = spec,
+  #   window = window,
+  #   noverlap = NA,
+  #   nfft = nfft,
+  #   fs = fs,
+  #   x_len = xlen,
+  #   method = "Welch",
+  #   nchannels = 1L
+  # ), class = c("ravetools-pwelch", "pwelch"))
 }

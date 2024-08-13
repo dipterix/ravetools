@@ -11,8 +11,8 @@ pwelch(
   x,
   fs,
   window = 64,
-  noverlap = 8,
-  nfft = 256,
+  noverlap = window/2,
+  nfft = "auto",
   col = "black",
   xlim = NULL,
   ylim = NULL,
@@ -54,7 +54,7 @@ pwelch(
   ...
 )
 
-mv_pwelch(x, margin, fs, nfft)
+mv_pwelch(x, margin, fs, window = 64, noverlap = window/2, nfft = "auto")
 }
 \arguments{
 \item{x}{numerical vector or a row-major vector, signals.
@@ -65,9 +65,11 @@ function, \code{x} is the instance returned by \code{pwelch} function.}
 
 \item{window}{window length in time points, default size is \code{64}}
 
-\item{noverlap}{overlap between two adjacent windows, measured in time points; default is \code{8}}
+\item{noverlap}{overlap between two adjacent windows, measured in time
+points; default is half of the \code{window}}
 
-\item{nfft}{number of basis functions to apply}
+\item{nfft}{number of points in window function; default is automatically
+determined from input data and window, scaled up to the nearest power of 2}
 
 \item{col, xlim, ylim, main, type, cex, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar, mgp, tck}{parameters passed to \code{\link[graphics]{plot.default}}}
 
