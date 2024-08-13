@@ -7,6 +7,18 @@
 #' function, \code{x} is the instance returned by \code{pwelch} function.
 #' @param fs sample rate, average number of time points per second
 #' @param window window length in time points, default size is \code{64}
+#' @param window_family function generator for generating filter windows,
+#' default is \code{\link{hamming}}. This can be any window function listed in
+#' the filter window family, or any window generator function from package
+#' \code{gsignal}. Default is \code{\link{hamming}}. For 'iEEG' users, both
+#' \code{hamming} and \code{\link{blackmanharris}} are offered by 'EEG-lab';
+#' while \code{blackmanharris} offers better attenuation than Hamming windows,
+#' it also has lower spectral resolution. \code{hamming} has a 42.5 dB side-lobe
+#' attenuation. This may mask spectral content below this value (relative
+#' to the peak spectral content). Choosing different windows enables
+#' you to make trade-off between resolution (e.g., using a rectangular
+#' window) and side-lobe attenuation (e.g., using a \code{\link{hanning}}
+#' window)
 #' @param nfft number of points in window function; default is automatically
 #' determined from input data and window, scaled up to the nearest power of 2
 #' @param noverlap overlap between two adjacent windows, measured in time
@@ -48,7 +60,7 @@
 #'
 #' @export
 pwelch <- function(
-    x, fs, window = 64, noverlap = window / 2, nfft = "auto",
+    x, fs, window = 64, noverlap = window / 2, nfft = "auto", window_family = hamming,
     col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
     plot = 0, log = c("xy", "", "x", "y"), ...
 ) {
@@ -57,7 +69,7 @@ pwelch <- function(
 
 #' @export
 pwelch.matrix <- function(
-    x, fs, window = 64, noverlap = window / 2, nfft = "auto",
+    x, fs, window = 64, noverlap = window / 2, nfft = "auto", window_family = hamming,
     col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
     plot = 0, log = c("xy", "", "x", "y"), margin = 1L, ...) {
 
@@ -77,7 +89,7 @@ pwelch.matrix <- function(
   }
   nfft <- ceiling(nfft)
 
-  window <- hanning(window)
+  window <- window_family(window)
 
   # window_norm = norm(window, '2')
   window_len <- length(window)
@@ -144,7 +156,7 @@ pwelch.matrix <- function(
 
 #' @export
 pwelch.default <- function (
-  x, fs, window = 64, noverlap = window / 2, nfft = "auto",
+  x, fs, window = 64, noverlap = window / 2, nfft = "auto", window_family = hamming,
   col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
   plot = 0, log = c("xy", "", "x", "y"), ...) {
 
@@ -167,7 +179,7 @@ pwelch.default <- function (
   nfft <- ceiling(nfft)
 
 
-  window <- hanning(window)
+  window <- window_family(window)
 
   # window_norm = norm(window, '2')
   window_len <- length(window)
@@ -437,7 +449,8 @@ pwelch.default <- function (
 
 #' @rdname pwelch
 #' @export
-mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2, nfft = "auto"){
+mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2,
+                      nfft = "auto", window_family = hamming){
   if(margin != 2L) {
     x <- t(x)
   }
@@ -452,7 +465,7 @@ mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2, nfft = 
     nfft <- max(min(nfft, xlen), window)
   }
   nfft <- ceiling(nfft)
-  window <- hanning(window)
+  window <- window_family(window)
   window_len <- length(window)
 
   if( noverlap >= window_len ) {
@@ -496,33 +509,4 @@ mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2, nfft = 
   ), class = c("ravetools-pwelch", "pwelch"))
 
   re
-  #
-  #
-  # xlen /
-  # window_len <- xlen
-  # window <- hanning(xlen)
-  #
-  #
-  # re <- apply(x, margin, function(s){
-  #   a <- detrend_naive(s)
-  #   postpad(a$Y * window, nfft)
-  # })
-  # re <- Mod(mvfftw_r2c(re))^2
-  #
-  # NN <- floor((nfft + 1)/2)
-  # spec <- rowMeans(re) / (window_len / 2)^2
-  # spec <- spec[seq_len(NN)]
-  # freq <- seq(1, fs / 2, length.out = NN)
-  #
-  # structure(list(
-  #   freq = freq,
-  #   spec = spec,
-  #   window = window,
-  #   noverlap = NA,
-  #   nfft = nfft,
-  #   fs = fs,
-  #   x_len = xlen,
-  #   method = "Welch",
-  #   nchannels = 1L
-  # ), class = c("ravetools-pwelch", "pwelch"))
 }

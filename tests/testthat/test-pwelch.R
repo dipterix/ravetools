@@ -26,7 +26,7 @@ test_that("pwelch", {
 
 
   x <- rnorm(10000)
-  a <- pwelch(x, fs = 100, window = 64, noverlap = 6, nfft = 256, plot = FALSE)
+  a <- pwelch(x, fs = 100, window = 64, noverlap = 6, nfft = 256, plot = FALSE, window_family = hanning)
   b <- rave_pwelch(x, fs = 100, window = 64, noverlap = 6, nfft = 256, log = '')
 
   expect_equal(a$freq, b$freq)

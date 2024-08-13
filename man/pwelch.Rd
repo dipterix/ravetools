@@ -13,6 +13,7 @@ pwelch(
   window = 64,
   noverlap = window/2,
   nfft = "auto",
+  window_family = hamming,
   col = "black",
   xlim = NULL,
   ylim = NULL,
@@ -54,7 +55,15 @@ pwelch(
   ...
 )
 
-mv_pwelch(x, margin, fs, window = 64, noverlap = window/2, nfft = "auto")
+mv_pwelch(
+  x,
+  margin,
+  fs,
+  window = 64,
+  noverlap = window/2,
+  nfft = "auto",
+  window_family = hamming
+)
 }
 \arguments{
 \item{x}{numerical vector or a row-major vector, signals.
@@ -70,6 +79,19 @@ points; default is half of the \code{window}}
 
 \item{nfft}{number of points in window function; default is automatically
 determined from input data and window, scaled up to the nearest power of 2}
+
+\item{window_family}{function generator for generating filter windows,
+default is \code{\link{hamming}}. This can be any window function listed in
+the filter window family, or any window generator function from package
+\code{gsignal}. Default is \code{\link{hamming}}. For 'iEEG' users, both
+\code{hamming} and \code{\link{blackmanharris}} are offered by 'EEG-lab';
+while \code{blackmanharris} offers better attenuation than Hamming windows,
+it also has lower spectral resolution. \code{hamming} has a 42.5 dB side-lobe
+attenuation. This may mask spectral content below this value (relative
+to the peak spectral content). Choosing different windows enables
+you to make trade-off between resolution (e.g., using a rectangular
+window) and side-lobe attenuation (e.g., using a \code{\link{hanning}}
+window)}
 
 \item{col, xlim, ylim, main, type, cex, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar, mgp, tck}{parameters passed to \code{\link[graphics]{plot.default}}}
 
