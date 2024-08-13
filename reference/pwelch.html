@@ -11,7 +11,7 @@ should not be called directly."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,8 +49,8 @@ should not be called directly.</p>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">fs</span>,</span>
 <span>  window <span class="op">=</span> <span class="fl">64</span>,</span>
-<span>  noverlap <span class="op">=</span> <span class="fl">8</span>,</span>
-<span>  nfft <span class="op">=</span> <span class="fl">256</span>,</span>
+<span>  noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>,</span>
+<span>  nfft <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  col <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -94,7 +94,7 @@ should not be called directly.</p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">mv_pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="va">margin</span>, <span class="va">fs</span>, <span class="va">nfft</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">mv_pwelch</span><span class="op">(</span><span class="va">x</span>, <span class="va">margin</span>, <span class="va">fs</span>, window <span class="op">=</span> <span class="fl">64</span>, noverlap <span class="op">=</span> <span class="va">window</span><span class="op">/</span><span class="fl">2</span>, nfft <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -116,11 +116,13 @@ function, <code>x</code> is the instance returned by <code>pwelch</code> functio
 
 
 <dt id="arg-noverlap">noverlap<a class="anchor" aria-label="anchor" href="#arg-noverlap"></a></dt>
-<dd><p>overlap between two adjacent windows, measured in time points; default is <code>8</code></p></dd>
+<dd><p>overlap between two adjacent windows, measured in time
+points; default is half of the <code>window</code></p></dd>
 
 
 <dt id="arg-nfft">nfft<a class="anchor" aria-label="anchor" href="#arg-nfft"></a></dt>
-<dd><p>number of basis functions to apply</p></dd>
+<dd><p>number of points in window function; default is automatically
+determined from input data and window, scaled up to the nearest power of 2</p></dd>
 
 
 <dt id="arg-col-xlim-ylim-main-type-cex-las-xlab-ylab-lty-lwd-xaxs-yaxs-mar-mgp-tck">col, xlim, ylim, main, type, cex, las, xlab, ylab, lty, lwd, xaxs, yaxs, mar, mgp, tck<a class="anchor" aria-label="anchor" href="#arg-col-xlim-ylim-main-type-cex-las-xlab-ylab-lty-lwd-xaxs-yaxs-mar-mgp-tck"></a></dt>
@@ -212,7 +214,7 @@ following items:</p><dl><dt><code>freq</code></dt>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time points: 1000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sample rate: 100.00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   window size: 64</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   window overlaps: 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   window overlaps: 32</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   filter count: 256</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pwel</span>, log <span class="op">=</span> <span class="st">"xy"</span><span class="op">)</span></span></span>
