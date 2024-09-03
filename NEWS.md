@@ -1,3 +1,11 @@
+# ravetools 0.1.8
+
+* `design_filter` ensures frequency window cuts off within 0 to `Nyquist`
+* `fftfilt` allows matrix input
+* `filtfilt` with `a=1` (`FIR` filter) calls `fftfilt` to speed up
+* Fixed `pwelch` incorrect power calculation. The results agrees mostly with `Matlab` function
+* Using `hamming` window as the default in `pwelch`; exported additional window options such as `blackman` families, `bohmanwin`, `flattopwin`, and `hanning`
+
 # ravetools 0.1.7
 
 * Fixed a `c++` template issue caused by `vcglib`, which fails to compile under `clang19`
