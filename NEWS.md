@@ -1,3 +1,7 @@
+# ravetools 0.1.9
+
+* Hot fix by adding `vctrs` to `Suggests` to fix the issue that fails the unit test due to an update in `testthat` package. 
+
 # ravetools 0.1.8
 
 * `design_filter` ensures frequency window cuts off within 0 to `Nyquist`
