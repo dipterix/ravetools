@@ -413,13 +413,13 @@ arrays if <code>precision</code> is <code>'double'</code></p>
 <span class="r-in"><span><span class="co"># Power peaks at 5Hz and 10Hz at early stages</span></span></span>
 <span class="r-in"><span><span class="co"># After 1.0 second, 5Hz component fade away</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">power</span>, x <span class="op">=</span> <span class="va">time</span>, y <span class="op">=</span> <span class="va">freq</span>, ylab <span class="op">=</span> <span class="st">"frequency"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="wavelet-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># wavelet using double precision</span></span></span>
 <span class="r-in"><span><span class="va">coef2</span> <span class="op">&lt;-</span> <span class="fu">morlet_wavelet</span><span class="op">(</span><span class="va">x</span>, <span class="va">freq</span>, <span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>, precision <span class="op">=</span> <span class="st">"double"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">power2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">coef2</span><span class="op">$</span><span class="va">real</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="va">coef2</span><span class="op">$</span><span class="va">imag</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">power2</span>, x <span class="op">=</span> <span class="va">time</span>, y <span class="op">=</span> <span class="va">freq</span>, ylab <span class="op">=</span> <span class="st">"frequency"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="wavelet-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The maximum relative change of power with different precisions</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">power</span><span class="op">/</span><span class="va">power2</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -450,7 +450,7 @@ arrays if <code>precision</code> is <code>'double'</code></p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>
