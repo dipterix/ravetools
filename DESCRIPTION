@@ -69,5 +69,6 @@ Suggests:
     grDevices,
     microbenchmark,
     freesurferformats,
-    testthat
+    testthat,
+    vctrs
 LazyData: true
