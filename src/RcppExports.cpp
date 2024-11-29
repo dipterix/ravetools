@@ -3607,6 +3607,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgRaycaster
+RcppExport SEXP vcgRaycaster(SEXP vb_, SEXP it_, const Rcpp::NumericVector& rayOrigin, const Rcpp::NumericVector& rayDirection, const float& maxDistance, const bool& bothSides, const int& threads);
+RcppExport SEXP _ravetools_vcgRaycaster(SEXP vb_SEXP, SEXP it_SEXP, SEXP rayOriginSEXP, SEXP rayDirectionSEXP, SEXP maxDistanceSEXP, SEXP bothSidesSEXP, SEXP threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type rayOrigin(rayOriginSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type rayDirection(rayDirectionSEXP);
+    Rcpp::traits::input_parameter< const float& >::type maxDistance(maxDistanceSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type bothSides(bothSidesSEXP);
+    Rcpp::traits::input_parameter< const int& >::type threads(threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgRaycaster(vb_, it_, rayOrigin, rayDirection, maxDistance, bothSides, threads));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 // validate (ensure exported C++ functions exist before calling them)
 static int _ravetools_RcppExport_validate(const char* sig) { 
@@ -3930,6 +3947,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgVolume", (DL_FUNC) &_ravetools_vcgVolume, 1},
     {"_ravetools_vcgSphere", (DL_FUNC) &_ravetools_vcgSphere, 2},
     {"_ravetools_vcgDijkstra", (DL_FUNC) &_ravetools_vcgDijkstra, 4},
+    {"_ravetools_vcgRaycaster", (DL_FUNC) &_ravetools_vcgRaycaster, 7},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };

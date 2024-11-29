@@ -613,6 +613,10 @@ vcgDijkstra <- function(vb_, it_, source, maxdist_) {
     .Call(`_ravetools_vcgDijkstra`, vb_, it_, source, maxdist_)
 }
 
+vcgRaycaster <- function(vb_, it_, rayOrigin, rayDirection, maxDistance, bothSides, threads = 1L) {
+    .Call(`_ravetools_vcgRaycaster`, vb_, it_, rayOrigin, rayDirection, maxDistance, bothSides, threads)
+}
+
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
     .Call(`_ravetools_RcppExport_registerCCallable`)

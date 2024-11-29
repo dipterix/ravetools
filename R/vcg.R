@@ -482,3 +482,87 @@ vcg_uniform_remesh <- function(
   )
   return(meshintegrity(out))
 }
+
+
+
+#' @title Cast rays to intersect with mesh
+#' @param x surface mesh
+#' @param ray_origin a matrix with 3 rows or a vector of length 3, the positions
+#' of ray origin
+#' @param ray_direction a matrix with 3 rows or a vector of length 3, the
+#' direction of the ray, will be normalized to length 1
+#' @param max_distance positive maximum distance to cast the normalized ray;
+#' default is infinity. Any invalid distances (negative, zero, or \code{NA})
+#' will be interpreted as unset.
+#' @param both_sides whether to inverse the ray (search both positive and
+#' negative ray directions); default is false
+#' @returns A list of ray casting results: whether any intersection is found,
+#' position and face normal of the intersection, distance of the ray, and the
+#' index of the intersecting face (counted from 1)
+#' @examples
+#'
+#' library(ravetools)
+#' sphere <- vcg_sphere(normals = FALSE)
+#' sphere$vb[1:3, ] <- sphere$vb[1:3, ] + c(10, 10, 10)
+#' vcg_raycaster(
+#'   x = sphere,
+#'   ray_origin = array(c(0, 0, 0, 1, 0, 0), c(3, 2)),
+#'   ray_direction = array(c(1, 1, 1, 1, 1, 1), c(3, 2))
+#' )
+#'
+#' @export
+vcg_raycaster <- function(
+    x, ray_origin, ray_direction, max_distance = Inf, both_sides = FALSE) {
+
+  x <- meshintegrity(mesh = x, facecheck = TRUE)
+
+  if(is.matrix(ray_origin)) {
+    ray_origin <- ray_origin[seq_len(3), , drop = FALSE]
+    ray_direction <- ray_direction[seq_len(3), , drop = FALSE]
+  } else {
+    # assuming ray_origin is a vector of 3
+    ray_origin <- matrix(ray_origin[c(1,2,3)], ncol = 1L)
+    ray_direction <- matrix(ray_direction[c(1,2,3)], ncol = 1L)
+  }
+
+  n_rays <- ncol(ray_origin)
+  if(ncol(ray_direction) != n_rays) {
+    stop("`vcg_raycaster`: number of rays is ", n_rays, " according to `ray_origin`. However `ray_direction` is different number of points. Please make sure these two variables have the same number of elements.")
+  }
+
+  # normalize the ray_direction
+  ray_length <- sqrt(colSums(ray_direction^2))
+  zero_length <- is.na(ray_length) | ray_length == 0
+  if(any(zero_length)) {
+    ray_direction[, zero_length] <- 0
+  }
+  ray_direction[, !zero_length] <- ray_direction[, !zero_length] / ray_length[!zero_length]
+
+
+  stopifnot(length(max_distance) == 1)
+  if(is.na(max_distance) || max_distance <= 0) {
+    max_distance <- Inf
+  }
+
+
+  results <- vcgRaycaster(
+    vb_ = x$vb,
+    it_ = x$it - 1L,
+    rayOrigin = ray_origin,
+    rayDirection = ray_direction,
+    maxDistance = max_distance,
+    bothSides = both_sides,
+    threads =
+  )
+
+  list(
+    has_intersection = as.logical(results$hitFlag),
+    intersection = results$intersectPoints,
+    normals = results$intersectNormals,
+    face_index = results$intersectIndex + 1L,
+    distance = results$castDistance,
+    ray_origin = ray_origin,
+    ray_direction = ray_direction
+  )
+
+}

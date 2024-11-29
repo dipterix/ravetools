@@ -1,3 +1,7 @@
+# ravetools 0.2.0
+
+* Added `vcg_raycaster` to find intersection of rays and given mesh object.
+
 # ravetools 0.1.9
 
 * Hot fix by adding `vctrs` to `Suggests` to fix the issue that fails the unit test due to an update in `testthat` package. 

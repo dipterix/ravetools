@@ -568,3 +568,164 @@ SEXP vcgDijkstra(SEXP vb_, SEXP it_, const Rcpp::IntegerVector & source, const d
   }
   return R_NilValue; // -Wall
 }
+
+
+// [[Rcpp::export]]
+RcppExport SEXP vcgRaycaster(
+    SEXP vb_ , SEXP it_,
+    const Rcpp::NumericVector & rayOrigin, // 3 x n matrix
+    const Rcpp::NumericVector & rayDirection,
+    const float & maxDistance,
+    const bool & bothSides,
+    const int & threads = 1)
+{
+  try {
+    ravetools::MyMesh m;
+    int check = ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m, vb_, it_);
+    if (check != 0) {
+      throw std::runtime_error("Mesh has no faces or vertices. Unable to perform raycaster");
+    }
+
+    ravetools::ScalarType x,y,z;
+    ravetools::MyMesh rays;
+
+    // Leave R to check if nRays > 0
+    unsigned int nRays = rayOrigin.length() / 3;
+    Rcpp::NumericVector castDistance(nRays);
+    Rcpp::IntegerVector hitFlag(nRays);
+
+    // rayOrigin and rayDirection must be identical 3xn
+    // Leave the checks in R wrapper
+    Rcpp::NumericVector intersectPoints(rayOrigin);
+    Rcpp::NumericVector intersectNormals(rayDirection);
+    Rcpp::IntegerVector intersectIndex(nRays);
+
+    //Allocate target
+    std::vector<ravetools::MyMesh::VertexPointer> ivp;
+    vcg::tri::Allocator<ravetools::MyMesh>::AddVertices(rays, nRays);
+    vcg::Point3f normtmp;
+
+    // Copy the rayOrigin and rayDirection
+    Rcpp::NumericVector::iterator intersectPointsPtr = intersectPoints.begin();
+    Rcpp::NumericVector::iterator intersectNormalsPtr = intersectNormals.begin();
+    ravetools::MyMesh::VertexIterator vi = rays.vert.begin();
+    for (unsigned int i=0; i < nRays; i++, vi++) {
+      x = *intersectPointsPtr++;
+      y = *intersectPointsPtr++;
+      z = *intersectPointsPtr++;
+      (*vi).P() = ravetools::MyMesh::CoordType(x, y, z);
+      x = *intersectNormalsPtr++;
+      y = *intersectNormalsPtr++;
+      z = *intersectNormalsPtr++;
+      (*vi).N() = ravetools::MyMesh::CoordType(x, y, z);
+    }
+
+    // bounding box to calculate max cast distance
+    vcg::tri::UpdateBounding<ravetools::MyMesh>::Box(m);
+    m.face.EnableNormal();
+    vcg::tri::UpdateNormal<ravetools::MyMesh>::PerFaceNormalized(m);
+    vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexAngleWeighted(m);
+    vcg::tri::UpdateNormal<ravetools::MyMesh>::NormalizePerVertex(m);
+
+    vcg::tri::UpdateNormal<ravetools::MyMesh>::NormalizePerVertex(rays);
+
+    vcg::tri::FaceTmark<ravetools::MyMesh> mf;
+    mf.SetMesh( &m );
+    vcg::RayTriangleIntersectionFunctor<true> FintFunct;
+    vcg::GridStaticPtr<ravetools::MyMesh::FaceType, ravetools::MyMesh::ScalarType> gridSearcher;
+    gridSearcher.Set(m.face.begin(), m.face.end());
+
+#pragma omp parallel for firstprivate(maxDistance,gridSearcher,mf) schedule(static) num_threads(threads)
+{
+    for ( int i = 0; i < rays.vn ; i++ ) {
+      float t0 = 0.0f, t1 = 0.0f;
+      int faceIndex = -1;
+      vcg::Ray3f ray;
+      vcg::Point3f orig = rays.vert[i].P();
+      // vcg::Point3f orig0 = orig;
+      vcg::Point3f dir = rays.vert[i].N();
+      vcg::Point3f intersection = ravetools::MyMesh::CoordType(0, 0, 0);
+      ravetools::MyFace* facePtr0;
+      ravetools::MyFace* facePtr1;
+
+      /**
+       *  Set ray origin to be slightly "behind" the `orig`
+       *  This is because if orig coincide with the underlying intersection,
+       *  FintFunct will not be able to identify the intersection
+       *  Example:
+       sphere <- ravetools::vcg_sphere()
+       box <- Rvcg::vcgBox(sphere)
+       box$vb[1:3,] <- box$vb[1:3,] + c(1,1,1) - 1e-6
+       mesh <- box
+       vcgRaycaster(vb_ = mesh$vb, it_ = mesh$it - 1L, rayOrigin = matrix(c(0,0,0), ncol = 1), rayDirection = matrix(c(1,1,1), ncol = 1), maxDistance = 1e14, bothSides = FALSE)
+       */
+      ray.SetOrigin(orig - 1e-6f * dir);
+      ray.SetDirection(dir);
+
+      // raycaster
+      facePtr0 = GridDoRay(gridSearcher, FintFunct, mf, ray, maxDistance, t0);
+      if ( bothSides ) {
+        ray.SetOrigin(orig + 1e-6f * dir);
+        // cast the ray backwards
+        ray.SetDirection(-dir);
+        facePtr1 = GridDoRay(gridSearcher, FintFunct, mf, ray, maxDistance, t1);
+        if( facePtr1 && ( !facePtr0 || t1 < t0 ) ) {
+          facePtr0 = facePtr1;
+          t0 = -t1;
+        }
+      }
+
+      if( facePtr0 ) {
+        // pay off the debt
+        if( t0 > 0.0f ) {
+          t0 -= 1e-6f;
+        } else {
+          t0 += 1e-6f;
+        }
+
+        intersection = rays.vert[i].P()+dir * t0;
+        castDistance[ i ] = t0;
+        hitFlag[ i ] = 1;
+
+        faceIndex = vcg::tri::Index(m, facePtr0);
+
+        // face normal
+        const ravetools::MyFace face = m.face[faceIndex];
+        ravetools::MyMesh::CoordType faceNormal = (face.V(0)->N() + face.V(1)->N() + face.V(2)->N()).normalized();
+
+        intersectPoints[i * 3] = intersection[0];
+        intersectPoints[i * 3 + 1] = intersection[1];
+        intersectPoints[i * 3 + 2] = intersection[2];
+        intersectNormals[i * 3] = faceNormal[0];
+        intersectNormals[i * 3 + 1] = faceNormal[1];
+        intersectNormals[i * 3 + 2] = faceNormal[2];
+        intersectIndex[i] = faceIndex;
+
+      } else {
+        // No intersection
+        castDistance[ i ] = NA_REAL;
+        hitFlag[ i ] = 0;
+
+        intersectPoints[i * 3] = NA_REAL;
+        intersectPoints[i * 3 + 1] = NA_REAL;
+        intersectPoints[i * 3 + 2] = NA_REAL;
+        intersectNormals[i * 3] = NA_REAL;
+        intersectNormals[i * 3 + 1] = NA_REAL;
+        intersectNormals[i * 3 + 2] = NA_REAL;
+        intersectIndex[i] = NA_INTEGER;
+      }
+    }
+}
+    return Rcpp::List::create(Rcpp::Named("intersectPoints") = intersectPoints,
+                              Rcpp::Named("intersectNormals") = intersectNormals,
+                              Rcpp::Named("intersectIndex") = intersectIndex,
+                              Rcpp::Named("hitFlag") = hitFlag,
+                              Rcpp::Named("castDistance") = castDistance
+    );
+  } catch (std::exception& e) {
+    Rcpp::stop( e.what());
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return R_NilValue;
+}
