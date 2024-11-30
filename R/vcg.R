@@ -533,10 +533,9 @@ vcg_raycaster <- function(
   # normalize the ray_direction
   ray_length <- sqrt(colSums(ray_direction^2))
   zero_length <- is.na(ray_length) | ray_length == 0
-  if(any(zero_length)) {
-    ray_direction[, zero_length] <- 0
-  }
-  ray_direction[, !zero_length] <- ray_direction[, !zero_length] / ray_length[!zero_length]
+
+  ray_direction <- sweep(ray_direction, 2L, ray_length, FUN = "/", check.margin = TRUE)
+  ray_direction[, zero_length] <- 0
 
 
   stopifnot(length(max_distance) == 1)
@@ -551,8 +550,8 @@ vcg_raycaster <- function(
     rayOrigin = ray_origin,
     rayDirection = ray_direction,
     maxDistance = max_distance,
-    bothSides = both_sides,
-    threads =
+    bothSides = both_sides
+    # threads =
   )
 
   list(

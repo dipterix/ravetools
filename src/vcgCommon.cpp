@@ -596,8 +596,8 @@ RcppExport SEXP vcgRaycaster(
 
     // rayOrigin and rayDirection must be identical 3xn
     // Leave the checks in R wrapper
-    Rcpp::NumericVector intersectPoints(rayOrigin);
-    Rcpp::NumericVector intersectNormals(rayDirection);
+    Rcpp::NumericVector intersectPoints(nRays * 3);
+    Rcpp::NumericVector intersectNormals(nRays * 3);
     Rcpp::IntegerVector intersectIndex(nRays);
 
     //Allocate target
@@ -606,23 +606,22 @@ RcppExport SEXP vcgRaycaster(
     vcg::Point3f normtmp;
 
     // Copy the rayOrigin and rayDirection
-    Rcpp::NumericVector::iterator intersectPointsPtr = intersectPoints.begin();
-    Rcpp::NumericVector::iterator intersectNormalsPtr = intersectNormals.begin();
     ravetools::MyMesh::VertexIterator vi = rays.vert.begin();
     for (unsigned int i=0; i < nRays; i++, vi++) {
-      x = *intersectPointsPtr++;
-      y = *intersectPointsPtr++;
-      z = *intersectPointsPtr++;
+      x = rayOrigin[ i * 3 ];
+      y = rayOrigin[ i * 3 + 1 ];
+      z = rayOrigin[ i * 3 + 2 ];
       (*vi).P() = ravetools::MyMesh::CoordType(x, y, z);
-      x = *intersectNormalsPtr++;
-      y = *intersectNormalsPtr++;
-      z = *intersectNormalsPtr++;
+      x = rayDirection[ i * 3 ];
+      y = rayDirection[ i * 3 + 1 ];
+      z = rayDirection[ i * 3 + 2 ];
+      // Rcpp::Rcout << x << " " << y << " " << z << "\n";
       (*vi).N() = ravetools::MyMesh::CoordType(x, y, z);
     }
 
     // bounding box to calculate max cast distance
-    vcg::tri::UpdateBounding<ravetools::MyMesh>::Box(m);
     m.face.EnableNormal();
+    vcg::tri::UpdateBounding<ravetools::MyMesh>::Box(m);
     vcg::tri::UpdateNormal<ravetools::MyMesh>::PerFaceNormalized(m);
     vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexAngleWeighted(m);
     vcg::tri::UpdateNormal<ravetools::MyMesh>::NormalizePerVertex(m);
