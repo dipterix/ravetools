@@ -556,8 +556,8 @@ vcg_raycaster <- function(
 
   list(
     has_intersection = as.logical(results$hitFlag),
-    intersection = results$intersectPoints,
-    normals = results$intersectNormals,
+    intersection = array(results$intersectPoints, dim = c(3L, n_rays)),
+    normals = array(results$intersectNormals, dim = c(3L, n_rays)),
     face_index = results$intersectIndex + 1L,
     distance = results$castDistance,
     ray_origin = ray_origin,
