@@ -44,7 +44,7 @@ sphere$vb[1:3, ] <- sphere$vb[1:3, ] + c(10, 10, 10)
 vcg_raycaster(
   x = sphere,
   ray_origin = array(c(0, 0, 0, 1, 0, 0), c(3, 2)),
-  ray_direction = array(c(1, 1, 1, 1, 1, 1), c(3, 2))
+  ray_direction = c(1, 1, 1)
 )
 
 }

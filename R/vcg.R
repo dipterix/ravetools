@@ -507,7 +507,7 @@ vcg_uniform_remesh <- function(
 #' vcg_raycaster(
 #'   x = sphere,
 #'   ray_origin = array(c(0, 0, 0, 1, 0, 0), c(3, 2)),
-#'   ray_direction = array(c(1, 1, 1, 1, 1, 1), c(3, 2))
+#'   ray_direction = c(1, 1, 1)
 #' )
 #'
 #' @export
@@ -518,14 +518,20 @@ vcg_raycaster <- function(
 
   if(is.matrix(ray_origin)) {
     ray_origin <- ray_origin[seq_len(3), , drop = FALSE]
-    ray_direction <- ray_direction[seq_len(3), , drop = FALSE]
+    # ray_direction <- ray_direction[seq_len(3), , drop = FALSE]
   } else {
     # assuming ray_origin is a vector of 3
     ray_origin <- matrix(ray_origin[c(1,2,3)], ncol = 1L)
-    ray_direction <- matrix(ray_direction[c(1,2,3)], ncol = 1L)
+    # ray_direction <- matrix(ray_direction[c(1,2,3)], ncol = 1L)
+  }
+  n_rays <- ncol(ray_origin)
+
+  if(length(ray_direction) == 3) {
+    ray_direction <- matrix(ray_direction[c(1, 2, 3)], nrow = 3L, ncol = n_rays)
+  } else {
+    ray_direction <- ray_direction[seq_len(3), , drop = FALSE]
   }
 
-  n_rays <- ncol(ray_origin)
   if(ncol(ray_direction) != n_rays) {
     stop("`vcg_raycaster`: number of rays is ", n_rays, " according to `ray_origin`. However `ray_direction` is different number of points. Please make sure these two variables have the same number of elements.")
   }
