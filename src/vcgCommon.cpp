@@ -571,7 +571,7 @@ SEXP vcgDijkstra(SEXP vb_, SEXP it_, const Rcpp::IntegerVector & source, const d
 
 
 // [[Rcpp::export]]
-RcppExport SEXP vcgRaycaster(
+SEXP vcgRaycaster(
     SEXP vb_ , SEXP it_,
     const Rcpp::NumericVector & rayOrigin, // 3 x n matrix
     const Rcpp::NumericVector & rayDirection,
@@ -727,4 +727,65 @@ RcppExport SEXP vcgRaycaster(
     Rcpp::stop("unknown exception");
   }
   return R_NilValue;
+}
+
+
+// [[Rcpp::export]]
+SEXP vcgKDTreeSearch(
+    SEXP target_, SEXP query_,
+    unsigned int k,
+    unsigned int nPointsPerCell = 16,
+    unsigned int maxDepth = 64
+)
+{
+  try {
+
+    ravetools::MyPointCloud target, query;
+    ravetools::IOMesh<ravetools::MyPointCloud>::vcgReadR(target, target_);
+    ravetools::IOMesh<ravetools::MyPointCloud>::vcgReadR(query, query_);
+
+    // List out = Rvcg::KDtree< PcMesh, PcMesh >::KDtreeIO(target, query, k,nofP, mDepth,threads);
+    // typedef std::pair<float,int> mypair;
+    Rcpp::IntegerMatrix index(query.vn, k);
+    Rcpp::NumericMatrix distance(query.vn, k);
+    std::fill(index.begin(), index.end(), -1);
+
+    vcg::VertexConstDataWrapper<ravetools::MyPointCloud> targetWrapper(target);
+    vcg::KdTree<float> tree(targetWrapper, nPointsPerCell, maxDepth);
+
+    //tree.setMaxNofNeighbors(k);
+    vcg::KdTree<float>::PriorityQueue queue;
+
+    std::vector< std::pair<float,int> > sortPairs;
+
+    for (int i = 0; i < query.vn; i++) {
+      tree.doQueryK(query.vert[i].cP(), k, queue);
+      int neighbors = queue.getNofElements();
+
+      sortPairs.clear();
+
+      for (int j = 0; j < neighbors; j++) {
+        int neightId = queue.getIndex(j);
+        float dist = Distance(query.vert[i].cP(), target.vert[neightId].cP());
+        sortPairs.push_back( std::pair<float,int>(dist, neightId) );
+      }
+
+      std::sort(sortPairs.begin(), sortPairs.end());
+      for (int j = 0; j < neighbors; j++){
+        index(i, j) = sortPairs[j].second;
+        distance(i, j) = sortPairs[j].first;
+      }
+    }
+
+    return Rcpp::List::create(
+      Rcpp::Named("index") = index,
+      Rcpp::Named("distance") = distance
+    );
+
+  } catch (std::exception& e) {
+    Rcpp::stop( e.what() );
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return R_NilValue; // -Wall
 }

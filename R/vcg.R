@@ -571,3 +571,116 @@ vcg_raycaster <- function(
   )
 
 }
+
+#' @title Find nearest \code{k} points
+#' @description
+#' For each point in the query, find the nearest \code{k} points in target using
+#' \code{K-D} tree.
+#' @param target a matrix with \code{n} rows (number of points) and 2 or 3
+#' columns, or a \code{mesh3d} object. This is the target point cloud where
+#' nearest distances will be sought
+#' @param query a matrix with \code{n} rows (number of points) and 2 or 3
+#' columns, or a \code{mesh3d} object. This is the query point cloud where
+#' for each point, the nearest \code{k} points in \code{target} will be sought.
+#' @param k positive number of nearest neighbors to look for
+#' @param leaf_size the suggested leaf size for the \code{K-D} tree; default is
+#' \code{16}; larger leaf size will result in smaller depth
+#' @param max_depth maximum depth of the \code{K-D} tree; default is \code{64}
+#' @returns A list of two matrices: \code{index} is a matrix of indices of
+#' \code{target} points, whose distances are close to the corresponding
+#' \code{query} point. If no point in \code{target} is found, then \code{NA}
+#' will be presented. Each \code{distance} is the corresponding distance
+#' from the query point to the target point.
+#'
+#' @examples
+#'
+#' # Find nearest point in B with the smallest distance for each point in A
+#'
+#' library(ravetools)
+#'
+#' n <- 10
+#' A <- matrix(rnorm(n * 2), nrow = n)
+#' B <- matrix(rnorm(n * 4), nrow = n * 2)
+#' result <- vcg_kdtree_nearest(
+#'   target = B, query = A,
+#'    k = 1
+#' )
+#'
+#' plot(
+#'   rbind(A, B),
+#'   pch = 20,
+#'   col = c(rep("red", n), rep("black", n * 2)),
+#'   xlab = "x",
+#'   ylab = "y",
+#'   main = "Black: target; Red: query"
+#' )
+#'
+#' nearest_points <- B[result$index, ]
+#' arrows(A[, 1],
+#'        A[, 2],
+#'        nearest_points[, 1],
+#'        nearest_points[, 2],
+#'        col = "red",
+#'        length = 0.1)
+#'
+#' # ---- Sanity check ------------------------------------------------
+#' nearest_index <- apply(A, 1, function(pt) {
+#'   which.min(colSums((t(B) - pt) ^ 2))
+#' })
+#'
+#' result$index == nearest_index
+#'
+#'
+#'
+#' @export
+vcg_kdtree_nearest <- function(
+    target, query, k = 1, leaf_size = 16, max_depth = 64) {
+
+  get_point_cloud <- function(x) {
+    if(is.matrix(x) || is.array(x)) {
+      x <- x[drop = FALSE]
+      stopifnot2(
+        is.matrix(x) && ncol(x) %in% c(2, 3),
+        msg = "`vcg_kdtree_nearest`: input `x` must be a column-matrix with 2 or 3 columns and `n` rows as number of points."
+      )
+      if( ncol(x)  == 2 ) {
+        x <- cbind(x, 0)
+      }
+      x <- t(x)
+    } else {
+      x <- meshintegrity(mesh = x, facecheck = FALSE)
+      x <- x$vb[1:3, , drop = FALSE]
+    }
+    x
+  }
+
+  target <- get_point_cloud(target)
+  query <- get_point_cloud(query)
+
+  k <- as.integer(k)
+  if(!is.finite(k) || k <= 0) {
+    stop("`vcg_kdtree_nearest`: `k` must be finite positive.")
+  }
+
+  leaf_size <- as.integer(leaf_size)
+  if(!is.finite(leaf_size) || leaf_size <= 0) {
+    stop("`vcg_kdtree_nearest`: `leaf_size` must be finite positive.")
+  }
+
+  max_depth <- as.integer(max_depth)
+  if(!is.finite(max_depth) || max_depth <= 0) {
+    stop("`vcg_kdtree_nearest`: `max_depth` must be finite positive.")
+  }
+
+  result <- vcgKDTreeSearch(
+    target_ = target,
+    query_ = query,
+    k = k,
+    nPointsPerCell = leaf_size,
+    maxDepth = max_depth
+  )
+  result$index <- result$index + 1L
+  result$index[result$index == 0] <- NA_integer_
+  result
+
+}

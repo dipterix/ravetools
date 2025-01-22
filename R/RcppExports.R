@@ -617,6 +617,10 @@ vcgRaycaster <- function(vb_, it_, rayOrigin, rayDirection, maxDistance, bothSid
     .Call(`_ravetools_vcgRaycaster`, vb_, it_, rayOrigin, rayDirection, maxDistance, bothSides, threads)
 }
 
+vcgKDTreeSearch <- function(target_, query_, k, nPointsPerCell = 16L, maxDepth = 64L) {
+    .Call(`_ravetools_vcgKDTreeSearch`, target_, query_, k, nPointsPerCell, maxDepth)
+}
+
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
     .Call(`_ravetools_RcppExport_registerCCallable`)

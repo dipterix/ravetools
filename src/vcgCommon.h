@@ -20,6 +20,7 @@
 
 #include <vcg/space/index/grid_static_ptr.h>
 #include <vcg/space/index/spatial_hashing.h>
+#include <vcg/space/index/kdtree/kdtree.h>
 #include <vcg/space/point3.h>
 
 #include <vcg/complex/algorithms/update/bounding.h>
@@ -131,6 +132,27 @@ typedef  MyMesh::VertContainer VertContainer;
 typedef  MyMesh::FaceContainer FaceContainer;
 /*typedef MyMesh::ConstVertexIterator ConstVertexIterator;
 typedef MyMesh::ConstFaceIterator   ConstFaceIterator;*/
+
+// for point clouds
+class MyPointCloudVertex;
+struct MyPointCloudUsedTypes : public vcg::UsedTypes<
+  vcg::Use<MyPointCloudVertex>::AsVertexType
+>{};
+
+class MyPointCloudEdge : public vcg::Edge<MyPointCloudUsedTypes> {};
+
+class MyPointCloudVertex : public vcg::Vertex<
+  MyPointCloudUsedTypes,
+  // vertex::InfoOcf,
+  vcg::vertex::Coord3f,
+  vcg::vertex::BitFlags,
+  vcg::vertex::Normal3f,
+  vcg::vertex::Mark,
+  vcg::vertex::Color4b,
+  vcg::vertex::Qualityf
+>{};
+
+class MyPointCloud : public vcg::tri::TriMesh< std::vector<MyPointCloudVertex> > {};
 
 
 
