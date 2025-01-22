@@ -55,6 +55,35 @@ ensure_mesh3d <- function(surface) {
     surface <- structure(list(
       vb = rbind(t(surface$vertices), 1),
       it = face), class = "mesh3d")
+  } else if(inherits(surface, "ieegio_surface")) {
+    # surface <- ieegio::read_surface(ieegio::ieegio_sample_data("gifti/GzipBase64/sujet01_Lwhite.surf.gii"))
+    if(!inherits(surface, "ieegio_surface_contains_geometry")) {
+      stop("Surface object has no geometry")
+    }
+    if(isTRUE(surface$sparse) || !length(surface$sparse_node_index)) {
+      vertices <- surface$geometry$vertices
+    } else {
+      node_index <- surface$sparse_node_index
+      vertices <- array(0.0, c(3, max(node_index)))
+      vertices[1:3, ] <- surface$geometry$vertices[1:3, ]
+      vertices <- rbind(vertices, 1)
+    }
+
+    face <- surface$geometry$faces
+    if(length(face)) {
+      face_start <- surface$geometry$face_start
+      if(length(face_start) == 1 && !isTRUE(face_start == 1)) {
+        face <- face - face_start + 1L
+      }
+      storage.mode(face) <- "integer"
+
+      surface <- structure(list(
+        vb = vertices,
+        it = face), class = "mesh3d")
+    } else {
+      surface <- structure(list(
+        vb = vertices), class = "mesh3d")
+    }
   }
   if (!inherits(surface, "mesh3d")) {
     # check if surface has names
