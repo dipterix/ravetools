@@ -47,3 +47,6 @@ gsignal::ellipap
 gsignal::ellipord
 
 
+#' @importFrom gsignal resample
+#' @export
+gsignal::resample
