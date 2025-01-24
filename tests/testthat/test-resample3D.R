@@ -1,6 +1,6 @@
 test_that("resample3D", {
-  arrayDim = rev(c(256, 128, 16))
-  fromArray = array(rnorm(prod(arrayDim)), rev(arrayDim) + 1)
+  arrayDim <- rev(c(256, 128, 16))
+  fromArray <- array(rnorm(prod(arrayDim)), rev(arrayDim) + 1)
   oldVoxToWorld <- matrix(nrow = 4, byrow = TRUE, c(
     1.5, 0, 0.8, -200,
     0.01, 0, -1, 10,

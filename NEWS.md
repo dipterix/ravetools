@@ -1,3 +1,11 @@
+# ravetools 0.2.1
+
+* Using `std::nearbyint` instead `std::round` to round numbers to comply to `IEC-60559` standard that half numbers round to nearest even integers
+* Implemented low-level `3D` volume sampling in `C++`: `resample_3d_volume`
+* Exported `gsignal::resample` (however, some edits might be needed in the future to produce the same results as `Matlab`)
+* Supported converting `ieegio` surface geometries to `mesh3d` to be used in `VCG` related functions
+* Added `K-D` tree search to find closest points among two point clouds
+
 # ravetools 0.2.0
 
 * Added `vcg_raycaster` to find intersection of rays and given mesh object.
