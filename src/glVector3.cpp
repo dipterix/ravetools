@@ -1,3 +1,4 @@
+#include <cmath>
 #include "glVector3.h"
 #include "glMatrix4.h"
 #include "glQuaternion.h"
@@ -1041,7 +1042,7 @@ Vector3& Vector3::round() {
 
   std::transform(this->data.begin(), this->data.end(),
                  this->data.begin(),
-                 [](double& a) { return std::round(a); });
+                 [](double& a) { return std::nearbyint(a); });
 
   return *this;
 }

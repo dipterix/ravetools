@@ -1,3 +1,4 @@
+#include <cmath>
 #include "utils.h"
 #include "TinyParallel.h"
 
@@ -78,6 +79,7 @@ microbenchmark::microbenchmark(
 
 */
 
+
 template <typename T>
 struct Resampler3D : public TinyParallel::Worker
 {
@@ -123,7 +125,7 @@ struct Resampler3D : public TinyParallel::Worker
 
     // for transforming indices
     R_xlen_t vi_int, vj_int, vk_int;
-    float vi_f, vj_f, vk_f;
+    double vi_f, vj_f, vk_f;
 
     for( R_xlen_t ii = begin_; ii < end_; ii++ ) {
       // get IJK for the new array
@@ -135,9 +137,9 @@ struct Resampler3D : public TinyParallel::Worker
       // Rcout << ii << " " << vi_int << " " << vj_int << " " << vk_int << "-----\n";
 
       // get voxel index in old array
-      vi_f = std::roundf( this->a11 * vi_int + this->a12 * vj_int + this->a13 * vk_int + this->a14 );
-      vj_f = std::roundf( this->a21 * vi_int + this->a22 * vj_int + this->a23 * vk_int + this->a24 );
-      vk_f = std::roundf( this->a31 * vi_int + this->a32 * vj_int + this->a33 * vk_int + this->a34 );
+      vi_f = std::nearbyint( this->a11 * vi_int + this->a12 * vj_int + this->a13 * vk_int + this->a14 );
+      vj_f = std::nearbyint( this->a21 * vi_int + this->a22 * vj_int + this->a23 * vk_int + this->a24 );
+      vk_f = std::nearbyint( this->a31 * vi_int + this->a32 * vj_int + this->a33 * vk_int + this->a34 );
 
       vi_int = (R_xlen_t) vi_f;
       vj_int = (R_xlen_t) vj_f;
@@ -232,7 +234,7 @@ SEXP resample3D(const SEXP& arrayDim,
   double  b11, b12, b13, b14,
           b21, b22, b23, b24,
           b31, b32, b33, b34,
-          b41 = 0.0l, b42 = 0.0l, b43 = 0.0l, b44 = 1.0l;
+          b41 = 0.0, b42 = 0.0, b43 = 0.0, b44 = 1.0;
 
   if( TYPEOF(newVoxToWorldTransposed) != REALSXP ) {
     SEXP vox2rasNew = PROTECT(Rf_coerceVector(newVoxToWorldTransposed, REALSXP));
@@ -251,7 +253,7 @@ SEXP resample3D(const SEXP& arrayDim,
   double  a11, a12, a13, a14,
           a21, a22, a23, a24,
           a31, a32, a33, a34,
-          a41 = 0.0l, a42 = 0.0l, a43 = 0.0l, a44 = 1.0l;
+          a41 = 0.0, a42 = 0.0, a43 = 0.0, a44 = 1.0;
 
   if( TYPEOF(oldVoxToWorldTransposed) != REALSXP ) {
     SEXP vox2rasOld = PROTECT(Rf_coerceVector(oldVoxToWorldTransposed, REALSXP));
@@ -278,9 +280,9 @@ SEXP resample3D(const SEXP& arrayDim,
   double det = a11 * t11 + a21 * t12 + a31 * t13 + a41 * t14;
 
   if ( det < 0.0000001 && det > -0.0000001 ) {
-    a11 = a12 = a13 = a14 = a21 = a22 = a23 = a24 = a31 = a32 = a33 = a34 = 0.0l;
+    a11 = a12 = a13 = a14 = a21 = a22 = a23 = a24 = a31 = a32 = a33 = a34 = 0.0;
   } else {
-    double detInv = 1.0l / det;
+    double detInv = 1.0 / det;
     double  n11 = t11 * detInv,
             n21 = ( a24 * a33 * a41 - a23 * a34 * a41 - a24 * a31 * a43 + a21 * a34 * a43 + a23 * a31 * a44 - a21 * a33 * a44 ) * detInv,
             n31 = ( a22 * a34 * a41 - a24 * a32 * a41 + a24 * a31 * a42 - a21 * a34 * a42 - a22 * a31 * a44 + a21 * a32 * a44 ) * detInv,
