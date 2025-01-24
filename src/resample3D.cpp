@@ -429,21 +429,21 @@ SEXP resample3D(const SEXP& arrayDim,
 
     case STRSXP: {
       // int64 is the same size as double, with 8 bytes
-      const std::int64_t na_ = -1;
+      const int64_t na_ = -1;
 
       SEXP re_ = PROTECT(Rf_allocVector(REALSXP, retLen));
-      std::int64_t* re_ptr = (std::int64_t*) REAL(re_);
+      int64_t* re_ptr = (int64_t*) REAL(re_);
 
-      std::int64_t odLen = (std::int64_t) (od1 * od2 * od3);
+      int64_t odLen = (int64_t) (od1 * od2 * od3);
       SEXP fromArray_ = PROTECT(Rf_allocVector(REALSXP, odLen));
 
-      std::int64_t* x_ptr = (std::int64_t*) REAL(fromArray_);
-      for(std::int64_t ii = 0 ; ii < odLen; ii++) {
+      int64_t* x_ptr = (int64_t*) REAL(fromArray_);
+      for(int64_t ii = 0 ; ii < odLen; ii++) {
         *x_ptr++ = ii;
       }
-      x_ptr = (std::int64_t*) REAL(fromArray_);
+      x_ptr = (int64_t*) REAL(fromArray_);
 
-      Resampler3D<std::int64_t> sampler(
+      Resampler3D<int64_t> sampler(
           x_ptr, re_ptr, na_,
           nd1, nd2, nd3, od1, od2, od3,
           a11, a12, a13, a14, a21, a22, a23, a24, a31, a32, a33, a34);
@@ -452,9 +452,9 @@ SEXP resample3D(const SEXP& arrayDim,
       UNPROTECT(1); // fromArray_
 
       const SEXP na_str = STRING_ELT(na, 0);
-      re_ptr = (std::int64_t*) REAL(re_);
-      for(std::int64_t ii = 0 ; ii < retLen; ii++) {
-        const std::int64_t& reIdx = *re_ptr++;
+      re_ptr = (int64_t*) REAL(re_);
+      for(int64_t ii = 0 ; ii < retLen; ii++) {
+        const int64_t& reIdx = *re_ptr++;
         if( reIdx == na_ ) {
           SET_STRING_ELT(re, ii, na_str);
         } else {
