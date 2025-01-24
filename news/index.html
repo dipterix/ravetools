@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,15 @@
       <small>Source: <a href="https://github.com/dipterix/ravetools/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.1" id="ravetools-021">ravetools 0.2.1<a class="anchor" aria-label="anchor" href="#ravetools-021"></a></h2>
+<ul><li>Using <code>std::nearbyint</code> instead <code>std::round</code> to round numbers to comply to <code>IEC-60559</code> standard that half numbers round to nearest even integers</li>
+<li>Implemented low-level <code>3D</code> volume sampling in <code>C++</code>: <code>resample_3d_volume</code>
+</li>
+<li>Exported <code><a href="https://rdrr.io/pkg/gsignal/man/resample.html" class="external-link">gsignal::resample</a></code> (however, some edits might be needed in the future to produce the same results as <code>Matlab</code>)</li>
+<li>Supported converting <code>ieegio</code> surface geometries to <code>mesh3d</code> to be used in <code>VCG</code> related functions</li>
+<li>Added <code>K-D</code> tree search to find closest points among two point clouds</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="ravetools-020">ravetools 0.2.0<a class="anchor" aria-label="anchor" href="#ravetools-020"></a></h2><p class="text-muted">CRAN release: 2024-12-16</p>
 <ul><li>Added <code>vcg_raycaster</code> to find intersection of rays and given mesh object.</li>
