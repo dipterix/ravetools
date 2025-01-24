@@ -573,6 +573,10 @@ rawToString <- function(x) {
     .Call(`_ravetools_rawToString`, x)
 }
 
+resample3D <- function(arrayDim, fromArray, newVoxToWorldTransposed, oldVoxToWorldTransposed, na) {
+    .Call(`_ravetools_resample3D`, arrayDim, fromArray, newVoxToWorldTransposed, oldVoxToWorldTransposed, na)
+}
+
 shiftArray <- function(x, alongIdx, unitIdx, shiftAmount) {
     .Call(`_ravetools_shiftArray`, x, alongIdx, unitIdx, shiftAmount)
 }

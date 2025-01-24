@@ -3464,6 +3464,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// resample3D
+SEXP resample3D(const SEXP& arrayDim, const SEXP& fromArray, const SEXP& newVoxToWorldTransposed, const SEXP& oldVoxToWorldTransposed, const SEXP& na);
+RcppExport SEXP _ravetools_resample3D(SEXP arrayDimSEXP, SEXP fromArraySEXP, SEXP newVoxToWorldTransposedSEXP, SEXP oldVoxToWorldTransposedSEXP, SEXP naSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const SEXP& >::type arrayDim(arrayDimSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type fromArray(fromArraySEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type newVoxToWorldTransposed(newVoxToWorldTransposedSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type oldVoxToWorldTransposed(oldVoxToWorldTransposedSEXP);
+    Rcpp::traits::input_parameter< const SEXP& >::type na(naSEXP);
+    rcpp_result_gen = Rcpp::wrap(resample3D(arrayDim, fromArray, newVoxToWorldTransposed, oldVoxToWorldTransposed, na));
+    return rcpp_result_gen;
+END_RCPP
+}
 // shiftArray
 SEXP shiftArray(const SEXP& x, const R_xlen_t& alongIdx, const R_xlen_t& unitIdx, const SEXP& shiftAmount);
 RcppExport SEXP _ravetools_shiftArray(SEXP xSEXP, SEXP alongIdxSEXP, SEXP unitIdxSEXP, SEXP shiftAmountSEXP) {
@@ -3952,6 +3967,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_rawToInt64", (DL_FUNC) &_ravetools_rawToInt64, 1},
     {"_ravetools_rawToFloat", (DL_FUNC) &_ravetools_rawToFloat, 1},
     {"_ravetools_rawToString", (DL_FUNC) &_ravetools_rawToString, 1},
+    {"_ravetools_resample3D", (DL_FUNC) &_ravetools_resample3D, 5},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
     {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},
     {"_ravetools_vcgIsoSurface", (DL_FUNC) &_ravetools_vcgIsoSurface, 2},

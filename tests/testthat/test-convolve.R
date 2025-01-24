@@ -1,10 +1,18 @@
+load_imager <- function() {
+  tryCatch({
+    imager <- asNamespace("imager")
+    imager
+  }, error = function(e) {})
+}
+
 test_that("convolve_image", {
   testthat::skip_on_cran()
   testthat::skip_if(system.file(package = "imager") == '')
 
   # Do NOT test on CRAN, `imager` does not install well, I don't want to
   # add it to `Suggests`
-  imager <- asNamespace("imager")
+  imager <- load_imager()
+  testthat::skip_if(is.null(imager), message = "Fail to load package imager")
   boats <- imager$as.cimg(imager$.__NAMESPACE__.$lazydata$boats[,,1,1])
   filter <- imager$as.cimg(function(x,y) sign(x-5),11,11)
 
@@ -29,7 +37,9 @@ test_that("convolve_volume", {
 
   # Do NOT test on CRAN, `imager` does not install well, I don't want to
   # add it to `Suggests`
-  imager <- asNamespace("imager")
+  imager <- load_imager()
+  testthat::skip_if(is.null(imager), message = "Fail to load package imager")
+
   boats <- as.array(imager$.__NAMESPACE__.$lazydata$boats)
   dim(boats) <- dim(boats)[c(1,2,4,3)]
   boats <- imager$as.cimg(boats)

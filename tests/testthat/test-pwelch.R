@@ -9,7 +9,7 @@ test_that("pwelch", {
     window <- hanning(window)
     window_len <- length(window)
     step <- max(floor(window_len - noverlap + 0.99), 1)
-    print(c(1, x_len - window_len + 1, by = step))
+    # print(c(1, x_len - window_len + 1, by = step))
     offset <- seq(1, x_len - window_len + 1, by = step)
     N <- length(offset)
     re <- sapply(seq_len(N), function(i) {
