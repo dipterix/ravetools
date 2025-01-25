@@ -31,7 +31,7 @@ contrast."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Calculate Contrasts of Arrays in Different Methods</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/baseline.R" class="external-link"><code>R/baseline.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/0.2.1/R/baseline.R" class="external-link"><code>R/baseline.R</code></a></small>
       <div class="d-none name"><code>baseline_array.Rd</code></div>
     </div>
 
@@ -213,9 +213,9 @@ $$</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1.818989e-12  2.273737e-12</span>
 <span class="r-in"><span><span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span><span class="fu">f1</span><span class="op">(</span><span class="op">)</span>, <span class="fu">f2</span><span class="op">(</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  expr       min        lq      mean    median        uq       max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  f1() 93.714531 98.002684 121.78752 101.38879 166.88277 176.67088    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  f2()  7.986049  9.346495  10.15162  10.16392  10.78878  12.94949    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  expr       min        lq       mean    median        uq       max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  f1() 88.869530 93.537592 115.535859 97.372919 156.98904 167.08775    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  f2()  7.434317  8.735118   9.426445  9.410903  10.50788  11.27225    10</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
