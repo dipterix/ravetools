@@ -189,10 +189,10 @@ public:
   static VertexIterator AddVertices(MeshType &m, size_t n, PointerUpdater<VertexPointer> &pu)
   {
     VertexIterator last;
-    if(n == 0) 
+    if(n == 0)
       return m.vert.end();
     pu.Clear();
-    
+
     if(m.vert.empty())
       pu.oldBase=0;  // if the vector is empty we cannot find the last valid element
     else {
@@ -219,7 +219,7 @@ public:
       for (EdgeIterator ei=m.edge.begin(); ei!=m.edge.end(); ++ei)
         if(!(*ei).IsD())
         {
-          // if(HasEVAdjacency (m)) 
+          // if(HasEVAdjacency (m))
           pu.Update((*ei).V(0));
           pu.Update((*ei).V(1));
           //							if(HasEVAdjacency(m))   pu.Update((*ei).EVp());
@@ -271,7 +271,7 @@ public:
       pu.Update(**vi);
     return v_ret;
   }
-  
+
   /** \brief Wrapper to AddVertices() to add an eigen matrix of (vn,3)
    *  it returns the iterator to the first vertex added
             */
@@ -288,8 +288,8 @@ public:
       }
       return v_start;
   }
-  
-   
+
+
   /** \brief Wrapper to AddVertices() to add a single vertex with given coords
             */
   static VertexIterator AddVertex(MeshType &m, const CoordType &p)
@@ -367,18 +367,18 @@ public:
             if ((*vi).cVEp()!=0) pu.Update((*vi).VEp());
         for(EdgeIterator ei=m.edge.begin();ei!=firstNewEdge;++ei)
           if(!(*ei).IsD())
-          {            
+          {
             if ((*ei).cVEp(0)!=0) pu.Update((*ei).VEp(0));
             if ((*ei).cVEp(1)!=0) pu.Update((*ei).VEp(1));
-          }        
+          }
       }
-      
+
       if(HasHEAdjacency(m))
         for (HEdgeIterator hi=m.hedge.begin(); hi!=m.hedge.end(); ++hi)
           if(!(*hi).IsD())
             if ((*hi).cHEp()!=0) pu.Update((*hi).HEp());
     }
-    
+
     return firstNewEdge;// deve restituire l'iteratore alla prima faccia aggiunta;
   }
 
@@ -391,7 +391,7 @@ public:
     ei->V(1)=v1;
     return ei;
   }
-  
+
   /** Function to add a single edge to the mesh. and initializing it with two indexes to the vertexes
             */
   static EdgeIterator AddEdge(MeshType &m, size_t v0, size_t v1)
@@ -401,7 +401,7 @@ public:
     assert(v1>=0 && v1<m.vert.size());
     return AddEdge(m,&(m.vert[v0]),&(m.vert[v1]));
   }
-  
+
 
   /** Function to add a face to the mesh and initializing it with the three given coords
             */
@@ -631,7 +631,7 @@ public:
       pu.Update(**fi);
     return f_ret;
   }
-  
+
   /** \brief Function to add n faces to the mesh getting indexes
    *  from a (fn, 3) eigen matrix of int  .
             */
@@ -789,7 +789,7 @@ public:
             pu.Update(ti->VTp(1));
             pu.Update(ti->VTp(2));
             pu.Update(ti->VTp(3));
-          } 
+          }
       }
 
       //do edge and face adjacency
@@ -1039,31 +1039,33 @@ public:
     ResizeAttribute(m.vert_attr,m.vn,m);
 
     // Loop on the face to update the pointers FV relation (vertex refs)
-    for(FaceIterator fi=m.face.begin();fi!=m.face.end();++fi)
-      if(!(*fi).IsD())
-        for(int i=0;i<fi->VN();++i)
-        {
+    for(FaceIterator fi=m.face.begin();fi!=m.face.end();++fi) {
+      if(!(*fi).IsD()) {
+        for(int i=0;i<fi->VN();++i) {
           size_t oldIndex = (*fi).V(i) - pu.oldBase;
           assert(pu.oldBase <= (*fi).V(i) && oldIndex < pu.remap.size());
           (*fi).V(i) = pu.newBase+pu.remap[oldIndex];
         }
+      }
+    }
     // Loop on the tetras to update the pointers TV relation (vertex refs)
-    for(TetraIterator ti = m.tetra.begin(); ti != m.tetra.end(); ++ti)
-      if(!(*ti).IsD())
-        for(int i = 0; i < 4; ++i)
-        {
+    for(TetraIterator ti = m.tetra.begin(); ti != m.tetra.end(); ++ti) {
+      if(!(*ti).IsD()) {
+        for(int i = 0; i < 4; ++i) {
           size_t oldIndex = (*ti).V(i) - pu.oldBase;
           assert(pu.oldBase <= (*ti).V(i) && oldIndex < pu.remap.size());
           (*ti).V(i) = pu.newBase+pu.remap[oldIndex];
         }
+      }
+    }
     // Loop on the edges to update the pointers EV relation (vertex refs)
     // if(HasEVAdjacency(m))
-      for(EdgeIterator ei=m.edge.begin();ei!=m.edge.end();++ei)
-        if(!(*ei).IsD())
-        {
-          pu.Update((*ei).V(0));
-          pu.Update((*ei).V(1));
-        }
+    for(EdgeIterator ei=m.edge.begin();ei!=m.edge.end();++ei) {
+      if(!(*ei).IsD()) {
+        pu.Update((*ei).V(0));
+        pu.Update((*ei).V(1));
+      }
+    }
   }
 
   static void CompactEveryVector(MeshType &m)
@@ -1353,9 +1355,9 @@ public:
     if (size_t(m.tn) == m.tetra.size())
       return;
 
-    //init the remap 
+    //init the remap
     pu.remap.resize(m.tetra.size(), std::numeric_limits<size_t>::max());
-    
+
     //cycle over all the tetras, pos is the last not D() position, I is the index
     //when pos != i and !tetra[i].IsD() => we need to compact and update adj
     size_t pos = 0;
@@ -1365,7 +1367,7 @@ public:
       {
         if (pos != i)
         {
-          //import data 
+          //import data
           m.tetra[pos].ImportData(m.tetra[i]);
           //import vertex refs
           for (int j = 0; j < 4; ++j)
@@ -1397,7 +1399,7 @@ public:
     }
 
     assert(size_t(m.tn) == pos);
-    //reorder the optional attributes in m.tetra_attr 
+    //reorder the optional attributes in m.tetra_attr
     ReorderAttribute(m.tetra_attr, pu.remap, m);
     // resize the optional atttributes in m.tetra_attr to reflect the changes
     ResizeAttribute(m.tetra_attr, m.tn, m);
@@ -1884,7 +1886,7 @@ public:
     }
     return AddPerFaceAttribute<ATTR_TYPE>(m,name);
   }
-  
+
   /*! \brief gives a handle to a per-face attribute with a given name and ATTR_TYPE
       \returns a valid handle. If the name is not empty and an attribute with that name and type exists returns a handle to it.
         Otherwise, returns an invalid handle (check it using IsValidHandle).
@@ -1919,7 +1921,7 @@ public:
       }
     return typename MeshType:: template PerFaceAttributeHandle<ATTR_TYPE>(nullptr,0);
   }
-  
+
   /**
    * @brief Try to retrieve a const handle to an attribute with a given name
    * and ATTR_TYPE, from the given const mesh.
@@ -2412,7 +2414,7 @@ public:
     // zero the padding
     pa._padding = 0;
   }
-  
+
   template <class ATTR_TYPE>
   static void FixPaddedPerMeshAttribute ( MeshType & /* m */,PointerToAttribute & pa){
 

@@ -8,7 +8,7 @@
 *                                                                    \      *
 * All rights reserved.                                                      *
 *                                                                           *
-* This program is free software; you can redistribute it and/or modify      *   
+* This program is free software; you can redistribute it and/or modify      *
 * it under the terms of the GNU General Public License as published by      *
 * the Free Software Foundation; either version 2 of the License, or         *
 * (at your option) any later version.                                       *
@@ -159,7 +159,7 @@ public:
     tri::PoissonSampling(m,PoissonSamples,pp.sampleNum,diskRadius);
     int st1=clock();
     pp.vas.samplingTime+= st1-st0;
-    pp.cb(50,StrFormat("Sampling created a new mesh of %lu points\n",PoissonSamples.size()));
+    // pp.cb(50,StrFormat("Sampling created a new mesh of %lu points\n",PoissonSamples.size()));
     EuclideanDistance<VoroMesh> edFunc;
     std::vector<VertexType *> seedVec;
     tri::VoronoiProcessing<VoroMesh>::SeedToVertexConversion(m,PoissonSamples,seedVec);
@@ -174,7 +174,7 @@ public:
     {
       VoroMesh *rm = new VoroMesh();
       int selCnt = tri::VoronoiProcessing<VoroMesh>::FaceSelectAssociateRegion(m,seedVec[i]);
-       pp.cb(50,StrFormat("Region %i of %i faces",i,selCnt));
+       // pp.cb(50,StrFormat("Region %i of %i faces",i,selCnt));
       if(selCnt==0) continue;
       assert(selCnt>0);
       if(pp.overlap){

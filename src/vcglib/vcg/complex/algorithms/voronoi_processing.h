@@ -8,7 +8,7 @@
 *                                                                    \      *
 * All rights reserved.                                                      *
 *                                                                           *
-* This program is free software; you can redistribute it and/or modify      *   
+* This program is free software; you can redistribute it and/or modify      *
 * it under the terms of the GNU General Public License as published by      *
 * the Free Software Foundation; either version 2 of the License, or         *
 * (at your option) any later version.                                       *
@@ -46,7 +46,7 @@ struct VoronoiProcessingParameter
   };
 
   VoronoiProcessingParameter()  {}
-  
+
   int colorStrategy=DistanceFromSeed;
 
   float areaThresholdPerc=0;
@@ -82,7 +82,7 @@ struct VoronoiProcessingParameter
   float collapseShortEdgePerc = 0.01f;
 
   bool geodesicRelaxFlag= true;
-  
+
   CallBackPos *lcb=DummyCallBackPos;
 };
 
@@ -176,7 +176,7 @@ static void VoronoiColoring(MeshType &m, bool frontierFlag=true)
   }
   float minQ =  std::numeric_limits<float>::max();
   float maxQ = -std::numeric_limits<float>::max();
-  
+
   for(VertexIterator vi=m.vert.begin();vi!=m.vert.end();++vi)
     if(sources[*vi])
     {
@@ -186,9 +186,9 @@ static void VoronoiColoring(MeshType &m, bool frontierFlag=true)
   for(VertexIterator vi=m.vert.begin();vi!=m.vert.end();++vi)
     if(sources[*vi])
           (*vi).C().SetColorRamp(minQ,maxQ,(*vi).Q());
-  else 
+  else
       (*vi).C()=Color4b::DarkGray;
-  
+
 //  tri::UpdateColor<MeshType>::PerVertexQualityRamp(m);
 }
 
@@ -1214,7 +1214,7 @@ static int RestrictedVoronoiRelaxing(MeshType &m, std::vector<CoordType> &seedPo
   ScalarType perturb = m.bbox.Diag()*vpp.seedPerturbationAmount;
   for(i=0;i<relaxStep;++i)
   {
-    vpp.lcb(i*100/relaxStep,StrFormat("RestrictedVoronoiRelaxing %i on %i",i,relaxStep));    
+    // vpp.lcb(i*100/relaxStep,StrFormat("RestrictedVoronoiRelaxing %i on %i",i,relaxStep));
     // Kdtree for the seeds must be rebuilt at each step;
     VectorConstDataWrapper<std::vector<CoordType> > vdw(seedPosVec);
     KdTree<ScalarType> seedTree(vdw);
@@ -1355,7 +1355,7 @@ static int VoronoiRelaxing(MeshType &m, std::vector<VertexType *> &seedVec,
 
 
 // Base vertex voronoi coloring algorithm.
-// It assumes VF adjacency. 
+// It assumes VF adjacency.
 // No attempt of computing real geodesic distnace is done. Just a BFS visit starting from the seeds
 // It leaves in each vertex quality the index of the seed.
 
@@ -1657,7 +1657,7 @@ static void PreprocessForVoronoi(MeshType &m, ScalarType radius,
 
   for(int i=0;i<maxSubDiv;++i)
   {
-    vpp.lcb(0,StrFormat("Subdividing %i vn %i",i,m.vn));
+    // vpp.lcb(0,StrFormat("Subdividing %i vn %i",i,m.vn));
     bool ret = tri::Refine<MeshType, MidPointType >(m,mid,std::min(edgeLen*2.0f,radius/vpp.refinementRatio));
     if(!ret) break;
   }
@@ -1709,7 +1709,7 @@ static void RelaxRefineTriangulationSpring(MeshType &m, MeshType &delaMesh, int 
     const float dist_upper_bound=m.bbox.Diag()/10.0;
     float dist;
 
-    for(int k=0;k<relaxStep;k++) 
+    for(int k=0;k<relaxStep;k++)
     {
       std::vector<Point3f> avgForce(delaMesh.vn);
       std::vector<float> avgLenVec(delaMesh.vn,0);
