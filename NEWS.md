@@ -1,3 +1,7 @@
+# ravetools 0.2.2
+
+* Fixed `clang20` warning and removed problematic `vcglib` code that use pointers after free.
+
 # ravetools 0.2.1
 
 * Using `std::nearbyint` instead `std::round` to round numbers to comply to `IEC-60559` standard that half numbers round to nearest even integers

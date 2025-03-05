@@ -177,7 +177,6 @@
 #'
 #'
 #' @export
-#' @export
 dijkstras_surface_distance <- function(positions, faces, start_node, face_index_start = NA, max_search_distance = NA, ...) {
 
   # DIPSAUS DEBUG START
