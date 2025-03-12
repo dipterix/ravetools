@@ -171,8 +171,8 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
           # result is nrow(x) x ncol(x)
           # offset delay
           result <- rbind(
-            result[-seq_len(delay[[jj]]), ],
-            result[seq_len(delay[[jj]]), ]
+            result[-seq_len(delay[[jj]]), , drop = FALSE],
+            result[seq_len(delay[[jj]]), , drop = FALSE]
           )
 
           arr[, , jj] <- result
