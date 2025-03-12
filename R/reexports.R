@@ -50,3 +50,10 @@ gsignal::ellipord
 #' @importFrom gsignal resample
 #' @export
 gsignal::resample
+
+#' @importFrom gsignal hilbert
+#' @export
+gsignal::hilbert
+
+
+

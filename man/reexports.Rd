@@ -16,6 +16,7 @@
 \alias{ellipap}
 \alias{ellipord}
 \alias{resample}
+\alias{hilbert}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -23,6 +24,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{gsignal}{\code{\link[gsignal]{buttap}}, \code{\link[gsignal]{butter}}, \code{\link[gsignal]{buttord}}, \code{\link[gsignal]{cheb1ap}}, \code{\link[gsignal]{cheb1ord}}, \code{\link[gsignal]{cheb2ap}}, \code{\link[gsignal]{cheb2ord}}, \code{\link[gsignal]{cheby1}}, \code{\link[gsignal]{cheby2}}, \code{\link[gsignal]{ellip}}, \code{\link[gsignal]{ellipap}}, \code{\link[gsignal]{ellipord}}, \code{\link[gsignal]{resample}}}
+  \item{gsignal}{\code{\link[gsignal]{buttap}}, \code{\link[gsignal]{butter}}, \code{\link[gsignal]{buttord}}, \code{\link[gsignal]{cheb1ap}}, \code{\link[gsignal]{cheb1ord}}, \code{\link[gsignal]{cheb2ap}}, \code{\link[gsignal]{cheb2ord}}, \code{\link[gsignal]{cheby1}}, \code{\link[gsignal]{cheby2}}, \code{\link[gsignal]{ellip}}, \code{\link[gsignal]{ellipap}}, \code{\link[gsignal]{ellipord}}, \code{\link[gsignal]{hilbert}}, \code{\link[gsignal]{resample}}}
 }}
 
