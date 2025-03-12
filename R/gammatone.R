@@ -15,12 +15,14 @@ nextpow2 <- function(x) {
 }
 
 gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
-                           use_hilbert = FALSE) {
+                           use_hilbert = FALSE, downsample = NA) {
 
-  # x <- as.vector(ieegio::io_read_mat("~/rave_data/raw_dir/DemoSubject/008/DemoSubjectDatafile008_ch13.mat")$analogTraces)[1:(2000 * 5)]
+  # x <- as.vector(ieegio::io_read_mat("~/rave_data/raw_dir/DemoSubject/008/DemoSubjectDatafile008_ch13.mat")$analogTraces)[]
   # sample_rate <- 2000
   # center_frequencies <- c(20, 1000)
   # n_bands <- 128
+  # downsample <- 20
+  # use_hilbert <- TRUE
 
   filter_order <- 4
   center_frequencies <- unname(as.double(center_frequencies))
@@ -77,6 +79,19 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
   N <- 2 ^ nextpow2(l_x + l_filter - 1)
 
 
+  downsample <- as.double(downsample)
+  final_sample_rate <- sample_rate
+
+  n_timepoints <- l_x
+
+  if(!is.na(downsample) && downsample <= 1) {
+    downsample <- NA_real_
+  } else {
+    n_timepoints <- ceiling(n_timepoints / downsample)
+    final_sample_rate <- sample_rate / downsample
+  }
+
+
   root_dir <- file.path(tempdir2(check = TRUE), "ravetools")
   digest <- digest::digest(list(
     center_frequencies = center_frequencies,
@@ -84,108 +99,168 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
     N = N,
     sample_rate = sample_rate
   ))
-  x_digest <- digest::digest(list(digest::digest(x), digest))
+  x_digest <- digest::digest(list(
+    x_digest = digest::digest(x),
+    filter_digest = digest,
+    use_hilbert = use_hilbert,
+    downsample = downsample
+  ))
 
   # if the filters < 256MB
-  if( N * n_bands <= 33554432 ) {
-    gammatone_filters_fft <- stats::mvfft(postpad(gammatone_filters, N))
-  } else {
-    if(!dir.exists(root_dir)){
-      dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
-    }
-    # use filearray to store the signals on disk
-    filters_path <- file.path(root_dir, sprintf("gammatone-%s", digest))
-    gammatone_filters_fft <- filearray::filearray_load_or_create(
-      filebase = filters_path,
-      dimension = c(N, n_bands),
-      type = "complex",
-      symlink_ok = FALSE,
-      partition_size = 1L,
-      initialize = TRUE,
-      ready = TRUE,
-      on_missing = function(arr) {
-        lapply(seq_len(n_bands), function(ii) {
-          arr[, ii] <- fft(postpad(gammatone_filters[, ii], N))
-          NULL
-        })
-        arr$set_header("ready", TRUE)
-        arr
-      }
-    )
+  if(!dir.exists(root_dir)){
+    dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
+  # use filearray to store the signals on disk
+  filters_path <- file.path(root_dir, sprintf("gammatone-%s", digest))
+  gammatone_filters_fft <- filearray::filearray_load_or_create(
+    filebase = filters_path,
+    dimension = c(N, n_bands),
+    type = "complex",
+    symlink_ok = FALSE,
+    partition_size = 1L,
+    initialize = TRUE,
+    ready = TRUE,
+    on_missing = function(arr) {
+      lapply(seq_len(n_bands), function(ii) {
+        arr[, ii] <- fft(postpad(gammatone_filters[, ii], N))
+        NULL
+      })
+      arr$set_header("ready", TRUE)
+      arr
+    }
+  )
 
   # delay
   delay <- round(tcs * sample_rate)
 
-  if( N * n_bands * c_x <= 33554432 ) {
-    # using around 2-3GB RAM so it's fine
-    result <- apply(x, 2L, function(x_slice) {
-      # print(ii <<- ii + 1)
-      # x_slice <- x[,1]
-      result <- stats::mvfft(gammatone_filters_fft[drop = FALSE] * fft(postpad(x_slice, N)), inverse = TRUE) / N
-      result <- Re(result[seq_len(l_x), , drop = FALSE])
-      if(use_hilbert) {
-        # apply hilbert transform
-        result <- abs(hilbert(result))
-      }
-      # offset delay
-      result <- sapply(seq_len(n_bands), function(jj) {
-        res <- result[, jj]
-        c(res[-seq_len(delay[[jj]])], res[seq_len(delay[[jj]])])
+  # result <- apply(x, 2L, function(x_slice) {
+  #   # print(ii <<- ii + 1)
+  #   # x_slice <- x[,1]
+  #   result <- stats::mvfft(gammatone_filters_fft[drop = FALSE] * fft(postpad(x_slice, N)), inverse = TRUE) / N
+  #   result <- Re(result[seq_len(l_x), , drop = FALSE])
+  #
+  #   # offset delay
+  #   result <- sapply(seq_len(n_bands), function(jj) {
+  #     res <- result[, jj]
+  #     res <- c(res[-seq_len(delay[[jj]])], res[seq_len(delay[[jj]])])
+  #
+  #     if(isTRUE(downsample > 1)) {
+  #       # downsample the filtered results before hilbert or returning to speed up
+  #       res <- decimate(res, q = downsample)
+  #     }
+  #     res
+  #   })
+  #
+  #   if(use_hilbert) {
+  #     # apply hilbert transform
+  #     result <- abs(hilbert(result))
+  #   }
+  #
+  #   result
+  #
+  # })
+  # dim(result) <- c(l_x, n_bands, c_x)
+  # result <- aperm(result, c(1, 3, 2))
+
+
+  # if( N * n_bands * c_x <= 33554432 ) {
+  #   # using around 2-3GB RAM so it's fine
+  #   result <- apply(x, 2L, function(x_slice) {
+  #     # print(ii <<- ii + 1)
+  #     # x_slice <- x[,1]
+  #     result <- stats::mvfft(gammatone_filters_fft[drop = FALSE] * fft(postpad(x_slice, N)), inverse = TRUE) / N
+  #     result <- Re(result[seq_len(l_x), , drop = FALSE])
+  #     if(use_hilbert) {
+  #       # apply hilbert transform
+  #       result <- abs(hilbert(result))
+  #     }
+  #     # offset delay
+  #     result <- sapply(seq_len(n_bands), function(jj) {
+  #       res <- result[, jj]
+  #       c(res[-seq_len(delay[[jj]])], res[seq_len(delay[[jj]])])
+  #     })
+  #   })
+  #   dim(result) <- c(l_x, n_bands, c_x)
+  #   result <- aperm(result, c(1, 3, 2))
+  #
+  #   # samp <- result[, 1, ]
+  #   # n_plot <- 10000
+  #   # matplot(x = seq_len(n_plot) / sample_rate, y = samp[seq_len(n_plot), ], lty = 1, type = "l")
+  #   # diagnose_channel(s1 = as.vector(x), s2 = rowSums(samp), srate = sample_rate, which = 1, col = c("black", "red"))
+  #   # plot_signals(
+  #   #   t(cbind(x, rowSums(samp))), sample_rate = sample_rate, space = 0, duration = 1
+  #   # )
+  #
+  # } else {
+
+  result_path <- file.path(root_dir, sprintf("gammatone-results-%s", x_digest))
+
+  result <- filearray::filearray_load_or_create(
+    filebase = result_path,
+    dimension = c(n_timepoints, c_x, n_bands),
+    type = "double",
+    symlink_ok = FALSE,
+    partition_size = 1L,
+    initialize = FALSE,
+    ready = FALSE,
+    verbose = FALSE,
+    on_missing = function(arr) {
+
+      design_table <- expand.grid(
+        x = seq_len(c_x),
+        f = seq_len(n_bands)
+      )
+
+      fft_x <- filearray::as_filearray(stats::mvfft(postpad(x, N)))
+      on.exit({
+        fft_x$.mode <- "readwrite"
+        fft_x$delete()
       })
-    })
-    dim(result) <- c(l_x, n_bands, c_x)
-    result <- aperm(result, c(1, 3, 2))
 
-    # samp <- result[, 1, ]
-    # n_plot <- 10000
-    # matplot(x = seq_len(n_plot) / sample_rate, y = samp[seq_len(n_plot), ], lty = 1, type = "l")
-    # diagnose_channel(s1 = as.vector(x), s2 = rowSums(samp), srate = sample_rate, which = 1, col = c("black", "red"))
-    # plot_signals(
-    #   t(cbind(x, rowSums(samp))), sample_rate = sample_rate, space = 0, duration = 1
-    # )
+      lapply_async(seq_len(nrow(design_table)), function(row_ii) {
+        # row_ii <- 1
+        design_row <- design_table[row_ii, ]
 
-  } else {
-    if(!dir.exists(root_dir)){
-      dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
-    }
-    result_path <- file.path(root_dir, sprintf("gammatone-results-%s", x_digest))
-    result <- filearray::filearray_load_or_create(
-      filebase = result_path,
-      dimension = c(l_x, c_x, n_bands),
-      type = "double",
-      symlink_ok = FALSE,
-      partition_size = 1L,
-      initialize = FALSE,
-      ready = FALSE,
-      verbose = TRUE,
-      on_missing = function(arr) {
-        fft_x <- stats::mvfft(postpad(x, N))
-        lapply(seq_len(n_bands), function(jj) {
-          result <- stats::mvfft(fft_x * gammatone_filters_fft[, jj], inverse = TRUE) / N
-          result <- Re(result[seq_len(l_x), , drop = FALSE])
-          if(use_hilbert) {
-            # apply hilbert transform
-            result <- abs(hilbert(result))
+        ii <- design_row$x
+        jj <- design_row$f
+
+        result <- stats::fft(fft_x[, ii] * gammatone_filters_fft[, jj], inverse = TRUE) / N
+        result <- Re(result[seq_len(l_x)])
+
+        # offset delay
+        result <- c( result[-seq_len(delay[[jj]])], result[seq_len(delay[[jj]])] )
+
+        # downsample
+        # TODO: make sure n_timepoints is accurate and not with possible 1-off?
+        if(isTRUE(downsample > 1)) {
+          result <- decimate(x = result, q = downsample)
+          if(length(result) > n_timepoints) {
+            result <- result[seq_len(n_timepoints)]
+          } else if (length(result) < n_timepoints) {
+            result <- postpad(result, n_timepoints)
           }
-          # result is nrow(x) x ncol(x)
-          # offset delay
-          result <- rbind(
-            result[-seq_len(delay[[jj]]), , drop = FALSE],
-            result[seq_len(delay[[jj]]), , drop = FALSE]
-          )
+        }
 
-          arr[, , jj] <- result
-          NULL
-        })
-        arr$set_header("center_frequencies", center_frequencies, save = FALSE)
-        arr$set_header("filter_order", as.integer(filter_order), save = FALSE)
-        arr$set_header("sample_rate", sample_rate, save = FALSE)
-        arr$set_header("ready", TRUE, save = TRUE)
-        arr
-      }
-    )
-  }
+        if(use_hilbert) {
+          # apply hilbert transform
+          result <- abs(hilbert(result))
+        }
+
+        arr[, ii, jj] <- result
+
+        return()
+      }, callback = I)
+
+      arr$set_header("center_frequencies", center_frequencies, save = FALSE)
+      arr$set_header("filter_order", as.integer(filter_order), save = FALSE)
+      arr$set_header("orig_sample_rate", sample_rate, save = FALSE)
+      arr$set_header("use_hilbert", use_hilbert, save = FALSE)
+      arr$set_header("downsample", downsample, save = FALSE)
+      arr$set_header("ready", TRUE, save = TRUE)
+      arr
+    }
+  )
+  # }
 
   result
 

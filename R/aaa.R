@@ -208,3 +208,16 @@ internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL)
 #' and \code{0} (other brain tissues)
 #'
 "left_hippocampus_mask"
+
+
+lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NULL,
+                         on_failure = "multisession", ...) {
+  if(system.file(package = "raveio") == "") {
+    do.call("lapply", c(list(X = x, FUN = FUN), FUN.args))
+    ret <- lapply(x, FUN)
+  } else {
+    raveio <- asNamespace("raveio")
+    ret <- raveio$lapply_async(x = x, FUN = FUN, FUN.args = FUN.args, callback = callback, ncores = ncores, on_failure = on_failure, ...)
+  }
+  ret
+}
