@@ -1,3 +1,7 @@
+# ravetools 0.2.3
+
+* Added `gammatone_fast` filters to obtain the audio envelope at different frequencies
+
 # ravetools 0.2.2
 
 * Fixed `clang20` warning and removed problematic `vcglib` code that use pointers after free.

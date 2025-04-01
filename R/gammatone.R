@@ -14,8 +14,73 @@ nextpow2 <- function(x) {
   ceiling(log2(x))
 }
 
+#' @title Apply gamma-tone filters to obtain auditory envelopes
+#' @param x a numeric vector or matrix; if \code{x} is a matrix, it should
+#' be column-major (each column is a sound track)
+#' @param sample_rate sampling frequency
+#' @param center_frequencies center frequencies at which the envelopes will
+#' be derived; can be either a length of two defining the lower and
+#' upper bound, and using \code{n_bands} to interpolate automatically, or
+#' a length of multiple, with the frequencies specified explicitly
+#' @param n_bands number of the center frequencies, can be missing if
+#' \code{center_frequencies} is explicit and no interpolation is needed;
+#' if specified, then the frequencies will be interpolated using
+#' equivalent rectangular bandwidth rate (\code{'ERB'})
+#' @param use_hilbert whether to apple 'Hilbert' transform; default is true,
+#' which calculates the magnitude; set to false when only the filter is needed
+#' @param downsample whether to down-sample the envelopes after the filters;
+#' default is \code{NA} (no down-sample). It is recommended when the signal
+#' sampling frequency is high to save time.
+#' @returns A file-array object of filtered and potentially down-sampled
+#' data; see 'Examples' on how to use this function.
+#' @examples
+#'
+#'
+#' fs <- 2000
+#' time <- seq_len(4000) / fs
+#' x <- sin(160 * pi * time) +
+#'   sin(1000 * pi * time) * dnorm(time, mean = 1, sd = 0.1) +
+#'   0.5 * rnorm(length(time))
+#'
+#' # envelope
+#' result <- gammatone_fast(
+#'   x,
+#'   sample_rate = fs,
+#'   center_frequencies = c(20, 1000),
+#'   n_bands = 128,
+#'   downsample = 20
+#' )
+#'
+#'
+#' oldpar <- par(mfrow = c(2, 1))
+#'
+#' plot(
+#'   time,
+#'   x,
+#'   type = "l",
+#'   xlab = "Time",
+#'   ylab = "",
+#'   main = "Original mixed 80Hz and 500Hz"
+#' )
+#'
+#' # only one channel
+#' envelope <- subset(result, Channel ~ Channel == 1, drop = TRUE)
+#' dnames <-  dimnames(envelope)
+#' image(
+#'   x = as.numeric(dnames$Time),
+#'   y = as.numeric(dnames$Frequency),
+#'   z = envelope,
+#'   xlab = "Time",
+#'   ylab = "Frequency",
+#'   main = "Envelope from 20Hz to 1000Hz"
+#' )
+#'
+#' par(oldpar) # reset graphics state
+#'
+#'
+#' @export
 gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
-                           use_hilbert = FALSE, downsample = NA) {
+                           use_hilbert = TRUE, downsample = NA) {
 
   # x <- as.vector(ieegio::io_read_mat("~/rave_data/raw_dir/DemoSubject/008/DemoSubjectDatafile008_ch13.mat")$analogTraces)[]
   # sample_rate <- 2000
@@ -84,11 +149,15 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
 
   n_timepoints <- l_x
 
-  if(!is.na(downsample) && downsample <= 1) {
-    downsample <- NA_real_
+  if(!is.na(downsample)) {
+    if(downsample <= 1) {
+      downsample <- NA_real_
+    } else {
+      n_timepoints <- ceiling(n_timepoints / downsample)
+      final_sample_rate <- sample_rate / downsample
+    }
   } else {
-    n_timepoints <- ceiling(n_timepoints / downsample)
-    final_sample_rate <- sample_rate / downsample
+    downsample <- NA_real_
   }
 
 
@@ -217,7 +286,10 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
         fft_x$delete()
       })
 
-      lapply_async(seq_len(nrow(design_table)), function(row_ii) {
+      # Avoid using gsignal functions
+      ravetools <- asNamespace("ravetools")
+
+      lapply(seq_len(nrow(design_table)), function(row_ii) {
         # row_ii <- 1
         design_row <- design_table[row_ii, ]
 
@@ -230,10 +302,15 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
         # offset delay
         result <- c( result[-seq_len(delay[[jj]])], result[seq_len(delay[[jj]])] )
 
+        if(use_hilbert) {
+          # apply hilbert transform
+          result <- abs(hilbert(result))
+        }
+
         # downsample
         # TODO: make sure n_timepoints is accurate and not with possible 1-off?
         if(isTRUE(downsample > 1)) {
-          result <- decimate(x = result, q = downsample)
+          result <- ravetools$decimate(x = result, q = downsample)
           if(length(result) > n_timepoints) {
             result <- result[seq_len(n_timepoints)]
           } else if (length(result) < n_timepoints) {
@@ -241,21 +318,27 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
           }
         }
 
-        if(use_hilbert) {
-          # apply hilbert transform
-          result <- abs(hilbert(result))
-        }
-
         arr[, ii, jj] <- result
 
         return()
-      }, callback = I)
+      })
 
       arr$set_header("center_frequencies", center_frequencies, save = FALSE)
       arr$set_header("filter_order", as.integer(filter_order), save = FALSE)
       arr$set_header("orig_sample_rate", sample_rate, save = FALSE)
       arr$set_header("use_hilbert", use_hilbert, save = FALSE)
       arr$set_header("downsample", downsample, save = FALSE)
+
+      time <- seq_len(n_timepoints) / sample_rate
+      if(!is.na(downsample)) {
+        time <- time * downsample
+      }
+
+      dimnames(arr) <- list(
+        Time = time,
+        Channel = seq_len(c_x),
+        Frequency = center_frequencies
+      )
       arr$set_header("ready", TRUE, save = TRUE)
       arr
     }
