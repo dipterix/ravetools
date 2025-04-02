@@ -10,7 +10,8 @@ gammatone_fast(
   center_frequencies,
   n_bands,
   use_hilbert = TRUE,
-  downsample = NA
+  downsample = NA,
+  downsample_before_hilbert = FALSE
 )
 }
 \arguments{
@@ -29,12 +30,19 @@ a length of multiple, with the frequencies specified explicitly}
 if specified, then the frequencies will be interpolated using
 equivalent rectangular bandwidth rate (\code{'ERB'})}
 
-\item{use_hilbert}{whether to apple 'Hilbert' transform; default is true,
+\item{use_hilbert}{whether to apply 'Hilbert' transform; default is true,
 which calculates the magnitude; set to false when only the filter is needed}
 
 \item{downsample}{whether to down-sample the envelopes after the filters;
-default is \code{NA} (no down-sample). It is recommended when the signal
-sampling frequency is high to save time.}
+default is \code{NA} (no down-sample).}
+
+\item{downsample_before_hilbert}{whether the down-sample happens before
+or after the 'Hilbert' transform so speed up the computation if the signal
+is too long; only used when \code{downsample} is greater than 1; default
+is \code{FALSE}. Use with caution, especially when the voice center
+frequency is close to the 'Nyquist' frequency. However, if used properly,
+there will be significant performance boost on large signals with
+high sampling rates}
 }
 \value{
 A file-array object of filtered and potentially down-sampled
@@ -46,8 +54,8 @@ Apply gamma-tone filters to obtain auditory envelopes
 \examples{
 
 
-fs <- 2000
-time <- seq_len(4000) / fs
+fs <- 4000
+time <- seq_len(8000) / fs
 x <- sin(160 * pi * time) +
   sin(1000 * pi * time) * dnorm(time, mean = 1, sd = 0.1) +
   0.5 * rnorm(length(time))
@@ -58,7 +66,9 @@ result <- gammatone_fast(
   sample_rate = fs,
   center_frequencies = c(20, 1000),
   n_bands = 128,
-  downsample = 20
+
+  # default downsample happens after hilbert
+  downsample = 40
 )
 
 
@@ -84,6 +94,8 @@ image(
   ylab = "Frequency",
   main = "Envelope from 20Hz to 1000Hz"
 )
+
+
 
 par(oldpar) # reset graphics state
 
