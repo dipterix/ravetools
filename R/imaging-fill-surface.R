@@ -56,7 +56,6 @@ ensure_mesh3d <- function(surface) {
       vb = rbind(t(surface$vertices), 1),
       it = face), class = "mesh3d")
   } else if(inherits(surface, "ieegio_surface")) {
-    # surface <- ieegio::read_surface(ieegio::ieegio_sample_data("gifti/GzipBase64/sujet01_Lwhite.surf.gii"))
     if(!inherits(surface, "ieegio_surface_contains_geometry")) {
       stop("Surface object has no geometry")
     }
