@@ -56,8 +56,8 @@ target <- structure(
   class = "mesh3d",
   list(
     vb = cbind(
-      sphere$vb[1:3, ] - c(1, 0, 0),
-      sphere$vb[1:3, ] + c(1, 0, 0)
+      sphere$vb[1:3, ] - c(0.8, 0, 0),
+      sphere$vb[1:3, ] + c(0.8, 0, 0)
     ),
     it = cbind(
       sphere$it[1:3, ],

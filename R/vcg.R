@@ -179,6 +179,98 @@ vcg_update_normals <- function(
 }
 
 
+vcg_barycentric_subdivision <- function(mesh) {
+  mesh <- meshintegrity(mesh = mesh, facecheck = TRUE)
+  v0 <- mesh$vb[1:3, mesh$it[1, ], drop = FALSE]
+  v1 <- mesh$vb[1:3, mesh$it[2, ], drop = FALSE]
+  v2 <- mesh$vb[1:3, mesh$it[3, ], drop = FALSE]
+  vb <- (v0 + v1 + v2) / 3.0
+
+  # Adding n=ncol(vb) indices, hence 2n more faces
+  vb_faces <- seq_len(ncol(vb)) + ncol(mesh$vb)
+
+  f1 <- rbind(
+    mesh$it[2, ],
+    mesh$it[3, ],
+    vb_faces,
+    deparse.level = 0
+  )
+
+  f2 <- rbind(
+    mesh$it[3, ],
+    mesh$it[1, ],
+    vb_faces,
+    deparse.level = 0
+  )
+
+  mesh$it[3, ] <- vb_faces
+
+  structure(
+    class = 'mesh3d',
+    list(
+      vb = cbind(mesh$vb[1:3, , drop = FALSE], vb, deparse.level = 0),
+      it = cbind(mesh$it[1:3, , drop = FALSE], f1, f2, deparse.level = 0)
+    )
+  )
+
+}
+
+vcg_edge_subdivision <- function(mesh) {
+  mesh <- meshintegrity(mesh = mesh, facecheck = TRUE)
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+  m <- vcgEdgeSubdivision(vb, it)
+  return(m)
+}
+
+#' @name vcg_subdivision
+#' @title Sub-divide (up-sample) a triangular mesh
+#' @description
+#' Up-sample a triangular mesh by adding a vertex at each edge or face center.
+#' @param mesh triangular mesh stored as object of class 'mesh3d'.
+#' @param method either \code{'edge'} (default) to add new mid-point vertices to
+#' edge, or \code{'barycenter'} to add new vertices at face 'Bary' centers.
+#' @returns An object of class "mesh3d"
+#'
+#' @examples
+#'
+#' mesh <- plane_geometry()
+#'
+#' # default
+#' mesh_edge <- vcg_subdivision(mesh, "edge")
+#'
+#' # barycenter
+#' mesh_face <- vcg_subdivision(mesh, "barycenter")
+#'
+#' if(is_not_cran()) {
+#'
+#'   rgl_view({
+#'     rgl_call("wire3d", mesh, col = 1)
+#'     rgl_call("wire3d", mesh_edge, col = 2)
+#'     rgl_call("wire3d", mesh_face, col = 3)
+#'   })
+#'
+#'
+#' }
+#'
+#'
+#'
+#' @export
+vcg_subdivision <- function(mesh, method = c("edge", "barycenter")) {
+  method <- match.arg(method)
+
+  mesh <- switch (
+    method,
+    "edge" = {
+      vcg_edge_subdivision(mesh)
+    },
+    {
+      vcg_barycentric_subdivision(mesh)
+    }
+  )
+  mesh
+}
 
 #' @name vcg_smooth
 #' @title Implicitly smooth a triangular mesh

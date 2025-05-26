@@ -400,7 +400,92 @@ SEXP vcgUpdateNormals(SEXP vb_, SEXP it_, const int & select,
   return R_NilValue; // -Wall
 }
 
+// [[Rcpp::export]]
+SEXP vcgEdgeSubdivision(SEXP vb_, SEXP it_)
+{
+  try {
+    ravetools::MyMesh m;
 
+    // allocate mesh and fill it
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m,vb_,it_);
+
+    // 1) build the Face -> Edge table
+    std::vector<ravetools::MyPEdge> edgeVec;
+    vcg::tri::UpdateTopology<ravetools::MyMesh>::FillUniqueEdgeVector(m, edgeVec, /*includeFauxEdge=*/false);
+
+    // 2) remember original sizes
+    const size_t origVn = m.vn;
+    const size_t origEn = edgeVec.size();
+    const size_t origFn = m.fn;
+
+    // 3) allocate one new vertex PER EDGE
+    vcg::tri::Allocator<ravetools::MyMesh>::AddVertices(m, origEn);
+
+    // 4) compute each midpoint and build a map (edge→new‐vertex)
+    std::unordered_map<
+      ravetools::EdgePair,
+      ravetools::VertexPointer,
+      ravetools::EdgeHash,
+      ravetools::EdgeEqual> midMap;
+    midMap.reserve(origEn);
+
+    for(int i=0; i<origEn; ++i){
+      ravetools::MyPEdge &pe = edgeVec[i];
+      ravetools::FacePointer f = pe.f;               // face pointer
+      int zi = pe.z;               // local index 0–2
+      ravetools::VertexPointer v0 = f->V(zi);
+      ravetools::VertexPointer v1 = f->V((zi+1)%3);
+      // new midpoint vertex is at m.vert[origVn + i]
+      ravetools::VertexPointer mv = &m.vert[ origVn + i ];
+      mv->P() = (v0->P() + v1->P()) * ravetools::ScalarType(0.5);
+      // canonical key ordering
+      ravetools::EdgePair key = v0 < v1 ? ravetools::EdgePair(v0,v1) : ravetools::EdgePair(v1,v0);
+      midMap[key] = mv;
+    }
+
+    // 5) now split each original face into four
+    //    allocate 3 extra faces per original
+    vcg::tri::Allocator<ravetools::MyMesh>::AddFaces(m, origFn*3);
+
+    // 6) helper to get the midpoint-vertex for an edge
+    for(int i=0;i<origFn;++i){
+      ravetools::FacePointer f0 = &m.face[i];
+      ravetools::VertexPointer A = f0->V(0), B = f0->V(1), C = f0->V(2);
+
+      ravetools::EdgePair kAB = A < B ? ravetools::EdgePair(A,B) : ravetools::EdgePair(B,A);
+      ravetools::EdgePair kBC = B < C ? ravetools::EdgePair(B,C) : ravetools::EdgePair(C,B);
+      ravetools::EdgePair kCA = C < A ? ravetools::EdgePair(C,A) : ravetools::EdgePair(A,C);
+
+      ravetools::VertexPointer MAB = midMap[kAB];
+      ravetools::VertexPointer MBC = midMap[kBC];
+      ravetools::VertexPointer MCA = midMap[kCA];
+
+      // overwrite original face
+      f0->V(0)=A;   f0->V(1)=MAB; f0->V(2)=MCA;
+
+      // f1
+      ravetools::FacePointer f1 = &m.face[ origFn + i ];
+      f1->V(0)=MAB; f1->V(1)=B;   f1->V(2)=MBC;
+
+      // f2
+      ravetools::FacePointer f2 = &m.face[ origFn*2 + i ];
+      f2->V(0)=MCA; f2->V(1)=MBC; f2->V(2)=C;
+
+      // f3 (center)
+      ravetools::FacePointer f3 = &m.face[ origFn*3 + i ];
+      f3->V(0)=MAB; f3->V(1)=MBC; f3->V(2)=MCA;
+    }
+
+    Rcpp::List out = ravetools::IOMesh<ravetools::MyMesh>::vcgToR(m, false);
+    return out;
+
+  } catch (std::exception& e) {
+    Rcpp::stop(e.what());
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return R_NilValue; // -Wall
+}
 
 // [[Rcpp::export]]
 SEXP vcgVolume( SEXP mesh_ )

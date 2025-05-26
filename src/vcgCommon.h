@@ -423,6 +423,27 @@ public:
 };
 
 
+// Additional definitions
+typedef typename vcg::tri::UpdateTopology<MyMesh>::PEdge MyPEdge;
+// Map from edge to new‐vertex
+typedef std::pair<VertexPointer,VertexPointer> EdgePair;
+
+struct EdgeHash {
+  size_t operator()(EdgePair const &p) const noexcept
+  {
+    return std::hash<void*>()((void*)p.first) ^ (std::hash<void*>()((void*)p.second) << 1);
+  }
+};
+
+struct EdgeEqual {
+  bool operator()(
+      EdgePair const &a,
+      EdgePair const &b) const noexcept
+  {
+    return a.first==b.first && a.second==b.second;
+  }
+};
+
 }
 
 #endif // RAVETOOLS_VCG_COMMON_H

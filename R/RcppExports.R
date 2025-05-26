@@ -605,6 +605,10 @@ vcgUpdateNormals <- function(vb_, it_, select, pointcloud, silent) {
     .Call(`_ravetools_vcgUpdateNormals`, vb_, it_, select, pointcloud, silent)
 }
 
+vcgEdgeSubdivision <- function(vb_, it_) {
+    .Call(`_ravetools_vcgEdgeSubdivision`, vb_, it_)
+}
+
 vcgVolume <- function(mesh_) {
     .Call(`_ravetools_vcgVolume`, mesh_)
 }
