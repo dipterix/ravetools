@@ -629,6 +629,10 @@ vcgKDTreeSearch <- function(target_, query_, k, nPointsPerCell = 16L, maxDepth =
     .Call(`_ravetools_vcgKDTreeSearch`, target_, query_, k, nPointsPerCell, maxDepth)
 }
 
+vcgSubset <- function(vb_, it_, selector_) {
+    .Call(`_ravetools_vcgSubset`, vb_, it_, selector_)
+}
+
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
     .Call(`_ravetools_RcppExport_registerCCallable`)

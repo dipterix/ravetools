@@ -776,3 +776,59 @@ vcg_kdtree_nearest <- function(
   result
 
 }
+
+#' @title Subset mesh by vertex
+#' @param x surface mesh
+#' @param selector logical vector (must not contain NA), and length must be
+#' consistent with the number of vertices in \code{x}.
+#' @returns A triangular mesh of class \code{'mesh3d'}, a subset of \code{x}
+#'
+#' @examples
+#'
+#' sphere <- vcg_sphere()
+#'
+#' nv <- ncol(sphere$vb)
+#'
+#' selector <- seq_len(nv) > (nv / 2)
+#'
+#' sub <- vcg_subset_vertex(sphere, selector)
+#'
+#' if(is_not_cran()) {
+#'   rgl_view({
+#'
+#'     # subset sphere will be displayed in red
+#'     rgl_call("shade3d", sub, col = 'red')
+#'
+#'     # Original sphere will be displayed as wireframe
+#'     rgl_call("wire3d", sphere, col = (2 - selector))
+#'
+#'   })
+#' }
+#'
+#'
+#' @export
+vcg_subset_vertex <- function(x, selector) {
+  x <- ensure_mesh3d(x)
+  selector <- as.logical(selector)
+  facecheck <- !is.null(x$it)
+  x <- meshintegrity(x, facecheck = facecheck)
+
+  ns <- length(selector)
+  if(ncol(x$vb) != ns) {
+    stop("`vcg_subset_vertex`: Number of vertices does not match the length of `selector`")
+  }
+  if(ns == 0) {
+    return(x)
+  }
+  if(!facecheck) {
+    x$vb <- x$vb[, selector, drop = FALSE]
+    if(!is.null(x$normals)) {
+      x$normals <- x$normals[, selector, drop = FALSE]
+    }
+    return(x)
+  }
+
+  selector[is.na(selector)] <- FALSE
+  x <- vcgSubset(x$vb[1:3, , drop = FALSE], x$it - 1L, selector)
+  return(x)
+}

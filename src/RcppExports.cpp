@@ -3666,6 +3666,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgSubset
+SEXP vcgSubset(SEXP vb_, SEXP it_, const Rcpp::LogicalVector selector_);
+RcppExport SEXP _ravetools_vcgSubset(SEXP vb_SEXP, SEXP it_SEXP, SEXP selector_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::LogicalVector >::type selector_(selector_SEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgSubset(vb_, it_, selector_));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 // validate (ensure exported C++ functions exist before calling them)
 static int _ravetools_RcppExport_validate(const char* sig) { 
@@ -3993,6 +4006,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgDijkstra", (DL_FUNC) &_ravetools_vcgDijkstra, 4},
     {"_ravetools_vcgRaycaster", (DL_FUNC) &_ravetools_vcgRaycaster, 7},
     {"_ravetools_vcgKDTreeSearch", (DL_FUNC) &_ravetools_vcgKDTreeSearch, 5},
+    {"_ravetools_vcgSubset", (DL_FUNC) &_ravetools_vcgSubset, 3},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };

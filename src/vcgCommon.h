@@ -337,43 +337,77 @@ public:
     }
   };
 
-  static Rcpp::List vcgToR(MeshType &m, bool exnormals=false) {
+  static Rcpp::List vcgToR(MeshType &mesh, bool includeNormals = false) {
     try {
+
       Rcpp::List out;
-      vcg::SimpleTempData<typename MeshType::VertContainer,unsigned int> indices(m.vert);
-      Rcpp::NumericMatrix vb(4, m.vn), normals(4, m.vn);
-      std::fill(vb.begin(),vb.end(),1);
-      std::fill(normals.begin(),normals.end(),1);
-      Rcpp::IntegerMatrix itout(3, m.fn);
 
-      for (int i=0;  i < m.vn; i++) {
-        VertexIterator vi=m.vert.begin()+i;
-        indices[vi] = i;//important: updates vertex indices
-        for (int j = 0; j < 3; j++) {
-          vb(j,i) = (*vi).P()[j];
-          if (exnormals)
-            normals(j,i) = (*vi).N()[j];
-        }
-      }
+      // Map each valid vertex iterator -> compact index
+      vcg::SimpleTempData<typename MeshType::VertContainer,unsigned int> vertIndexMap(mesh.vert);
 
-      for (int i=0; i < m.fn;i++) {
-        FacePointer fp;
-        FaceIterator fi=m.face.begin()+i;
-        fp=&(*fi);
-        if (fp) {
-          if( ! fp->IsD() ) {
-            if (fp->V(0) && fp->V(1) && fp->V(2)) {
-              for (int j = 0; j < 3; j++) {
-                itout(j,i) = indices[fp->cV(j)]+1;
-              }
+      // Preallocate full-size buffers
+      Rcpp::NumericMatrix vertexMat(4, mesh.vn), normalMat(4, mesh.vn);
+      std::fill(vertexMat.begin(), vertexMat.end(), 1.0);
+      std::fill(normalMat.begin(), normalMat.end(), 1.0);
+
+      // Preallocate triangle index buffer
+      Rcpp::IntegerMatrix faceIdxMat(3, mesh.fn);
+
+      // 1) Gather vertices
+      VertexIterator vertIt;
+      VertexPointer vertPtr;
+      size_t validVertCount = 0;
+      for (size_t i = 0; i < mesh.vn; ++i) {
+        vertIt  = mesh.vert.begin() + i;
+        vertPtr = &(*vertIt);
+        if (vertPtr && !vertPtr->IsD()) {
+          // assign a compact index
+          vertIndexMap[vertIt] = validVertCount;
+
+          // copy position...
+          for (int coord = 0; coord < 3; ++coord) {
+            vertexMat(coord, validVertCount) = vertPtr->P()[coord];
+            if (includeNormals) {
+              // ...and normal if requested
+              normalMat(coord, validVertCount) = vertPtr->N()[coord];
             }
           }
+          ++validVertCount;
         }
       }
-      out["vb"] = vb;
-      out["it"] = itout;
-      if (exnormals)
-        out["normals"] = normals;
+
+      // 2) Gather faces
+      FaceIterator faceIt;
+      FacePointer facePtr;
+      size_t validFaceCount = 0;
+      for (size_t i = 0; i < mesh.fn; ++i) {
+        faceIt  = mesh.face.begin() + i;
+        facePtr = &(*faceIt);
+        if (facePtr && !facePtr->IsD()
+              && facePtr->V(0) && facePtr->V(1) && facePtr->V(2)) {
+          // copy vertex indices (+1 for R’s 1-based)
+          for (int corner = 0; corner < 3; ++corner) {
+            faceIdxMat(corner, validFaceCount) = vertIndexMap[facePtr->cV(corner)] + 1;
+          }
+          ++validFaceCount;
+        }
+      }
+
+      // 3) Slice off only the filled-in columns
+      Rcpp::NumericMatrix vertexMatSub =
+        vertexMat(      Rcpp::_, Rcpp::Range(0, validVertCount - 1));
+      Rcpp::IntegerMatrix faceIdxSub =
+        faceIdxMat(     Rcpp::_, Rcpp::Range(0, validFaceCount - 1));
+
+      out["vb"] = vertexMatSub;
+      out["it"] = faceIdxSub;
+
+      if (includeNormals) {
+        Rcpp::NumericMatrix normalMatSub =
+          normalMat(Rcpp::_, Rcpp::Range(0, validVertCount - 1));
+        out["normals"] = normalMatSub;
+      }
+
       out.attr("class") = "mesh3d";
       return out;
 

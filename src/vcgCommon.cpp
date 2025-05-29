@@ -874,3 +874,55 @@ SEXP vcgKDTreeSearch(
   }
   return R_NilValue; // -Wall
 }
+
+// [[Rcpp::export]]
+SEXP vcgSubset(SEXP vb_ , SEXP it_, const Rcpp::LogicalVector selector_) {
+  try {
+    // allocate mesh and fill it
+    // Load mesh from R data
+    ravetools::MyMesh m;
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m, vb_, it_);
+
+    // Mark vertices for deletion based on selector_
+    size_t vertCount = m.vert.size();
+
+    if (selector_.length() != vertCount) {
+      Rcpp::stop("Inconsistent lengths");
+    }
+
+    if (selector_.size() != static_cast<int>(vertCount)) {
+      Rcpp::stop("Selector length does not match number of vertices");
+    }
+    for (size_t i = 0; i < vertCount; ++i) {
+      if (selector_[i]) {
+        m.vert[i].SetD();  // mark vertex for deletion
+      }
+    }
+
+    // Mark faces for deletion if any of their vertices was deleted
+    for (auto &f : m.face) {
+      if (f.IsD()) continue;  // skip already deleted faces
+      for (int vi = 0; vi < 3; ++vi) {
+        if (f.V(vi)->IsD()) {
+          f.SetD();          // delete the face
+          break;
+        }
+      }
+    }
+
+    vcg::tri::Allocator<ravetools::MyMesh>::CompactVertexVector(m);
+    vcg::tri::Allocator<ravetools::MyMesh>::CompactFaceVector(m);
+
+    // Return the subset mesh back to R
+    // vcgToR will take care of re-ordering
+    Rcpp::List out = ravetools::IOMesh<ravetools::MyMesh>::vcgToR(m, false);
+    return out;
+
+  } catch (std::exception& e) {
+    Rcpp::stop(e.what());
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return R_NilValue; // -Wall
+
+}
