@@ -8,7 +8,7 @@
 *                                                                    \      *
 * All rights reserved.                                                      *
 *                                                                           *
-* This program is free software; you can redistribute it and/or modify      *   
+* This program is free software; you can redistribute it and/or modify      *
 * it under the terms of the GNU General Public License as published by      *
 * the Free Software Foundation; either version 2 of the License, or         *
 * (at your option) any later version.                                       *
@@ -34,479 +34,482 @@
 #include <limits>
 
 namespace vcg{
-	template <class Spatial_Idexing,class INTFUNCTOR,class TMARKER>
-	class RayIterator
-	{
-	public:
-		typedef typename Spatial_Idexing::ScalarType ScalarType;
-		typedef typename vcg::Ray3<ScalarType> RayType;
-		typedef typename Spatial_Idexing::Box3x IndexingBoxType;
-	protected:
-		typedef typename Spatial_Idexing::ObjType ObjType;
-		typedef typename vcg::Point3<ScalarType>  CoordType;
-		typedef typename Spatial_Idexing::CellIterator CellIterator;
-		ScalarType max_dist;
+  template <class Spatial_Idexing,class INTFUNCTOR,class TMARKER>
+  class RayIterator
+  {
+  public:
+    typedef typename Spatial_Idexing::ScalarType ScalarType;
+    typedef typename vcg::Ray3<ScalarType> RayType;
+    typedef typename Spatial_Idexing::Box3x IndexingBoxType;
+  protected:
+    typedef typename Spatial_Idexing::ObjType ObjType;
+    typedef typename vcg::Point3<ScalarType>  CoordType;
+    typedef typename Spatial_Idexing::CellIterator CellIterator;
+    ScalarType max_dist;
 
-		///control right bonding current cell index (only on initialization)
-		void _ControlLimits()
-		{
-			for (int i=0;i<3;i++)
-			{
-				vcg::Point3i dim=Si.siz;
-				if (CurrentCell.V(i)<0)
-					CurrentCell.V(i) = 0;
-				else
-					if (CurrentCell.V(i)>=dim.V(i))
-						CurrentCell.V(i)=dim.V(i)-1;
-			}
-		}
+    ///control right bonding current cell index (only on initialization)
+    void _ControlLimits()
+    {
+      for (int i=0;i<3;i++)
+      {
+        vcg::Point3i dim=Si.siz;
+        if (CurrentCell.V(i)<0)
+          CurrentCell.V(i) = 0;
+        else
+          if (CurrentCell.V(i)>=dim.V(i))
+            CurrentCell.V(i)=dim.V(i)-1;
+      }
+    }
 
-		///find initial line parameters
-		void _FindLinePar()
-		{
-			/* Punti goal */
+    ///find initial line parameters
+    void _FindLinePar()
+    {
+      /* Punti goal */
 
-			///da verificare se vanno oltre ai limiti
-			vcg::Point3i ip;
-			Si.PToIP(start,ip);
-			Si.IPiToPf(ip,goal);
-			for (int i=0;i<3;i++)
-				if(r.Direction().V(i)>0.0)
-					goal.V(i)+=Si.voxel.V(i);
+      ///da verificare se vanno oltre ai limiti
+      vcg::Point3i ip;
+      Si.PToIP(start,ip);
+      Si.IPiToPf(ip,goal);
+      for (int i=0;i<3;i++)
+        if(r.Direction().V(i)>0.0)
+          goal.V(i)+=Si.voxel.V(i);
 
-			ScalarType gx=goal.X();
-			ScalarType gy=goal.Y();
-			ScalarType gz=goal.Z();
+      ScalarType gx=goal.X();
+      ScalarType gy=goal.Y();
+      ScalarType gz=goal.Z();
 
-			dist=(r.Origin()-goal).Norm();
+      dist=(r.Origin()-goal).Norm();
 
       const float LocalMaxScalar = (std::numeric_limits<float>::max)();
-                        const float	EPS = std::numeric_limits<float>::min();
+                        const float  EPS = std::numeric_limits<float>::min();
 
-			/* Parametri della linea */
-			ScalarType tx,ty,tz;
+      /* Parametri della linea */
+      ScalarType tx,ty,tz;
 
-                        if(	fabs(r.Direction().X())>EPS	)
-				tx = (gx-r.Origin().X())/r.Direction().X();
-			else
-				tx	=LocalMaxScalar;
+      if( fabs(r.Direction().X())>EPS ) {
 
-                        if(	fabs(r.Direction().Y())>EPS)
-				ty = (gy-r.Origin().Y())/r.Direction().Y();
-			else
-				ty	=LocalMaxScalar;
+        tx = (gx-r.Origin().X())/r.Direction().X();
+      } else {
+        tx  = LocalMaxScalar;
+      }
 
-                        if(	fabs(r.Direction().Z())>EPS	)
-				tz = (gz-r.Origin().Z())/r.Direction().Z();
-			else
-				tz	=LocalMaxScalar;
+      if(  fabs(r.Direction().Y())>EPS) {
+        ty = (gy-r.Origin().Y())/r.Direction().Y();
+      } else {
+        ty = LocalMaxScalar;
+      }
 
-			t=CoordType(tx,ty,tz);
-		}
+      if(  fabs(r.Direction().Z())>EPS  ) {
+        tz = (gz-r.Origin().Z())/r.Direction().Z();
+      } else {
+        tz = LocalMaxScalar;
+      }
 
-		bool _controlEnd()
-		{
-			return  (((CurrentCell.X()<0)||(CurrentCell.Y()<0)||(CurrentCell.Z()<0))||
-				((CurrentCell.X()>=Si.siz.X())||(CurrentCell.Y()>=Si.siz.Y())||(CurrentCell.Z()>=Si.siz.Z())));
-		}
+      t=CoordType(tx,ty,tz);
+    }
 
-		void _NextCell()
-		{
-			assert(!end);
-			vcg::Box3<ScalarType> bb_current;
+    bool _controlEnd()
+    {
+      return  (((CurrentCell.X()<0)||(CurrentCell.Y()<0)||(CurrentCell.Z()<0))||
+        ((CurrentCell.X()>=Si.siz.X())||(CurrentCell.Y()>=Si.siz.Y())||(CurrentCell.Z()>=Si.siz.Z())));
+    }
 
-			Si.IPiToPf(CurrentCell,bb_current.min);
-			Si.IPiToPf(CurrentCell+vcg::Point3i(1,1,1),bb_current.max);
+    void _NextCell()
+    {
+      assert(!end);
+      vcg::Box3<ScalarType> bb_current;
 
-			CoordType inters;
-			IntersectionRayBox(bb_current,r,inters);
-			ScalarType testmax_dist=(inters-r.Origin()).Norm();
+      Si.IPiToPf(CurrentCell,bb_current.min);
+      Si.IPiToPf(CurrentCell+vcg::Point3i(1,1,1),bb_current.max);
 
-			if (testmax_dist>max_dist)
-				end=true;
-			else
-			{
-			if( t.X()<t.Y() && t.X()<t.Z() )
-			{
-				if(r.Direction().X()<0.0)
-				{goal.X() -= Si.voxel.X(); --CurrentCell.X();}
-				else
-				{goal.X() += Si.voxel.X(); ++CurrentCell.X();}
-				t.X() = (goal.X()-r.Origin().X())/r.Direction().X();
-			}
-			else if( t.Y()<t.Z() ){
-				if(r.Direction().Y()<0.0)
-				{goal.Y() -= Si.voxel.Y(); --CurrentCell.Y();}
-				else
-				{goal.Y() += Si.voxel.Y(); ++CurrentCell.Y();}
-				t.Y() = (goal.Y()-r.Origin().Y())/r.Direction().Y();
-			} else {
-				if(r.Direction().Z()<0.0)
-				{ goal.Z() -= Si.voxel.Z(); --CurrentCell.Z();}
-				else
-				{ goal.Z() += Si.voxel.Z(); ++CurrentCell.Z();}
-				t.Z() = (goal.Z()-r.Origin().Z())/r.Direction().Z();
-			}
+      CoordType inters;
+      if (!IntersectionRayBox(bb_current, r, inters)) {
+        end = true;
+        return;
+      }
+      ScalarType testmax_dist = (inters - r.Origin()).Norm();
 
-			dist=(r.Origin()-goal).Norm();
-			end=_controlEnd();
-		}
-		}
+      if (testmax_dist>max_dist) {
+        end=true;
+      } else {
+        if( t.X()<t.Y() && t.X()<t.Z() ) {
+          if(r.Direction().X()<0.0)
+          {goal.X() -= Si.voxel.X(); --CurrentCell.X();}
+          else
+          {goal.X() += Si.voxel.X(); ++CurrentCell.X();}
+          t.X() = (goal.X()-r.Origin().X())/r.Direction().X();
+        } else if( t.Y()<t.Z() ) {
+          if(r.Direction().Y()<0.0)
+          {goal.Y() -= Si.voxel.Y(); --CurrentCell.Y();}
+          else
+          {goal.Y() += Si.voxel.Y(); ++CurrentCell.Y();}
+          t.Y() = (goal.Y()-r.Origin().Y())/r.Direction().Y();
+        } else {
+          if(r.Direction().Z()<0.0)
+          { goal.Z() -= Si.voxel.Z(); --CurrentCell.Z();}
+          else
+          { goal.Z() += Si.voxel.Z(); ++CurrentCell.Z();}
+          t.Z() = (goal.Z()-r.Origin().Z())/r.Direction().Z();
+        }
 
-	public:
+        dist = (r.Origin() - goal).Norm();
+        end = _controlEnd();
+      }
+    }
 
-
-		///contructor
-		RayIterator(Spatial_Idexing &_Si,
-					INTFUNCTOR & _int_funct
-					,const ScalarType &_max_dist)
-					:Si(_Si),int_funct(_int_funct)
-		{
-			max_dist=_max_dist;
-		};
-
-		void SetMarker(TMARKER  _tm)
-		{
-			tm=_tm;
-		}
-
-		void Init(const RayType _r)
-		{
-			r=_r;
-			end=false;
-			tm.UnMarkAll();
-			Elems.clear();
-			//CoordType ip;
-			//control if intersect the bounding box of the mesh
-			if (Si.bbox.IsIn(r.Origin()))
-				start=r.Origin();
-			else
-      if (!(vcg::IntersectionRayBox<ScalarType>(Si.bbox,r,start))){
-				end=true;
-				return;
-			}
-				Si.PToIP(start,CurrentCell);
-				_ControlLimits();
-				_FindLinePar();
-				//go to first intersection
-				while ((!End())&& Refresh())
-					_NextCell();
-
-		}
-
-		bool End()
-		{return end;}
+  public:
 
 
-		///refresh current cell intersection , return false if there are
-		///at lest 1 intersection
-		bool Refresh()
-		{
-			//Elems.clear();
+    ///contructor
+    RayIterator(Spatial_Idexing &_Si,
+          INTFUNCTOR & _int_funct
+          ,const ScalarType &_max_dist)
+          :Si(_Si),int_funct(_int_funct)
+    {
+      max_dist=_max_dist;
+    };
+
+    void SetMarker(TMARKER  _tm)
+    {
+      tm=_tm;
+    }
+
+    void Init(const RayType _r)
+    {
+      r=_r;
+      end=false;
+      tm.UnMarkAll();
+      Elems.clear();
+      //CoordType ip;
+      //control if intersect the bounding box of the mesh
+      if (Si.bbox.IsIn(r.Origin())) {
+        start=r.Origin();
+      } else if (!(vcg::IntersectionRayBox<ScalarType>(Si.bbox,r,start))){
+        end=true;
+        return;
+      }
+      Si.PToIP(start,CurrentCell);
+      _ControlLimits();
+      _FindLinePar();
+      //go to first intersection
+      while ((!End())&& Refresh()) {
+        _NextCell();
+      }
+
+    }
+
+    bool End() {return end;}
+
+
+    ///refresh current cell intersection , return false if there are
+    ///at lest 1 intersection
+    bool Refresh()
+    {
+      //Elems.clear();
 
       typename Spatial_Idexing::CellIterator first,last,l;
 
-			///take first, last iterators to elements in the cell
-			Si.Grid(CurrentCell.X(),CurrentCell.Y(),CurrentCell.Z(),first,last);
-			for(l=first;l!=last;++l)
-			{
-				ObjType* elem=&(*(*l));
-				ScalarType t;
-				CoordType Int;
-				if((!elem->IsD())&&(!tm.IsMarked(elem))&&(int_funct((**l),r,t))&&(t<=max_dist))
-				{
-					Int=r.Origin()+r.Direction()*t;
-					Elems.push_back(Entry_Type(elem,t,Int));
-					tm.Mark(elem);
-				}
-			}
-			////then control if there are more than 1 element
-			std::sort(Elems.begin(),Elems.end());
-			CurrentElem=Elems.rbegin();
+      ///take first, last iterators to elements in the cell
+      Si.Grid(CurrentCell.X(),CurrentCell.Y(),CurrentCell.Z(),first,last);
+      for(l=first;l!=last;++l)
+      {
+        ObjType* elem=&(*(*l));
+        ScalarType t;
+        CoordType Int;
+        if((!elem->IsD())&&(!tm.IsMarked(elem))&&(int_funct((**l),r,t))&&(t<=max_dist))
+        {
+          Int=r.Origin()+r.Direction()*t;
+          Elems.push_back(Entry_Type(elem,t,Int));
+          tm.Mark(elem);
+        }
+      }
+      ////then control if there are more than 1 element
+      std::sort(Elems.begin(),Elems.end());
+      CurrentElem=Elems.rbegin();
 
-			return((Elems.size()==0)||(Dist()>dist));
-		}
+      return((Elems.size()==0)||(Dist()>dist));
+    }
 
-		void operator ++()
-		{
-			if (!Elems.empty()) Elems.pop_back();
+    void operator ++()
+    {
+      if (!Elems.empty()) Elems.pop_back();
 
-			CurrentElem = Elems.rbegin();
+      CurrentElem = Elems.rbegin();
 
-			if (Dist()>dist)
-			{
-				if (!End())
-				{
-					_NextCell();
-					while ((!End())&&Refresh())
-						_NextCell();
-				}
-			}
-		}
+      if (Dist()>dist)
+      {
+        if (!End())
+        {
+          _NextCell();
+          while ((!End())&&Refresh())
+            _NextCell();
+        }
+      }
+    }
 
-		ObjType &operator *(){return *((*CurrentElem).elem);}
+    ObjType &operator *(){return *((*CurrentElem).elem);}
 
-		CoordType IntPoint()
-		{return ((*CurrentElem).intersection);}
+    CoordType IntPoint()
+    {return ((*CurrentElem).intersection);}
 
-		ScalarType Dist()
-		{
-			if (Elems.size()>0)
-				return ((*CurrentElem).dist);
-			else
-				return ((ScalarType)FLT_MAX);
-		}
+    ScalarType Dist()
+    {
+      if (Elems.size()>0)
+        return ((*CurrentElem).dist);
+      else
+        return ((ScalarType)FLT_MAX);
+    }
 
-		///set the current spatial indexing structure used
-		void SetIndexStructure(Spatial_Idexing &_Si)
-		{Si=_Si;}
-
-
-
-	protected:
-
-		///structure that mantain for the current cell pre-calculated data
-		struct Entry_Type
-		{
-		public:
-
-			Entry_Type(ObjType* _elem,ScalarType _dist,CoordType _intersection)
-			{
-				elem=_elem;
-				dist=_dist;
-				intersection=_intersection;
-			}
-			inline bool operator <  ( const Entry_Type & l ) const{return (dist > l.dist); }
-			ObjType* elem;
-			ScalarType dist;
-			CoordType intersection;
-		};
-
-		RayType r;							//ray to find intersections
-		Spatial_Idexing &Si;	  //reference to spatial index algorithm
-		bool end;								//true if the scan is terminated
-		INTFUNCTOR &int_funct;
-		TMARKER tm;
-
-		std::vector<Entry_Type> Elems;					//element loaded from curren cell
-		typedef typename std::vector<Entry_Type>::reverse_iterator ElemIterator;
-		ElemIterator CurrentElem;	//iterator to current element
-
-		vcg::Point3i CurrentCell;						//current cell
-
-		//used for raterization
-		CoordType start;
-		CoordType goal;
-		ScalarType dist;
-		CoordType t;
-
-	};
-
-
-	template <class Spatial_Idexing,class DISTFUNCTOR,class TMARKER>
-	class ClosestIterator
-	{
-		typedef typename Spatial_Idexing::ObjType ObjType;
-		typedef typename Spatial_Idexing::ScalarType ScalarType;
-		typedef typename vcg::Point3<ScalarType>  CoordType;
-		typedef typename Spatial_Idexing::CellIterator CellIterator;
+    ///set the current spatial indexing structure used
+    void SetIndexStructure(Spatial_Idexing &_Si)
+    {Si=_Si;}
 
 
 
-		///control the end of scanning
-		bool  _EndGrid()
-		{
-			if ((explored.min==vcg::Point3i(0,0,0))&&(explored.max==Si.siz))
-				end =true;
-			return end;
-		}
+  protected:
 
-		void _UpdateRadius()
-		{
-			if (radius>=max_dist)
-				end=true;
+    ///structure that mantain for the current cell pre-calculated data
+    struct Entry_Type
+    {
+    public:
 
-			radius+=step_size;
-			//control bounds
-			if (radius>max_dist)
-				radius=max_dist;
-		}
+      Entry_Type(ObjType* _elem,ScalarType _dist,CoordType _intersection)
+      {
+        elem=_elem;
+        dist=_dist;
+        intersection=_intersection;
+      }
+      inline bool operator <  ( const Entry_Type & l ) const{return (dist > l.dist); }
+      ObjType* elem;
+      ScalarType dist;
+      CoordType intersection;
+    };
 
-		///add cell to the curren set of explored cells
-		bool _NextShell()
-		{
+    RayType r;              //ray to find intersections
+    Spatial_Idexing &Si;    //reference to spatial index algorithm
+    bool end;                //true if the scan is terminated
+    INTFUNCTOR &int_funct;
+    TMARKER tm;
 
-			//then expand the box
-			explored=to_explore;
-			_UpdateRadius();
-			Box3<ScalarType> b3d(p,radius);
-			Si.BoxToIBox(b3d,to_explore);
-			Box3i ibox(Point3i(0,0,0),Si.siz-Point3i(1,1,1));
-			to_explore.Intersect(ibox);
-			if (!to_explore.IsNull())
-			{
-				assert(!( to_explore.min.X()<0 || to_explore.max.X()>=Si.siz[0] ||
-					to_explore.min.Y()<0 || to_explore.max.Y()>=Si.siz[1] ||  to_explore.min.Z()<0
-					|| to_explore.max.Z()>=Si.siz[2] ));
-				return true;
-			}
-			return false;
-		}
+    std::vector<Entry_Type> Elems;          //element loaded from curren cell
+    typedef typename std::vector<Entry_Type>::reverse_iterator ElemIterator;
+    ElemIterator CurrentElem;  //iterator to current element
 
+    vcg::Point3i CurrentCell;            //current cell
+
+    //used for raterization
+    CoordType start;
+    CoordType goal;
+    ScalarType dist;
+    CoordType t;
+
+  };
 
 
-	public:
+  template <class Spatial_Idexing,class DISTFUNCTOR,class TMARKER>
+  class ClosestIterator
+  {
+    typedef typename Spatial_Idexing::ObjType ObjType;
+    typedef typename Spatial_Idexing::ScalarType ScalarType;
+    typedef typename vcg::Point3<ScalarType>  CoordType;
+    typedef typename Spatial_Idexing::CellIterator CellIterator;
 
-		///contructor
-		ClosestIterator(Spatial_Idexing &_Si,DISTFUNCTOR _dist_funct):Si(_Si),dist_funct(_dist_funct){}
 
-		///set the current spatial indexing structure used
-		void SetIndexStructure(Spatial_Idexing &_Si)
-		{Si=_Si;}
 
-		void SetMarker(TMARKER _tm)
-		{
-			tm=_tm;
-		}
+    ///control the end of scanning
+    bool  _EndGrid()
+    {
+      if ((explored.min==vcg::Point3i(0,0,0))&&(explored.max==Si.siz))
+        end =true;
+      return end;
+    }
 
-		///initialize the Iterator
-		void Init(CoordType _p,const ScalarType &_max_dist)
-		{
-			explored.SetNull();
-			to_explore.SetNull();
-			p=_p;
-			max_dist=_max_dist;
-			Elems.clear();
-			end=false;
-			tm.UnMarkAll();
-			//step_size=Si.voxel.X();
-			step_size=Si.voxel.Norm();
-			radius=0;
+    void _UpdateRadius()
+    {
+      if (radius>=max_dist)
+        end=true;
 
-			///inflate the bbox until find a valid bbox
-			while ((!_NextShell())&&(!End())) {}
+      radius+=step_size;
+      //control bounds
+      if (radius>max_dist)
+        radius=max_dist;
+    }
 
-			while ((!End())&& Refresh()&&(!_EndGrid()))
-					_NextShell();
-		}
+    ///add cell to the curren set of explored cells
+    bool _NextShell()
+    {
 
-		//return true if the scan is complete
-		bool End()
-		{return end;}
+      //then expand the box
+      explored=to_explore;
+      _UpdateRadius();
+      Box3<ScalarType> b3d(p,radius);
+      Si.BoxToIBox(b3d,to_explore);
+      Box3i ibox(Point3i(0,0,0),Si.siz-Point3i(1,1,1));
+      to_explore.Intersect(ibox);
+      if (!to_explore.IsNull())
+      {
+        assert(!( to_explore.min.X()<0 || to_explore.max.X()>=Si.siz[0] ||
+          to_explore.min.Y()<0 || to_explore.max.Y()>=Si.siz[1] ||  to_explore.min.Z()<0
+          || to_explore.max.Z()>=Si.siz[2] ));
+        return true;
+      }
+      return false;
+    }
 
-		///refresh Object found	also considering current shere radius,
-		//and object comes from	previos	that are already in	the	stack
-		//return false if no elements find
-		bool Refresh()
-		{
-			int	ix,iy,iz;
-			for( iz = to_explore.min.Z();iz <=	to_explore.max.Z(); ++iz)
-			{
-				for(iy =to_explore.min.Y(); iy	<=to_explore.max.Y(); ++iy)
-				{
-					for(ix =to_explore.min.X(); ix	<= to_explore.max.X();++ix)
-					{
-						// this test is to avoid to re-process already analyzed cells.
-						if((explored.IsNull())||
-							(ix<explored.min[0] || ix>explored.max[0] ||
-							iy<explored.min[1] || iy>explored.max[1] ||
-							iz<explored.min[2] || iz>explored.max[2] ))
-						{
-							typename Spatial_Idexing::CellIterator first,last,l;
 
-							Si.Grid(ix,iy,iz,first,last);
-							for(l=first;l!=last;++l)
-							{
-								ObjType	*elem=&(**l);
-								if (!tm.IsMarked(elem))
-								{
 
-									CoordType nearest;
-									ScalarType dist=max_dist;
-									if (dist_funct((**l),p,dist,nearest))
-										Elems.push_back(Entry_Type(elem,fabs(dist),nearest));
-									tm.Mark(elem);
-								}
-							}
-						}
-					}
-				}
-			}
+  public:
 
-			////sort the elements in Elems and take a iterator to the last one
-			std::sort(Elems.begin(),Elems.end());
-			CurrentElem=Elems.rbegin();
+    ///contructor
+    ClosestIterator(Spatial_Idexing &_Si,DISTFUNCTOR _dist_funct):Si(_Si),dist_funct(_dist_funct){}
 
-			return((Elems.size()==0)||(Dist()>radius));
-		}
+    ///set the current spatial indexing structure used
+    void SetIndexStructure(Spatial_Idexing &_Si)
+    {Si=_Si;}
 
-		bool ToUpdate()
-		{return ((Elems.size()==0)||(Dist()>radius));}
+    void SetMarker(TMARKER _tm)
+    {
+      tm=_tm;
+    }
 
-		void operator ++()
-		{
-			if (!Elems.empty()) Elems.pop_back();
+    ///initialize the Iterator
+    void Init(CoordType _p,const ScalarType &_max_dist)
+    {
+      explored.SetNull();
+      to_explore.SetNull();
+      p=_p;
+      max_dist=_max_dist;
+      Elems.clear();
+      end=false;
+      tm.UnMarkAll();
+      //step_size=Si.voxel.X();
+      step_size=Si.voxel.Norm();
+      radius=0;
 
-			CurrentElem = Elems.rbegin();
+      ///inflate the bbox until find a valid bbox
+      while ((!_NextShell())&&(!End())) {}
 
-			if ((!End())&& ToUpdate())
-				do{_NextShell();}
-					while (Refresh()&&(!_EndGrid()));
-		}
+      while ((!End())&& Refresh()&&(!_EndGrid()))
+          _NextShell();
+    }
 
-		ObjType &operator *(){return *((*CurrentElem).elem);}
+    //return true if the scan is complete
+    bool End()
+    {return end;}
 
-		//return distance of the element form the point if no element
-		//are in the vector then return max dinstance
-		ScalarType Dist()
-		{
-			if (Elems.size()>0)
-				return ((*CurrentElem).dist);
-			else
-				return ((ScalarType)FLT_MAX);
-		}
+    ///refresh Object found  also considering current shere radius,
+    //and object comes from  previos  that are already in  the  stack
+    //return false if no elements find
+    bool Refresh()
+    {
+      int  ix,iy,iz;
+      for( iz = to_explore.min.Z();iz <=  to_explore.max.Z(); ++iz)
+      {
+        for(iy =to_explore.min.Y(); iy  <=to_explore.max.Y(); ++iy)
+        {
+          for(ix =to_explore.min.X(); ix  <= to_explore.max.X();++ix)
+          {
+            // this test is to avoid to re-process already analyzed cells.
+            if((explored.IsNull())||
+              (ix<explored.min[0] || ix>explored.max[0] ||
+              iy<explored.min[1] || iy>explored.max[1] ||
+              iz<explored.min[2] || iz>explored.max[2] ))
+            {
+              typename Spatial_Idexing::CellIterator first,last,l;
 
-		CoordType NearestPoint()
-		{return ((*CurrentElem).intersection);}
+              Si.Grid(ix,iy,iz,first,last);
+              for(l=first;l!=last;++l)
+              {
+                ObjType  *elem=&(**l);
+                if (!tm.IsMarked(elem))
+                {
 
-	protected:
+                  CoordType nearest;
+                  ScalarType dist=max_dist;
+                  if (dist_funct((**l),p,dist,nearest))
+                    Elems.push_back(Entry_Type(elem,fabs(dist),nearest));
+                  tm.Mark(elem);
+                }
+              }
+            }
+          }
+        }
+      }
 
-		///structure that mantain for the current cell pre-calculated data
-		struct Entry_Type
-		{
-		public:
+      ////sort the elements in Elems and take a iterator to the last one
+      std::sort(Elems.begin(),Elems.end());
+      CurrentElem=Elems.rbegin();
 
-			Entry_Type(ObjType* _elem,ScalarType _dist,CoordType _intersection)
-			{
-				elem=_elem;
-				dist=_dist;
-				intersection=_intersection;
-			}
+      return((Elems.size()==0)||(Dist()>radius));
+    }
 
-			inline bool operator <  ( const Entry_Type & l ) const{return (dist > l.dist); }
+    bool ToUpdate()
+    {return ((Elems.size()==0)||(Dist()>radius));}
 
-			inline bool operator ==  ( const Entry_Type & l ) const{return (elem == l.elem); }
+    void operator ++()
+    {
+      if (!Elems.empty()) Elems.pop_back();
 
-			ObjType* elem;
-			ScalarType dist;
-			CoordType intersection;
-		};
+      CurrentElem = Elems.rbegin();
 
-		CoordType p;							//initial point
-		Spatial_Idexing &Si;		  //reference to spatial index algorithm
-		bool end;									//true if the scan is terminated
-		ScalarType max_dist;		  //max distance when the scan terminate
-		vcg::Box3i explored;		  //current bounding box explored
-		vcg::Box3i to_explore;		//current bounding box explored
-		ScalarType radius;			  //curret radius for sphere expansion
-		ScalarType step_size;		  //radius step
-		std::vector<Entry_Type> Elems; //element loaded from the current sphere
+      if ((!End())&& ToUpdate())
+        do{_NextShell();}
+          while (Refresh()&&(!_EndGrid()));
+    }
 
-		DISTFUNCTOR dist_funct;
-		TMARKER tm;
+    ObjType &operator *(){return *((*CurrentElem).elem);}
 
-		typedef typename std::vector<Entry_Type>::reverse_iterator ElemIterator;
-		ElemIterator CurrentElem;	//iterator to current element
+    //return distance of the element form the point if no element
+    //are in the vector then return max dinstance
+    ScalarType Dist()
+    {
+      if (Elems.size()>0)
+        return ((*CurrentElem).dist);
+      else
+        return ((ScalarType)FLT_MAX);
+    }
+
+    CoordType NearestPoint()
+    {return ((*CurrentElem).intersection);}
+
+  protected:
+
+    ///structure that mantain for the current cell pre-calculated data
+    struct Entry_Type
+    {
+    public:
+
+      Entry_Type(ObjType* _elem,ScalarType _dist,CoordType _intersection)
+      {
+        elem=_elem;
+        dist=_dist;
+        intersection=_intersection;
+      }
+
+      inline bool operator <  ( const Entry_Type & l ) const{return (dist > l.dist); }
+
+      inline bool operator ==  ( const Entry_Type & l ) const{return (elem == l.elem); }
+
+      ObjType* elem;
+      ScalarType dist;
+      CoordType intersection;
+    };
+
+    CoordType p;              //initial point
+    Spatial_Idexing &Si;      //reference to spatial index algorithm
+    bool end;                  //true if the scan is terminated
+    ScalarType max_dist;      //max distance when the scan terminate
+    vcg::Box3i explored;      //current bounding box explored
+    vcg::Box3i to_explore;    //current bounding box explored
+    ScalarType radius;        //curret radius for sphere expansion
+    ScalarType step_size;      //radius step
+    std::vector<Entry_Type> Elems; //element loaded from the current sphere
+
+    DISTFUNCTOR dist_funct;
+    TMARKER tm;
+
+    typedef typename std::vector<Entry_Type>::reverse_iterator ElemIterator;
+    ElemIterator CurrentElem;  //iterator to current element
 
 };
 }
