@@ -780,7 +780,8 @@ vcg_kdtree_nearest <- function(
 #' @title Subset mesh by vertex
 #' @param x surface mesh
 #' @param selector logical vector (must not contain NA), and length must be
-#' consistent with the number of vertices in \code{x}.
+#' consistent with the number of vertices in \code{x}: which nodes are
+#' to be kept
 #' @returns A triangular mesh of class \code{'mesh3d'}, a subset of \code{x}
 #'
 #' @examples
@@ -829,6 +830,6 @@ vcg_subset_vertex <- function(x, selector) {
   }
 
   selector[is.na(selector)] <- FALSE
-  x <- vcgSubset(x$vb[1:3, , drop = FALSE], x$it - 1L, selector)
+  x <- vcgSubset(x$vb[1:3, , drop = FALSE], x$it - 1L, !selector)
   return(x)
 }
