@@ -96,16 +96,16 @@ resulting covariance matrices.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Call `cov(x)` to compare</span></span></span>
 <span class="r-in"><span><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]         [,2]         [,3]         [,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.11343789 -0.018191052  0.111347455 -0.016289440</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.01819105  1.110481918  0.007465818 -0.009387727</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.11134745  0.007465818  0.734855745 -0.137734199</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.01628944 -0.009387727 -0.137734199  1.281456246</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]         [,2]        [,3]         [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.30987040  0.013002746  0.06263758  0.031019785</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.01300275  0.905270345  0.02027502 -0.007362583</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.06263758  0.020275016  0.77420186 -0.147601612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.03101978 -0.007362583 -0.14760161  1.287895141</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate covariance of subsets</span></span></span>
 <span class="r-in"><span><span class="fu">fast_cov</span><span class="op">(</span><span class="va">x</span>, col_x <span class="op">=</span> <span class="fl">1</span>, col_y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]        [,2]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.113438 -0.01819105</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         [,1]       [,2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.30987 0.01300275</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span></span></span>
@@ -125,8 +125,8 @@ resulting covariance matrices.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      expr      min       lq     mean   median       uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_cov 1.560281 1.576802 1.642535 1.580960 1.608890 1.920864    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       cov 5.328412 5.359579 5.463354 5.406912 5.441472 6.079723    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_cov 1.510931 1.535517 1.839329 1.554572 1.799169 3.714714    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       cov 5.367302 5.373775 5.472233 5.425415 5.486966 5.892082    10</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

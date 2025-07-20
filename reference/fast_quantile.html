@@ -83,15 +83,15 @@ the number of columns).</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">fast_quantile</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span>, <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0865877</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.08925259</span>
 <span class="r-in"><span><span class="fu">fast_median</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 50.5</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">fast_mvquantile</span><span class="op">(</span><span class="va">x</span>, <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.8459934 -1.2524877</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.9291953 -1.0147020</span>
 <span class="r-in"><span><span class="fu">fast_mvmedian</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.10661071 -0.08524222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.01031475 -0.03301562</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare speed for vectors (usually 30% faster)</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10000</span><span class="op">)</span></span></span>
@@ -103,8 +103,8 @@ the number of columns).</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min        lq      mean    median        uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.076503 0.1206800 0.1327609 0.1351120 0.1491580 0.170017   100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 0.146724 0.1620925 0.1703016 0.1685195 0.1748255 0.263571   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.079008 0.1186165 0.1296493 0.1324925 0.1422155 0.183834   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 0.158806 0.1716560 0.1830555 0.1822450 0.1894140 0.295321   100</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multivariate cases</span></span></span>
 <span class="r-in"><span><span class="co"># (5~7x faster than base R)</span></span></span>
@@ -117,9 +117,9 @@ the number of columns).</p>
 <span class="r-in"><span>  times <span class="op">=</span> <span class="fl">10</span>, unit <span class="op">=</span> <span class="st">"milliseconds"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min       lq      mean    median       uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.685319 0.697742 0.7456864 0.7206495 0.756802 0.974237    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 2.688936 2.781460 2.8019484 2.7931455 2.818929 2.943822    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min       lq      mean   median       uq      max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.679829 0.712450 0.7846461 0.745918 0.834789 1.070869    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 2.716091 2.741239 2.7859460 2.774135 2.824033 2.926645    10</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
