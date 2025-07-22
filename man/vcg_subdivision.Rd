@@ -10,7 +10,8 @@ vcg_subdivision(mesh, method = c("edge", "barycenter"))
 \item{mesh}{triangular mesh stored as object of class 'mesh3d'.}
 
 \item{method}{either \code{'edge'} (default) to add new mid-point vertices to
-edge, or \code{'barycenter'} to add new vertices at face 'Bary' centers.}
+edge, or \code{'barycenter'} to add new vertices at face \code{'Bary'}
+centers.}
 }
 \value{
 An object of class "mesh3d"

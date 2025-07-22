@@ -44,7 +44,7 @@ The projected vertex locations, same order as \code{initial_positions}.
 }
 \description{
 Project a two-dimensional plane (such as \code{'ECoG'} grid) to a
-three-dimensional surface while preserving the order through Hebbian learing
+three-dimensional surface while preserving the order
 }
 \examples{
 

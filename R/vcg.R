@@ -230,7 +230,8 @@ vcg_edge_subdivision <- function(mesh) {
 #' Up-sample a triangular mesh by adding a vertex at each edge or face center.
 #' @param mesh triangular mesh stored as object of class 'mesh3d'.
 #' @param method either \code{'edge'} (default) to add new mid-point vertices to
-#' edge, or \code{'barycenter'} to add new vertices at face 'Bary' centers.
+#' edge, or \code{'barycenter'} to add new vertices at face \code{'Bary'}
+#' centers.
 #' @returns An object of class "mesh3d"
 #'
 #' @examples

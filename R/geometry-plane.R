@@ -70,7 +70,7 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
 #' @title Project plane to a surface
 #' @description
 #' Project a two-dimensional plane (such as \code{'ECoG'} grid) to a
-#' three-dimensional surface while preserving the order through Hebbian learing
+#' three-dimensional surface while preserving the order
 #' @param target target surface to be projected to, must be object that can
 #' be converted to \code{'mesh3d'} (\code{'rgl'} surface), for example,
 #' \code{'fs.surface'} (from \code{'freesurferformat'} package) or
