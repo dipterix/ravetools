@@ -10,7 +10,8 @@ vcg_subset_vertex(x, selector)
 \item{x}{surface mesh}
 
 \item{selector}{logical vector (must not contain NA), and length must be
-consistent with the number of vertices in \code{x}.}
+consistent with the number of vertices in \code{x}: which nodes are
+to be kept}
 }
 \value{
 A triangular mesh of class \code{'mesh3d'}, a subset of \code{x}

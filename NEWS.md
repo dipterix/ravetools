@@ -1,6 +1,9 @@
 # ravetools 0.2.3
 
 * Added `gammatone_fast` filters to obtain the audio envelope at different frequencies
+* Added `vcg_subset_certex` to subset mesh
+* Added `vcg_subdivision` to up-sample mesh
+* Added plane-generating function to create mesh for plane
 
 # ravetools 0.2.2
 
