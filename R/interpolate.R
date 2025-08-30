@@ -202,7 +202,7 @@ interpolate_missing_signal <- function(x, time, nknots = 100, ord = 4L, ...) {
 #' par(oldpar)
 #'
 #'
-#' @export
+#' @noRd
 interpolate_stimulation <- function(x, sample_rate, duration = 40 / sample_rate,
                                ord = 4L, nknots = 100, nsd = 1, nstim = NULL, regularization = 0.5) {
 

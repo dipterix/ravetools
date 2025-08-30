@@ -5,7 +5,7 @@
 #' @param x a matrix, or can be converted into a matrix; all negative or missing
 #' values will be treated as zero
 #' @param k decomposition rank
-#' @param tol stop criterial, a numeric of two; the first number is the
+#' @param tol stop criteria, a numeric of two; the first number is the
 #' tolerance for root-mean-squared residuals, relative to the largest number in
 #' \code{x}; the second number is the tolerance for weight differences; any
 #' stopping criteria met will result in the stop of iteration

@@ -12,7 +12,7 @@ values will be treated as zero}
 
 \item{k}{decomposition rank}
 
-\item{tol}{stop criterial, a numeric of two; the first number is the
+\item{tol}{stop criteria, a numeric of two; the first number is the
 tolerance for root-mean-squared residuals, relative to the largest number in
 \code{x}; the second number is the tolerance for weight differences; any
 stopping criteria met will result in the stop of iteration}

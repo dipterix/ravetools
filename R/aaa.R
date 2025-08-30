@@ -210,6 +210,14 @@ internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL)
 "left_hippocampus_mask"
 
 
+#' Sample stimulation recording
+#'
+#' @format
+#' A list of one-second signal trace and sample rate (30000)
+#'
+"stimulation_signal"
+
+
 lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NULL,
                          on_failure = "multisession", ...) {
   if(system.file(package = "raveio") == "") {
