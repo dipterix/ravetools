@@ -69,6 +69,7 @@ Find and interpolate stimulation pulses
 \examples{
 
 
+
 data("stimulation_signal")
 
 signal <- stimulation_signal$signal
@@ -131,7 +132,7 @@ interp_snippets <- stimpulse_extract(
   expand_timepoints = expand_timepoints
 )
 
-oldpar <- par(mfrow = c(2, 2))
+oldpar <- par(mfrow = c(1, 2))
 on.exit(par(oldpar))
 matplot(snippet_time, pulses_snippets, type = 'l', lty = 1,
         col = 'gray80', xlab = "Time (ms)", ylab = "uV",
@@ -139,28 +140,14 @@ matplot(snippet_time, pulses_snippets, type = 'l', lty = 1,
 lines(snippet_time, rowMeans(pulses_snippets), col = 'red')
 abline(v = max(estimated_duration) * 1000, lty = 2)
 
-plot(pwelch(
-  x = signal,
-  fs = sample_rate,
-  window = sample_rate,
-  noverlap = sample_rate / 2
-),
-log = "y")
-
 matplot(snippet_time, interp_snippets, type = 'l', lty = 1,
         col = 'gray80', xlab = "Time (ms)", ylab = "uV",
-        main = "Interpolated 0.5 ms bandwidth", ylim = c(-600, 400))
+        main = "Interpolated 0.5 ms bandwidth")
 lines(snippet_time, rowMeans(interp_snippets), col = 'red')
 abline(v = max(estimated_duration) * 1000, lty = 2, col = "gray40")
 abline(v = max(estimated_duration) * 1000 + 0.5, lty = 2)
 
-plot(pwelch(
-  x = interpolated,
-  fs = sample_rate,
-  window = sample_rate,
-  noverlap = sample_rate / 2
-),
-log = "y")
+
 
 
 

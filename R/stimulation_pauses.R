@@ -23,6 +23,7 @@
 #' @examples
 #'
 #'
+#'
 #' data("stimulation_signal")
 #'
 #' signal <- stimulation_signal$signal
@@ -85,7 +86,7 @@
 #'   expand_timepoints = expand_timepoints
 #' )
 #'
-#' oldpar <- par(mfrow = c(2, 2))
+#' oldpar <- par(mfrow = c(1, 2))
 #' on.exit(par(oldpar))
 #' matplot(snippet_time, pulses_snippets, type = 'l', lty = 1,
 #'         col = 'gray80', xlab = "Time (ms)", ylab = "uV",
@@ -93,28 +94,14 @@
 #' lines(snippet_time, rowMeans(pulses_snippets), col = 'red')
 #' abline(v = max(estimated_duration) * 1000, lty = 2)
 #'
-#' plot(pwelch(
-#'   x = signal,
-#'   fs = sample_rate,
-#'   window = sample_rate,
-#'   noverlap = sample_rate / 2
-#' ),
-#' log = "y")
-#'
 #' matplot(snippet_time, interp_snippets, type = 'l', lty = 1,
 #'         col = 'gray80', xlab = "Time (ms)", ylab = "uV",
-#'         main = "Interpolated 0.5 ms bandwidth", ylim = c(-600, 400))
+#'         main = "Interpolated 0.5 ms bandwidth")
 #' lines(snippet_time, rowMeans(interp_snippets), col = 'red')
 #' abline(v = max(estimated_duration) * 1000, lty = 2, col = "gray40")
 #' abline(v = max(estimated_duration) * 1000 + 0.5, lty = 2)
 #'
-#' plot(pwelch(
-#'   x = interpolated,
-#'   fs = sample_rate,
-#'   window = sample_rate,
-#'   noverlap = sample_rate / 2
-#' ),
-#' log = "y")
+#'
 #'
 #'
 #'
@@ -456,9 +443,9 @@ stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = 
     c(max_duration_npts + max_offset_pts[[2]], post_points, (post_points - max_duration_npts - max_offset_pts[[2]] + 1) / ntp)
   )
 
-  nknots <- 30
+  nknots <- 50
   ord <- 4
-  regularization <- 0.5
+  regularization <- 0.01
   nknots2 <- ceiling(plan[3,] / sum(plan[3,]) * (nknots - ord))
   while(sum(nknots2) > nknots - ord) {
     tmp <- which.max(nknots2)
@@ -477,7 +464,9 @@ stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = 
     time_end <- item[[2]]
     nknots_ <- item[[3]]
     # Chebychev points
-    cos((2 * seq_len(nknots_) - 1) / (nknots_ * 2) * pi) * (time_end - time_start) / 2 + (time_start + time_end) / 2
+    # cos((2 * seq_len(nknots_) - 1) / (nknots_ * 2) * pi) * (time_end - time_start) / 2 + (time_start + time_end) / 2
+
+    seq(time_start, time_end, length.out = nknots_)
   })
 
   knots <- sort(as.double(unlist(knots)))
