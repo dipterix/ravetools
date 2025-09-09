@@ -1,3 +1,9 @@
+# ravetools 0.2.4
+
+* Added a naive implementation of non-negative matrix factorization in pure R
+* Added finding and aligning stimulation pulses (for continuous stimulation)
+* Added `find_peaks` to provide finding peaks along a trace of signal
+
 # ravetools 0.2.3
 
 * Added `gammatone_fast` filters to obtain the audio envelope at different frequencies
