@@ -24,6 +24,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/filter-window.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/filter_signal.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/filtfilt.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/find_peaks.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/fir1.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/firls.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/freqz2.html</loc></url>
@@ -31,12 +32,12 @@
 <url><loc>https://dipterix.org/ravetools/reference/grow_volume.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/index.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/internal_rave_function.html</loc></url>
-<url><loc>https://dipterix.org/ravetools/reference/interpolate_stimulation.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/is_not_cran.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/left_hippocampus_mask.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/matlab_palette.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mesh_from_volume.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/multitaper.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/naive_nmf.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/new_matrix4.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/new_quaternion.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/new_vector3.html</loc></url>
@@ -53,6 +54,8 @@
 <url><loc>https://dipterix.org/ravetools/reference/resample_3d_volume.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/rgl-call.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/shift_array.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/stimpulse_interpolate.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/stimulation_signal.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_kdtree_nearest.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_mesh_volume.html</loc></url>
