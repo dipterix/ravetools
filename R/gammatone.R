@@ -139,7 +139,7 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
     # make sure no phase shift
     tc <- (filter_order - 1) / (2 * pi * b)
     tcs <<- c(tcs, tc)
-    phase = -2 * pi * f * tc
+    phase <- -2 * pi * f * tc
 
     gain * sample_rate^3 * time_seq^(filter_order - 1) * exp(-2 * pi * b * time_seq) * cos(2 * pi * f * time_seq + phase)
   })
