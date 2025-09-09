@@ -1,5 +1,8 @@
 ## usethis namespace: start
 #' @importFrom stats approx
+#' @importFrom stats median
+#' @importFrom stats quantile
+#' @importFrom stats sd
 #' @importFrom Rcpp sourceCpp
 #' @importFrom graphics image
 #' @importFrom R6 R6Class
@@ -208,6 +211,14 @@ internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL)
 #' and \code{0} (other brain tissues)
 #'
 "left_hippocampus_mask"
+
+
+#' Sample stimulation recording
+#'
+#' @format
+#' A list of one-second signal trace and sample rate (30000)
+#'
+"stimulation_signal"
 
 
 lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NULL,
