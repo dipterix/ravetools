@@ -302,6 +302,18 @@ stimpulse_extract <- function(signal, pulse_info, expand_timepoints = c(-10, 20)
 #' @export
 stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) {
 
+  # DIPSAUS DEBUG START
+  # data("stimulation_signal")
+  #
+  # signal <- stimulation_signal$signal
+  # sample_rate <- stimulation_signal$sample_rate
+  # pulse_info <- stimpulse_find(signal, sample_rate, 0.001)
+  #
+  # pulses_snippets <- stimpulse_extract(signal, pulse_info, center = TRUE)
+  # matplot(pulses_snippets, type = 'l', lty = 1, col = 'gray80')
+  # lines(rowMeans(pulses_snippets), col = 'red')
+  # expand_timepoints <- c(-10, 20)
+
   if(length(pulse_info$onset_index) == 0) {
     stop("No stimulation pulse is specified")
   }
@@ -323,16 +335,36 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
                                     pulse_info,
                                     expand_timepoints = expand_timepoints,
                                     center = TRUE)
-  stim_averaged <- apply(pulses_centered, 1L, median)
+  # stim_averaged <- apply(pulses_centered, 1L, median)
   # stim_averaged <- rowMeans(pulses_centered)
-
+  stim_averaged <- apply(pulses_centered, 1L, function(x) {
+    if(mean(x) > 0) {
+      quantile(x, 0.75)
+    } else {
+      quantile(x, 0.25)
+    }
+  })
   # matplot(pulses_centered, type = 'l', lty = 1, col = 'gray80')
   # lines(stim_averaged, col = 'red')
 
   # for each pulses_centered, convolute with `stim_averaged` to find time offset
   # within +-10 points
   offsets_template <- seq(-pre_points, post_points)
+
+  peaks <- find_peaks(abs(stim_averaged), min_distance = 2)$index
+
+  if(length(peaks) > 0) {
+    neg_mask <- rep(TRUE, length(offsets_template))
+    neg_mask[unlist(lapply(peaks, function(idx) {
+      idx + offsets_template
+    }))] <- FALSE
+  } else {
+    neg_mask <- rep(FALSE, length(offsets_template))
+  }
   offsets <- apply(pulses_centered, 2L, function(slice) {
+
+    # slice <- pulses_centered[,10]
+
 
     conv <- sapply(offsets_template, function(offset) {
 
@@ -341,23 +373,28 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
       } else if (offset < 0) {
         slice <- rev(c(rep(NA_real_, -offset), rev(slice))[seq_along(stim_averaged)])
       }
+      # slice[neg_mask] <- NA_real_
       mean(stim_averaged * slice, na.rm = TRUE)
 
     })
+    conv[is.na(conv)] <- -Inf
     offset <- offsets_template[which.max(conv)][[1]]
+    offset
   })
 
-  # onset_index2 <- onset_index - offsets
+  # local({
+  #   onset_index2 <- onset_index - offsets
   #
-  # pulses <- sapply(onset_index2, function(idx) {
-  #   signal[idx + time_points_delta]
-  # }, simplify = TRUE)
+  #   pulses <- sapply(onset_index2, function(idx) {
+  #     signal[idx + time_points_delta]
+  #   }, simplify = TRUE)
   #
-  # m <- apply(pulses, 2, median, na.rm = TRUE)
-  # pulses_centered <- t(t(pulses) - m)
-  # stim_averaged <- apply(pulses_centered, 1L, median)
-  # matplot(pulses_centered, type = 'l', lty = 1, col = 'gray80')
-  # lines(stim_averaged, col = 'red')
+  #   m <- apply(pulses, 2, median, na.rm = TRUE)
+  #   pulses_centered <- t(t(pulses) - m)
+  #   stim_averaged <- apply(pulses_centered, 1L, median)
+  #   matplot(pulses_centered, type = 'l', lty = 1, col = 'gray80')
+  #   lines(stim_averaged, col = 'red')
+  # })
 
   pulse_info$onset_index <- pulse_info$onset_index - offsets
   pulse_info$offset_index <- pulse_info$offset_index - offsets
