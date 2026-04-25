@@ -1,5 +1,5 @@
 #' @title Calculate Contrasts of Arrays in Different Methods
-#' @description Provides five methods to baseline an array and calculate
+#' @description Provides seven methods to baseline an array and calculate
 #' contrast.
 #' @param x array (tensor) to calculate contrast
 #' @param along_dim integer range from 1 to the maximum dimension of \code{x}.
@@ -8,9 +8,10 @@
 #' into baseline window? Each index ranges from 1 to \code{dim(x)[[along_dim]]}.
 #' See Details.
 #' @param unit_dims integer vector, baseline unit: see Details.
-#' @param method character, baseline method options are:
-#' \code{"percentage"}, \code{"sqrt_percentage"}, \code{"decibel"},
-#' \code{"zscore"}, and \code{"sqrt_zscore"}
+#' @param method character, baseline method; one of \code{"percentage"},
+#' \code{"sqrt_percentage"}, \code{"decibel"}, \code{"zscore"},
+#' \code{"sqrt_zscore"}, \code{"db_zscore"}, or \code{"subtract_mean"}.
+#' See Details.
 #' @param baseline_subarray sub-arrays that should be used to calculate
 #' baseline; default is \code{NULL} (automatically determined by
 #' \code{baseline_indexpoints}).
@@ -22,10 +23,10 @@
 #' from different locations. For each location, we record \code{n} sessions.
 #' For each session, the signal is further decomposed into frequency-time
 #' domain. In this case, we have the input \code{x} in the following form:
-#' \deqn{session x frequency x time x location}
+#' \deqn{session \times frequency \times time \times location}
 #' Now we want to calibrate signals for each session, frequency and location
 #' using the first 100 time points as baseline points, then the code will be
-#' \deqn{baseline_array(x, along_dim=3, baseline_window=1:100, unit_dims=c(1,2,4))}
+#' \code{baseline_array(x, along_dim=3, baseline_window=1:100, unit_dims=c(1,2,4))}
 #' \code{along_dim=3} is dimension of time, in this case, it's the
 #' third dimension of \code{x}. \code{baseline_indexpoints=1:100}, meaning
 #' the first 100 time points are used to calculate baseline.
@@ -38,8 +39,8 @@
 #' same session and location also share the same baseline. In this case,
 #' we assign \code{unit_dims=c(1,4)}.
 #'
-#' There are five baseline methods. They fit for different types of data.
-#' Denote \eqn{z} is an unit signal, \eqn{z_0} is its baseline slice. Then
+#' There are seven baseline methods. They fit for different types of data.
+#' Denote \eqn{z} is a unit signal and \eqn{z_0} is its baseline slice. Then
 #' these baseline methods are:
 #'
 #' \describe{
@@ -61,7 +62,7 @@
 #' \deqn{
 #'   10 \times ( \log_{10}(z) - \bar{\log_{10}(z_{0})} )
 #' }{
-#'   10 * ( log10 (z) - mean( log10(z_0) ) )
+#'   10 * ( log10(z) - mean( log10(z_0) ) )
 #' }
 #' }
 #' \item{\code{"zscore"}}{
@@ -76,6 +77,22 @@
 #'   \frac{\sqrt{z}-\bar{\sqrt{z_{0}}}}{sd(\sqrt{z_{0}})}
 #' }{
 #'   (sqrt(z) - mean( sqrt(z_0) )) / sd( sqrt(z_0) )
+#' }
+#' }
+#' \item{\code{"db_zscore"}}{
+#' Z-score applied in the decibel (10log10) domain:
+#' \deqn{
+#'   \frac{10\log_{10}(z) - \bar{10\log_{10}(z_{0})}}{sd(10\log_{10}(z_{0}))}
+#' }{
+#'   ( log10(z) - mean( log10(z_0) ) ) / sd( log10(z_0) )
+#' }
+#' }
+#' \item{\code{"subtract_mean"}}{
+#' Simple mean subtraction with no scaling:
+#' \deqn{
+#'   z - \bar{z_{0}}
+#' }{
+#'   z - mean(z_0)
 #' }
 #' }
 #'
@@ -171,7 +188,7 @@ baseline_array <- function(x, along_dim, unit_dims = seq_along(dim(x))[-along_di
 baseline_array.array <- function(
     x, along_dim, unit_dims = seq_along(dim(x))[-along_dim],
     method = c("percentage", "sqrt_percentage", "decibel", "zscore",
-               "sqrt_zscore", "subtract_mean"),
+               "sqrt_zscore", "db_zscore", "subtract_mean"),
     baseline_indexpoints = NULL, baseline_subarray = NULL, ...) {
 
   along_dim <- as.integer(along_dim)
@@ -179,7 +196,7 @@ baseline_array.array <- function(
   method <- match.arg(method)
   method_int <- which(c(
     "percentage", "sqrt_percentage", "decibel", "zscore", "sqrt_zscore",
-    "subtract_mean") == method)
+    "db_zscore", "subtract_mean") == method)
 
   dims <- dim(x)
   ntimepoints <- dims[along_dim]

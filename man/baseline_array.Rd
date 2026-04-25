@@ -12,7 +12,7 @@ baseline_array(x, along_dim, unit_dims = seq_along(dim(x))[-along_dim], ...)
   along_dim,
   unit_dims = seq_along(dim(x))[-along_dim],
   method = c("percentage", "sqrt_percentage", "decibel", "zscore", "sqrt_zscore",
-    "subtract_mean"),
+    "db_zscore", "subtract_mean"),
   baseline_indexpoints = NULL,
   baseline_subarray = NULL,
   ...
@@ -28,9 +28,10 @@ baseline along this dimension, this is usually the time dimension.}
 
 \item{...}{passed to other methods}
 
-\item{method}{character, baseline method options are:
-\code{"percentage"}, \code{"sqrt_percentage"}, \code{"decibel"},
-\code{"zscore"}, and \code{"sqrt_zscore"}}
+\item{method}{character, baseline method; one of \code{"percentage"},
+\code{"sqrt_percentage"}, \code{"decibel"}, \code{"zscore"},
+\code{"sqrt_zscore"}, \code{"db_zscore"}, or \code{"subtract_mean"}.
+See Details.}
 
 \item{baseline_indexpoints}{integer vector, which index points are counted
 into baseline window? Each index ranges from 1 to \code{dim(x)[[along_dim]]}.
@@ -44,7 +45,7 @@ baseline; default is \code{NULL} (automatically determined by
 Contrast array with the same dimension as \code{x}.
 }
 \description{
-Provides five methods to baseline an array and calculate
+Provides seven methods to baseline an array and calculate
 contrast.
 }
 \details{
@@ -52,10 +53,10 @@ Consider a scenario where we want to baseline a bunch of signals recorded
 from different locations. For each location, we record \code{n} sessions.
 For each session, the signal is further decomposed into frequency-time
 domain. In this case, we have the input \code{x} in the following form:
-\deqn{session x frequency x time x location}
+\deqn{session \times frequency \times time \times location}
 Now we want to calibrate signals for each session, frequency and location
 using the first 100 time points as baseline points, then the code will be
-\deqn{baseline_array(x, along_dim=3, baseline_window=1:100, unit_dims=c(1,2,4))}
+\code{baseline_array(x, along_dim=3, baseline_window=1:100, unit_dims=c(1,2,4))}
 \code{along_dim=3} is dimension of time, in this case, it's the
 third dimension of \code{x}. \code{baseline_indexpoints=1:100}, meaning
 the first 100 time points are used to calculate baseline.
@@ -68,8 +69,8 @@ then the unit signal is \eqn{frequency x time}, i.e. signals that share the
 same session and location also share the same baseline. In this case,
 we assign \code{unit_dims=c(1,4)}.
 
-There are five baseline methods. They fit for different types of data.
-Denote \eqn{z} is an unit signal, \eqn{z_0} is its baseline slice. Then
+There are seven baseline methods. They fit for different types of data.
+Denote \eqn{z} is a unit signal and \eqn{z_0} is its baseline slice. Then
 these baseline methods are:
 
 \describe{
@@ -91,7 +92,7 @@ these baseline methods are:
 \deqn{
   10 \times ( \log_{10}(z) - \bar{\log_{10}(z_{0})} )
 }{
-  10 * ( log10 (z) - mean( log10(z_0) ) )
+  10 * ( log10(z) - mean( log10(z_0) ) )
 }
 }
 \item{\code{"zscore"}}{
@@ -106,6 +107,22 @@ these baseline methods are:
   \frac{\sqrt{z}-\bar{\sqrt{z_{0}}}}{sd(\sqrt{z_{0}})}
 }{
   (sqrt(z) - mean( sqrt(z_0) )) / sd( sqrt(z_0) )
+}
+}
+\item{\code{"db_zscore"}}{
+Z-score applied in the decibel (10log10) domain:
+\deqn{
+  \frac{10\log_{10}(z) - \bar{10\log_{10}(z_{0})}}{sd(10\log_{10}(z_{0}))}
+}{
+  ( log10(z) - mean( log10(z_0) ) ) / sd( log10(z_0) )
+}
+}
+\item{\code{"subtract_mean"}}{
+Simple mean subtraction with no scaling:
+\deqn{
+  z - \bar{z_{0}}
+}{
+  z - mean(z_0)
 }
 }
 

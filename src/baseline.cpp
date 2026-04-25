@@ -112,8 +112,14 @@ double add_sqrt(const double& e1, const double& e2){
 }
 
 double add_log10(const double& e1, const double& e2){
-  if( e2 == 0.0 ) { return( 0.0 ); }
+  if( e2 <= 0.0 ) { return e1; }
   return e1 + std::log10(e2);
+}
+
+double add_log10_sq(const double& e1, const double& e2){
+  if( e2 <= 0.0 ) { return e1; }
+  const double lg = std::log10(e2);
+  return e1 + lg * lg;
 }
 
 double add_square(const double& e1, const double& e2){
@@ -163,6 +169,7 @@ struct Baseliner : public TinyParallel::Worker
     // subset_idx.fill(0);
 
     int64_t dat_partial_ii, bl_partial_ii;
+    int64_t bl_valid_len = 0;
     double bl_mean = 0;
     double bl_sd = 0;
     int64_t bl_len = bl_vec_idx.length();
@@ -243,19 +250,23 @@ struct Baseliner : public TinyParallel::Worker
         break;
 
       case 2: // 2. 10*log10 then baseline
-        bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_log10) / bl_len;
+      {
+        bl_valid_len = std::count_if(bl_container.begin(), bl_container.end(),
+                                     [](double v){ return v > 0.0; });
         // Element-wise (e1 - e2)
-        if( bl_mean == 0.0 ) {
+        if( bl_valid_len == 0 ) {
           for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
             arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
             y[ arr_idx ] = 0.0;
           }
         } else {
+          bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_log10) / bl_len;
           for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
             arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
             y[ arr_idx ] = (std::log10(x[ arr_idx ]) - bl_mean) * 10.0;
           }
         }
+      }
         break;
 
 
@@ -297,10 +308,29 @@ struct Baseliner : public TinyParallel::Worker
         }
         break;
 
-      case 5: // 5. subtract mean of baseline
+      case 5: // 5. 10*log10 then z-score
+        bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_log10) / bl_len;
+        bl_sd = std::accumulate( bl_container.begin(), bl_container.end(), 0.0, add_log10_sq) / bl_len;
+        bl_sd = std::sqrt( (bl_sd - bl_mean*bl_mean) / ( bl_len - 1 ) * bl_len );
+        // Element-wise (e1 - e2)
+        if( bl_sd == 0.0 ) {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = 0.0;
+          }
+        } else {
+          for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+            arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
+            y[ arr_idx ] = (std::log10(x[ arr_idx ]) - bl_mean) / bl_sd;
+          }
+        }
+        break;
+
+
+      case 6: // 6. subtract mean of baseline
         bl_mean = std::accumulate( bl_container.begin(), bl_container.end(), 0.0) / bl_len;
         // Element-wise (e1 - e2) / sd
-        for(; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ){
+        for (; ptr_cpp_int_1 != dat_vec_idx.end(); ptr_cpp_int_1++ ) {
           arr_idx = *ptr_cpp_int_1 + dat_partial_ii;
           y[ arr_idx ] = x[ arr_idx ] - bl_mean;
         }
@@ -333,12 +363,14 @@ Rcpp::NumericVector baselineArray(
   // tidx = 3, dims = 287 x 16 x 301 x 2
   // per = c(1,4), perDims = c(287, 2)
   // tbegin = 0, tend = 102
-  // method:
-  // 1: direct baseline
-  // 2. sqrt then baseline
-  // 3. 10*log10 then baseline
-  // 4. z-score then baseline
-  // 5. median as baseline (???)
+  // method+1:
+  // 1: direct baseline perc change: "percentage",
+  // 2. sqrt then baseline perc change: "sqrt_percentage",
+  // 3. 10*log10 then baseline: "decibel",
+  // 4. z-score then baseline: "zscore",
+  // 5. sqrt then z-score: "sqrt_zscore",
+  // 6. 10*log10 then z-score: "db_zscore",
+  // 7. median as baseline (???) "subtract_mean"
 
   // Rcpp::Rcout << "cpp debug baseline\n";
 

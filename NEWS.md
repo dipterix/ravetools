@@ -1,3 +1,11 @@
+# ravetools 0.2.5
+
+* `baseline_array` now supports seven baseline methods: `"percentage"`, `"sqrt_percentage"`, `"decibel"`, `"zscore"`, `"sqrt_zscore"`, `"db_zscore"`, and `"subtract_mean"`; newly added methods include decibel z-score normalization
+* Added spike sorting helpers for normality test, spike detection, per-channel waveform extraction, and `Haar` wavelet feature extraction
+* Replaced `wavelets` package dependency with `waveslim` for discrete wavelet transform used in spike sorting utilities
+* `project_plane` gains an `n_iters` argument to control the number of projection iterations (default is `5`)
+* Applied lint fixes and improved code style consistency across all source files
+
 # ravetools 0.2.4
 
 * Added a naive implementation of non-negative matrix factorization in pure R
