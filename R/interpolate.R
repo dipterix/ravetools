@@ -1,6 +1,6 @@
 find_outliers <- function(x, nsdev = 3, duration = 1, sym = FALSE) {
 
-  if(sym) {
+  if (sym) {
     tmp <- abs(x)
     nsd_ <- stats::sd(tmp, na.rm = TRUE) * nsdev
     idx <- which(is.na(tmp) | tmp > nsd_)
@@ -13,7 +13,7 @@ find_outliers <- function(x, nsdev = 3, duration = 1, sym = FALSE) {
 
   idx0 <- lapply(outliers, function(out) {
     re <- parse_svec(out)
-    if(length(re) < 0.5 * duration) {
+    if (length(re) < 0.5 * duration) {
       return(NULL)
     } else {
       return(re)
@@ -24,17 +24,17 @@ find_outliers <- function(x, nsdev = 3, duration = 1, sym = FALSE) {
 
 smooth_signals <- function(x, time, ord = 4L, nknots = 60, avoid_timepoints = integer(0), regularization = 0.1) {
   is_matrix <- TRUE
-  if(!is.matrix(x)) {
+  if (!is.matrix(x)) {
     is_matrix <- FALSE
     x <- matrix(x, nrow = 1)
   }
   ntp <- ncol(x)
-  if(missing(time)) {
+  if (missing(time)) {
     time <- seq_len(ntp)
   }
   time_idx <- seq_along(time)
   avoid_timepoints <- unique(c(as.integer(avoid_timepoints), which(colSums(is.na(x)) > 0)))
-  if(anyNA(avoid_timepoints)) {
+  if (anyNA(avoid_timepoints)) {
     avoid_timepoints <- avoid_timepoints[!is.na(avoid_timepoints)]
   }
   time_idx <- time_idx[!time_idx %in% avoid_timepoints]
@@ -47,19 +47,19 @@ smooth_signals <- function(x, time, ord = 4L, nknots = 60, avoid_timepoints = in
     time_end <- time[idx[[length(idx)]]]
     c(time_start, time_end, (time_end - time_start) / time_range)
   })
-  if(ncol(plan) == 1) {
-    plan[3,] <- nknots - ord
+  if (ncol(plan) == 1) {
+    plan[3, ] <- nknots - ord
   } else {
-    nknots2 <- ceiling(plan[3,] / sum(plan[3,]) * (nknots - ord))
-    while(sum(nknots2) > nknots - ord) {
+    nknots2 <- ceiling(plan[3, ] / sum(plan[3, ]) * (nknots - ord))
+    while (sum(nknots2) > nknots - ord) {
       tmp <- which.max(nknots2)
-      if(nknots2[tmp] >= 2) {
+      if (nknots2[tmp] >= 2) {
         nknots2[tmp] <- nknots2[tmp] - 1
       } else {
         break
       }
     }
-    plan[3,] <- nknots2
+    plan[3, ] <- nknots2
     plan <- plan[, nknots2 > 0, drop = FALSE]
   }
   knots <- apply(plan, 2, function(item) {
@@ -70,14 +70,14 @@ smooth_signals <- function(x, time, ord = 4L, nknots = 60, avoid_timepoints = in
     cos((2 * seq_len(nknots_) - 1) / (nknots_ * 2) * pi) * (time_end - time_start) / 2 + (time_start + time_end) / 2
   })
   knots <- sort(as.double(unlist(knots)))
-  if(length(knots) > nknots - ord) {
+  if (length(knots) > nknots - ord) {
     knots <- knots[seq_len(nknots - ord)]
   }
 
   knots <- c(rep(time[1], ord - 1), knots, rep(time[length(time)], nknots - length(knots) - 1))
 
   B <- t(splines::splineDesign(knots, time, ord = ord, outer.ok = TRUE, sparse = FALSE))
-  if(!inherits(B, "matrix")) {
+  if (!inherits(B, "matrix")) {
     class(B) <- "matrix"
   }
   bbt <- tcrossprod(B)
@@ -85,19 +85,19 @@ smooth_signals <- function(x, time, ord = 4L, nknots = 60, avoid_timepoints = in
   bbtsolve <- qr.solve(bbt)
 
   # Initial fit
-  if(length(avoid_timepoints)) {
+  if (length(avoid_timepoints)) {
     gamma <- tcrossprod(x[-avoid_timepoints], B[, -avoid_timepoints]) %*% bbtsolve
   } else {
     gamma <- tcrossprod(x, B) %*% bbtsolve
   }
   fitted <- gamma %*% B
-  if(!is_matrix) {
+  if (!is_matrix) {
     fitted <- as.vector(fitted)
   }
   fitted
 }
 
-interp_spline <- function (obj1, obj2, ord = 4L,
+interp_spline <- function(obj1, obj2, ord = 4L,
                            na.action = stats::na.omit, sparse = FALSE) {
   stopifnot(exprs = {
     (degree <- ord - 1L) >= 0
@@ -114,10 +114,10 @@ interp_spline <- function (obj1, obj2, ord = 4L,
     stop(gettextf("must have at least 'ord'=%d points", ord), domain = NA)
   iDeg <- seq_len(degree)
 
-  nu <- ord%/%2L
+  nu <- ord %/% 2L
   knots <- c(x[iDeg] + x[1L] - x[ord], x, x[ndat + iDeg - degree] + x[ndat] - x[ndat - degree])
 
-  derivs <- c(nu, integer(ndat + 2*(nu - 2)), nu)
+  derivs <- c(nu, integer(ndat + 2 * (nu - 2)), nu)
   x <- c(rep(x[1L], nu - 1), x, rep(x[ndat], nu - 1))
   y <- c(rep(0, nu - 1), frm$y, rep(0, nu - 1))
   des <- splines::splineDesign(knots, x, ord, derivs, sparse = sparse)
@@ -139,13 +139,13 @@ interp_spline <- function (obj1, obj2, ord = 4L,
 
 interpolate_missing_signal <- function(x, time, nknots = 100, ord = 4L, ...) {
   # Time
-  if(missing(time)) {
+  if (missing(time)) {
     ntp <- length(x)
     time <- seq_len(ntp)
   }
   valid_points <- !is.na(x)
 
-  if(sum(valid_points) > nknots) {
+  if (sum(valid_points) > nknots) {
     valid_points <- which(valid_points)
     valid_points <- valid_points[round(seq(1, length(valid_points), length.out = nknots))]
   }
@@ -230,8 +230,8 @@ interpolate_stimulation <- function(x, sample_rate, duration = 40 / sample_rate,
 
   # find outliers
   fitted <- smooth_signals(x = x, time = time, ord = ord, nknots = nknots, regularization = regularization)
-  outliers <- find_outliers(x = x - fitted, nsdev= nsd, duration = duration_npts / 4, sym = TRUE)
-  if(!length(nstim)) {
+  outliers <- find_outliers(x = x - fitted, nsdev = nsd, duration = duration_npts / 4, sym = TRUE)
+  if (!length(nstim)) {
     nstim <- length(deparse_svec(outliers, concatenate = FALSE, max_lag = duration_npts / 4))
   }
 
@@ -248,8 +248,8 @@ interpolate_stimulation <- function(x, sample_rate, duration = 40 / sample_rate,
 
 
   outliers_txt <- deparse_svec(outliers, concatenate = FALSE)
-  if(length(outliers_txt) > nstim) {
-    outliers_txt <- outliers_txt[order(sapply(outliers_txt, function(idx){
+  if (length(outliers_txt) > nstim) {
+    outliers_txt <- outliers_txt[order(sapply(outliers_txt, function(idx) {
       mean(abs(tmp[parse_svec(idx)]))
       # length(parse_svec(idx))
     }), decreasing = TRUE)]
@@ -257,9 +257,9 @@ interpolate_stimulation <- function(x, sample_rate, duration = 40 / sample_rate,
   }
   outliers <- unlist(lapply(outliers_txt, function(idx) {
     idx <- parse_svec(idx)
-    if(length(idx) < duration_npts) {
+    if (length(idx) < duration_npts) {
       pad1 <- floor((duration_npts - length(idx)) / 4)
-      if(pad1 > idx[1]) {
+      if (pad1 > idx[1]) {
         pad1 <- idx[1]
       }
       idx <- (idx[1] - pad1) + seq_len(duration_npts)
@@ -278,7 +278,7 @@ interpolate_stimulation <- function(x, sample_rate, duration = 40 / sample_rate,
   #
   # outliers_txt <- deparse_svec(outliers, concatenate = FALSE)
   # if(length(outliers_txt) > nstim) {
-  #   outliers_txt <- outliers_txt[order(sapply(outliers_txt, function(idx){
+  #   outliers_txt <- outliers_txt[order(sapply(outliers_txt, function(idx) {
   #     mean(abs(tmp[parse_svec(idx)]))
   #     # length(parse_svec(idx))
   #   }), decreasing = TRUE)]
@@ -286,7 +286,7 @@ interpolate_stimulation <- function(x, sample_rate, duration = 40 / sample_rate,
   # }
   # outliers <- unlist(lapply(outliers_txt, function(idx) {
   #   idx <- parse_svec(idx)
-  #   if(length(idx) < duration_npts) {
+  #   if (length(idx) < duration_npts) {
   #     idx <- idx[1] -1 + seq_len(duration_npts)
   #   }
   #   idx

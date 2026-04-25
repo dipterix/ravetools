@@ -42,7 +42,7 @@
 #' microbenchmark::microbenchmark(
 #'   result = collapse(x, keep = c(3,2)),
 #'   compare = apply(x, c(3,2), mean),
-#'   times = 1L, check = function(v){
+#'   times = 1L, check = function(v) {
 #'     max(abs(range(do.call('-', v)))) < 1e-10
 #'   }
 #' )
@@ -52,7 +52,7 @@
 #' microbenchmark::microbenchmark(
 #'   result = collapse(x, keep = c(3,2)),
 #'   compare = apply(x, c(3,2), mean),
-#'   times = 1L , check = function(v){
+#'   times = 1L , check = function(v) {
 #'     max(abs(range(do.call('-', v)))) < 1e-10
 #'   })
 #'
@@ -67,35 +67,35 @@ collapse <- function(x, keep, ...) {
 #' @export
 collapse.array <- function(
   x, keep, average = TRUE,
-  transform = c("asis", "10log10", "square", "sqrt"), ...){
+  transform = c("asis", "10log10", "square", "sqrt"), ...) {
 
   transform <- match.arg(transform)
 
   dim_x <- dim(x)
   keep <- as.integer(keep)
-  if(!length(keep)){
+  if (!length(keep)) {
     stop("collapse.array: `keep` length must be positive")
-  } else if(any(!is.finite(keep) | duplicated(keep))){
+  } else if (any(!is.finite(keep) | duplicated(keep))) {
     stop("collapse.array: `keep` cannot have duplicated margin indices or NAs")
-  } else if (any(keep < 1 | keep > length(dim_x))){
+  } else if (any(keep < 1 | keep > length(dim_x))) {
     stop("collapse.array: `keep` must be margin indices (from 1 to max margin)")
   }
 
   is_complex <- is.complex(x)
   mode_re <- "double"
-  if(is_complex && transform == "asis"){
+  if (is_complex && transform == "asis") {
     mode_re <- "complex"
   }
 
   dim_keep <- dim_x[keep]
-  if(!length(x)){
-    if(average){
+  if (!length(x)) {
+    if (average) {
       v <- NaN
     } else {
       v <- 0
     }
     storage.mode(v) <- mode_re
-    if(length(dim_keep) >= 2){
+    if (length(dim_keep) >= 2) {
       return(array(v, dim_keep))
     } else {
       return(rep(v, dim_keep[[1]]))
@@ -106,16 +106,16 @@ collapse.array <- function(
   method <- which(c("asis", "10log10", "square", "sqrt") == transform)
   average <- as.integer(as.logical(average))
 
-  if(is_complex){
+  if (is_complex) {
     re <- collapser_cplx(x = x, keep = keep, method = method, average = average)
-    if(transform != "asis"){
+    if (transform != "asis") {
       re <- Re(re)
     }
   } else {
     re <- collapser_real(x = x, keep = keep, method = method, average = average)
   }
 
-  if(inherits(re, "ravetools_error")){
+  if (inherits(re, "ravetools_error")) {
     stop(re)
   }
 

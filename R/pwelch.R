@@ -43,7 +43,7 @@
 #' \describe{
 #' \item{\code{freq}}{frequencies used to calculate the 'periodogram'}
 #' \item{\code{spec}}{resulting spectral power for each frequency}
-#' \item{\code{window}}{window function (in numerical vector) used}
+#' \item{\code{window}}{window function(in numerical vector) used}
 #' \item{\code{noverlap}}{number of overlapping time-points between two adjacent windows}
 #' \item{\code{nfft}}{number of basis functions}
 #' \item{\code{fs}}{sample rate}
@@ -61,7 +61,7 @@
 #' @export
 pwelch <- function(
     x, fs, window = 64, noverlap = window / 2, nfft = "auto", window_family = hamming,
-    col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
+    col = "black", xlim = NULL, ylim = NULL, main = "Welch periodogram",
     plot = 0, log = c("xy", "", "x", "y"), ...
 ) {
   UseMethod("pwelch")
@@ -70,17 +70,17 @@ pwelch <- function(
 #' @export
 pwelch.matrix <- function(
     x, fs, window = 64, noverlap = window / 2, nfft = "auto", window_family = hamming,
-    col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
+    col = "black", xlim = NULL, ylim = NULL, main = "Welch periodogram",
     plot = 0, log = c("xy", "", "x", "y"), margin = 1L, ...) {
 
-  if(margin != 2) {
+  if (margin != 2) {
     # column-major
     x <- t(x)
   }
   x_len <- nrow(x)
   noverlap <- ceiling(noverlap)
 
-  if(identical(nfft, "auto") || nfft <= 1) {
+  if (identical(nfft, "auto") || nfft <= 1) {
     nfft <- 256
     nfft <- max(min(nfft, x_len), window)
     nfft <- 2^ceiling(log2(nfft))
@@ -99,7 +99,7 @@ pwelch.matrix <- function(
   step <- max(floor(window_len - noverlap + 0.99), 1)
 
   ## Average the slices
-  offset <- seq(1, max(x_len-window_len+1, 1), by = step)
+  offset <- seq(1, max(x_len - window_len + 1, 1), by = step)
 
   N <- length(offset)
 
@@ -143,8 +143,8 @@ pwelch.matrix <- function(
     method = "Welch"
   ), class = c("pwelch-multi", "ravetools-pwelch", "pwelch"))
 
-  if( plot ) {
-    if(!is.null(log)){
+  if ( plot ) {
+    if (!is.null(log)) {
       log <- match.arg(log)
     }
     plot(res, col = col, xlim = xlim, ylim = ylim, main = main,
@@ -155,21 +155,21 @@ pwelch.matrix <- function(
 }
 
 #' @export
-pwelch.default <- function (
+pwelch.default <- function(
   x, fs, window = 64, noverlap = window / 2, nfft = "auto", window_family = hamming,
-  col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
+  col = "black", xlim = NULL, ylim = NULL, main = "Welch periodogram",
   plot = 0, log = c("xy", "", "x", "y"), ...) {
 
 
   # list2env(list(window = 64, noverlap = 8, nfft = 256,
-  #               col = 'black', xlim = NULL, ylim = NULL, main = 'Welch periodogram',
-  #               plot = TRUE, log = 'xy', spec_func = stats::spectrum, cex = 1), .GlobalEnv)
+  #               col = "black", xlim = NULL, ylim = NULL, main = "Welch periodogram",
+  #               plot = TRUE, log = "xy", spec_func = stats::spectrum, cex = 1), .GlobalEnv)
 
   x <- as.vector(x)
   x_len <- length(x)
   noverlap <- ceiling(noverlap)
 
-  if(identical(nfft, "auto") || nfft <= 1) {
+  if (identical(nfft, "auto") || nfft <= 1) {
     nfft <- 256
     nfft <- max(min(nfft, x_len), window)
     nfft <- 2^ceiling(log2(nfft))
@@ -189,11 +189,11 @@ pwelch.default <- function (
   step <- max(floor(window_len - noverlap + 0.99), 1)
 
   ## Average the slices
-  offset <- seq(1, max(x_len-window_len+1, 1), by = step)
+  offset <- seq(1, max(x_len - window_len + 1, 1), by = step)
 
   N <- length(offset)
 
-  re <- sapply(seq_len(N), function(i){
+  re <- sapply(seq_len(N), function(i) {
     slice <- x[offset[i] - 1 + seq_len(window_len)]
     slice[is.na(slice)] <- 0
     a <- detrend_naive(slice)
@@ -205,7 +205,7 @@ pwelch.default <- function (
 
   re <- Mod(mvfftw_r2c(re))^2
 
-  NN <- ceiling((nfft + 1)/2)
+  NN <- ceiling((nfft + 1) / 2)
 
   re <- re[seq_len(NN), , drop = FALSE] / window_len
 
@@ -214,7 +214,7 @@ pwelch.default <- function (
   # decibel unit so we can calculate sterr of mean
   re_db <- 10 * log10(re)
   spec_db <- rowMeans(re_db)
-  if(N > 1) {
+  if (N > 1) {
     spec_db_se <- apply(re_db, 1, stats::sd) / sqrt(N - 1)
   } else {
     spec_db_se <- rep(N, nrow(re))
@@ -237,8 +237,8 @@ pwelch.default <- function (
     method = "Welch"
   ), class = c("ravetools-pwelch", "pwelch"))
 
-  if( plot ) {
-    if(!is.null(log)){
+  if ( plot ) {
+    if (!is.null(log)) {
       log <- match.arg(log)
     }
     plot(res, col = col, xlim = xlim, ylim = ylim, main = main,
@@ -250,7 +250,7 @@ pwelch.default <- function (
 
 #' @rdname pwelch
 #' @export
-`print.ravetools-pwelch` <- function(x, ...){
+`print.ravetools-pwelch` <- function(x, ...) {
   cat(paste0(
     "Welch Periodogram:\n",
     sprintf("  # channels: %.0f\n", x$nchannels),
@@ -266,10 +266,10 @@ pwelch.default <- function (
 #' @rdname pwelch
 #' @export
 `plot.ravetools-pwelch` <- function(
-    x, log = c("xy", "x", "y", ""), se = FALSE, xticks, type = 'l', add = FALSE,
+    x, log = c("xy", "x", "y", ""), se = FALSE, xticks, type = "l", add = FALSE,
     col = graphics::par("fg"), col.se = "orange", alpha.se = 0.5, lty = 1, lwd = 1,
-    cex = 1, las = 1, main = 'Welch periodogram', xlab, ylab,
-    xlim = NULL, ylim = NULL, xaxs ="i", yaxs = "i",
+    cex = 1, las = 1, main = "Welch periodogram", xlab, ylab,
+    xlim = NULL, ylim = NULL, xaxs = "i", yaxs = "i",
     xline = 1.2 * cex, yline = 2.0 * cex,
     mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex / 2), mgp = cex * c(2, 0.5, 0),
     tck = -0.02 * cex, grid = TRUE, ...) {
@@ -284,34 +284,34 @@ pwelch.default <- function (
   # mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex / 2); mgp = cex * c(2, 0.5, 0);
   # tck = -0.02 * cex; grid = TRUE
 
-  if(!is.null(log) && !identical(log, "")){
+  if (!is.null(log) && !identical(log, "")) {
     log <- match.arg(log)
   } else {
-    log <- ''
+    log <- ""
   }
   freq <- x$freq
 
-  if(!length(xlim)){
+  if (!length(xlim)) {
     xlim <- range(freq)
   } else {
-    if(x$fs > 500 && xlim[[1]] == 0 && xlim[[2]] < 2.5) {
+    if (x$fs > 500 && xlim[[1]] == 0 && xlim[[2]] < 2.5) {
       warning("`plot.pwelch`: `xlim` should be the frequency range in native values not log-range. Please check your plot function")
       xlim <- 10^(xlim)
     }
   }
 
-  if(!missing(xticks)) {
+  if (!missing(xticks)) {
     xticks <- xticks[xticks >= min(xlim) & xticks <= max(xlim)]
     xlabel <- c(xticks, xlim)
   } else {
     xlabel <- pretty(xlim)
   }
 
-  if( x$df < 1 || log %in% c("x", "") || !length(x$spec_db_se) ) {
+  if ( x$df < 1 || log %in% c("x", "") || !length(x$spec_db_se) ) {
     se <- FALSE
   }
   spec <- x$spec
-  if( se ) {
+  if ( se ) {
     spec_lb <- 10 * log10(spec) - x$spec_db_se * as.numeric(se)
     spec_ub <- 10 * log10(spec) + x$spec_db_se * as.numeric(se)
   } else {
@@ -319,11 +319,11 @@ pwelch.default <- function (
     spec_ub <- 0
   }
 
-  switch (
+  switch(
     log,
     "xy" = {
-      xlab %?<-% 'Log10(Frequency)'
-      ylab %?<-% 'Power (dB)'
+      xlab %?<-% "Log10(Frequency)"
+      ylab %?<-% "Power (dB)"
 
       xat <- xlabel
       xat[xat <= 0 ] <- min(freq[freq > 0])
@@ -332,13 +332,13 @@ pwelch.default <- function (
       spec <- 10 * log10(spec)
 
       xlim <- range(xat, na.rm = TRUE)
-      if(xlim[1] < min(freq, na.rm = TRUE)) {
+      if (xlim[1] < min(freq, na.rm = TRUE)) {
         xlim[1] <- min(freq, na.rm = TRUE)
       }
     },
     "x" = {
-      xlab %?<-% 'Log10(Frequency)'
-      ylab %?<-% 'Power'
+      xlab %?<-% "Log10(Frequency)"
+      ylab %?<-% "Power"
       xat <- xlabel
       xat[xat <= 0 ] <- min(freq[freq > 0])
       xat <- log10(xat)
@@ -346,28 +346,28 @@ pwelch.default <- function (
       spec <- x$spec
 
       xlim <- range(xat, na.rm = TRUE)
-      if(xlim[1] < min(freq, na.rm = TRUE)) {
+      if (xlim[1] < min(freq, na.rm = TRUE)) {
         xlim[1] <- min(freq, na.rm = TRUE)
       }
       se <- FALSE
     },
     "y" = {
-      xlab %?<-% 'Frequency'
-      ylab %?<-% 'Power (dB)'
+      xlab %?<-% "Frequency"
+      ylab %?<-% "Power (dB)"
       spec <- 10 * log10(spec)
       xat <- xlabel
     },
     {
-      xlab %?<-% 'Frequency'
-      ylab %?<-% 'Power'
+      xlab %?<-% "Frequency"
+      ylab %?<-% "Power"
       spec <- x$spec
       xat <- xlabel
       se <- FALSE
     }
   )
-  if(!length(ylim)){
+  if (!length(ylim)) {
     spec_ <- spec[is.finite(spec)]
-    if(!length(spec_)) {
+    if (!length(spec_)) {
       ylim <- c(-100, 0)
       spec_range <- c(-100, 0)
     } else {
@@ -378,13 +378,13 @@ pwelch.default <- function (
     spec_range <- range(spec, na.rm = TRUE)
   }
 
-  if(!is.matrix(spec)) {
+  if (!is.matrix(spec)) {
     spec <- matrix(spec, nrow = x$nchannels)
   }
 
   cex_params <- graphics::par("mgp", "mar", "mai", "cex.main", "cex.lab", "cex.axis", "cex.sub")
 
-  if(!add){
+  if (!add) {
 
     graphics::par(mgp = mgp, mar = mar)
     on.exit({
@@ -413,11 +413,11 @@ pwelch.default <- function (
                     cex = cex_params$cex.lab * cex)
 
 
-    if(grid) {
+    if (grid) {
       graphics::grid()
     }
 
-    if(!isFALSE(se)) {
+    if (!isFALSE(se)) {
       graphics::polygon(c(freq, rev(freq)), c(spec_lb, rev(spec_ub)),
               density = NA, border = NA,
               col = grDevices::adjustcolor(col.se, alpha.f = alpha.se),
@@ -431,8 +431,8 @@ pwelch.default <- function (
 
   spec_t <- t(spec)
   sel <- is.finite(freq) & (rowSums(!is.finite(spec_t)) == 0)
-  if(any(sel)) {
-    graphics::matpoints(freq[sel], spec_t[sel,,drop = FALSE], type = type, col = col, lty = lty, lwd = lwd,
+  if (any(sel)) {
+    graphics::matpoints(freq[sel], spec_t[sel, , drop = FALSE],  type = type, col = col, lty = lty, lwd = lwd,
                         cex = cex, cex.main = cex_params$cex.main * cex,
                         cex.lab = cex_params$cex.lab * cex,
                         cex.axis = cex_params$cex.axis * cex, ...)
@@ -450,14 +450,14 @@ pwelch.default <- function (
 #' @rdname pwelch
 #' @export
 mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2,
-                      nfft = "auto", window_family = hamming){
-  if(margin != 2L) {
+                      nfft = "auto", window_family = hamming) {
+  if (margin != 2L) {
     x <- t(x)
   }
   noverlap <- ceiling(noverlap)
   xlen <- length(x) / dim(x)[[2]]
 
-  if(identical(nfft, "auto") || nfft <= 1) {
+  if (identical(nfft, "auto") || nfft <= 1) {
     nfft <- 256
     nfft <- max(min(nfft, xlen), window)
     nfft <- 2^ceiling(log2(nfft))
@@ -468,12 +468,12 @@ mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2,
   window <- window_family(window)
   window_len <- length(window)
 
-  if( noverlap >= window_len ) {
+  if ( noverlap >= window_len ) {
     noverlap <- window_len - 1
   } else if ( noverlap < 0 ) {
     noverlap <- 0
   }
-  if( xlen > window_len ) {
+  if ( xlen > window_len ) {
     start <- seq(1, xlen - window_len + 1, by = window_len - noverlap)
     slices <- sapply(start, function(si) {
       x[seq(si, si + window_len - 1), , drop = FALSE]
@@ -491,7 +491,7 @@ mv_pwelch <- function(x, margin, fs, window = 64, noverlap = window / 2,
   }
 
   re <- Mod(mvfftw_r2c(slices))^2
-  NN <- ceiling((nfft + 1)/2)
+  NN <- ceiling((nfft + 1) / 2)
   spec <- rowMeans(re) / window_len
   spec <- spec[seq_len(NN)]
   freq <- seq(0, fs / 2, length.out = NN)

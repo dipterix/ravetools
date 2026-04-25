@@ -50,10 +50,11 @@
 #' @export
 resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_old, na_fill = NA) {
   verify_dim <- function(dm, name) {
-    if(length(dm) < 3) {
+    if (length(dm) < 3) {
       stop(sprintf("`resample_3d_volume`: %s must be a 3-dimensional volume.", name))
     }
-    if(length(dm) > 3 && !all(dm[-c(1,2,3)] == 1)) {
+    if (length(dm) > 3 &&
+        !all(dm[-c(1, 2, 3)] == 1)) {
       stop(
         sprintf("`resample_3d_volume`: %s has more than 3-dimensions and the extra ", name),
         "dimension has more than 1 component. Please make sure the volume dimension ",
@@ -65,7 +66,7 @@ resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_ol
   new_dim <- verify_dim(new_dim, "Output")
 
   vox2ras_old <- as.matrix(vox2ras_old)
-  if(!length(vox2ras_old) %in% c(12, 16) || ncol(vox2ras_old) != 4) {
+  if (!length(vox2ras_old) %in% c(12, 16) || ncol(vox2ras_old) != 4) {
     stop(
       "`resample_3d_volume`: `vox2ras_old` must be a 3x4 or 4x4 matrix ",
       "from the 0-indexing space to Right-Anterior-Superior coordinate system."
@@ -73,15 +74,15 @@ resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_ol
   }
 
   vox2ras_new <- as.matrix(vox2ras_new)
-  if(!length(vox2ras_new) %in% c(12, 16) || ncol(vox2ras_new) != 4) {
+  if (!length(vox2ras_new) %in% c(12, 16) || ncol(vox2ras_new) != 4) {
     stop(
       "`resample_3d_volume`: `vox2ras_new` must be a 3x4 or 4x4 matrix ",
       "from the 0-indexing space to Right-Anterior-Superior coordinate system."
     )
   }
 
-  if(storage.mode(x) == "raw" ) {
-    if(is.na(na_fill)) {
+  if (storage.mode(x) == "raw" ) {
+    if (is.na(na_fill)) {
       na_fill <- as.raw(0)
     } else {
       storage.mode(na_fill) <- storage.mode(x)

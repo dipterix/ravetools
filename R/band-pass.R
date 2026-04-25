@@ -92,18 +92,18 @@ band_pass1 <- function(x, sample_rate, lb, ub, domain = 1, ...) {
 
   max_freq <- sample_rate / 2
 
-  if(lb >= ub) {
+  if (lb >= ub) {
     stop("`band_pass`: Band-passing filtering frequency must have lower bound < upper bound")
   }
-  if( lb < 0 ) {
+  if ( lb < 0 ) {
     stop("`band_pass`: Band-passing frequency lower bound must be positive")
   }
-  if( max_freq < ub ) {
+  if ( max_freq < ub ) {
     stop("`band_pass`: Band-passing frequency higher bound must not exceed half of sampling frequency")
   }
 
   # check if x is a matrix
-  if(!is.matrix(x)) {
+  if (!is.matrix(x)) {
     x_is_vec <- TRUE
     x <- matrix(x, nrow = 1)
   } else {
@@ -135,12 +135,12 @@ band_pass1 <- function(x, sample_rate, lb, ub, domain = 1, ...) {
   # }
 
   our_wind <- c(
-    gauss[ seq(padd_left+1, cnt_gauss) ],
+    gauss[ seq(padd_left + 1, cnt_gauss) ],
     rep( 1.0, flat_padd ),
-    gauss[ seq(cnt_gauss+1, length(gauss) - padd_right) ]
+    gauss[ seq(cnt_gauss + 1, length(gauss) - padd_right) ]
   )
 
-  if( n_tp %% 2 == 0 ) {
+  if ( n_tp %% 2 == 0 ) {
     our_wind <- our_wind[-length(our_wind)]
     our_wind <- c(our_wind, rev(our_wind))
   } else {
@@ -148,13 +148,13 @@ band_pass1 <- function(x, sample_rate, lb, ub, domain = 1, ...) {
   }
 
   re <- apply(x, 1, function(slice) {
-    if(domain > 0) {
+    if (domain > 0) {
       slice <- fft(slice)
     }
     slice <- slice * our_wind
     ifft(slice)
   })
-  if(x_is_vec) {
+  if (x_is_vec) {
     re <- drop(re)
   } else {
     re <- t(re)
@@ -173,41 +173,41 @@ band_pass2 <- function(x, sample_rate, lb, ub, order,
   method <- match.arg(method)
   direction <- match.arg(direction)
 
-  if( missing(order) ) {
-    if(method == "fir") {
+  if ( missing(order) ) {
+    if (method == "fir") {
       order <- 25
     } else {
       order <- 4
     }
   } else {
-    if( length(order) != 1 || !is.numeric(order) || is.na(order) || order != as.integer(order) || order < 0 ) {
+    if ( length(order) != 1 || !is.numeric(order) || is.na(order) || order != as.integer(order) || order < 0 ) {
       stop("`band_pass2`: filter order must be an positive integer")
     }
   }
 
-  if(is.character(window)) {
+  if (is.character(window)) {
     gsignal <- asNamespace("gsignal")
     window <- gsignal[[window]]
   }
 
 
   fn <- sample_rate / 2
-  if(lb >= ub) {
+  if (lb >= ub) {
     stop("`band_pass`: Band-passing filtering frequency must have lower bound < upper bound")
   }
-  if( lb < 0 ) {
+  if ( lb < 0 ) {
     stop("`band_pass`: Band-passing frequency lower bound must be positive")
   }
-  if( fn < ub ) {
+  if ( fn < ub ) {
     stop("`band_pass`: Band-passing frequency higher bound must not exceed half of sampling frequency")
   }
 
   w <- c(lb, ub) / fn
-  if(method == "fir") {
+  if (method == "fir") {
     b <- fir1(order, w = w, type = "pass", window = window)$b
     a <- 1
   } else {
-    if(is.function(window)) {
+    if (is.function(window)) {
       window <- window(order + 1)
     }
     bf <- gsignal::butter(order, w, type = "pass", window = window)
@@ -216,7 +216,7 @@ band_pass2 <- function(x, sample_rate, lb, ub, order,
   }
 
   # check if x is a matrix
-  if(!is.matrix(x)) {
+  if (!is.matrix(x)) {
     x_is_vec <- TRUE
     x <- matrix(x, nrow = 1)
   } else {
@@ -240,7 +240,7 @@ band_pass2 <- function(x, sample_rate, lb, ub, order,
     )
   })
 
-  if( x_is_vec ) {
+  if ( x_is_vec ) {
     re <- drop(re)
   } else {
     re <- t(re)

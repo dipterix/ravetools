@@ -50,10 +50,10 @@ guess_max_integer <- function(validator, initial = NA, min_v = 0, max_v = Inf) {
   # min_v = 0
   # max_v = Inf
 
-  if(!validator(min_v)) { return(NA) }
+  if (!validator(min_v)) { return(NA) }
 
-  if(is.na(initial)) {
-    if(is.infinite(max_v)) {
+  if (is.na(initial)) {
+    if (is.infinite(max_v)) {
       initial <- max(min_v, 1)
     } else {
       initial <- ceiling((min_v + max_v) / 2.)
@@ -63,12 +63,12 @@ guess_max_integer <- function(validator, initial = NA, min_v = 0, max_v = Inf) {
   min_v <- min_v
   max_v <- max_v
 
-  if(is.finite( max_v )) {
-    if( validator( max_v ) ) {
+  if (is.finite( max_v )) {
+    if ( validator( max_v ) ) {
       return( max_v )
     }
   } else {
-    while( validator(initial) ) {
+    while ( validator(initial) ) {
       min_v <- initial
       initial <- initial * 2
     }
@@ -80,9 +80,9 @@ guess_max_integer <- function(validator, initial = NA, min_v = 0, max_v = Inf) {
 
   test_number <- function(v) {
 
-    if( min_v + 1 >= max_v ) { return( min_v ) }
+    if ( min_v + 1 >= max_v ) { return( min_v ) }
 
-    if( validator(v) ) {
+    if ( validator(v) ) {
       min_v <<- v
     } else {
       max_v <<- v

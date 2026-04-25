@@ -6,45 +6,40 @@
 # w_post: Post-event window size.
 # min_ref_per: Minimum refractory period in milliseconds. Default is 1.5.
 
-lillie.test <- function (x) {
+lillie.test <- function(x) {
   DNAME <- deparse(substitute(x))
-  x <- sort(x[complete.cases(x)])
+  x <- sort(x[stats::complete.cases(x)])
   n <- length(x)
   if (n < 5)
     stop("sample size must be greater than 4")
-  p <- pnorm((x - mean(x))/sd(x))
-  Dplus <- max(seq(1:n)/n - p)
-  Dminus <- max(p - (seq(1:n) - 1)/n)
+  p <- stats::pnorm((x - mean(x)) / sd(x))
+  Dplus <- max(seq(1:n) / n - p)
+  Dminus <- max(p - (seq(1:n) - 1) / n)
   K <- max(Dplus, Dminus)
   if (n <= 100) {
     Kd <- K
     nd <- n
-  }
-  else {
-    Kd <- K * ((n/100)^0.49)
+  } else {
+    Kd <- K * ((n / 100)^0.49)
     nd <- 100
   }
   pvalue <- exp(-7.01256 * Kd^2 * (nd + 2.78019) + 2.99587 *
-                  Kd * sqrt(nd + 2.78019) - 0.122119 + 0.974598/sqrt(nd) +
-                  1.67997/nd)
+                  Kd * sqrt(nd + 2.78019) - 0.122119 + 0.974598 / sqrt(nd) +
+                  1.67997 / nd)
   if (pvalue > 0.1) {
-    KK <- (sqrt(n) - 0.01 + 0.85/sqrt(n)) * K
+    KK <- (sqrt(n) - 0.01 + 0.85 / sqrt(n)) * K
     if (KK <= 0.302) {
       pvalue <- 1
-    }
-    else if (KK <= 0.5) {
+    } else if (KK <= 0.5) {
       pvalue <- 2.76773 - 19.828315 * KK + 80.709644 *
         KK^2 - 138.55152 * KK^3 + 81.218052 * KK^4
-    }
-    else if (KK <= 0.9) {
+    } else if (KK <= 0.9) {
       pvalue <- -4.901232 + 40.662806 * KK - 97.490286 *
         KK^2 + 94.029866 * KK^3 - 32.355711 * KK^4
-    }
-    else if (KK <= 1.31) {
+    } else if (KK <= 1.31) {
       pvalue <- 6.198765 - 19.558097 * KK + 23.186922 *
         KK^2 - 12.234627 * KK^3 + 2.423045 * KK^4
-    }
-    else {
+    } else {
       pvalue <- 0
     }
   }
@@ -73,7 +68,7 @@ spike_detection <- function(
   spike_signal <- x
   nyquist <- sample_rate / 2
 
-  if(is.null(x_bp2)) {
+  if (is.null(x_bp2)) {
     ellip2 <- ravetools::ellip(
       n = 2,
       Rp = 0.1,
@@ -86,7 +81,7 @@ spike_detection <- function(
     signal_bp2 <- x_bp2
   }
 
-  if(is.null(x_bp4)) {
+  if (is.null(x_bp4)) {
     ellip4 <- ravetools::ellip(
       n = 4,
       Rp = 0.1,
@@ -99,8 +94,8 @@ spike_detection <- function(
     signal_bp4 <- x_bp4
   }
 
-  ref = ceiling(min_refractory * sample_rate / 1000)
-  sample_ref = floor(ref / 2)
+  ref <- ceiling(min_refractory * sample_rate / 1000)
+  sample_ref <- floor(ref / 2)
 
   # We process data by segments
   total_n_timepoints <- length(spike_signal)
@@ -121,12 +116,12 @@ spike_detection <- function(
     threshold <- std_min * median(abs(slice_bp4)) / 0.6745
     threhsold_max <- threshold * std_min
 
-    switch (
+    switch(
       detect_method,
-      'negative' = {
+      "negative" = {
         slice_threshold <- -slice_bp4
       },
-      'positive' = {
+      "positive" = {
         slice_threshold <- slice_bp4
         xaux <- which(slice_bp4 > threshold)
       },
@@ -147,10 +142,10 @@ spike_detection <- function(
 
       xaux_ii <- xaux[[ii]]
 
-      if(xaux_ii >= tmp_env$xaux0 + ref) {
+      if (xaux_ii >= tmp_env$xaux0 + ref) {
         iaux <- which.min(slice_bp2[(xaux_ii - 1) + seq_len(sample_ref)])
 
-        if( max(abs(slice_bp2[pre_to_post + xaux_ii])) < threhsold_max ) {
+        if ( max(abs(slice_bp2[pre_to_post + xaux_ii])) < threhsold_max ) {
           tmp_env$xaux0 <- xaux_ii + iaux - 1
           tmp_env$index <- c(tmp_env$index, tmp_env$xaux0)
         }
@@ -187,7 +182,7 @@ extract_waveforms_for_channel <- function(
   extra <- 2
   window_len <- len_waveform + 2 * extra
   s <- seq_len(window_len) - 1
-  ints <- seq(0, window_len - 1, by = 1/int_factor)
+  ints <- seq(0, window_len - 1, by = 1 / int_factor)
 
   # time-index offset
   pre_to_post <- seq(-w_pre - extra, w_post + extra - 1)
@@ -196,7 +191,7 @@ extract_waveforms_for_channel <- function(
   interpolated_spikes <- sapply(seq_len(total_spikes), function(ii) {
 
     idx <- pre_to_post + spike_timepoints[[ii]]
-    if(ii == 1) {
+    if (ii == 1) {
       idx[idx < 1] <- 1
     } else if (ii == total_spikes) {
       idx[idx > total_spikes] <- total_spikes
@@ -212,12 +207,12 @@ extract_waveforms_for_channel <- function(
   # Find alignment within window
   align_win <- seq((w_pre + extra - 1) * int_factor + 1, (w_pre + extra + 1) * int_factor + 1)
 
-  switch (
+  switch(
     detect_method,
-    'positive' = {
+    "positive" = {
       iaux <- apply(interpolated_spikes[, align_win, drop = FALSE], 1, which.max)
     },
-    'negative' = {
+    "negative" = {
       iaux <- apply(interpolated_spikes[, align_win, drop = FALSE], 1, which.min)
     },
     {
@@ -236,7 +231,7 @@ extract_waveforms_for_channel <- function(
 
   # validate
   # matplot(t(spike_waveforms[sample(total_spikes, 1000, ), ]),
-  #         type = 'l', lty = 1, col = "gray80")
+  #         type = "l", lty = 1, col = "gray80")
   spike_waveforms
 }
 
@@ -302,7 +297,7 @@ haar_feature_extraction <- function(
   if (length(all_above1) >= 2) {
     aux2 <- diff(all_above1)
     # temp_bla <- stats::filter(c(0, aux2, 0), rep(1/3, 3), sides = 2, circular = TRUE)
-    temp_bla <- ravetools::convolve_signal(c(0, aux2, 0), rep(1/3, 3))
+    temp_bla <- ravetools::convolve_signal(c(0, aux2, 0), rep(1 / 3, 3))
     temp_bla[1] <- aux2[1]
     temp_bla[length(temp_bla)] <- aux2[length(aux2)]
     thr_knee_diff <- all_above1[which(temp_bla[-1] == 1)[1]] + (nd / 2)

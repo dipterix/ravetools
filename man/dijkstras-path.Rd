@@ -125,7 +125,7 @@ points(positions[6,,drop=FALSE], pch = 16, col = "purple3")
     "default_template_directory", "threeBrain")
   surface_path <- file.path(default_template_directory(),
                             "N27", "surf", "lh.pial")
-  if(!file.exists(surface_path)) {
+  if (!file.exists(surface_path)) {
     internal_rave_function(
       "download_N27", "threeBrain")()
   }
@@ -158,7 +158,7 @@ points(positions[6,,drop=FALSE], pch = 16, col = "purple3")
   ) + 1]
   oldpar <- par(mfrow = c(2, 2), mar = c(0, 0, 0, 0))
   for(xdim in c(1, 2, 3)) {
-    if( xdim < 3 ) {
+    if ( xdim < 3 ) {
       ydim <- xdim + 1
     } else {
       ydim <- 3

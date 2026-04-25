@@ -59,15 +59,15 @@ mesh_from_volume <- function(
   }
 
   volume <- as.array(volume)
-  dm <- dim(volume)[c(1,2,3)]
+  dm <- dim(volume)[c(1, 2, 3)]
   dim(volume) <- dm
 
-  if(length(IJK2RAS) != 16L) {
+  if (length(IJK2RAS) != 16L) {
     IJK2RAS <- matrix(
       nrow = 4, byrow = TRUE,
-      c(-1, 0, 0, dm[[1]]/2,
-        0, 0, 1, -dm[[3]]/2,
-        0, -1, 0, dm[[2]]/2,
+      c(-1, 0, 0, dm[[1]] / 2,
+        0, 0, 1, -dm[[3]] / 2,
+        0, -1, 0, dm[[2]] / 2,
         0, 0, 0, 1))
   }
 
@@ -75,13 +75,13 @@ mesh_from_volume <- function(
 
   debug(sprintf("The initial reconstructed surface volume is %.1f mm^3", mesh_volume(mesh)))
 
-  if( remesh ) {
+  if ( remesh ) {
     mesh <- vcg_uniform_remesh(
       mesh, voxel_size = remesh_voxel_size, multi_sample = remesh_multisample,
       merge_clost = remesh_automerge, verbose = verbose)
     debug(sprintf("The re-meshed surface volume is %.1f mm^3", mesh_volume(mesh)))
   }
-  if( smooth ) {
+  if ( smooth ) {
     mesh <- vcg_smooth_explicit(
       mesh = mesh, type = smooth_method,
       lambda = smooth_lambda, delta = smooth_delta
@@ -105,7 +105,8 @@ mesh_from_volume <- function(
         ),
         class = c("fs.surface", "list")
       )
-    },{}
+    }, {
+    }
   )
   mesh
 

@@ -11,7 +11,7 @@ meshintegrity <- function(mesh, facecheck = FALSE, normcheck = FALSE) {
     if (!vdim[1] %in% c(3, 4)) {
       stop("vertices have invalid dimensionality")
     }
-    if(!identical(storage.mode(mesh$vb), "double")) {
+    if (!identical(storage.mode(mesh$vb), "double")) {
       storage.mode(mesh$vb) <- "double"
     }
     if ( anyNA(mesh$vb) ) {
@@ -20,20 +20,20 @@ meshintegrity <- function(mesh, facecheck = FALSE, normcheck = FALSE) {
   } else {
     stop("mesh has no/invalid vertices")
   }
-  if (is.matrix(mesh$it)){
+  if (is.matrix(mesh$it)) {
     if (ncol(mesh$it) == 0)
       mesh$it <- NULL
   }
   if (!is.null(mesh$it) && is.matrix(mesh$it)) {
     itdim <- dim(mesh$it)
-    if(itdim[1] != 3) {
+    if (itdim[1] != 3) {
       stop("only triangular faces are valid")
     }
 
-    if(!identical(storage.mode(mesh$it), "integer")) {
+    if (!identical(storage.mode(mesh$it), "integer")) {
       storage.mode(mesh$it) <- "integer"
     }
-    if( anyNA(mesh$it) ) {
+    if ( anyNA(mesh$it) ) {
       stop("face indices need to be integer values")
     }
 
@@ -48,7 +48,7 @@ meshintegrity <- function(mesh, facecheck = FALSE, normcheck = FALSE) {
   if (normcheck) {
     if (!is.null(mesh$normals) && is.matrix(mesh$normals)) {
       ndim <- dim(mesh$normals)
-      if(!prod(ndim == vdim)) {
+      if (!prod(ndim == vdim)) {
         stop("normals must be of same dimensionality as vertices")
       }
 
@@ -104,7 +104,7 @@ checkFaceOrientation <- function(x, offset = NULL) {
   return(out)
 }
 
-invertFaces <- function (mesh) {
+invertFaces <- function(mesh) {
   mesh$it <- mesh$it[c(3, 2, 1), ]
   mesh <- vcg_update_normals(mesh)
   return(mesh)
@@ -156,7 +156,7 @@ vcg_update_normals <- function(
     stop("pointcloud must be an integer vector of length 2")
   }
 
-  if( weight == "area" ) {
+  if ( weight == "area" ) {
     type <- 0L
   } else {
     type <- 1L
@@ -206,7 +206,7 @@ vcg_barycentric_subdivision <- function(mesh) {
   mesh$it[3, ] <- vb_faces
 
   structure(
-    class = 'mesh3d',
+    class = "mesh3d",
     list(
       vb = cbind(mesh$vb[1:3, , drop = FALSE], vb, deparse.level = 0),
       it = cbind(mesh$it[1:3, , drop = FALSE], f1, f2, deparse.level = 0)
@@ -261,7 +261,7 @@ vcg_edge_subdivision <- function(mesh) {
 vcg_subdivision <- function(mesh, method = c("edge", "barycenter")) {
   method <- match.arg(method)
 
-  mesh <- switch (
+  mesh <- switch(
     method,
     "edge" = {
       vcg_edge_subdivision(mesh)
@@ -393,7 +393,7 @@ vcg_smooth_explicit <- function(
 ) {
   mesh <- meshintegrity(mesh)
   type <- match.arg(type)
-  type <- substring(type[1],1L,1L)
+  type <- substring(type[1], 1L, 1L)
   vb <- mesh$vb[1:3, , drop = FALSE]
   it <- (mesh$it - 1L)
   storage.mode(it) <- "integer"
@@ -413,7 +413,7 @@ vcg_smooth_explicit <- function(
   stopifnot(is.integer(it))
 
   tmp <- vcgSmooth(vb, it, iteration, method, lambda, mu, delta)
-  mesh$vb[1:3,] <- tmp$vb
+  mesh$vb[1:3, ] <- tmp$vb
   mesh$normals <- rbind(tmp$normals, 1)
   mesh$it <- tmp$it
   invisible(meshintegrity(mesh))
@@ -499,11 +499,11 @@ vcg_isosurface <- function(
     stop("vcg_isosurface: 3D non-empty `volume` array needed")
   }
 
-  if(is.na(threshold_lb)) { threshold_lb <- 0 }
+  if (is.na(threshold_lb)) { threshold_lb <- 0 }
   sel <- volume > threshold_lb
   dimnames(sel) <- NULL
 
-  if(!is.na(threshold_ub)) {
+  if (!is.na(threshold_ub)) {
     sel <- sel & volume < threshold_ub
   }
 
@@ -524,7 +524,7 @@ vcg_isosurface <- function(
 #' @param x surface
 #' @param voxel_size 'voxel' size for space 'discretization'
 #' @param offset offset position shift of the new surface from the input
-#' @param discretize whether to use step function (\code{TRUE}) instead of
+#' @param discretize whether to use step function(\code{TRUE}) instead of
 #' linear interpolation (\code{FALSE}) to calculate the position of the
 #' intersected edge of the marching cube; default is \code{FALSE}
 #' @param multi_sample whether to calculate multiple samples for more accurate
@@ -609,23 +609,23 @@ vcg_raycaster <- function(
 
   x <- meshintegrity(mesh = x, facecheck = TRUE)
 
-  if(is.matrix(ray_origin)) {
+  if (is.matrix(ray_origin)) {
     ray_origin <- ray_origin[seq_len(3), , drop = FALSE]
     # ray_direction <- ray_direction[seq_len(3), , drop = FALSE]
   } else {
     # assuming ray_origin is a vector of 3
-    ray_origin <- matrix(ray_origin[c(1,2,3)], ncol = 1L)
+    ray_origin <- matrix(ray_origin[c(1, 2, 3)], ncol = 1L)
     # ray_direction <- matrix(ray_direction[c(1,2,3)], ncol = 1L)
   }
   n_rays <- ncol(ray_origin)
 
-  if(length(ray_direction) == 3) {
+  if (length(ray_direction) == 3) {
     ray_direction <- matrix(ray_direction[c(1, 2, 3)], nrow = 3L, ncol = n_rays)
   } else {
     ray_direction <- ray_direction[seq_len(3), , drop = FALSE]
   }
 
-  if(ncol(ray_direction) != n_rays) {
+  if (ncol(ray_direction) != n_rays) {
     stop("`vcg_raycaster`: number of rays is ", n_rays, " according to `ray_origin`. However `ray_direction` is different number of points. Please make sure these two variables have the same number of elements.")
   }
 
@@ -638,7 +638,7 @@ vcg_raycaster <- function(
 
 
   stopifnot(length(max_distance) == 1)
-  if(is.na(max_distance) || max_distance <= 0) {
+  if (is.na(max_distance) || max_distance <= 0) {
     max_distance <- Inf
   }
 
@@ -730,13 +730,13 @@ vcg_kdtree_nearest <- function(
     target, query, k = 1, leaf_size = 16, max_depth = 64) {
 
   get_point_cloud <- function(x) {
-    if(is.matrix(x) || is.array(x)) {
+    if (is.matrix(x) || is.array(x)) {
       x <- x[drop = FALSE]
       stopifnot2(
         is.matrix(x) && ncol(x) %in% c(2, 3),
         msg = "`vcg_kdtree_nearest`: input `x` must be a column-matrix with 2 or 3 columns and `n` rows as number of points."
       )
-      if( ncol(x)  == 2 ) {
+      if ( ncol(x)  == 2 ) {
         x <- cbind(x, 0)
       }
       x <- t(x)
@@ -751,17 +751,17 @@ vcg_kdtree_nearest <- function(
   query <- get_point_cloud(query)
 
   k <- as.integer(k)
-  if(!is.finite(k) || k <= 0) {
+  if (!is.finite(k) || k <= 0) {
     stop("`vcg_kdtree_nearest`: `k` must be finite positive.")
   }
 
   leaf_size <- as.integer(leaf_size)
-  if(!is.finite(leaf_size) || leaf_size <= 0) {
+  if (!is.finite(leaf_size) || leaf_size <= 0) {
     stop("`vcg_kdtree_nearest`: `leaf_size` must be finite positive.")
   }
 
   max_depth <- as.integer(max_depth)
-  if(!is.finite(max_depth) || max_depth <= 0) {
+  if (!is.finite(max_depth) || max_depth <= 0) {
     stop("`vcg_kdtree_nearest`: `max_depth` must be finite positive.")
   }
 
@@ -816,15 +816,15 @@ vcg_subset_vertex <- function(x, selector) {
   x <- meshintegrity(x, facecheck = facecheck)
 
   ns <- length(selector)
-  if(ncol(x$vb) != ns) {
+  if (ncol(x$vb) != ns) {
     stop("`vcg_subset_vertex`: Number of vertices does not match the length of `selector`")
   }
-  if(ns == 0) {
+  if (ns == 0) {
     return(x)
   }
-  if(!facecheck) {
+  if (!facecheck) {
     x$vb <- x$vb[, selector, drop = FALSE]
-    if(!is.null(x$normals)) {
+    if (!is.null(x$normals)) {
       x$normals <- x$normals[, selector, drop = FALSE]
     }
     return(x)

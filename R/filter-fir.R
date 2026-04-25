@@ -3,18 +3,18 @@
 
 scale_filter <- function(b, fband, freq, len) {
 
-  if( fband ) {
+  if ( fband ) {
     b <- b / sum(b)
   } else {
-    if( freq[[4]] == 1 ) {
+    if ( freq[[4]] == 1 ) {
       # length(w) == 1
       f0 <- 1
     } else {
-      f0 <- mean(freq[c(3,4)])
+      f0 <- mean(freq[c(3, 4)])
     }
     # b = b / abs( exp(-1i*2*pi*(0:L-1)*(f0/2))*(b.') );
     b <- b / Mod(sum(
-      exp(-1i*2*pi*seq(0, len - 1)*(f0/2)) * b
+      exp(-1i * 2 * pi * seq(0, len - 1) * (f0 / 2)) * b
     ))
   }
 
@@ -25,13 +25,13 @@ scale_filter <- function(b, fband, freq, len) {
 fir_validate <- function(n, max_freq, magnitude, odd_allowed = FALSE) {
 
   # order
-  if(missing(n) || length(n) != 1 || !is.numeric(n) || n - round(n) != 0 || n <= 0 ) {
+  if (missing(n) || length(n) != 1 || !is.numeric(n) || n - round(n) != 0 || n <= 0 ) {
     stop("Filter order `n` must be a positive integer")
   }
 
   n_is_odd <- n %% 2 == 1
 
-  if( magnitude[[length(magnitude)]] != 0 && max_freq == 1 && n_is_odd && !odd_allowed ) {
+  if ( magnitude[[length(magnitude)]] != 0 && max_freq == 1 && n_is_odd && !odd_allowed ) {
     warning("IR filters must have a gain of zero at the Nyquist frequency. Increasing the order by 1")
     n <- n + 1
   }
@@ -71,25 +71,25 @@ fir1 <- function(
   type <- match.arg(type)
 
   nw <- length(w)
-  if(!nw || any(w < 0 | w > 1)) {
+  if (!nw || any(w < 0 | w > 1)) {
     stop("`fir1`: w must be a real vector from range 0.0 to 1.0")
   }
-  if(nw > 1 && any(diff(w) < 0)) {
+  if (nw > 1 && any(diff(w) < 0)) {
     stop("`fir1`: w must be non-decreasing")
   }
 
-  if(w[[length(w)]] >= 1) {
+  if (w[[length(w)]] >= 1) {
     w <- w[-length(w)]
-    if(length(w) == 1) {
+    if (length(w) == 1) {
       type <- "high"
     } else {
       type <- "DC-0"
     }
-  } else if(missing(type)) {
-    if(nw == 1) {
+  } else if (missing(type)) {
+    if (nw == 1) {
       type <- "low"
     } else if (nw == 2) {
-      type <- 'pass'
+      type <- "pass"
     } else {
       type <- "DC-0"
     }
@@ -102,8 +102,8 @@ fir1 <- function(
   nbands <- nw + 1
 
   # make sure default 3 band filter is bandpass
-  if( type == "pass" ) {
-    if( nbands > 2 ) {
+  if ( type == "pass" ) {
+    if ( nbands > 2 ) {
       type <- "DC-0"
     }
   }
@@ -120,19 +120,19 @@ fir1 <- function(
   # filter length is order+1
   filter_len <- n + 1
 
-  if(is.function(window)) {
+  if (is.function(window)) {
     wind <- window(filter_len)
-    if( length(wind) != filter_len ) {
+    if ( length(wind) != filter_len ) {
       stop("`fir1`: window length is invalid given requested length: (n+1)")
     }
   } else {
-    if(length(window) != filter_len) {
+    if (length(window) != filter_len) {
       stop("`fir1`: window must be either a function or a vector of length (n+1)")
     }
     wind <- window
   }
 
-  if(hilbert) {
+  if (hilbert) {
     hh <- firls(n, freq, magnitude, ftype = "hilbert")$b
   } else {
     hh <- firls(n, freq, magnitude)$b
@@ -140,7 +140,7 @@ fir1 <- function(
 
   b <- wind * hh
 
-  if(scale) {
+  if (scale) {
     b <- scale_filter(b, use_first_band, freq, filter_len)
   }
 
@@ -150,7 +150,7 @@ fir1 <- function(
 sinc <- function(x) {
   v <- pi * x
   re <- sin(v) / v
-  if(length(v)) {
+  if (length(v)) {
     re[ v == 0 ] <- 1
   }
   re
@@ -268,7 +268,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     b <- numeric(length(k))
 
     for (s in seq(1, length(Fn), by = 2)) {
-      if(Fn[s + 1] == Fn[s]) {
+      if (Fn[s + 1] == Fn[s]) {
         next
       }
       m_s <- (A[s + 1] - A[s]) / (Fn[s + 1] - Fn[s])
@@ -302,7 +302,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     }
 
     if (Nodd) {
-      h <- c(a[seq(L+1,2, by = -1)] / 2, a[1], a[2:(L + 1)] / 2)
+      h <- c(a[seq(L + 1, 2, by = -1)] / 2, a[1], a[2:(L + 1)] / 2)
     } else {
       h <- 0.5 * c(rev(a), a)
     }
@@ -335,7 +335,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     }
 
     for (s in seq(1, length(Fn), by = 2)) {
-      if( Fn[s + 1] == Fn[s] ) { next }
+      if ( Fn[s + 1] == Fn[s] ) { next }
       if (do_weight[(s + 1) / 2]) {
         if (Fn[s] == 0) {
           Fn[s] <- 1e-5
@@ -345,7 +345,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
         b1 <- A[s] - m_s * Fn[s]
 
         snint1 <- sineint(2 * pi * k * Fn[s + 1]) - sineint(2 * pi * k * Fn[s])
-        csint1 <- Re((-1/2) * (pracma::expint(1i * 2 * pi * k * Fn[s + 1]) +
+        csint1 <- Re((-1 / 2) * (pracma::expint(1i * 2 * pi * k * Fn[s + 1]) +
                                  pracma::expint(-1i * 2 * pi * k * Fn[s + 1]) -
                                  pracma::expint(1i * 2 * pi * k * Fn[s]) -
                                  pracma::expint(-1i * 2 * pi * k * Fn[s])))
@@ -359,11 +359,11 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
         snint3 <- sineint(2 * pi * Fn[s] * (-I2))
         snint4 <- sineint(2 * pi * Fn[s] * I1)
 
-        G <- G - ((-1/2) * (cos(2 * pi * Fn[s + 1] * (-I2)) / Fn[s + 1] -
+        G <- G - ((-1 / 2) * (cos(2 * pi * Fn[s + 1] * (-I2)) /  Fn[s + 1] -
                               2 * snint1 * pi * I2 -
                               cos(2 * pi * Fn[s + 1] * I1) / Fn[s + 1] +
                               2 * snint2 * pi * I1) -
-                    (-1/2) * (cos(2 * pi * Fn[s] * (-I2)) / Fn[s] -
+                    (-1 / 2) * (cos(2 * pi * Fn[s] * (-I2)) / Fn[s] -
                                 2 * snint3 * pi * I2 -
                                 cos(2 * pi * Fn[s] * I1) / Fn[s] +
                                 2 * snint4 * pi * I1)) * wt[(s + 1) / 2]^2
@@ -420,8 +420,8 @@ initMatrices <- function(m) {
 
 
 # Might not be implemented correctly, not used
-fir2 <- function (n, f, m, grid_n = 512,
-                  ramp_n = grid_n/20,
+fir2 <- function(n, f, m, grid_n = 512,
+                 ramp_n = grid_n / 20,
                   window = hamming(n + 1))
 {
   t <- length(f)
@@ -439,8 +439,8 @@ fir2 <- function (n, f, m, grid_n = 512,
     basef <- f
     basem <- m
     idx <- which(diff(f) == 0)
-    f[idx] <- f[idx] - ramp_n/grid_n/2
-    f[idx + 1] <- f[idx + 1] + ramp_n/grid_n/2
+    f[idx] <- f[idx] - ramp_n / grid_n / 2
+    f[idx + 1] <- f[idx + 1] + ramp_n / grid_n / 2
     f <- c(f, basef[idx])
     f[f < 0] <- 0
     f[f > 1] <- 1
@@ -448,9 +448,9 @@ fir2 <- function (n, f, m, grid_n = 512,
     m <- approx(basef, basem, f, ties = "ordered")$y
   }
   grid <- approx(f, m, seq(0, 1, length = grid_n + 1), ties = "ordered")$y
-  if ((n%%2) == 0) {
+  if ((n %% 2) == 0) {
     b <- ifft(c(grid, grid[seq(grid_n, 2, by = -1)]))
-    mid <- (n + 1)/2
+    mid <- (n + 1) / 2
     b <- Re(c(b[(2 * grid_n - floor(mid) + 1):(2 * grid_n)],
               b[1:ceiling(mid)]))
   } else {

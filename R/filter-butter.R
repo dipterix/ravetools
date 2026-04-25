@@ -61,7 +61,7 @@ butter_cutoff <- function(type, n, w, r) {
       # ws <- ws/wp
       # wp <- 1
 
-      ws <- w02/(Wsw[2] - Wsw[1])
+      ws <- w02 / (Wsw[2] - Wsw[1])
       wc <- ws / ws_wc
       wc <- w02 / wc
 
@@ -93,7 +93,7 @@ butter_check <- function(type, n, w, r) {
   Wc <- butter_cutoff(type, n, w, r)
   filter <- gsignal::butter(n = n, w = Wc, type = type, output = "Arma")
 
-  half_pow <- 10*log10(0.5)
+  half_pow <- 10 * log10(0.5)
   check_filter(b = filter$b, a = filter$a, w = c(w, Wc), r_expected = rep(c(-r, half_pow), each = length(w)))
 }
 
@@ -130,7 +130,7 @@ butter_check <- function(type, n, w, r) {
 #'
 #' @export
 butter_max_order <- function(w, type = c("low", "high", "pass", "stop"),
-                             r = 10*log10(2), tol = .Machine$double.eps) {
+                             r = 10 * log10(2), tol =  .Machine$double.eps) {
 
   w <- sort(w)
   r <- abs(r)
@@ -140,7 +140,7 @@ butter_max_order <- function(w, type = c("low", "high", "pass", "stop"),
     msg = "`w` must be scaled to [0, 1], where 1 is Nyquist frequency"
   )
 
-  if(type %in% c("pass", "stop")) {
+  if (type %in% c("pass", "stop")) {
     stopifnot(length(w) == 2)
   } else {
     stopifnot(length(w) == 1)
@@ -153,7 +153,7 @@ butter_max_order <- function(w, type = c("low", "high", "pass", "stop"),
 
   n <- guess_max_integer(validator, min_v = 1)
 
-  if(is.na(n)) { n <- 1 }
+  if (is.na(n)) { n <- 1 }
 
   Wc <- butter_cutoff(type, n, w, r)
 

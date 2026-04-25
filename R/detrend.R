@@ -20,7 +20,7 @@
 #' plot(detrend(x, 'linear', 50))
 #'
 #' @export
-detrend <- function (x, trend = c("constant", "linear"), break_points = NULL) {
+detrend <- function(x, trend = c("constant", "linear"), break_points = NULL) {
 
   trend <- match.arg(trend)
 
@@ -33,18 +33,18 @@ detrend <- function (x, trend = c("constant", "linear"), break_points = NULL) {
   }
   n <- nrow(x)
 
-  if(length(break_points)){
-    if(trend == "constant"){
+  if (length(break_points)) {
+    if (trend == "constant") {
       warning("Breakpoints not used for 'constant' trend type.")
     } else {
       break_points <- as.integer(break_points)
-      if(any(is.na(break_points) | break_points < 1 | break_points > n)){
+      if (any(is.na(break_points) | break_points < 1 | break_points > n)) {
         stop("'break_points' must be a subset of 1:nrow(x).")
       }
     }
   }
 
-  if(trend == "constant"){
+  if (trend == "constant") {
     x_mean <- colMeans(x, na.rm = TRUE)
     re <- sweep(x, 2, x_mean, "-", check.margin = FALSE)
     return(re)
@@ -54,8 +54,8 @@ detrend <- function (x, trend = c("constant", "linear"), break_points = NULL) {
     # print(break_points)
     nbps <- length(break_points)
 
-    a <- sapply(seq_len(nbps), function(ii){
-      if(ii == nbps){ return(rep(1, n)) }
+    a <- sapply(seq_len(nbps), function(ii) {
+      if (ii == nbps) { return(rep(1, n)) }
       pad <- break_points[ii]
       m <- n - pad
       c(rep(0, pad), seq(1 / m, 1, length.out = m))

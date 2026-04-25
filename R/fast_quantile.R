@@ -43,7 +43,7 @@
 #'
 #' @export
 fast_quantile <- function(x, prob = 0.5, na.rm = FALSE, ...) {
-  if(length(prob) != 1L) {
+  if (length(prob) != 1L) {
     stop("`fast_quantile`: `prob` length can only be one")
   }
   .Call(`_ravetools_quickQuantile`, x, prob, isTRUE(as.logical(na.rm)))
@@ -58,7 +58,7 @@ fast_median <- function(x, na.rm = FALSE, ...) {
 #' @rdname fast_quantile
 #' @export
 fast_mvquantile <- function(x, prob = 0.5, na.rm = FALSE, ...) {
-  if(length(prob) != 1L) {
+  if (length(prob) != 1L) {
     stop("`fast_quantile`: `prob` length can only be one")
   }
   .Call(`_ravetools_columnQuantile`, x, prob, isTRUE(as.logical(na.rm)))

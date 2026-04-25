@@ -17,7 +17,7 @@ Vector3 <- R6::R6Class(
     format = function(...) {
       l <- self$get_size()
       s <- sprintf("<Vector3: len=%d>", l)
-      if(l == 0) { return(s) }
+      if (l == 0) { return(s) }
       arr <- self$to_array(max_n_elems = 5)
       s <- c(
         s,
@@ -30,7 +30,7 @@ Vector3 <- R6::R6Class(
         })
       )
 
-      if( l > 5 ) {
+      if ( l > 5 ) {
         s <- c(s, "...")
       }
       s
@@ -234,7 +234,7 @@ Vector3 <- R6::R6Class(
 
     apply_matrix3 = function(m) {
       stopifnot(length(m) == 9)
-      if(!is.numeric(m)) { m <- as.numeric(m) }
+      if (!is.numeric(m)) { m <- as.numeric(m) }
       Vector3__apply_matrix3(private$.extern_ptr, m)
       self
     },
@@ -276,19 +276,19 @@ Vector3 <- R6::R6Class(
     },
     angle_to = function(v) {
       v <- as_vector3(v)
-      return ( Vector3__angle_to(private$.extern_ptr, v$pointer) )
+      return( Vector3__angle_to(private$.extern_ptr, v$pointer) )
     },
     distance_to = function(v) {
       v <- as_vector3(v)
-      return ( Vector3__distance_to(private$.extern_ptr, v$pointer) )
+      return( Vector3__distance_to(private$.extern_ptr, v$pointer) )
     },
     distance_to_squared = function(v) {
       v <- as_vector3(v)
-      return ( Vector3__distance_to_squared(private$.extern_ptr, v$pointer) )
+      return( Vector3__distance_to_squared(private$.extern_ptr, v$pointer) )
     },
     distance_to_manhattan = function(v) {
       v <- as_vector3(v)
-      return ( Vector3__distance_to_manhattan(private$.extern_ptr, v$pointer) )
+      return( Vector3__distance_to_manhattan(private$.extern_ptr, v$pointer) )
     },
     set_from_matrix_position = function(m) {
       m <- as_matrix4(m)
@@ -348,7 +348,7 @@ new_vector3 <- function(x = 0.0, y = 0.0, z = 0.0) {
 
 #' @export
 as.matrix.Vector3 <- function(x, ...) {
-  if(R6::is.R6(x) && isTRUE(x$is_vector3)) {
+  if (R6::is.R6(x) && isTRUE(x$is_vector3)) {
     return(x$to_array(...))
   }
   NextMethod("as.matrix")
@@ -356,7 +356,7 @@ as.matrix.Vector3 <- function(x, ...) {
 
 #' @export
 `[.Vector3` <- function(x, i, ..., drop = TRUE) {
-  if(missing(i)) {
+  if (missing(i)) {
     x$to_array()[, ..., drop = drop]
   } else {
     x$to_array()[i, ..., drop = drop]
@@ -365,7 +365,7 @@ as.matrix.Vector3 <- function(x, ...) {
 
 #' @export
 dim.Vector3 <- function(x) {
-  if(R6::is.R6(x) && isTRUE(x$is_vector3)) {
+  if (R6::is.R6(x) && isTRUE(x$is_vector3)) {
     return(c(3L, x$get_size()))
   }
   NextMethod("dim")
@@ -379,12 +379,12 @@ dim.Vector3 <- function(x) {
 #' @rdname new_vector3
 #' @export
 as_vector3 <- function(v) {
-  if( R6::is.R6(v) && isTRUE(v$is_vector3) ) { return(v) }
+  if ( R6::is.R6(v) && isTRUE(v$is_vector3) ) { return(v) }
   x_ <- as.double(v)
-  if(length(x_) == 1) {
+  if (length(x_) == 1) {
     return(new_vector3(x_, x_, x_))
   }
-  if(length(x_) < 3) {
+  if (length(x_) < 3) {
     stop("Input cannot be converted to a Vector3 instance. Please make sure input is a numeric vector of which the length is greater equal to 3.")
   }
   new_vector3()$from_array(x_)

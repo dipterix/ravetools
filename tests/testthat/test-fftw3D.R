@@ -1,6 +1,6 @@
 test_that("fftw_r2c_3d", {
   # even margins
-  x <- array(rnorm(10000), c(20,50, 10))
+  x <- array(rnorm(10000), c(20, 50, 10))
   y <- as.vector(x)
 
   a <- fftwtools::fftw_r2c_3d(x, HermConj = 1)
@@ -22,7 +22,7 @@ test_that("fftw_r2c_3d", {
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
   dim(x) <- c(1000, 1, 10)
-  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2,1,3))
+  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2, 1, 3))
   b <- ravetools:::fftw_r2c_3d(x, HermConj = 1)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
@@ -31,7 +31,7 @@ test_that("fftw_r2c_3d", {
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
   dim(x) <- c(1000, 10, 1)
-  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2,3,1))
+  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2, 3, 1))
   b <- ravetools:::fftw_r2c_3d(x, HermConj = 1)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
@@ -43,7 +43,7 @@ test_that("fftw_r2c_3d", {
   testthat::expect_equal(as.vector(x), y)
 
   # odd
-  x <- array(rnorm(11781), c(21,51, 11))
+  x <- array(rnorm(11781), c(21, 51, 11))
   y <- as.vector(x)
   a <- fftwtools::fftw_r2c_3d(x, HermConj = 1)
   b <- ravetools:::fftw_r2c_3d(x, HermConj = 1)
@@ -64,7 +64,7 @@ test_that("fftw_r2c_3d", {
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
   dim(x) <- c(1071, 1, 11)
-  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2,1,3))
+  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2, 1, 3))
   b <- ravetools:::fftw_r2c_3d(x, HermConj = 1)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
@@ -73,7 +73,7 @@ test_that("fftw_r2c_3d", {
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
   dim(x) <- c(1071, 11, 1)
-  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2,3,1))
+  a <- aperm(fftwtools::fftw_r2c_3d(x1, HermConj = 1), c(2, 3, 1))
   b <- ravetools:::fftw_r2c_3d(x, HermConj = 1)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
@@ -105,7 +105,7 @@ test_that("fftw_r2c_3d", {
 
 test_that("fftw_c2c_3d", {
   # even margins
-  x <- array(rnorm(10000), c(20,50, 10))
+  x <- array(rnorm(10000), c(20, 50, 10))
 
   a <- fftwtools::fftw_c2c_3d(x, inverse = 1)
   b <- ravetools:::fftw_c2c_3d(x, inverse = 1)
@@ -144,7 +144,7 @@ test_that("fftw_c2c_3d", {
 
 
   # odd
-  x <- array(rnorm(11781), c(21,51,11))
+  x <- array(rnorm(11781), c(21, 51, 11))
 
   a <- fftwtools::fftw_c2c_3d(x, inverse = 1)
   b <- ravetools:::fftw_c2c_3d(x, inverse = 1)
@@ -206,4 +206,3 @@ test_that("fftw_c2c_3d", {
   testthat::expect_equal(dim(b), dim(x))
 
 })
-

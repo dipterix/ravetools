@@ -101,7 +101,7 @@
 #' # ----- baseline percentage change ------
 #'
 #' # Using base functions
-#' re1 <- aperm(apply(x, c(1,2,4), function(y){
+#' re1 <- aperm(apply(x, c(1,2,4), function(y) {
 #'   m <- mean(y[baseline_window])
 #'   (y/m - 1) * 100
 #' }), c(2,3,1,4))
@@ -123,13 +123,13 @@
 #' x <- array(rnorm(prod(dims))^2, dims)
 #' # Set baseline window to be arbitrary 10 timepoints
 #' baseline_window <- seq_len(100)
-#' f1 <- function(){
-#'   aperm(apply(x, c(1,2,4), function(y){
+#' f1 <- function() {
+#'   aperm(apply(x, c(1,2,4), function(y) {
 #'     m <- mean(y[baseline_window])
 #'     (y/m - 1) * 100
 #'   }), c(2,3,1,4))
 #' }
-#' f2 <- function(){
+#' f2 <- function() {
 #'   # equivalent as bl = x[,,baseline_window, ]
 #'   #
 #'   baseline_array(x, along_dim = 3,
@@ -150,16 +150,16 @@ baseline_array <- function(x, along_dim, unit_dims = seq_along(dim(x))[-along_di
   along_dim <- as.integer(along_dim)
   unit_dims <- as.integer(unit_dims)
 
-  stopifnot2(along_dim >=1 && along_dim <= length(dims), msg = paste0(
-    sQuote('along_dim'), ' is invalid, it must be an integer from 1 to ',
+  stopifnot2(along_dim >= 1 && along_dim <= length(dims), msg = paste0(
+    sQuote("along_dim"), " is invalid, it must be an integer from 1 to ",
     length(dims)
   ))
 
   # unit_dims is baseline unit,
-  stopifnot2(!any(is.na(unit_dims)), msg = paste0(sQuote('unit_dims'), ' contains NAs'))
-  stopifnot2(all(unit_dims %in% seq_along(dims)), msg = paste0(sQuote('unit_dims'), ' has invalid dimensions'))
+  stopifnot2(!any(is.na(unit_dims)), msg = paste0(sQuote("unit_dims"), " contains NAs"))
+  stopifnot2(all(unit_dims %in% seq_along(dims)), msg = paste0(sQuote("unit_dims"), " has invalid dimensions"))
   stopifnot2(!along_dim %in% unit_dims, msg = paste0(
-    sQuote('along_dim'), ' cannot be inside of ', sQuote('unit_dims')))
+    sQuote("along_dim"), " cannot be inside of ", sQuote("unit_dims")))
   unit_dims <- sort(unit_dims)
 
   UseMethod("baseline_array")
@@ -186,20 +186,20 @@ baseline_array.array <- function(
 
   stopifnot2(!(is.null(baseline_indexpoints) && is.null(baseline_subarray)),
              msg = "Either `baseline_indexpoints` or `baseline_subarray` must be specified")
-  if(!is.null(baseline_indexpoints)) {
+  if (!is.null(baseline_indexpoints)) {
     baseline_indexpoints <- as.integer(baseline_indexpoints)
     # calculate baseline window
     baseline_indexpoints <- baseline_indexpoints[!is.na(baseline_indexpoints) & baseline_indexpoints > 0 & baseline_indexpoints <= ntimepoints]
     baseline_indexpoints <- sort(baseline_indexpoints)
-    stopifnot2(length(baseline_indexpoints) > 0, msg = paste0('Baseline window is invalid: cannot find any valid time points. \nPlease makesure ', sQuote('baseline_indexpoints'), ' contains at least one integer from 1 to ', ntimepoints))
-    call_args <- lapply(seq_along(dims), function(ii){
-      if(ii == along_dim){
+    stopifnot2(length(baseline_indexpoints) > 0, msg = paste0("Baseline window is invalid: cannot find any valid time points. \nPlease makesure ", sQuote("baseline_indexpoints"), " contains at least one integer from 1 to ", ntimepoints))
+    call_args <- lapply(seq_along(dims), function(ii) {
+      if (ii == along_dim) {
         return(quote(baseline_indexpoints))
       }
       .missing_arg[[1]]
     })
     call_args <- c(list(quote(x)), call_args, list(drop = FALSE))
-    bl <- do.call('[', call_args)
+    bl <- do.call("[", call_args)
     bldims <- dim(bl)
   } else {
     stopifnot2(
@@ -228,7 +228,7 @@ baseline_array.array <- function(
   # re <- .Call(`_ravetools_baselineArray`, x, bl2, dims, bldims2, along_dim - 1L, unit_dims - 1L, rest - 1L, method_int - 1L)
 
   re <- .Call(`_ravetools_baselineArray`, x, bl, dims, bldims, along_dim - 1L, unit_dims - 1L, rest - 1L, method_int - 1L)
-  if(inherits(re, "ravetools_error")){
+  if (inherits(re, "ravetools_error")) {
     stop(re)
   }
   re

@@ -1,10 +1,10 @@
 # core util functions in signal filter
 
 clamp <- function(x, min = NA, max = NA) {
-  if(!is.na(min)) {
+  if (!is.na(min)) {
     x[x < min] <- min
   }
-  if(!is.na(max)) {
+  if (!is.na(max)) {
     x[x > max] <- max
   }
   x
@@ -15,13 +15,13 @@ sineint <- function(x) {
   neg <- x < 0
   x[neg] <- -x[neg]
 
-  re <- Im( pracma::expint( 1i * x ) ) + pi/2
+  re <- Im(pracma::expint(1i * x)) + pi / 2
   re[neg] <- -re[neg]
   re[x == 0] <- 0
   re
 }
 
-polyval <- function (coef, z)
+polyval <- function(coef, z)
 {
   lz <- length(z)
   if (!lz)
@@ -54,7 +54,7 @@ NULL
 
 #' @rdname filter-window
 #' @export
-hanning <- function (n) {
+hanning <- function(n) {
   if (!(n == round(n) && n > 0)) {
     stop("n has to be an integer > 0")
   }
@@ -62,14 +62,14 @@ hanning <- function (n) {
   if (n == 1) {
     c <- 1
   } else {
-    c <- 0.5 - 0.5 * cos(2 * pi * seq(0, n - 1)/(n - 1))
+    c <- 0.5 - 0.5 * cos(2 * pi * seq(0, n - 1) / (n - 1))
   }
   c
 }
 
 #' @rdname filter-window
 #' @export
-hamming <- function (n) {
+hamming <- function(n) {
   if (!(n == round(n) && n > 0)) {
     stop("n has to be an integer > 0")
   }
@@ -78,7 +78,7 @@ hamming <- function (n) {
     c <- 1
   } else {
     n <- n - 1
-    c <- 0.54 - 0.46 * cos(2 * pi * (0:n)/n)
+    c <- 0.54 - 0.46 * cos(2 * pi * (0:n) / n)
   }
   c
 }
@@ -168,14 +168,14 @@ bohmanwin <- function(n) {
 }
 
 # ---- fft transform -----------------------------------------------------------
-fft <- function(x, inverse = FALSE){
-  if(inverse){
+fft <- function(x, inverse = FALSE) {
+  if (inverse) {
     fftw_c2r(x)
   } else {
     fftw_r2c(x)
   }
 }
-ifft <- function(x){
+ifft <- function(x) {
   fftw_c2r(x) / length(x)
 }
 
@@ -334,12 +334,12 @@ check_filter_params <- function(
 #' @export
 rcond_filter_ar <- function(a) {
   z1_r <- length(a)
-  if(z1_r == 1) { return(1) }
+  if (z1_r == 1) { return(1) }
 
-  if(a[[1]] == 0) { stop("ARMA filter AR[1] must not be zero") }
+  if (a[[1]] == 0) { stop("ARMA filter AR[1] must not be zero") }
   a <- a / a[[1]]
 
-  if(z1_r == 2) { return( 1 + a[-1] ) }
+  if (z1_r == 2) { return( 1 + a[-1] ) }
   z1 <- diag(1, z1_r - 1) - cbind( -a[-1], rbind(diag(1, z1_r - 2), 0) )
   rcon <- abs(rcond(z1))
   rcon
@@ -391,7 +391,7 @@ check_filter <- function(b, a, w = NULL, r_expected = NULL, fs = NULL) {
 
   # r_expected <- abs(r_expected)
 
-  if(length(w)) {
+  if (length(w)) {
     attenuation <- data.frame(
       frequency = w,
       expected_db = r_expected,
@@ -427,7 +427,7 @@ check_filter <- function(b, a, w = NULL, r_expected = NULL, fs = NULL) {
   rcond_passed <- rcon > .Machine$double.eps
   attenuation <- x$attenuation
   sample_rate <- x$fs
-  if(length(sample_rate) == 1 && is.numeric(sample_rate) && !is.na(sample_rate)) {
+  if (length(sample_rate) == 1 && is.numeric(sample_rate) && !is.na(sample_rate)) {
     nyquist <- sample_rate / 2
     unit <- "Hz"
   } else {
@@ -435,7 +435,7 @@ check_filter <- function(b, a, w = NULL, r_expected = NULL, fs = NULL) {
     unit <- "xPi rad/s"
   }
 
-  if(!isTRUE(rcon > .Machine$double.eps)) {
+  if (!isTRUE(rcon > .Machine$double.eps)) {
     warn <- c("", "WARNING: ", " * Unstable autoregressive (AR) polynomial coefficients")
   } else {
     warn <- NULL

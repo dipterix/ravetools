@@ -22,7 +22,7 @@ vcg_uniform_remesh(
 
 \item{offset}{offset position shift of the new surface from the input}
 
-\item{discretize}{whether to use step function (\code{TRUE}) instead of
+\item{discretize}{whether to use step function(\code{TRUE}) instead of
 linear interpolation (\code{FALSE}) to calculate the position of the
 intersected edge of the marching cube; default is \code{FALSE}}
 

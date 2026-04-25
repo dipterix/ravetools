@@ -132,7 +132,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
     pulse_onset_idx <- pulse_onset_idx[vapply(pulse_onset_idx, function(idx) {
 
       last_idx2 <- last_idx
-      if(idx - last_idx2 >= min_idx_gap) {
+      if (idx - last_idx2 >= min_idx_gap) {
         last_idx <<- idx
         return(TRUE)
       }
@@ -154,7 +154,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
 
       last_idx2 <- last_idx
       last_idx <<- idx
-      if(idx - last_idx2 >= min_idx_gap) {
+      if (idx - last_idx2 >= min_idx_gap) {
         return(TRUE)
       }
       return(FALSE)
@@ -167,7 +167,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
   match_n_pulses <- function(min_threshold, max_threshold, n_pulses, sdff) {
     # print(c(min_threshold, max_threshold))
     pulse_onset_idx1 <- find_onsets(min_threshold, sdff = sdff)
-    if(length(pulse_onset_idx1) <= n_pulses || (max_threshold - min_threshold) <= 0) {
+    if (length(pulse_onset_idx1) <= n_pulses || (max_threshold - min_threshold) <= 0) {
       return(list(
         pulse_onset_idx = pulse_onset_idx1,
         threshold = min_threshold
@@ -175,7 +175,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
     }
 
     pulse_onset_idx2 <- find_onsets(max_threshold, sdff = sdff)
-    if(length(pulse_onset_idx2) >= n_pulses ||
+    if (length(pulse_onset_idx2) >= n_pulses ||
        length(pulse_onset_idx2) == length(pulse_onset_idx1)) {
       return(list(
         pulse_onset_idx = pulse_onset_idx2,
@@ -189,7 +189,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
       n_pulses = n_pulses,
       sdff = sdff
     )
-    if(length(re$pulse_onset_idx) == n_pulses) { return(re) }
+    if (length(re$pulse_onset_idx) == n_pulses) { return(re) }
 
     re <- match_n_pulses(
       min_threshold = (min_threshold + max_threshold) / 2,
@@ -197,11 +197,11 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
       n_pulses = n_pulses,
       sdff = sdff
     )
-    if(length(re$pulse_onset_idx) == n_pulses) { return(re) }
+    if (length(re$pulse_onset_idx) == n_pulses) { return(re) }
   }
 
-  if(is.na(threshold)) {
-    if(is.na(n_pulses)) {
+  if (is.na(threshold)) {
+    if (is.na(n_pulses)) {
       threshold <- abs(median(signal_diff)) + 4 * stats::sd(signal_diff)
       pulse_onset_idx <- find_onsets(threshold, signal_diff)
       n_pulses <- length(pulse_onset_idx)
@@ -213,7 +213,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
         n_pulses = n_pulses,
         sdff = signal_diff
       )
-      if(
+      if (
         length(matched$pulse_onset_idx) == n_pulses &&
         all(abs(matched$pulse_onset_idx - pulse_onset_idx) < min_idx_gap)
       ) {
@@ -238,7 +238,7 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
   n_pulses <- length(pulse_onset_idx)
 
   # TODO: what if no pulse detected?
-  if(!n_pulses) {
+  if (!n_pulses) {
     stop("No stimulation pulse detected. Please set the signal threshold manually")
   }
 
@@ -254,11 +254,11 @@ stimpulse_find <- function(signal, sample_rate, pulse_duration, n_pulses = NA, t
   # pulse_offset_idx might mismatch with pulse_onset_idx
   duration_idx <- vapply(pulse_onset_idx, function(idx) {
     tmp <- pulse_offset_idx[pulse_offset_idx > idx]
-    if(length(tmp)) { return( tmp[[1]] - idx ) }
+    if (length(tmp)) { return( tmp[[1]] - idx ) }
     return(NA_integer_)
   }, FUN.VALUE = 0L)
 
-  if(all(is.na(duration_idx))) {
+  if (all(is.na(duration_idx))) {
     duration_idx[] <- min_idx_gap
   } else {
     duration_idx[is.na(duration_idx)] <- max(duration_idx, na.rm = TRUE)
@@ -292,7 +292,7 @@ stimpulse_extract <- function(signal, pulse_info, expand_timepoints = c(-10, 20)
     signal[idx + time_points_delta]
   }, simplify = TRUE)
 
-  if( center ) {
+  if ( center ) {
     m <- apply(pulses, 2, median, na.rm = TRUE)
     pulses <- t(t(pulses) - m)
   }
@@ -314,7 +314,7 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
   # lines(rowMeans(pulses_snippets), col = 'red')
   # expand_timepoints <- c(-10, 20)
 
-  if(length(pulse_info$onset_index) == 0) {
+  if (length(pulse_info$onset_index) == 0) {
     stop("No stimulation pulse is specified")
   }
 
@@ -338,7 +338,7 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
   # stim_averaged <- apply(pulses_centered, 1L, median)
   # stim_averaged <- rowMeans(pulses_centered)
   stim_averaged <- apply(pulses_centered, 1L, function(x) {
-    if(mean(x) > 0) {
+    if (mean(x) > 0) {
       quantile(x, 0.75)
     } else {
       quantile(x, 0.25)
@@ -353,7 +353,7 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
 
   peaks <- find_peaks(abs(stim_averaged), min_distance = 2)$index
 
-  if(length(peaks) > 0) {
+  if (length(peaks) > 0) {
     neg_mask <- rep(TRUE, length(offsets_template))
     neg_mask[unlist(lapply(peaks, function(idx) {
       idx + offsets_template
@@ -368,7 +368,7 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
 
     conv <- sapply(offsets_template, function(offset) {
 
-      if(offset > 0) {
+      if (offset > 0) {
         slice <- c(rep(NA_real_, offset), slice)[seq_along(stim_averaged)]
       } else if (offset < 0) {
         slice <- rev(c(rep(NA_real_, -offset), rev(slice))[seq_along(stim_averaged)])
@@ -407,7 +407,7 @@ stimpulse_align <- function(signal, pulse_info, expand_timepoints = c(-10, 20)) 
 #' @export
 stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = c(-0.0002, 0.0005)) {
 
-  if(length(pulse_info$onset_index) == 0) {
+  if (length(pulse_info$onset_index) == 0) {
     stop("No stimulation pulse is specified")
   }
 
@@ -420,7 +420,7 @@ stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = 
   # load -pre_points to post_points to interpolate
   max_duration_npts <- max(offset_index - onset_index) + 1
   pre_points <- min(finish - start) - 1
-  post_points <-max_duration_npts + min(finish - start, 100) - 1
+  post_points <- max_duration_npts + min(finish - start, 100) - 1
 
 
   time_points_template <- seq(-pre_points, post_points)
@@ -483,16 +483,16 @@ stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = 
   nknots <- 50
   ord <- 4
   regularization <- 0.01
-  nknots2 <- ceiling(plan[3,] / sum(plan[3,]) * (nknots - ord))
-  while(sum(nknots2) > nknots - ord) {
+  nknots2 <- ceiling(plan[3, ] / sum(plan[3, ]) * (nknots - ord))
+  while (sum(nknots2) > nknots - ord) {
     tmp <- which.max(nknots2)
-    if(nknots2[tmp] >= 2) {
+    if (nknots2[tmp] >= 2) {
       nknots2[tmp] <- nknots2[tmp] - 1
     } else {
       break
     }
   }
-  plan[3,] <- nknots2
+  plan[3, ] <- nknots2
   plan <- plan[, nknots2 > 0, drop = FALSE]
 
 
@@ -507,7 +507,7 @@ stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = 
   })
 
   knots <- sort(as.double(unlist(knots)))
-  if(length(knots) > nknots - ord) {
+  if (length(knots) > nknots - ord) {
     knots <- knots[seq_len(nknots - ord)]
   }
 
@@ -526,7 +526,7 @@ stimpulse_interpolate <- function(signal, sample_rate, pulse_info, max_offset = 
       sparse = FALSE
     )
   )
-  if(!inherits(B, "matrix")) {
+  if (!inherits(B, "matrix")) {
     class(B) <- "matrix"
   }
   bbt <- tcrossprod(B)

@@ -37,16 +37,16 @@ NULL
 check_rgl <- function(strict = NA) {
   rgl_unavailable <- function() {
     msg <- "Package `rgl` is not installed. Please install `rgl` to use this function."
-    if(isTRUE(strict)) {
+    if (isTRUE(strict)) {
       stop(msg)
-    } else if(is.na(strict)) {
+    } else if (is.na(strict)) {
       message(msg)
     }
     FALSE
   }
-  if(identical(Sys.getenv("RAVETOOLS_RGL_DISABLED"), "1")) { return(rgl_unavailable()) }
-  if( getOption("ravetools.rgl.disabled", FALSE) ) { return(rgl_unavailable()) }
-  if( system.file(package = "rgl") == "" ) { return(rgl_unavailable()) }
+  if (identical(Sys.getenv("RAVETOOLS_RGL_DISABLED"), "1")) { return(rgl_unavailable()) }
+  if ( getOption("ravetools.rgl.disabled", FALSE) ) { return(rgl_unavailable()) }
+  if ( system.file(package = "rgl") == "" ) { return(rgl_unavailable()) }
   TRUE
 }
 
@@ -60,7 +60,7 @@ rgl_call <- function(FUN, ...) {
   options(rgl.useNULL = TRUE)
   rgl <- asNamespace("rgl")
   f <- rgl[[FUN]]
-  if(!is.function(f)) {
+  if (!is.function(f)) {
     stop("Function ", FUN, " is not a `rgl` function.")
   }
   rgl[[FUN]](...)
@@ -70,7 +70,7 @@ rgl_call <- function(FUN, ...) {
 #' @export
 rgl_view <- function(expr, quoted = FALSE, env = parent.frame()) {
   # Suppress RGL
-  if(!quoted) {
+  if (!quoted) {
     expr <- substitute(expr)
   }
   dev <- rgl_call("open3d")
@@ -83,7 +83,7 @@ rgl_view <- function(expr, quoted = FALSE, env = parent.frame()) {
 
 #' @rdname rgl-call
 #' @export
-rgl_plot_normals <- function (x, length = 1, lwd = 1, col = 1, ...) {
+rgl_plot_normals <- function(x, length = 1, lwd = 1, col = 1, ...) {
   if (!"mesh3d" %in% class(x)) {
     stop("please provide object of class mesh3d")
   }

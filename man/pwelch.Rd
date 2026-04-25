@@ -125,7 +125,7 @@ following items:
 \describe{
 \item{\code{freq}}{frequencies used to calculate the 'periodogram'}
 \item{\code{spec}}{resulting spectral power for each frequency}
-\item{\code{window}}{window function (in numerical vector) used}
+\item{\code{window}}{window function(in numerical vector) used}
 \item{\code{noverlap}}{number of overlapping time-points between two adjacent windows}
 \item{\code{nfft}}{number of basis functions}
 \item{\code{fs}}{sample rate}

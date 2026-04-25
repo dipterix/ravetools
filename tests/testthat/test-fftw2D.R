@@ -1,6 +1,6 @@
 test_that("fftw_r2c_2d", {
   # even margins
-  x <- array(rnorm(1000), c(20,50))
+  x <- array(rnorm(1000), c(20, 50))
 
   a <- fftwtools::fftw_r2c_2d(x, HermConj = 1)
   b <- ravetools:::fftw_r2c_2d(x, HermConj = 1)
@@ -24,13 +24,13 @@ test_that("fftw_r2c_2d", {
   b <- ravetools:::fftw_r2c_2d(x, HermConj = 1)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
-  a <- t(fftwtools::fftw_r2c_2d(t(x), HermConj = 0))[1:501,1, drop = FALSE]
+  a <- t(fftwtools::fftw_r2c_2d(t(x), HermConj = 0))[1:501, 1, drop = FALSE]
   b <- ravetools:::fftw_r2c_2d(x, HermConj = 0)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
 
   # odd
-  x <- array(rnorm(1071), c(21,51))
+  x <- array(rnorm(1071), c(21, 51))
 
   a <- fftwtools::fftw_r2c_2d(x, HermConj = 1)
   b <- ravetools:::fftw_r2c_2d(x, HermConj = 1)
@@ -54,7 +54,7 @@ test_that("fftw_r2c_2d", {
   b <- ravetools:::fftw_r2c_2d(x, HermConj = 1)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
-  a <- t(fftwtools::fftw_r2c_2d(t(x), HermConj = 0))[1:536,1, drop = FALSE]
+  a <- t(fftwtools::fftw_r2c_2d(t(x), HermConj = 0))[1:536, 1, drop = FALSE]
   b <- ravetools:::fftw_r2c_2d(x, HermConj = 0)
   testthat::expect_equal(b, a, tolerance = 1e-10)
 
@@ -81,7 +81,7 @@ test_that("fftw_r2c_2d", {
 
 test_that("fftw_c2c_2d", {
   # even margins
-  x <- array(rnorm(1000), c(20,50))
+  x <- array(rnorm(1000), c(20, 50))
 
   a <- fftwtools::fftw_c2c_2d(x, inverse = 1)
   b <- ravetools:::fftw_c2c_2d(x, inverse = 1)
@@ -111,7 +111,7 @@ test_that("fftw_c2c_2d", {
 
 
   # odd
-  x <- array(rnorm(1071), c(21,51))
+  x <- array(rnorm(1071), c(21, 51))
 
   a <- fftwtools::fftw_c2c_2d(x, inverse = 1)
   b <- ravetools:::fftw_c2c_2d(x, inverse = 1)

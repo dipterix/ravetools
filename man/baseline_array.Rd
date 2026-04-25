@@ -131,7 +131,7 @@ baseline_window = sample(30, 10)
 # ----- baseline percentage change ------
 
 # Using base functions
-re1 <- aperm(apply(x, c(1,2,4), function(y){
+re1 <- aperm(apply(x, c(1,2,4), function(y) {
   m <- mean(y[baseline_window])
   (y/m - 1) * 100
 }), c(2,3,1,4))
@@ -153,13 +153,13 @@ dims <- c(200,20,300,2)
 x <- array(rnorm(prod(dims))^2, dims)
 # Set baseline window to be arbitrary 10 timepoints
 baseline_window <- seq_len(100)
-f1 <- function(){
-  aperm(apply(x, c(1,2,4), function(y){
+f1 <- function() {
+  aperm(apply(x, c(1,2,4), function(y) {
     m <- mean(y[baseline_window])
     (y/m - 1) * 100
   }), c(2,3,1,4))
 }
-f2 <- function(){
+f2 <- function() {
   # equivalent as bl = x[,,baseline_window, ]
   #
   baseline_array(x, along_dim = 3,

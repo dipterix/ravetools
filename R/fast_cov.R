@@ -55,30 +55,30 @@
 #'
 #'
 #' @export
-fast_cov <- function(x, y = NULL, col_x = NULL, col_y = NULL, df = NA){
-  if(!is.matrix(x)){
+fast_cov <- function(x, y = NULL, col_x = NULL, col_y = NULL, df = NA) {
+  if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
   stopifnot(is.matrix(x) && (is.numeric(x) || is.logical(x)))
-  if(is.null(y)){
+  if (is.null(y)) {
     y <- x
   } else {
-    if(!is.matrix(y)){
+    if (!is.matrix(y)) {
       y <- as.matrix(y)
     }
     stopifnot(is.matrix(x) && (is.numeric(x) || is.logical(x)))
   }
-  if(!is.null(col_x)){
+  if (!is.null(col_x)) {
     col_x <- as.integer(col_x)
   }
-  if(!is.null(col_y)){
+  if (!is.null(col_y)) {
     col_y <- as.integer(col_y)
   }
-  if(!is.finite(df) || df <= 0){
+  if (!is.finite(df) || df <= 0) {
     df <- nrow(x) - 1
   }
   re <- fastcov(x1 = x, x2 = y, col1 = col_x, col2 = col_y, df = df)
-  if(inherits(re, "ravetools_error")){
+  if (inherits(re, "ravetools_error")) {
     stop(re)
   }
   re

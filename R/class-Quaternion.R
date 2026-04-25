@@ -10,28 +10,28 @@ Quaternion <- R6::R6Class(
     is_quaternion = function() { TRUE },
     pointer = function() { private$.extern_ptr },
     x = function( v ) {
-      if(!missing(v)) {
+      if (!missing(v)) {
         v <- as.double(v)[[1]]
         Quaternion__setX(private$.extern_ptr, v)
       }
       Quaternion__getX(private$.extern_ptr)
     },
     y = function( v ) {
-      if(!missing(v)) {
+      if (!missing(v)) {
         v <- as.double(v)[[1]]
         Quaternion__setY(private$.extern_ptr, v)
       }
       Quaternion__getY(private$.extern_ptr)
     },
     z = function( v ) {
-      if(!missing(v)) {
+      if (!missing(v)) {
         v <- as.double(v)[[1]]
         Quaternion__setZ(private$.extern_ptr, v)
       }
       Quaternion__getZ(private$.extern_ptr)
     },
     w = function( v ) {
-      if(!missing(v)) {
+      if (!missing(v)) {
         v <- as.double(v)[[1]]
         Quaternion__setW(private$.extern_ptr, v)
       }
@@ -157,7 +157,7 @@ new_quaternion <- function(x = 0, y = 0, z = 0, w = 1) {
 
 #' @export
 `[.Quaternion` <- function(x, i, ..., drop = TRUE) {
-  if(missing(i)) {
+  if (missing(i)) {
     x$to_array()
   } else {
     x$to_array()[i]
@@ -173,8 +173,8 @@ new_quaternion <- function(x = 0, y = 0, z = 0, w = 1) {
 #' @rdname new_quaternion
 #' @export
 as_quaternion <- function(q) {
-  if(R6::is.R6(q) && isTRUE(q$is_quaternion)) { return(q) }
-  if(length(q) != 4) {
+  if (R6::is.R6(q) && isTRUE(q$is_quaternion)) { return(q) }
+  if (length(q) != 4) {
     stop("`as_quaternion`: length of `q` must be a vector of 4 numbers.")
   }
   new_quaternion(q[[1]], q[[2]], q[[3]], q[[4]])

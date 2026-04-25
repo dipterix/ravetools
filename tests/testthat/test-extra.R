@@ -5,7 +5,7 @@ test_that("Extra local tests", {
   skip_if_not(dir.exists(path))
 
   fs <- list.files(path, full.names = TRUE, pattern = "\\.R$", ignore.case = TRUE)
-  for(f in fs) {
+  for (f in fs) {
     source(f, local = TRUE, chdir = TRUE)
   }
 

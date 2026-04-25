@@ -43,7 +43,7 @@
 #' z <- shift_array(x, 3, 1, shift_amount)
 #'
 #' oldpar <- par(mfrow = c(3, 2), mai = c(0.8, 0.6, 0.4, 0.1))
-#' for( ii in 1:3 ){
+#' for( ii in 1:3 ) {
 #'   image(t(x[ii, ,]), ylab = 'Frequency', xlab = 'Time',
 #'         main = paste('Trial', ii))
 #'   image(t(z[ii, ,]), ylab = 'Frequency', xlab = 'Time',
@@ -62,21 +62,21 @@ shift_array.array <- function(x, along_margin, unit_margin, shift_amount) {
   along_margin <- as.integer(along_margin)[[1]]
   unit_margin <- as.integer(unit_margin)[[1]]
 
-  if(is.na(along_margin) || is.na(unit_margin)){
+  if (is.na(along_margin) || is.na(unit_margin)) {
     stop("`shift_array`: `along_margin` and `unit_margin` cannot contain NA")
   }
   xdim <- dim(x)
 
-  if(!is.integer(xdim)){
+  if (!is.integer(xdim)) {
     xdim_int <- as.integer(xdim)
-    if(!all(xdim_int == xdim)) {
+    if (!all(xdim_int == xdim)) {
       stop("Array `x` has large dimension (>= 2^31 elements) that cannot be indexed by integers.")
     }
     dim(x) <- xdim_int
   }
 
   re <- shiftArray(x, along_margin, unit_margin, shift_amount)
-  if(inherits(re, "ravetools_error")){
+  if (inherits(re, "ravetools_error")) {
     stop(re)
   }
   re

@@ -106,7 +106,7 @@
 #   Rs <- abs(r)
 #   Rc <- 10 * log10(2)
 #
-#   if( abs(Rs - Rc) < 1e-7 ) {
+#   if ( abs(Rs - Rc) < 1e-7 ) {
 #     return(Ws)
 #   }
 #
@@ -117,7 +117,7 @@
 #   qs <- 10 ^ (abs(Rs) / 10)
 #   qc <- 10 ^ (abs(Rc) / 10)
 #   # n <- ceiling(acosh(sqrt((cutt_atten - 1)/(pass_atten - 1)))/acosh(Wa))
-#   if( qc > qs ) {
+#   if ( qc > qs ) {
 #     ws_wc <- cosh( acosh(sqrt((qc - 1)/(qs - 1))) / n )
 #   } else {
 #     ws_wc <- 1 / cosh( acosh(sqrt((qs - 1)/(qc - 1))) / n )

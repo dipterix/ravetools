@@ -49,17 +49,17 @@ ensure_mesh3d <- function(surface) {
   if (inherits(surface, "fs.surface")) {
     # surface <- freesurferformats::fs.surface.to.tmesh3d( surface )
     face <- t(surface$faces)
-    if( min(face, na.rm = TRUE) == 0 ) {
+    if ( min(face, na.rm = TRUE) == 0 ) {
       face <- face + 1
     }
     surface <- structure(list(
       vb = rbind(t(surface$vertices), 1),
       it = face), class = "mesh3d")
-  } else if(inherits(surface, "ieegio_surface")) {
-    if(!inherits(surface, "ieegio_surface_contains_geometry")) {
+  } else if (inherits(surface, "ieegio_surface")) {
+    if (!inherits(surface, "ieegio_surface_contains_geometry")) {
       stop("Surface object has no geometry")
     }
-    if(isTRUE(surface$sparse) || !length(surface$sparse_node_index)) {
+    if (isTRUE(surface$sparse) || !length(surface$sparse_node_index)) {
       vertices <- surface$geometry$vertices
     } else {
       node_index <- surface$sparse_node_index
@@ -69,9 +69,9 @@ ensure_mesh3d <- function(surface) {
     }
 
     face <- surface$geometry$faces
-    if(length(face)) {
+    if (length(face)) {
       face_start <- surface$geometry$face_start
-      if(length(face_start) == 1 && !isTRUE(face_start == 1)) {
+      if (length(face_start) == 1 && !isTRUE(face_start == 1)) {
         face <- face - face_start + 1L
       }
       storage.mode(face) <- "integer"
@@ -86,7 +86,7 @@ ensure_mesh3d <- function(surface) {
   }
   if (!inherits(surface, "mesh3d")) {
     # check if surface has names
-    if(
+    if (
       is.list(surface) &&
       "vb" %in% names(surface) &&
       is.matrix(surface$vb) &&
@@ -113,24 +113,24 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   # inflate <- 3
 
   inflate <- as.integer(inflate)
-  if(inflate < 0) { inflate <- 0 }
+  if (inflate < 0) { inflate <- 0 }
 
   # setup
   preview2D <- function(expr) {
     expr <- substitute(expr)
-    if(interactive() && preview) {
+    if (interactive() && preview) {
       eval(expr)
     }
   }
 
   # Initialize the parameters
   resolution <- 256L
-  if(length(IJK2RAS) != 16L) {
+  if (length(IJK2RAS) != 16L) {
     IJK2RAS <- matrix(
       nrow = 4, byrow = TRUE,
-      c(-1, 0, 0, resolution/2,
-        0, 0, 1, -resolution/2,
-        0, -1, 0, resolution/2,
+      c(-1, 0, 0, resolution / 2,
+        0, 0, 1, -resolution / 2,
+        0, -1, 0, resolution / 2,
         0, 0, 0, 1))
   }
 
@@ -154,7 +154,7 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   volume <- array(0L, dim = rep(resolution, 3))
 
   # embed the surface in volume space
-  surface_index <- round(surface$vb[c(1,2,3), ])
+  surface_index <- round(surface$vb[c(1, 2, 3), ])
   surface_index <- surface_index[1, ] + surface_index[2, ] * resolution +
     surface_index[3, ] * (resolution^2) + 1
   volume[surface_index] <- 1L
@@ -174,19 +174,20 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   # preview
   preview2D({
     oldPar <- graphics::par(c("mfrow", "mar"))
-    graphics::par(mfrow = c(1,3), mar = c(3.1, 0.1, 3.1, 0.1))
+    graphics::par(mfrow = c(1, 3),
+                  mar = c(3.1, 0.1, 3.1, 0.1))
     on.exit({ do.call(graphics::par, oldPar) })
 
     frame <- as.integer(preview_frame)
-    if(is.na(frame) || frame <= 1 || frame > resolution) {
+    if (is.na(frame) || frame <= 1 || frame > resolution) {
       frame <- ceiling(resolution / 2)
     }
 
-    image(volume[,,frame], axes = FALSE, main = "1. Initial surface embed", asp = 1)
+    image(volume[, , frame], axes = FALSE, main = "1. Initial surface embed", asp = 1)
 
-    image(volume_grew[,,frame] + volume[,,frame], axes = FALSE, main = "2. Grow voxels", asp = 1)
+    image(volume_grew[, , frame] + volume[, , frame], axes =  FALSE, main = "2. Grow voxels", asp = 1)
 
-    image(volume2[,,frame] + volume[,,frame], axes = FALSE, main = "3. Bucket-fill+shrink", asp = 1)
+    image(volume2[, , frame] + volume[, , frame], axes = FALSE,  main = "3. Bucket-fill+shrink", asp = 1)
 
   })
 

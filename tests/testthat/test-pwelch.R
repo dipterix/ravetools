@@ -1,7 +1,18 @@
 test_that("pwelch", {
-  rave_pwelch <- function (x, fs, window = 64, noverlap = 8, nfft = 256, col = "black",
-                           xlim = NULL, ylim = NULL, main = "Welch periodogram", plot = TRUE,
-                           log = "xy", spec_func = stats::spectrum, cex = 1, ...)
+  rave_pwelch <- function(x,
+                          fs,
+                          window = 64,
+                          noverlap = 8,
+                          nfft = 256,
+                          col = "black",
+                          xlim = NULL,
+                          ylim = NULL,
+                          main = "Welch periodogram",
+                          plot = TRUE,
+                          log = "xy",
+                          spec_func = stats::spectrum,
+                          cex = 1,
+                          ...)
   {
     x <- as.vector(x)
     x_len <- length(x)
@@ -17,22 +28,39 @@ test_that("pwelch", {
       a <- fftwtools::fftw_r2c(postpad(a$Y * window, nfft))
       Mod(a)^2
     })
-    NN <- ceiling((nfft + 1)/2)
-    freq <- seq(0, fs/2, length.out = NN)
-    spec <- rowMeans(re[seq_len(NN), , drop = F])/ window_len #(window_len/2)^2
-    res <- list(freq = freq, spec = spec, method = "Welch")
+    NN <- ceiling((nfft + 1) / 2)
+    freq <- seq(0, fs / 2, length.out = NN)
+    spec <- rowMeans(re[seq_len(NN), , drop = FALSE]) / window_len #(window_len/2)^2
+    res <- list(freq = freq,
+                spec = spec,
+                method = "Welch")
     return(invisible(res))
   }
 
 
   x <- rnorm(10000)
-  a <- pwelch(x, fs = 100, window = 64, noverlap = 6, nfft = 256, plot = FALSE, window_family = hanning)
-  b <- rave_pwelch(x, fs = 100, window = 64, noverlap = 6, nfft = 256, log = '')
+  a <- pwelch(
+    x,
+    fs = 100,
+    window = 64,
+    noverlap = 6,
+    nfft = 256,
+    plot = FALSE,
+    window_family = hanning
+  )
+  b <- rave_pwelch(
+    x,
+    fs = 100,
+    window = 64,
+    noverlap = 6,
+    nfft = 256,
+    log = ""
+  )
 
   expect_equal(a$freq, b$freq)
   expect_equal(a$spec, b$spec)
 
-  # if(FALSE){
+  # if(FALSE) {
   #   x <- rnorm(600000)
   #   microbenchmark::microbenchmark(
   #     rave = {

@@ -55,10 +55,10 @@ register_volume <- function(
     nearest = 0L
   )[[interpolation]]
 
-  if(isTRUE(is.character(source))) {
+  if (isTRUE(is.character(source))) {
     source <- RNiftyReg::readNifti(source)
   }
-  if(isTRUE(is.character(target))) {
+  if (isTRUE(is.character(target))) {
     target <- RNiftyReg::readNifti(target)
   }
 

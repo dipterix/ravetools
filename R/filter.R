@@ -101,14 +101,14 @@ design_filter <- function(
     ..., data_size = length(data)
 ) {
   method <- match.arg(method)
-  if(data_size <= 0) {
+  if (data_size <= 0) {
     data_size <- NA
   }
-  if(length(data) && is.na(data_size)) {
+  if (length(data) && is.na(data_size)) {
     data_size <- floor(length(data) - 1) / 3
   }
 
-  if( startsWith(method, "fir") ) {
+  if ( startsWith(method, "fir") ) {
     method <- list(
       fir_kaiser = "kaiser",
       firls = "firls",
@@ -140,7 +140,7 @@ design_filter <- function(
     )
   }
 
-  if(length(data)) {
+  if (length(data)) {
     re <- filtfilt(b = filter$b, a = filter$a, x = data)
   } else {
     re <- filter
@@ -296,15 +296,15 @@ design_filter_iir <- function(
 
   # suggested bandwidth if bandwidths are NA
 
-  if(is.na(low_pass_trans_freq)) {
+  if (is.na(low_pass_trans_freq)) {
     low_pass_trans_freq <- min(max(0.25 * low_pass_freq, 2), low_pass_freq)
   }
-  if(is.na(high_pass_trans_freq)) {
+  if (is.na(high_pass_trans_freq)) {
     high_pass_trans_freq <- min(max(0.25 * high_pass_freq, 2), sample_rate / 2 - high_pass_freq)
   }
 
   # determine the filter type
-  if( is.na(high_pass_freq) ) {
+  if ( is.na(high_pass_freq) ) {
     ftype <- "low"
     w_pass <- low_pass_freq / nyquist
     w_trans <- low_pass_trans_freq / nyquist
@@ -321,13 +321,13 @@ design_filter_iir <- function(
     w_pass <- c(high_pass_freq, low_pass_freq) / nyquist
     w_trans <- c(high_pass_trans_freq, low_pass_trans_freq) / nyquist
 
-    w_stop <- clamp( w_pass + c(-1, 1) * abs(w_trans) , min = 0, max = 1)
+    w_stop <- clamp(w_pass + c(-1, 1) * abs(w_trans), min = 0, max = 1)
   } else {
     ftype <- "stop"
     w_pass <- c(low_pass_freq, high_pass_freq) / nyquist
     w_trans <- c(low_pass_trans_freq, high_pass_trans_freq) / nyquist
 
-    w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans) , min = 0, max = 1)
+    w_stop <- clamp(w_pass + c(1, -1) * abs(w_trans), min = 0, max = 1)
   }
 
   w_stop[w_stop < 0] <- 0
@@ -343,10 +343,10 @@ design_filter_iir <- function(
       reciprocal_condition > .Machine$double.eps
     }
     max_order <- guess_max_integer(validator, initial = spec$n, min_v = min_order)
-    if(is.na(max_order)) {
+    if (is.na(max_order)) {
       max_order <- 1
     }
-    if( spec$n > max_order ) {
+    if ( spec$n > max_order ) {
       spec$n <- max_order
     }
     spec
@@ -375,7 +375,7 @@ design_filter_iir <- function(
       # "butter"
       spec <- gsignal::buttord(Wp = w_pass, Ws = w_stop, Rp = r_pass, Rs = r_stop)
       order <- butter_max_order(w = w_pass, r = r_pass, type = ftype)$n
-      if(spec$n < order) {
+      if (spec$n < order) {
         order <- spec$n
       }
       w_cutoff <- butter_cutoff(type = ftype, n = order, w = w_pass, r = r_pass)

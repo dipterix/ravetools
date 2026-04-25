@@ -1,6 +1,6 @@
 # ---- fftfilt -----------------------------------------------------------------
 
-fftfilt <- function (b, x, n = NULL, legacy = FALSE) {
+fftfilt <- function(b, x, n = NULL, legacy = FALSE) {
   if (length(n) > 1) {
     stop("fftfilt: n has to be a scalar")
   }
@@ -12,7 +12,7 @@ fftfilt <- function (b, x, n = NULL, legacy = FALSE) {
   N <- n
   l_b <- length(b)
 
-  if(!is.matrix(x)) {
+  if (!is.matrix(x)) {
     l_x <- length(x)
     x <- matrix(x, ncol = 1L)
     is_vector <- TRUE
@@ -20,10 +20,10 @@ fftfilt <- function (b, x, n = NULL, legacy = FALSE) {
     l_x <- nrow(x)
     is_vector <- FALSE
   }
-  if(!length(n)) {
+  if (!length(n)) {
     N <- 2 ^ (ceiling(log(l_x + l_b - 1) / log(2)))
     B <- fft(postpad(b, N))
-    if( legacy ) {
+    if ( legacy ) {
       y <- apply(x, 2L, function(xi) {
         # y <- ifft(fft(postpad(x, N)) * B)
         ifft(fft(postpad(xi, N)) * B)
@@ -35,14 +35,14 @@ fftfilt <- function (b, x, n = NULL, legacy = FALSE) {
     N <- 2 ^ (ceiling(log(max(n, l_b)) / log(2)))
     L <- N - l_b + 1
     B <- fft(postpad(b, N))
-    R <- ceiling(l_x/L)
+    R <- ceiling(l_x / L)
 
     y <- array(0.0i, c(l_x, ncol(x)))
     for (r in seq_len(R)) {
       lo <- (r - 1) * L + 1
       hi <- min(r * L, l_x)
       tmp <- x[lo:hi, , drop = FALSE]
-      if( legacy ) {
+      if ( legacy ) {
         tmp <- apply(tmp, 2L, function(tmpi) {
           ifft(fft(postpad(tmpi, N)) * B)
         })
@@ -50,7 +50,7 @@ fftfilt <- function (b, x, n = NULL, legacy = FALSE) {
         tmp <- stats::mvfft(stats::mvfft(postpad(tmp, N)) * B, inverse = TRUE) / N
       }
       hi <- min(lo + N - 1, l_x)
-      y[lo:hi,] <- y[lo:hi,] + tmp[1:(hi - lo + 1),]
+      y[lo:hi, ] <- y[lo:hi, ] + tmp[1:(hi - lo + 1), ]
     }
   }
   y <- y[1:l_x, , drop = is_vector]

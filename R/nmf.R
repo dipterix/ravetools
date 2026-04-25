@@ -40,11 +40,11 @@
 naive_nmf <- function(x, k, tol = c(1e-4, 1e-8), max_iters = 1e4, verbose = TRUE) {
   max_iters <- as.integer(max_iters)
   stopifnot(isTRUE(max_iters >= 0))
-  if(max_iters == 0) {
+  if (max_iters == 0) {
     max_iters <- 1e4
   }
 
-  if(!is.matrix(x)) {
+  if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
   dimnames(x) <- NULL
@@ -70,10 +70,10 @@ naive_nmf <- function(x, k, tol = c(1e-4, 1e-8), max_iters = 1e4, verbose = TRUE
   results$error <- c(Inf, Inf, Inf)
   results$converged <- FALSE
 
-  if(isTRUE(verbose)) {
+  if (isTRUE(verbose)) {
     verbose_interval <- ceiling(max(max_iters / 100, 10))
     verbose <- TRUE
-  } else if(!isFALSE(verbose)) {
+  } else if (!isFALSE(verbose)) {
     verbose_interval <- min(max(as.integer(verbose), 1), max_iters)
     verbose <- TRUE
   }
@@ -116,23 +116,23 @@ naive_nmf <- function(x, k, tol = c(1e-4, 1e-8), max_iters = 1e4, verbose = TRUE
   }
 
   lapply(seq_len(max_iters), function(iter) {
-    if( results$converged ) { return() }
+    if ( results$converged ) { return() }
     update()
 
     new_errors <- results$error
 
-    if((new_errors[[2]] < tol2 && new_errors[[3]] < tol2) || new_errors[[1]] < tol1) {
+    if ((new_errors[[2]] < tol2 && new_errors[[3]] < tol2) || new_errors[[1]] < tol1) {
       results$converged <- TRUE
     }
 
-    if( verbose && (iter %% verbose_interval == 0 || iter == max_iters || results$converged) ) {
+    if ( verbose && (iter %% verbose_interval == 0 || iter == max_iters || results$converged) ) {
       cat(sprintf("Iteration %04d: [fitted err=%.2e] [W err=%.2e] [H err=%.2e]        \r",
                   iter, new_errors[[1]], new_errors[[2]], new_errors[[3]]))
     }
     return()
 
   })
-  if(verbose) {
+  if (verbose) {
     cat("\n")
   }
 

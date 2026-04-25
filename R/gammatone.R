@@ -102,10 +102,10 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
 
   filter_order <- 4
   center_frequencies <- unname(as.double(center_frequencies))
-  if(missing(n_bands)) {
+  if (missing(n_bands)) {
     n_bands <- length(center_frequencies)
   } else {
-    if(length(center_frequencies) != 2) {
+    if (length(center_frequencies) != 2) {
       stop("`gammatone_fast`: `n_bands` is provided but length of `center_frequencies` is not two. Please either leave `n_bands` empty or set `center_frequencies` to be the frequency ranges.")
     }
     center_frequencies <- sort(center_frequencies)
@@ -147,7 +147,7 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
   # Use fftfilt() but more efficient for large vectors
   l_filter <- gammatone_length
   x_is_mat <- is.matrix(x)
-  if( !x_is_mat ) {
+  if ( !x_is_mat ) {
     x <- matrix(x, ncol = 1)
   }
   l_x <- nrow(x)
@@ -160,8 +160,8 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
 
   n_timepoints <- l_x
 
-  if(!is.na(downsample)) {
-    if(downsample <= 1) {
+  if (!is.na(downsample)) {
+    if (downsample <= 1) {
       downsample <- NA_real_
     } else {
       n_timepoints <- ceiling(n_timepoints / downsample)
@@ -187,7 +187,7 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
   ))
 
   # if the filters < 256MB
-  if(!dir.exists(root_dir)){
+  if (!dir.exists(root_dir)) {
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
   # use filearray to store the signals on disk
@@ -224,14 +224,14 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
   #     res <- result[, jj]
   #     res <- c(res[-seq_len(delay[[jj]])], res[seq_len(delay[[jj]])])
   #
-  #     if(isTRUE(downsample > 1)) {
+  #     if (isTRUE(downsample > 1)) {
   #       # downsample the filtered results before hilbert or returning to speed up
   #       res <- decimate(res, q = downsample)
   #     }
   #     res
   #   })
   #
-  #   if(use_hilbert) {
+  #   if (use_hilbert) {
   #     # apply hilbert transform
   #     result <- abs(hilbert(result))
   #   }
@@ -250,7 +250,7 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
   #     # x_slice <- x[,1]
   #     result <- stats::mvfft(gammatone_filters_fft[drop = FALSE] * fft(postpad(x_slice, N)), inverse = TRUE) / N
   #     result <- Re(result[seq_len(l_x), , drop = FALSE])
-  #     if(use_hilbert) {
+  #     if (use_hilbert) {
   #       # apply hilbert transform
   #       result <- abs(hilbert(result))
   #     }
@@ -315,25 +315,25 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
 
         # downsample
         # TODO: make sure n_timepoints is accurate and not with possible 1-off?
-        if( downsample_before_hilbert && isTRUE(downsample > 1) ){
+        if ( downsample_before_hilbert && isTRUE(downsample > 1) ) {
           result <- ravetools$decimate(x = result, q = downsample)
-          if(length(result) > n_timepoints) {
+          if (length(result) > n_timepoints) {
             result <- result[seq_len(n_timepoints)]
           } else if (length(result) < n_timepoints) {
             result <- postpad(result, n_timepoints)
           }
         }
 
-        if(use_hilbert) {
+        if (use_hilbert) {
           # apply hilbert transform
           result <- abs(hilbert(result))
         }
 
         # downsample
         # TODO: make sure n_timepoints is accurate and not with possible 1-off?
-        if( !downsample_before_hilbert && isTRUE(downsample > 1) ){
+        if ( !downsample_before_hilbert && isTRUE(downsample > 1) ) {
           result <- ravetools$decimate(x = result, q = downsample)
-          if(length(result) > n_timepoints) {
+          if (length(result) > n_timepoints) {
             result <- result[seq_len(n_timepoints)]
           } else if (length(result) < n_timepoints) {
             result <- postpad(result, n_timepoints)
@@ -352,7 +352,7 @@ gammatone_fast <- function(x, sample_rate, center_frequencies, n_bands,
       arr$set_header("downsample", downsample, save = FALSE)
 
       time <- seq_len(n_timepoints) / sample_rate
-      if(!is.na(downsample)) {
+      if (!is.na(downsample)) {
         time <- time * downsample
       }
 

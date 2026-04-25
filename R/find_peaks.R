@@ -39,7 +39,7 @@
 #'
 #'
 #' @export
-find_peaks <- function(x, min_val = NA, min_distance = 4, min_width = 2){
+find_peaks <- function(x, min_val = NA, min_distance = 4, min_width = 2) {
   df1 <- c(1, diff(x))
   df2 <- c(1, 1, diff(x, differences = 2))
 
@@ -47,10 +47,10 @@ find_peaks <- function(x, min_val = NA, min_distance = 4, min_width = 2){
   idx <- (df1 * c(df1[-1], 0)) <= 0 & c(df2[-1], 0) < 0
 
   # Get peaks that are beyond min_val
-  if( is.na(min_val) ){
+  if ( is.na(min_val) ) {
     # automatically decide min_val from standard error
     min_val <- sd(x)
-    if(all(x >= 0)){
+    if (all(x >= 0)) {
       min_val <- min(x) + min_val
     } else {
       min_val <- median(x) + min_val
@@ -62,7 +62,7 @@ find_peaks <- function(x, min_val = NA, min_distance = 4, min_width = 2){
   idx_desc <- idx[ord]
 
   # merge peaks that are less than min_distance away
-  for(ii in seq_along(idx_desc)){
+  for (ii in seq_along(idx_desc)) {
     elem <- idx_desc[[ii]]
     idx_desc[idx_desc > 0 & abs(idx_desc - elem) < min_distance] <- elem
   }

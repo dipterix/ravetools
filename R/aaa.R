@@ -11,34 +11,34 @@
 ## usethis namespace: end
 NULL
 
-`%?<-%` <- function(lhs, value){
+`%?<-%` <- function(lhs, value) {
   env <- parent.frame()
   lhs <- substitute(lhs)
 
   isnull <- tryCatch({
     is.null(eval(lhs, envir = env))
-  }, error = function(e){
+  }, error = function(e) {
     return(TRUE)
   })
 
-  if(isnull){
+  if (isnull) {
     eval(as.call(list( quote(`<-`), lhs, value )), envir = env)
   }
 }
 
-deparse1 <- function(expr, collapse = ' '){
+deparse1 <- function(expr, collapse = " ") {
   paste(deparse(expr), collapse = collapse)
 }
 
 
-stopifnot2 <- function(..., msg = 'Condition not satisfied'){
-  if(!all(c(...))){
+stopifnot2 <- function(..., msg = "Condition not satisfied") {
+  if (!all(c(...))) {
     stop(msg)
   }
 }
 
-rand_string <- function(length = 10){
-  paste(sample(c(letters, LETTERS, 0:9), length, replace = TRUE), collapse = '')
+rand_string <- function(length = 10) {
+  paste(sample(c(letters, LETTERS, 0:9), length, replace = TRUE), collapse = "")
 }
 
 
@@ -46,7 +46,7 @@ tempdir2 <- function(check = TRUE) {
   path <- getOption("ravetools.tempdir",
             default = Sys.getenv("RAVETOOLS_TEMPDIR",
                                  unset = tempdir(check = FALSE)))
-  if(check && !dir.exists(path)) {
+  if (check && !dir.exists(path)) {
     dir.create(path, showWarnings = FALSE, recursive = TRUE)
   }
   path
@@ -54,11 +54,11 @@ tempdir2 <- function(check = TRUE) {
 
 tempfile2 <- function(
   pattern = "ravetmp-", tmpdir = file.path(tempdir2(check = TRUE), "ravetools"),
-  fileext = ""){
-  if(!dir.exists(tmpdir)){
+  fileext = "") {
+  if (!dir.exists(tmpdir)) {
     dir.create(tmpdir, showWarnings = FALSE, recursive = TRUE)
   }
-  if(getOption("ravetools.debug", FALSE)){
+  if (getOption("ravetools.debug", FALSE)) {
     file.path(tmpdir, sprintf("%s%s%s", pattern, rand_string(), fileext))
   } else {
     tempfile(pattern = pattern, tmpdir = tmpdir, fileext = fileext)
@@ -86,7 +86,7 @@ tempfile2 <- function(
 #' 'Matlab' heat-map plot palette
 #' @returns vector of 64 colors
 #' @export
-matlab_palette <- function(){
+matlab_palette <- function() {
   .matlab_palette
 }
 
@@ -113,7 +113,7 @@ detect_threads <- function() {
 
 #' @rdname parallel-options
 #' @export
-ravetools_threads <- function (n_threads = "auto", stack_size = "auto") {
+ravetools_threads <- function(n_threads = "auto", stack_size = "auto") {
   if (identical(n_threads, "auto"))
     n_threads <- -1L
   else if (!is.numeric(n_threads))
@@ -140,7 +140,7 @@ ravetools_threads <- function (n_threads = "auto", stack_size = "auto") {
 #' @returns logical
 #' @keywords internal
 #' @export
-is_not_cran <- function (if_interactive = TRUE, verbose = FALSE) {
+is_not_cran <- function(if_interactive = TRUE, verbose = FALSE) {
   not_cran_flag <- identical(toupper(as.character(Sys.getenv("NOT_CRAN", ""))), "TRUE")
   limit_core_flag <- identical(toupper(Sys.getenv("_R_CHECK_LIMIT_CORES_")), "TRUE")
   interactive_flag <- interactive()
@@ -181,11 +181,11 @@ is_not_cran <- function (if_interactive = TRUE, verbose = FALSE) {
 #' @returns Function object if found, otherwise \code{on_missing}.
 #' @export
 internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL) {
-  if(!pkg %in% c("raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
+  if (!pkg %in% c("raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
                  "dipsaus", "filearray", "readNSx", "rpymat", "rpyANTs")) {
     stop("`extern_function`: Package [", pkg, "] is not a RAVE package.")
   }
-  if(system.file(package = pkg) == "") { return(on_missing) }
+  if (system.file(package = pkg) == "") { return(on_missing) }
   ns <- asNamespace(pkg)
   get0(x = name, envir = ns, inherits = inherit, ifnotfound = on_missing)
 }
@@ -198,7 +198,7 @@ internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL)
 #' @export
 `format.ravetools-printable` <- function(x, ...) {
   printable_message <- attr(x, "printable_message")
-  if(length(printable_message)) {
+  if (length(printable_message)) {
     return(printable_message)
   }
   NextMethod("format")
@@ -223,7 +223,7 @@ internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL)
 
 lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NULL,
                          on_failure = "multisession", ...) {
-  if(system.file(package = "raveio") == "") {
+  if (system.file(package = "raveio") == "") {
     do.call("lapply", c(list(X = x, FUN = FUN), FUN.args))
     ret <- lapply(x, FUN)
   } else {

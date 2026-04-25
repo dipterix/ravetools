@@ -1,5 +1,5 @@
 # wrap phase angles
-unwrap <- function (x, tol = pi) {
+unwrap <- function(x, tol = pi) {
   if (is.vector(x)) {
     x <- as.matrix(x, ncol = 1)
     vec <- TRUE
@@ -18,7 +18,7 @@ unwrap <- function (x, tol = pi) {
     for (col in seq_len(nc)) {
       valid <- is.finite(x[, col])
       d <- diff(x[valid, col])
-      p <- round(abs(d)/rng) * rng * (((d > tol) > 0) - ((d < -tol) > 0))
+      p <- round(abs(d) / rng) * rng * (((d > tol) > 0) - ((d < -tol) > 0))
       r <- cumsum(p)
       y[valid, col] <- x[valid, col] - c(0, r)
     }
@@ -64,7 +64,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
   rp <- range(phase, na.rm = TRUE)
 
   isfinite <- is.finite(mag)
-  if(any(isfinite)) {
+  if (any(isfinite)) {
     idx <- which.max(mag[isfinite])
     idx <- which(isfinite)[[idx[[1]]]]
     peak <- list(which = idx, freq = object$w[[idx]], mag = mag[[idx]])
@@ -78,13 +78,13 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
   cutoffs <- lapply(cutoffs, function(cutoff) {
     # cutoff <- -3
     idx <- which(diff(as.integer(isfinite & mag > cutoff)) != 0)
-    if(!length(idx)) { return(NULL) }
+    if (!length(idx)) { return(NULL) }
 
     m1 <- mag[idx]
     m2 <- mag[idx + 1]
 
     a <- ifelse(m1 == m2, 1, (cutoff - m2) / (m1 - m2))
-    freq <- a * w[idx] + (1-a) * w[idx + 1]
+    freq <- a * w[idx] + (1 - a) * w[idx + 1]
 
 
     list(
@@ -116,7 +116,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
     sprintf("<RAVE filter freqz summary> %s", paste(x$name, collapse = "")),
     sprintf("Frequency ranges: %.5g to %.5g %s", x$frequency_range[[1]], x$frequency_range[[2]], x$unit)
   )
-  if(!is.na(x$peak[[1]])) {
+  if (!is.na(x$peak[[1]])) {
     s <- c(
       s,
       sprintf("Peak magnitude: %.2f dB at frequency %.5g %s",
@@ -126,7 +126,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
 
   s <- c(s, unlist(lapply(x$cutoffs, function(item) {
     # item <- x$cutoffs[[1]]
-    if(length(item$frequency) > 4) {
+    if (length(item$frequency) > 4) {
       re <- c(sprintf("%.4g %s", item$frequency[1:4], x$unit), "...")
     } else {
       re <- sprintf("%.4g %s", item$frequency, x$unit)
@@ -135,7 +135,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
     sprintf("  %4.4g dB cutoff at %s", item$cutoff, paste(re, collapse = ", "))
   })))
 
-  rpd <- x$phase_range * 360/(2 * pi)
+  rpd <- x$phase_range * 360 / (2 * pi)
   s <- c(
     s,
     sprintf("Phase ranging from %.4g to %.4g rad (%.3f to %.3f degrees)",
@@ -148,7 +148,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
 `plot.ravetools-freqz2` <- function(
     x, ..., cutoffs = c(-3, -6, -12), vlines = NULL,
     ylim = NULL, xlim = NULL, color_palette = NULL,
-    add = FALSE, which = c(1,2,3), draw_legend = TRUE
+    add = FALSE, which = c(1, 2, 3), draw_legend = TRUE
 ) {
 
   # DIPSAUS DEBUG START
@@ -167,7 +167,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
 
 
   which <- which[which %in% c(1, 2, 3)]
-  if(!length(which)) {
+  if (!length(which)) {
     which <- c(1, 2, 3)
   }
 
@@ -175,7 +175,7 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
   argh <- Arg(x$h)
 
   isfinite <- is.finite(mag)
-  if(any(isfinite)) {
+  if (any(isfinite)) {
     idx <- which.max(mag[isfinite])
     idx <- which(isfinite)[[idx[[1]]]]
     maxmag <- mag[[idx]]
@@ -187,15 +187,15 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
   phase <- unwrap(argh)
 
   w <- x$w
-  if(!length(cutoffs)) { cutoffs <- -3 }
+  if (!length(cutoffs)) { cutoffs <- -3 }
   smry <- `summary.ravetools-freqz2`(x, cutoffs = cutoffs)
   smry_str <- format(smry)
 
-  if(length(smry$cutoffs)) {
-    if(!length(color_palette)) {
+  if (length(smry$cutoffs)) {
+    if (!length(color_palette)) {
       color_palette <- grDevices::adjustcolor(seq_along(smry$cutoffs) + 1)
     }
-    if(length(color_palette) < length(smry$cutoffs)) {
+    if (length(color_palette) < length(smry$cutoffs)) {
       color_palette <- c(grDevices::adjustcolor(color_palette), grDevices::adjustcolor(seq_along(smry$cutoffs) + 1))
     }
   }
@@ -204,13 +204,13 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
   legend_text <- NULL
   legend_col <- NULL
   legend_lty <- NULL
-  if(length(vlines)) {
+  if (length(vlines)) {
     legend_text <- "Filter frequency"
     legend_col <- graphics::par("fg")
     legend_lty <- 3
   }
 
-  if(length(smry$cutoffs)) {
+  if (length(smry$cutoffs)) {
     legend_text <- c(legend_text, sprintf("Cutoff %.2f %s", cutoffs, x$u))
     legend_col <- c(legend_col, color_palette[seq_along(cutoffs)])
     legend_lty <- c(legend_lty, rep(2, length(cutoffs)))
@@ -220,8 +220,8 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
     draw_legend <- FALSE
   }
 
-  if(!add) {
-    if( !isFALSE(draw_legend) ) {
+  if (!add) {
+    if ( !isFALSE(draw_legend) ) {
       graphics::layout(
         mat = matrix(c(seq_along(which) + 1, 1), ncol = 1),
         heights = c(rep(1, length(which)), graphics::lcm(3))
@@ -240,17 +240,17 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
   }
 
   # Legend and summary text
-  if( !isFALSE(draw_legend) ) {
-    if(!identical(draw_legend, "add")) {
-      graphics::par(mar = c(0.1,0.1,0.1,0.1))
-      plot(c(0,1), c(0,1), type = "n", axes = FALSE, xlab = "", ylab = "", main = "")
+  if ( !isFALSE(draw_legend) ) {
+    if (!identical(draw_legend, "add")) {
+      graphics::par(mar = c(0.1, 0.1, 0.1, 0.1))
+      plot(c(0, 1), c(0, 1), type = "n", axes = FALSE, xlab = "", ylab = "", main = "")
     }
 
     graphics::legend(x = 0, y = 0.5, xjust = 0, yjust = 0.5,
                      smry_str[-1],
                      bty = "n")
 
-    if( has_legend ) {
+    if ( has_legend ) {
       graphics::legend(x = 0.65, y = 0.5, xjust = 0, yjust = 0.5,
                        legend_text,
                        col = legend_col,
@@ -262,14 +262,14 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
 
   graphics::par(mar = c(2.1, 3.6, 1.5, 1))
 
-  if(!length(xlim)) {
+  if (!length(xlim)) {
     xlim <- range(pretty(w))
   }
-  if(!length(ylim)) {
+  if (!length(ylim)) {
     ylim <- range(pretty(mag))
   }
 
-  if(1 %in% which) {
+  if (1 %in% which) {
     ylim2 <- c(min(cutoffs) - 1, maxmag)
     graphics::plot(range(pretty(w)), ylim2, ...,
                    xlim = xlim, type = "n", xlab = "", ylab = "", main = "", axes = FALSE)
@@ -279,18 +279,18 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
     lapply(seq_along(smry$cutoffs), function(ii) {
       # item <- smry$cutoffs[[1]]
       item <- smry$cutoffs[[ii]]
-      if(length(item$frequency) > 4) {
+      if (length(item$frequency) > 4) {
         item$frequency <- item$frequency[1:4]
       }
       graphics::abline(h = item$cutoff, v = item$frequency, lty = 2, col = color_palette[[ii]])
     })
-    if(length(vlines)) {
+    if (length(vlines)) {
       graphics::abline(v = vlines, lty = 3)
     }
     graphics::title("Pass band (dB)")
   }
 
-  if(2 %in% which) {
+  if (2 %in% which) {
     graphics::plot(range(pretty(w)), range(mag, na.rm = TRUE), ylim = ylim, ...,
                    type = "n", xlab = "", ylab = "", main = "", axes = FALSE)
     graphics::lines(w, mag)
@@ -300,21 +300,21 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
     lapply(seq_along(smry$cutoffs), function(ii) {
       # item <- smry$cutoffs[[1]]
       item <- smry$cutoffs[[ii]]
-      if(length(item$frequency) > 4) {
+      if (length(item$frequency) > 4) {
         item$frequency <- item$frequency[1:4]
       }
       graphics::abline(h = item$cutoff, v = item$frequency, lty = 2, col = color_palette[[ii]])
     })
-    if(length(vlines)) {
+    if (length(vlines)) {
       graphics::abline(v = vlines, lty = 3)
     }
     graphics::title("Stop band (dB)")
   }
 
-  if(3 %in% which) {
-    d <- phase * 360/(2 * pi)
+  if (3 %in% which) {
+    d <- phase * 360 / (2 * pi)
     xlim <- range(xlim, na.rm = TRUE)
-    if(length(xlim)) {
+    if (length(xlim)) {
       sel <- w >= xlim[[1]] & w < xlim[[2]]
       ylim <- range(d[sel], na.rm = TRUE)
     }
@@ -329,12 +329,12 @@ freqz2 <- function(b, a = 1, fs = 2 * pi, n = 512, whole = FALSE, ...) {
     lapply(seq_along(smry$cutoffs), function(ii) {
       # item <- smry$cutoffs[[1]]
       item <- smry$cutoffs[[ii]]
-      if(length(item$frequency) > 4) {
+      if (length(item$frequency) > 4) {
         item$frequency <- item$frequency[1:4]
       }
       graphics::abline(v = item$frequency, lty = 2, col = color_palette[[ii]])
     })
-    if(length(vlines)) {
+    if (length(vlines)) {
       graphics::abline(v = vlines, lty = 3)
     }
     graphics::title("Phase (degrees)")
@@ -351,7 +351,7 @@ sample_signal <- function(n) {
   d[15] <- n
 
   x <- list()
-  for(i in seq_len(14)) {
+  for (i in seq_len(14)) {
     m <- seq(d[i], d[i + 1] - 1)
     slope <- (a[i + 1] - a[i]) / (d[i + 1] - d[i])
     x[[length(x) + 1]] <- a[i] + slope * (m - d[i])
@@ -444,12 +444,12 @@ diagnose_filter <- function(b, a, fs, n = 512, whole = FALSE,
   mag <- 20 * log10(abs(h))
 
   cutoffs <- cutoffs[is.finite(cutoffs)]
-  if(length(xlim) != 2) {
-    if(identical(xlim, "auto")) {
+  if (length(xlim) != 2) {
+    if (identical(xlim, "auto")) {
       xlim <- NULL
-      if(length(cutoffs)) {
+      if (length(cutoffs)) {
         rg <- range(c(w[mag >= min(cutoffs)], vlines), na.rm = TRUE)
-        if(all(is.finite(rg))) {
+        if (all(is.finite(rg))) {
           rg[[1]] <- floor(rg[[1]])
           rg[[2]] <- ceiling(rg[[2]])
           xlim <- rg
@@ -470,8 +470,8 @@ diagnose_filter <- function(b, a, fs, n = 512, whole = FALSE,
       byrow = FALSE,
       ncol = 2,
       c(
-        2,3,4,1,
-        5,6,7,1
+        2, 3, 4, 1,
+        5, 6, 7, 1
       )
     ), widths = c(3, 2), heights = c(1, 1, 1, graphics::lcm(3))
   )
@@ -481,13 +481,13 @@ diagnose_filter <- function(b, a, fs, n = 512, whole = FALSE,
   # mar = c(2.6, 3.8, 2.1, 0.6) * (0.5 + cex / 2), mgp = cex * c(2, 0.5, 0), tck = -0.02 * cex, xaxs =
   # "i", yaxs = "i",
   graphics::par(
-    mar = c(0.1,3.6,0.1,1),
+    mar = c(0.1, 3.6, 0.1, 1),
     mgp = cex * c(2, 0.5, 0),
     tck = -0.02 * cex,
     xaxs = "i", yaxs = "i",
     cex.lab = 0.8
   )
-  plot(c(0,1.1), c(0,1), type = "n", axes = FALSE, xlab = "", ylab = "", main = "")
+  plot(c(0, 1.1), c(0, 1), type = "n", axes = FALSE, xlab = "", ylab = "", main = "")
 
   graphics::legend(x = 0.9, y = 0.5, xjust = 0, yjust = 0.5, lty = 1, bty = "n",
          legend = c("Sample", "Filtered"), col = c("gray", "orange"))
@@ -523,22 +523,22 @@ diagnose_filter <- function(b, a, fs, n = 512, whole = FALSE,
 
   specs <- pn$spec
   specs <- specs[is.finite(specs) & specs > 0]
-  if(length(specs) <= 1) {
+  if (length(specs) <= 1) {
     plim <- c(-100, 0)
   } else {
     plim <- 10 * log10( range(specs) )
     plim[[1]] <- plim[[1]] + min(-3, cutoffs, na.rm = TRUE)
   }
 
-  for(plog in c("y", "xy")) {
+  for (plog in c("y", "xy")) {
     plot(pn, add = FALSE, col = "gray", log = plog, mar = c(2.1, 3.6, 1.5, 1), yline = 1.6, grid = FALSE, ylim = plim, ylab = "")
     # plot(p0, add = TRUE, col = "black", log = plog)
     plot(pr, add = TRUE, col = "orange", log = plog)
 
-    if(length(vlines)) {
-      if( grepl("x", plog) ) {
+    if (length(vlines)) {
+      if ( grepl("x", plog) ) {
         log_vlines <- log10(vlines[vlines > 0])
-        if(0 %in% vlines) {
+        if (0 %in% vlines) {
           log_vlines <- c(log_vlines, 0)
         }
         graphics::abline(v = log_vlines, lty = 3)

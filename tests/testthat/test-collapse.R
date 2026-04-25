@@ -1,4 +1,4 @@
-test_that('testing collapse with 100x100x30x10; keep=c(4,2); sum', {
+test_that("testing collapse with 100x100x30x10; keep=c(4,2); sum", {
   dim <- c(100, 10, 30, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
@@ -13,17 +13,17 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,2); sum', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -35,23 +35,23 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,2); sum', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x0x10; keep=c(4,2); sum', {
+test_that("testing collapse with 100x100x0x10; keep=c(4,2); sum", {
   dim <- c(100, 10, 0, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
@@ -67,17 +67,17 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,2); sum', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -89,23 +89,23 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,2); sum', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x30x10; keep=4; sum', {
+test_that("testing collapse with 100x100x30x10; keep=4; sum", {
   dim <- c(100, 10, 0, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
@@ -121,17 +121,17 @@ test_that('testing collapse with 100x100x30x10; keep=4; sum', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -143,27 +143,27 @@ test_that('testing collapse with 100x100x30x10; keep=4; sum', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); sum', {
+test_that("testing collapse with 100x100x30x10; keep=c(4,3,2,1); sum", {
   dim <- c(100, 10, 30, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
-  keep <- c(4,3,2,1)
+  keep <- c(4, 3, 2, 1)
 
   aggregate <- sum
   avg <- 0L
@@ -175,17 +175,17 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); sum', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -197,27 +197,27 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); sum', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); sum', {
+test_that("testing collapse with 100x100x0x10; keep=c(4,3,2,1); sum", {
   dim <- c(100, 10, 0, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
-  keep <- c(4,3,2,1)
+  keep <- c(4, 3, 2, 1)
 
   aggregate <- sum
   avg <- 0L
@@ -229,17 +229,17 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); sum', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -251,17 +251,17 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); sum', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -269,7 +269,7 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); sum', {
 
 
 
-test_that('testing collapse with 100x100x30x10; keep=c(4,2); mean', {
+test_that("testing collapse with 100x100x30x10; keep=c(4,2); mean", {
   dim <- c(100, 10, 30, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
@@ -284,17 +284,17 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,2); mean', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -306,23 +306,23 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,2); mean', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x0x10; keep=c(4,2); mean', {
+test_that("testing collapse with 100x100x0x10; keep=c(4,2); mean", {
   dim <- c(100, 10, 0, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
@@ -338,17 +338,17 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,2); mean', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -360,23 +360,23 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,2); mean', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x30x10; keep=4; mean', {
+test_that("testing collapse with 100x100x30x10; keep=4; mean", {
   dim <- c(100, 10, 0, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
@@ -392,17 +392,17 @@ test_that('testing collapse with 100x100x30x10; keep=4; mean', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -414,27 +414,27 @@ test_that('testing collapse with 100x100x30x10; keep=4; mean', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); mean', {
+test_that("testing collapse with 100x100x30x10; keep=c(4,3,2,1); mean", {
   dim <- c(100, 10, 30, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
-  keep <- c(4,3,2,1)
+  keep <- c(4, 3, 2, 1)
 
   aggregate <- mean
   avg <- 1L
@@ -446,17 +446,17 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); mean', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -468,27 +468,27 @@ test_that('testing collapse with 100x100x30x10; keep=c(4,3,2,1); mean', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
 })
 
-test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); mean', {
+test_that("testing collapse with 100x100x0x10; keep=c(4,3,2,1); mean", {
   dim <- c(100, 10, 0, 10)
   x <- array(rnorm(prod(dim)), dim = dim)
 
-  keep <- c(4,3,2,1)
+  keep <- c(4, 3, 2, 1)
 
   aggregate <- mean
   avg <- 1L
@@ -500,17 +500,17 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); mean', {
 
   x <- abs(x)
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(10.0 * log10(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(10.0 * log10(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(x * x) })
+  r1 <- apply(x, keep, function(x) { aggregate(x * x) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(sqrt(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(sqrt(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
@@ -522,17 +522,17 @@ test_that('testing collapse with 100x100x0x10; keep=c(4,3,2,1); mean', {
   testthat::expect_equal(r1, r2)
 
   method <- "10log10"
-  r1 <- apply(x, keep, function(x){ aggregate(20.0 * log10(Mod(x))) })
+  r1 <- apply(x, keep, function(x) { aggregate(20.0 * log10(Mod(x))) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "square"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)^2) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)^2) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 
   method <- "sqrt"
-  r1 <- apply(x, keep, function(x){ aggregate(Mod(x)) })
+  r1 <- apply(x, keep, function(x) { aggregate(Mod(x)) })
   r2 <- ravetools::collapse(x, keep, avg, method)
   testthat::expect_equal(r1, r2)
 

@@ -7,7 +7,7 @@ filter_initialize <- function(b, a, x) {
   # a <- filter$a
   # x <- sample_signal(500)
 
-  if(a[[1]] != 0) {
+  if (a[[1]] != 0) {
     a <- a / a[[1]]
     b <- b / a[[1]]
   }
@@ -16,7 +16,7 @@ filter_initialize <- function(b, a, x) {
   na <- length(a)
   nb <- length(b)
 
-  if( na > nb ) {
+  if ( na > nb ) {
     b <- c(b, rep(0, na - nb))
     n <- na
   } else {
@@ -27,7 +27,7 @@ filter_initialize <- function(b, a, x) {
   # length of edge transients
   nf <- max(1, 3 * (n - 1))
 
-  if(length(x) <= nf) {
+  if (length(x) <= nf) {
     stop("Cannot apply the filter: the input signal is too short")
   }
 
@@ -35,7 +35,7 @@ filter_initialize <- function(b, a, x) {
   # nf is nfact in matlab filtfilt -> getCoeffsAndInitialConditions
 
   # compute the initial condition if n > 1
-  if( n > 2 ) {
+  if ( n > 2 ) {
     z1 <- diag(1, n - 1) - cbind( -a[-1], rbind(diag(1, n - 2), 0) )
     z2 <- b[-1] - b[1] * a[-1]
     z <- qr.solve(z1, z2, tol = 1e-30)
@@ -124,7 +124,7 @@ filtfilt <- function(b, a, x) {
   # a <- filter$a
   # x <- sample_signal(500)
 
-  if(is.matrix(x)) {
+  if (is.matrix(x)) {
     # DIPSAUS DEBUG START
     # b <- rnorm(6)
     # a <- 1
@@ -133,7 +133,7 @@ filtfilt <- function(b, a, x) {
     init <- filter_initialize(b, a, x[, 1])
     nx <- nrow(x)
 
-    if(length(a) == 1) {
+    if (length(a) == 1) {
       # FIR filter
       nfact <- init$nfact
       pad_pre <- sweep(
@@ -167,7 +167,7 @@ filtfilt <- function(b, a, x) {
       return(re)
     } else {
       re <- apply(x, 2L, function(xi) {
-        if(nx < 10000) {
+        if (nx < 10000) {
           filtfilt_naive(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
         } else {
           filtfilt_naive2(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
@@ -178,7 +178,7 @@ filtfilt <- function(b, a, x) {
     nx <- length(x)
     init <- filter_initialize(b, a, x)
 
-    if(nx < 10000) {
+    if (nx < 10000) {
       re <- filtfilt_naive(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
     } else {
       re <- filtfilt_naive2(b = init$b, a = init$a, y = x, z = init$z, nfact = init$nfact)
@@ -248,7 +248,7 @@ filter_signal <- function(b, a, x, z) {
   na <- length(a)
   nb <- length(b)
 
-  if( na > nb ) {
+  if ( na > nb ) {
     b <- c(b, rep(0, na - nb))
     n <- na
   } else {
@@ -256,24 +256,24 @@ filter_signal <- function(b, a, x, z) {
     n <- nb
   }
 
-  if(missing(z)) {
+  if (missing(z)) {
     z <- rep(0.0, n - 1)
   } else {
-    if(length(z) < n-1) {
-      stop(sprintf("`filter`: initial condition `z` must have length >= %d", n-1))
+    if (length(z) < n - 1) {
+      stop(sprintf("`filter`: initial condition `z` must have length >= %d", n - 1))
     }
   }
 
-  if(!is.double(a)) {
+  if (!is.double(a)) {
     a <- as.double(a)
   }
-  if(!is.double(b)) {
+  if (!is.double(b)) {
     b <- as.double(b)
   }
-  if(!is.double(z)) {
+  if (!is.double(z)) {
     z <- as.double(z)
   }
-  if(!is.double(x)) {
+  if (!is.double(x)) {
     x <- as.double(x)
   }
   return(cpp_filter(b, a, x, z))

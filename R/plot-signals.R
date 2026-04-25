@@ -35,7 +35,7 @@
 #'
 #'
 #' @export
-plot_signals <- function (
+plot_signals <- function(
     signals, sample_rate = 1, col = graphics::par("fg"),
     space = 0.995, space_mode = c("quantile", "absolute"),
     start_time = 0, duration = NULL,
@@ -51,7 +51,7 @@ plot_signals <- function (
   space_mode <- match.arg(space_mode)
   if (space_mode == "quantile" && space <= 1) {
     # quantile is slow: sample
-    if(length(signals) > 100000) {
+    if (length(signals) > 100000) {
       space <- stats::quantile(
         signals[sample(length(signals), 100000)],
         space, na.rm = TRUE
@@ -63,8 +63,8 @@ plot_signals <- function (
   # make sure spacing is positive
   space <- abs(space)
   compress <- round(compress)
-  if(!is.matrix(signals)) {
-    if(is.vector(signals)) {
+  if (!is.matrix(signals)) {
+    if (is.vector(signals)) {
       signals <- matrix(signals, nrow = 1)
     } else {
       signals <- as.matrix(signals)
@@ -80,8 +80,8 @@ plot_signals <- function (
       n_tp <- round(nt - start_time * sample_rate)
     }
     if (n_tp * ns > 100000) {
-      compress <- (n_tp * ns/100000)
-      if(n_tp / compress < 1000) {
+      compress <- (n_tp * ns / 100000)
+      if (n_tp / compress < 1000) {
         compress <- n_tp / 1000
       }
     }
@@ -93,7 +93,7 @@ plot_signals <- function (
 
     Time <- (tidx - 1) / sample_rate
 
-    sample_rate <- sample_rate/compress
+    sample_rate <- sample_rate / compress
   } else {
     nt <- ncol(signals)
     tidx <- seq_len(nt)
@@ -101,7 +101,7 @@ plot_signals <- function (
     Time <- (tidx - 1) / sample_rate
   }
 
-  start_time <- min(start_time, range(Time)[2] - 10/sample_rate)
+  start_time <- min(start_time, range(Time)[2] - 10 / sample_rate)
   if (is.null(duration)) {
     time_range <- c(start_time, range(Time)[2])
   } else {
@@ -161,8 +161,7 @@ plot_signals <- function (
     graphics::mtext(side = 1, text = xlab, line = xline,
                     cex = par_opt$cex.lab * cex)
     # graphics::title(ylab = ylab, line = 1, cex.lab = cex * 0.8)
-  }
-  else {
+  } else {
     graphics::matpoints(time_shift + Time, t(r), type = "l",
                         col = col, lty = 1, lwd = lwd,
                         xlim = xlim, cex = cex,

@@ -144,22 +144,22 @@ design_filter_fir <- function(
   stopifnot2(is.finite(stopband_attenuation) && stopband_attenuation > 0,
              msg = "`stopband_attenuation` must be a finite positive number")
 
-  if(is.na(data_size)) {
+  if (is.na(data_size)) {
     max_nfilters <- Inf
     # Huristic: 32 / pi / 2.285 / 333 (stopband atten 40 dB with data size 1000)
     suggested_trans_bandwidth <- 0.01
   } else {
     max_nfilters <- max(floor((data_size - 1) / 3), 2)
-    if( max_nfilters %% 2 == 1 ) {
+    if ( max_nfilters %% 2 == 1 ) {
       max_nfilters <- max_nfilters - 1
     }
 
-    if( isTRUE(filter_order > max_nfilters) ) {
+    if ( isTRUE(filter_order > max_nfilters) ) {
       filter_order <- max_nfilters
     }
     # dw <- 2 * pi * diff(f)/fs
     # n <- max(1, ceiling((A - 8)/(2.285 * dw)))
-    if( stopband_attenuation > 8 ) {
+    if ( stopband_attenuation > 8 ) {
       suggested_trans_bandwidth <- (stopband_attenuation - 8) / pi / 2.285 / max_nfilters
     } else {
       suggested_trans_bandwidth <- stopband_attenuation / 22 / max_nfilters
@@ -167,7 +167,7 @@ design_filter_fir <- function(
   }
 
   # determine the filter type
-  if( is.na(high_pass_freq) ) {
+  if ( is.na(high_pass_freq) ) {
     ftype <- "low"
     w_pass <- low_pass_freq / nyquist
     w_trans <- low_pass_trans_freq / nyquist
@@ -204,7 +204,7 @@ design_filter_fir <- function(
     w_trans <- c(high_pass_trans_freq, low_pass_trans_freq) / nyquist
     w_trans[is.na(w_trans)] <- suggested_trans_bandwidth
 
-    w_stop <- clamp( w_pass + c(-1, 1) * abs(w_trans) , min = 0, max = 1)
+    w_stop <- clamp( w_pass + c(-1, 1) * abs(w_trans), min = 0, max = 1)
 
     # kaiserord
     bands <- c(w_stop[[1]], w_pass, w_stop[[2]])
@@ -219,7 +219,7 @@ design_filter_fir <- function(
     w_trans <- c(low_pass_trans_freq, high_pass_trans_freq) / nyquist
     w_trans[is.na(w_trans)] <- suggested_trans_bandwidth
 
-    w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans) , min = 0, max = 1)
+    w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans), min = 0, max = 1)
 
     # kaiserord
     bands <- c(w_pass[[1]], w_stop, w_pass[[2]])
@@ -238,10 +238,10 @@ design_filter_fir <- function(
   # c("kaiser", "ls", "remez")
   # Wc is (w_pass + w_stop) / 2
   kaisprm <- gsignal::kaiserord(bands, mag, dev = 10 ^ (-r_stop / 20))
-  if(!is.na(filter_order)) {
+  if (!is.na(filter_order)) {
     kaisprm$n <- filter_order
   }
-  if(kaisprm$n > max_nfilters) {
+  if (kaisprm$n > max_nfilters) {
     # even order for stop and high to ensure unity gain is non-zero at nyquist
     if (ftype %in% c("stop", "high") && max_nfilters %% 2 == 1) {
       max_nfilters <- max_nfilters + 1
@@ -282,7 +282,7 @@ design_filter_fir <- function(
       params$amplitude <- mag2
     },
     "remez" = {
-      if(kaisprm$n < 4) {
+      if (kaisprm$n < 4) {
         kaisprm$n <- 4
       }
       b <- unclass(gsignal::remez(kaisprm$n, c(0, bands, 1), mag2))
@@ -294,7 +294,7 @@ design_filter_fir <- function(
       params$amplitude <- mag2
     }
   )
-  if( scale ) {
+  if ( scale ) {
     # scale
     switch(
       ftype,
@@ -305,7 +305,7 @@ design_filter_fir <- function(
         f0 <- mean(w_pass)
       },
       {
-        if(w_stop[[1]] + w_stop[[2]] > 1) {
+        if (w_stop[[1]] + w_stop[[2]] > 1) {
           # high-freqeuncy band stop
           f0 <- 0
         } else {
@@ -329,7 +329,7 @@ design_filter_fir <- function(
 #' @export
 `format.ravetools-design_filter` <- function(x, ...) {
   params <- x$parameters
-  checks <- sprintf("  %s", format(x$checks)[-c(1,2)])
+  checks <- sprintf("  %s", format(x$checks)[-c(1, 2)])
   c(
     sprintf("<%s filter>", toupper(params$type[[1]])),
     sprintf("  Type : %s", params$type[[2]]),

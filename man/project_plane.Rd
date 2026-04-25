@@ -39,6 +39,8 @@ plane center is far from the surface; default is \code{FALSE}; set to
 
 \item{diagnostic}{whether to plot diagnostic figures showing the morphing
 progress.}
+
+\item{n_iters}{number of iterations; default is five}
 }
 \value{
 The projected vertex locations, same order as \code{initial_positions}.

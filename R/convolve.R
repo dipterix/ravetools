@@ -78,7 +78,7 @@ convolve_signal <- function(x, filter) {
   a <- fftw_c2c(a * b, inverse = TRUE, ret = a) / padded_len
   b <- a[junk_len + seq_len(len_x)]
 
-  if(!is.complex(x)) {
+  if (!is.complex(x)) {
     b <- Re(b)
   }
   b
@@ -88,11 +88,11 @@ convolve_signal <- function(x, filter) {
 #' @export
 convolve_image <- function(x, filter) {
   # make sure x and filter are matrix
-  if(!is.matrix(x)) {
+  if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
 
-  if(!is.matrix(filter)) {
+  if (!is.matrix(filter)) {
     filter <- as.matrix(filter)
   }
 
@@ -116,7 +116,7 @@ convolve_image <- function(x, filter) {
          junk_dim[[2]] + seq_len(dim_x[[2]]),
          drop = FALSE]
 
-  if(!is.complex(x)) {
+  if (!is.complex(x)) {
     b <- Re(b)
   }
   b
@@ -126,29 +126,29 @@ convolve_image <- function(x, filter) {
 #' @export
 convolve_volume <- function(x, filter) {
   # make sure x and filter are matrix
-  if(!is.array(x)) {
+  if (!is.array(x)) {
     x <- is.array(x)
   }
 
-  if(!is.array(filter)) {
+  if (!is.array(filter)) {
     filter <- is.array(filter)
   }
 
   dim_x <- dim(x)
   dim_y <- dim(filter)
-  if(length(dim_x) < 3L) {
+  if (length(dim_x) < 3L) {
     dim_x <- c(dim_x, rep(1, 3 - length(dim_x)))
-  } else if(length(dim_x) > 3L) {
-    if(prod(dim_x) != prod(dim_x[1:3])) {
+  } else if (length(dim_x) > 3L) {
+    if (prod(dim_x) != prod(dim_x[1:3])) {
       stop("`convolve_volume`: x must be an array with 3 dimensions")
     }
     dim_x <- dim_x[1:3]
     dim(x) <- dim_x
   }
-  if(length(dim_y) < 3L) {
+  if (length(dim_y) < 3L) {
     dim_y <- c(dim_y, rep(1, 3 - length(dim_y)))
-  } else if(length(dim_y) > 3L) {
-    if(prod(dim_y) != prod(dim_y[1:3])) {
+  } else if (length(dim_y) > 3L) {
+    if (prod(dim_y) != prod(dim_y[1:3])) {
       stop("`convolve_volume`: filter must be an array with 3 dimensions")
     }
     dim_y <- dim_y[1:3]
@@ -182,7 +182,7 @@ convolve_volume <- function(x, filter) {
     drop = FALSE
   ]
 
-  if(!is.complex(x)) {
+  if (!is.complex(x)) {
     b <- Re(b)
   }
   b

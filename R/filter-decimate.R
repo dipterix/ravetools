@@ -26,22 +26,22 @@
 #'
 #'
 #' @export
-decimate <- function (
+decimate <- function(
   x, q, n = if (ftype == "iir") 8 else 30, ftype = "fir") {
   if (q != round(q))
     stop("decimate only works with integer q.")
   l_x <- length(x)
 
 
-  if(ftype == "fir"){
+  if (ftype == "fir") {
     npad <- ceiling(n / 2)
-    lpad <- 2*x[1] - x[(npad+1):2]
-    rpad <- 2*x[l_x] - x[l_x - (1:npad)]
+    lpad <- 2 * x[1] - x[(npad + 1):2]
+    rpad <- 2 * x[l_x] - x[l_x - (1:npad)]
     inp <- c(lpad, x, rpad)
 
-    b <- fir1(n, 1/q)$b
+    b <- fir1(n, 1 / q)$b
     y <- fftfilt(b, inp)
-    y <- y[ceiling(npad + n/2) + (1:l_x)]
+    y <- y[ceiling(npad + n / 2) + (1:l_x)]
     y <- y[seq(1, length(x), by = q)]
   } else {
     # y <- gsignal::decimate(x, q, n, "iir")
@@ -50,7 +50,7 @@ decimate <- function (
     w <- 0.8 / q
     ba <- gsignal::cheby1(n, rip, w)
 
-    while(
+    while (
       n > 1 &&
       (
         all(ba$b == 0) ||

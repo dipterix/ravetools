@@ -71,13 +71,13 @@ NULL
 
 #' @rdname wavelet
 #' @export
-wavelet_kernels <- function(freqs, srate, wave_num){
+wavelet_kernels <- function(freqs, srate, wave_num) {
   # calculate wavelet cycles for each frequencies
-  if(length(wave_num) != length(freqs)){
+  if (length(wave_num) != length(freqs)) {
     # calculate wavelet cycles for each frequencies
     ratio <- (log(max(wave_num)) - log(min(wave_num))) / (log(max(freqs)) - log(min(freqs)))
     wavelet_cycles <- round(exp((log(freqs) - log(min(freqs))) * ratio + log(min(wave_num))))
-  }else{
+  } else {
     wavelet_cycles <- wave_num
   }
   f_l <- length(freqs)
@@ -87,26 +87,26 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   # sts = wavelet_cycles / (2 * pi * freqs)
   # wavelet_wins = cbind(-3 * sts, 3 * sts)
 
-  fft_waves <- lapply(seq_len(f_l), function(ii){
+  fft_waves <- lapply(seq_len(f_l), function(ii) {
     fq <- freqs[ii]
     cycles <- wavelet_cycles[ii]
     # standard error
     st <- cycles / (2 * pi * fq)
 
     # calculate window size
-    wavelet_win <- seq(-3 * st, 3 * st, by = 1/srate)
+    wavelet_win <- seq(-3 * st, 3 * st, by = 1 / srate)
 
     # half of window length
     w_l_half <- (length(wavelet_win) - 1) / 2
 
     # wavelet 1: calc sinus in complex domain
-    tmp_sine <- exp((0+1i) * 2 * pi * fq / srate * (-w_l_half:w_l_half))
+    tmp_sine <- exp((0 + 1i) * 2 * pi * fq / srate * (-w_l_half:w_l_half))
 
     # Gaussian normalization part
-    A <- 1/sqrt(st*sqrt(pi))
+    A <- 1 / sqrt(st * sqrt(pi))
 
     # wavelet 2: calc gaussian wrappers
-    tmp_gaus_win <- A * exp(-wavelet_win^2/(2 * (cycles/(2 * pi * fq))^2))
+    tmp_gaus_win <- A * exp(-wavelet_win^2 / (2 * (cycles / (2 * pi * fq))^2))
 
     # wave kernel
     tmp_wavelet <- tmp_sine * tmp_gaus_win
@@ -123,7 +123,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
 }
 
 #' @export
-`print.ravetools-wavelet-kernels` <- function(x, plot = FALSE, ...){
+`print.ravetools-wavelet-kernels` <- function(x, plot = FALSE, ...) {
   cat("Discrete wavelet kernels\n")
   cat("  number of kernels/frequencies:", length(x$kernels), "\n")
   cat(sprintf("  frequency range: %.2f Hz - %.2f Hz\n", min(x$frequencies), max(x$frequencies)))
@@ -134,14 +134,14 @@ wavelet_kernels <- function(freqs, srate, wave_num){
 #' @export
 `plot.ravetools-wavelet-kernels` <- function(
   x, cex = 1.2, cex.lab = cex * 1.2, cex.main = cex * 1.33,
-  cex.axis = cex, mai = c(0.8,0.5,0.4,0.1), ...){
+  cex.axis = cex, mai = c(0.8, 0.5, 0.4, 0.1), ...) {
 
   fft_waves <- x$kernels
   srate <- x$sample_rate
   freqs <- x$frequencies
   wavelet_cycles <- x$wavelet_cycles
   max_l <- as.integer(max(sapply(fft_waves, length)) + 0.1 * srate)
-  s <- sapply(fft_waves, function(s){
+  s <- sapply(fft_waves, function(s) {
     l <- (max_l - length(s))
     pre <- floor(l / 2)
     post <- ceiling(l / 2)
@@ -150,7 +150,7 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   s_re <- Re(s)
   s_im <- Im(s)
   ind <- exp(seq(log(min(freqs)), log(max(freqs)), length.out = 10))
-  ind <- sapply(ind, function(i){
+  ind <- sapply(ind, function(i) {
     which.min(abs(i - freqs))[[1]]
   })
   ind <- unique(sort(ind))
@@ -162,11 +162,11 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   x_re <- x_all
   x_im <- x_re + max(x_all)
   # grid::grid.newpage()
-  lay <- rbind(c(1,1), c(2,3))
+  lay <- rbind(c(1, 1), c(2, 3))
 
   graphics::layout(mat = lay)
 
-  old_mai <- graphics::par('mai')
+  old_mai <- graphics::par("mai")
   graphics::par(mai = mai)
   on.exit({
     graphics::par(mai = old_mai)
@@ -177,12 +177,12 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   #   par(mar = old_mar)
   # })
   # par(mar = c(5.1, 4.1, 4.1, 2.1) * (cex / 2 + 0.5))
-  graphics::matplot(y = tmp_re, x = x_re, type='l', col = 'red',
+  graphics::matplot(y = tmp_re, x = x_re, type = "l", col = "red",
                     xlim = c(0, max(x_im)), ylim = c(min(tmp_re, na.rm = TRUE), max(gap) + 1.5 * min(gap)),
-                    lty = 1, cex.lab = cex.lab, cex.main = cex.main, xlab = 'Wavelet Length (seconds)', cex.axis = cex.axis,
-                    ylab = 'Frequency (Hz)', main = 'Wavelet Kernels (Real & Imaginary)', yaxt="n", xaxt="n")
+                    lty = 1, cex.lab = cex.lab, cex.main = cex.main, xlab = "Wavelet Length (seconds)", cex.axis = cex.axis,
+                    ylab = "Frequency (Hz)", main = "Wavelet Kernels (Real & Imaginary)", yaxt = "n", xaxt = "n")
 
-  graphics::matlines(y = tmp_im, x = x_im, type='l', col = 'red', lty = 1)
+  graphics::matlines(y = tmp_im, x = x_im, type = "l", col = "red", lty = 1)
 
   n_halftickers <- 7
   x_actual <- c(x_re, x_im)
@@ -192,45 +192,45 @@ wavelet_kernels <- function(freqs, srate, wave_num){
   xind <- as.integer(xind[-n_halftickers])
   x_label <- x_label[xind]
   x_label[n_halftickers] <- abs(x_label[n_halftickers])
-  x_label <- sprintf('%.2f', x_label)
-  x_label[n_halftickers] <- paste0('\u00B1', x_label[n_halftickers])
+  x_label <- sprintf("%.2f", x_label)
+  x_label[n_halftickers] <- paste0("\u00B1", x_label[n_halftickers])
   x_text <- stats::median(x_actual)
 
-  graphics::axis(1, at=x_actual[xind], x_label, cex.axis = cex.axis)
-  graphics::axis(2, at=gap, freqs[ind], cex.axis = cex.axis, las = 1)
-  graphics::abline(h = gap, col = 'grey80', lty = 2)
-  leading_mod <- sapply(ind, function(ii){
-    x <- s[,ii]
+  graphics::axis(1, at = x_actual[xind], x_label, cex.axis = cex.axis)
+  graphics::axis(2, at = gap, freqs[ind], cex.axis = cex.axis, las = 1)
+  graphics::abline(h = gap, col = "grey80", lty = 2)
+  leading_mod <- sapply(ind, function(ii) {
+    x <- s[, ii]
     cycles <- wavelet_cycles[ii]
     x <- x[!is.na(x)] #Mod(x[1]) / max(Mod(x)) * 100  #= 1.111%
     c(length(x) / srate, cycles)
   })
-  graphics::text(x = x_text, y = gap, '|', cex = cex)
-  graphics::text(x = x_text, y = gap, sprintf('%.3f', leading_mod[1,]), cex = cex, pos = 2)
-  graphics::text(x = x_text, y = gap, sprintf('%.2f', leading_mod[2,]), cex = cex, pos = 4)
+  graphics::text(x = x_text, y = gap, "|", cex = cex)
+  graphics::text(x = x_text, y = gap, sprintf("%.3f", leading_mod[1, ]), cex = cex,  pos = 2)
+  graphics::text(x = x_text, y = gap, sprintf("%.2f", leading_mod[2, ]), cex = cex,  pos = 4)
   y_mini_title <- min(gap) + max(gap)
-  graphics::text(x = x_text, y = y_mini_title, '|', cex = cex.lab)
-  graphics::text(x = x_text, y = y_mini_title, 'Wave Length', cex = cex.lab, pos = 2)
-  graphics::text(x = x_text, y = y_mini_title, '# of Cycles', cex = cex.lab, pos = 4)
+  graphics::text(x = x_text, y = y_mini_title, "|", cex = cex.lab)
+  graphics::text(x = x_text, y = y_mini_title, "Wave Length", cex = cex.lab, pos = 2)
+  graphics::text(x = x_text, y = y_mini_title, "# of Cycles", cex = cex.lab, pos = 4)
 
   # plot freq over wavelength and wave cycles
   wave_len <- sapply(fft_waves, length) / srate
-  graphics::plot(freqs, wave_len, type = 'l', ylab = 'Wavelet Length (seconds)',
-                 xlab = 'Frequency (Hz)', main = 'Wavelet Length | Frequency',
-                 las = 1, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, col = 'grey80')
-  graphics::points(freqs, wave_len, col = 'red', pch = 4)
+  graphics::plot(freqs, wave_len, type = "l", ylab = "Wavelet Length (seconds)",
+                 xlab = "Frequency (Hz)", main = "Wavelet Length | Frequency",
+                 las = 1, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, col = "grey80")
+  graphics::points(freqs, wave_len, col = "red", pch = 4)
 
-  graphics::plot(freqs, wavelet_cycles, type = 'l', ylab = 'Wavelet Cycle',
-                 xlab = 'Frequency (Hz)', main = 'Wavelet Cycle | Frequency',
-                 las = 1, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, col = 'grey80')
-  graphics::points(freqs, wavelet_cycles, col = 'red', pch = 4)
+  graphics::plot(freqs, wavelet_cycles, type = "l", ylab = "Wavelet Cycle",
+                 xlab = "Frequency (Hz)", main = "Wavelet Cycle | Frequency",
+                 las = 1, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, col = "grey80")
+  graphics::points(freqs, wavelet_cycles, col = "red", pch = 4)
 
   return(invisible())
 }
 
 
 wavelet_kernels2_float <- function(freqs, srate, wave_num,
-                             data_length, signature = NULL){
+                             data_length, signature = NULL) {
   freqs <- as.double(freqs)
   srate <- as.double(srate)
   wave_num <- as.double(wave_num)
@@ -238,7 +238,7 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
   kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
   digest <- digest::digest(list(freqs, srate, wave_num, data_length, signature = signature))
   root_dir <- file.path(tempdir2(check = TRUE), "ravetools")
-  if(!dir.exists(root_dir)){
+  if (!dir.exists(root_dir)) {
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
   path <- file.path(root_dir, sprintf("wavelet-%s", digest))
@@ -251,14 +251,14 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
       freqs = freqs, srate = srate, wave_num = wave_num, data_length = data_length,
       arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels-float"
     ))
-  }, error = function(e){
+  }, error = function(e) {
 
-    if(getOption("ravetools.debug", FALSE)){
+    if (getOption("ravetools.debug", FALSE)) {
       print(path)
       warning(e)
     }
 
-    if(dir.exists(path)){
+    if (dir.exists(path)) {
       unlink(path, recursive = TRUE)
     }
 
@@ -273,16 +273,16 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
   arr$.mode <- "readwrite"
 
   tmp <- complex(data_length)
-  lapply(seq_along(kernel_info$kernels), function(ii){
+  lapply(seq_along(kernel_info$kernels), function(ii) {
     tmp_wavelet <- kernel_info$kernels[[ii]]
     w_l <- length(tmp_wavelet)
-    n_pre  <- ceiling(data_length / 2) - floor(w_l/2)
+    n_pre  <- ceiling(data_length / 2) - floor(w_l / 2)
     n_post <- data_length - n_pre - w_l
     x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
     # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
     fftw_c2c(data = x, inverse = 0L, ret = tmp)
     conjugate(tmp)
-    arr[,ii] <- tmp
+    arr[, ii] <- tmp
     NULL
   })
 
@@ -303,7 +303,7 @@ wavelet_kernels2_float <- function(freqs, srate, wave_num,
 
 morlet_wavelet_float <- function(data, freqs, srate, wave_num,
                            trend = c("constant", "linear", "none"),
-                           signature = NULL, ...){
+                           signature = NULL, ...) {
 
   # Instead of using fixed wave_cycles, use flex cycles
   # lower num_cycle is good for low freq, higher num_cycle is good for high freq.
@@ -323,7 +323,7 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
   fft_waves <- wavelet_kernels2_float(freqs, srate, wave_num, d_l, signature = signature)
 
   # normalize data, and fft
-  if(trend != "none"){
+  if (trend != "none") {
     data <- as.vector(detrend(data, trend = trend, ...))
     # data <- data - mean(data)
   #   fft_data <- fftw_r2c(data, inplace = TRUE)
@@ -349,18 +349,18 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
       rave_data_type = "rave-wavelet-coefficients",
       precision = "float"
     )
-  }, error = function(e){
-    if(getOption("ravetools.debug", FALSE)){
+  }, error = function(e) {
+    if (getOption("ravetools.debug", FALSE)) {
       print(out_path)
       warning(e)
     }
 
-    if(dir.exists(out_path)){
+    if (dir.exists(out_path)) {
       unlink(out_path, recursive = TRUE)
     }
     NULL
   })
-  if(inherits(output, "FileArray")){ return(output) }
+  if (inherits(output, "FileArray")) { return(output) }
 
   output <- filearray::filearray_create(
     filebase = out_path, dimension = dim(fft_waves),
@@ -369,14 +369,14 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
   output$.mode <- "readwrite"
 
   tmp <- complex(length(fft_data))
-  filearray::fmap(x = fft_waves, fun = function(input){
+  filearray::fmap(x = fft_waves, fun = function(input) {
     # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
     fftw_c2c(data = input[[1]] * fft_data,
              inverse = 1L, ret = tmp)
     c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
   }, .y = output, .buffer_count = ncol(output))
 
-  # output <- apply(fft_waves[], 2, function(x){
+  # output <- apply(fft_waves[], 2, function(x) {
   #   wave_spectrum = fftwtools::fftw_c2c(x * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
   #   c(wave_spectrum[-ind], wave_spectrum[ind])
   # })
@@ -388,14 +388,14 @@ morlet_wavelet_float <- function(data, freqs, srate, wave_num,
   output$.header$trend <- trend
   output$.header$more_args <- more_args
   output$.header$rave_data_type <- "rave-wavelet-coefficients"
-  output$.header$precision <- 'float'
+  output$.header$precision <- "float"
   output$.save_header()
 
   output$.mode <- "readonly"
   output
 }
 
-wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length, signature = NULL){
+wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length, signature = NULL) {
   freqs <- as.double(freqs)
   srate <- as.double(srate)
   wave_num <- as.double(wave_num)
@@ -403,7 +403,7 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length, signatu
   kernel_info <- wavelet_kernels(freqs = freqs, srate = srate, wave_num = wave_num)
   digest <- digest::digest(list(freqs, srate, wave_num, data_length, signature = signature))
   root_dir <- file.path(tempdir2(check = TRUE), "ravetools")
-  if(!dir.exists(root_dir)){
+  if (!dir.exists(root_dir)) {
     dir.create(root_dir, showWarnings = FALSE, recursive = TRUE)
   }
   real_path <- file.path(root_dir, sprintf("wavelet-real-%s", digest))
@@ -424,15 +424,15 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length, signatu
         arr_dim = arr_dim, rave_data_type = "rave-wavelet-kernels-double-imag"
       )
     ))
-  }, error = function(e){
-    if(getOption("ravetools.debug", FALSE)){
+  }, error = function(e) {
+    if (getOption("ravetools.debug", FALSE)) {
       print(real_path)
       print(imag_path)
       warning(e)
     }
 
-    if(dir.exists(real_path)){ unlink(real_path, recursive = TRUE) }
-    if(dir.exists(imag_path)){ unlink(imag_path, recursive = TRUE) }
+    if (dir.exists(real_path)) { unlink(real_path, recursive = TRUE) }
+    if (dir.exists(imag_path)) { unlink(imag_path, recursive = TRUE) }
 
   })
 
@@ -452,17 +452,17 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length, signatu
   arr_imag$.mode <- "readwrite"
 
   tmp <- complex(data_length)
-  lapply(seq_along(kernel_info$kernels), function(ii){
+  lapply(seq_along(kernel_info$kernels), function(ii) {
     tmp_wavelet <- kernel_info$kernels[[ii]]
     w_l <- length(tmp_wavelet)
-    n_pre  <- ceiling(data_length / 2) - floor(w_l/2)
+    n_pre  <- ceiling(data_length / 2) - floor(w_l / 2)
     n_post <- data_length - n_pre - w_l
     x <- c(rep(0, n_pre), tmp_wavelet, rep(0, n_post))
     # arr[,ii] <- Conj(fftwtools::fftw_c2c(x))
     fftw_c2c(data = x, inverse = 0L, ret = tmp)
     conjugate(tmp)
-    arr_real[,ii] <- Re(tmp)
-    arr_imag[,ii] <- Im(tmp)
+    arr_real[, ii] <- Re(tmp)
+    arr_imag[, ii] <- Im(tmp)
     # arr[,ii] <- tmp
     NULL
   })
@@ -498,7 +498,7 @@ wavelet_kernels2_double <- function(freqs, srate, wave_num, data_length, signatu
 
 morlet_wavelet_double <- function(data, freqs, srate, wave_num,
                                  trend = c("constant", "linear", "none"),
-                                 signature = NULL, ...){
+                                 signature = NULL, ...) {
 
   # Instead of using fixed wave_cycles, use flex cycles
   # lower num_cycle is good for low freq, higher num_cycle is good for high freq.
@@ -518,7 +518,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
   fft_waves <- wavelet_kernels2_double(freqs, srate, wave_num, d_l, signature = signature)
 
   # normalize data, and fft
-  if(trend != "none"){
+  if (trend != "none") {
     data <- as.vector(detrend(data, trend = trend, ...))
     # data <- data - mean(data)
     # fft_data <- fftw_r2c(data, inplace = TRUE)
@@ -555,18 +555,18 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
         precision = "double"
       )
     )
-  }, error = function(e){
-    if(getOption("ravetools.debug", FALSE)){
+  }, error = function(e) {
+    if (getOption("ravetools.debug", FALSE)) {
       print(real_path)
       print(imag_path)
       warning(e)
     }
 
-    if(dir.exists(real_path)){ unlink(real_path, recursive = TRUE) }
-    if(dir.exists(imag_path)){ unlink(imag_path, recursive = TRUE) }
+    if (dir.exists(real_path)) { unlink(real_path, recursive = TRUE) }
+    if (dir.exists(imag_path)) { unlink(imag_path, recursive = TRUE) }
     NULL
   })
-  if(length(output) == 2){ return(output) }
+  if (length(output) == 2) { return(output) }
 
   output_real <- filearray::filearray_create(
     filebase = real_path, dimension = dim(fft_waves[[1]]),
@@ -582,19 +582,19 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
   tmp <- complex(length(fft_data))
 
   ii <- 1
-  filearray::fmap2(x = fft_waves, fun = function(input){
+  filearray::fmap2(x = fft_waves, fun = function(input) {
     # wave_spectrum = fftwtools::fftw_c2c(input[[1]] * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
     kernel <- input[[1]] + 1i * input[[2]]
     fftw_c2c(data = kernel * fft_data,
              inverse = 1L, ret = tmp)
     tmp <- c(tmp[-ind], tmp[ind])  / (wave_len * sqrt(srate / 2))
-    output_real[,ii] <- Re(tmp)
-    output_imag[,ii] <- Im(tmp)
+    output_real[, ii] <- Re(tmp)
+    output_imag[, ii] <- Im(tmp)
     ii <<- ii + 1
     NULL
   }, .buffer_count = f_l)
 
-  # output <- apply(fft_waves[], 2, function(x){
+  # output <- apply(fft_waves[], 2, function(x) {
   #   wave_spectrum = fftwtools::fftw_c2c(x * fft_data, inverse = 1) / (wave_len * sqrt(srate / 2))
   #   c(wave_spectrum[-ind], wave_spectrum[ind])
   # })
@@ -606,7 +606,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
   output_real$.header$trend <- trend
   output_real$.header$more_args <- more_args
   output_real$.header$rave_data_type <- "rave-wavelet-coefficients-real"
-  output_real$.header$precision <- 'double'
+  output_real$.header$precision <- "double"
   output_real$.save_header()
 
   output_imag$.header$freqs <- freqs
@@ -616,7 +616,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
   output_imag$.header$trend <- trend
   output_imag$.header$more_args <- more_args
   output_imag$.header$rave_data_type <- "rave-wavelet-coefficients-imag"
-  output_imag$.header$precision <- 'double'
+  output_imag$.header$precision <- "double"
   output_imag$.save_header()
 
   output_real$.mode <- "readonly"
@@ -633,7 +633,7 @@ morlet_wavelet <- function(data, freqs, srate, wave_num, precision = c("float", 
                            trend = c("constant", "linear", "none"),
                            signature = NULL, ...) {
   precision <- match.arg(precision)
-  if(precision == "float"){
+  if (precision == "float") {
     re <- morlet_wavelet_float(data = data, freqs = freqs, srate = srate,
                                wave_num = wave_num, trend = trend,
                                signature = signature, ...)
