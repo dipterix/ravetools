@@ -89,6 +89,7 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
 #' \code{TRUE} for a warm start
 #' @param diagnostic whether to plot diagnostic figures showing the morphing
 #' progress.
+#' @param n_iters number of iterations; default is five
 #' @returns The projected vertex locations, same order as \code{initial_positions}.
 #'
 #' @examples
@@ -156,7 +157,7 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
 #' @export
 project_plane <- function(
     target, width, height, shape, initial_positions,
-    translate_first = TRUE, diagnostic = FALSE) {
+    translate_first = TRUE, diagnostic = FALSE, n_iters = 5) {
 
   target <- ensure_mesh3d(target)
   plane <- plane_geometry(width = width, height = height, shape = shape)
@@ -256,6 +257,7 @@ project_plane <- function(
     if(iter <= 3 * n_contacts) { return(0.2) }
     if(iter <= 4 * n_contacts) { return(0.2) }
     if(iter <= 5 * n_contacts) { return(0.2) }
+    return(0.1)
   }
 
   plane_diag <- sqrt(sum(c(width, height)^2))
@@ -267,13 +269,14 @@ project_plane <- function(
     if(iter <= 3 * n_contacts) { return(0.2) }
     if(iter <= 4 * n_contacts) { return(0.3) }
     if(iter <= 5 * n_contacts) { return(0.1) }
+    return(0.05)
   }
   radius_fun <- function(iter) {
     max(radius_ratio(iter) * plane_diag, contact_diag)
   }
 
   # iterate
-  for(iter in seq_len(n_contacts * 5)) {
+  for(iter in seq_len(n_contacts * n_iters)) {
 
     lambda <- lambda_fun(iter)
     radius <- radius_fun(iter)

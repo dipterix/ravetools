@@ -21,3 +21,5 @@ docs
 .R
 valgrind.R
 valgrind.sh
+.positai
+mountainsort4_output

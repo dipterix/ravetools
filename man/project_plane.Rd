@@ -11,7 +11,8 @@ project_plane(
   shape,
   initial_positions,
   translate_first = TRUE,
-  diagnostic = FALSE
+  diagnostic = FALSE,
+  n_iters = 5
 )
 }
 \arguments{

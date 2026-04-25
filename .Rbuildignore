@@ -20,3 +20,5 @@ autom4te.cache/
 ^\.Rhistory$
 ^valgrind\.sh$
 ^valgrind\.R$
+^\.positai$
+^\.claude$
