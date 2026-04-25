@@ -65,7 +65,6 @@ LinkingTo:
     RcppEigen
 Suggests: 
     fftwtools,
-    wavelets,
     bit64,
     grDevices,
     microbenchmark,

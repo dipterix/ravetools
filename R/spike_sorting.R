@@ -253,9 +253,8 @@ haar_feature_extraction <- function(
 
   cc <- t(apply(spike_mat, 1L, function(spike) {
     # Haar wavelet decomposition
-    w <- wavelets::dwt(spike, filter = "haar", n.levels = level, boundary = "periodic")
-    coeffs <- unlist(w@W)
-    coeffs <- c(coeffs, w@V[[level]])
+    w <- waveslim::dwt(spike, wf = "haar", n.levels = level, boundary = "periodic")
+    coeffs <- c(unlist(w[paste0("d", seq_len(level))]), w[[paste0("s", level)]])
     unname(coeffs[seq_len(ls)])
   }))
 
