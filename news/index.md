@@ -1,0 +1,301 @@
+# Changelog
+
+## ravetools 0.2.5
+
+- `baseline_array` now supports seven baseline methods: `"percentage"`,
+  `"sqrt_percentage"`, `"decibel"`, `"zscore"`, `"sqrt_zscore"`,
+  `"db_zscore"`, and `"subtract_mean"`; newly added methods include
+  decibel z-score normalization
+- Added spike sorting helpers for normality test, spike detection,
+  per-channel waveform extraction, and `Haar` wavelet feature extraction
+- Replaced `wavelets` package dependency with `waveslim` for discrete
+  wavelet transform used in spike sorting utilities
+- `project_plane` gains an `n_iters` argument to control the number of
+  projection iterations (default is `5`)
+- Applied lint fixes and improved code style consistency across all
+  source files
+
+## ravetools 0.2.4
+
+CRAN release: 2025-09-10
+
+- Added a naive implementation of non-negative matrix factorization in
+  pure R
+- Added finding and aligning stimulation pulses (for continuous
+  stimulation)
+- Added `find_peaks` to provide finding peaks along a trace of signal
+
+## ravetools 0.2.3
+
+CRAN release: 2025-07-22
+
+- Added `gammatone_fast` filters to obtain the audio envelope at
+  different frequencies
+- Added `vcg_subset_certex` to subset mesh
+- Added `vcg_subdivision` to up-sample mesh
+- Added plane-generating function to create mesh for plane
+
+## ravetools 0.2.2
+
+CRAN release: 2025-03-05
+
+- Fixed `clang20` warning and removed problematic `vcglib` code that use
+  pointers after free.
+
+## ravetools 0.2.1
+
+CRAN release: 2025-01-24
+
+- Using `std::nearbyint` instead `std::round` to round numbers to comply
+  to `IEC-60559` standard that half numbers round to nearest even
+  integers
+- Implemented low-level `3D` volume sampling in `C++`:
+  `resample_3d_volume`
+- Exported
+  [`gsignal::resample`](https://rdrr.io/pkg/gsignal/man/resample.html)
+  (however, some edits might be needed in the future to produce the same
+  results as `Matlab`)
+- Supported converting `ieegio` surface geometries to `mesh3d` to be
+  used in `VCG` related functions
+- Added `K-D` tree search to find closest points among two point clouds
+
+## ravetools 0.2.0
+
+CRAN release: 2024-12-16
+
+- Added `vcg_raycaster` to find intersection of rays and given mesh
+  object.
+
+## ravetools 0.1.9
+
+CRAN release: 2024-11-08
+
+- Hot fix by adding `vctrs` to `Suggests` to fix the issue that fails
+  the unit test due to an update in `testthat` package.
+
+## ravetools 0.1.8
+
+CRAN release: 2024-09-03
+
+- `design_filter` ensures frequency window cuts off within 0 to
+  `Nyquist`
+- `fftfilt` allows matrix input
+- `filtfilt` with `a=1` (`FIR` filter) calls `fftfilt` to speed up
+- Fixed `pwelch` incorrect power calculation. The results agrees mostly
+  with `Matlab` function
+- Using `hamming` window as the default in `pwelch`; exported additional
+  window options such as `blackman` families, `bohmanwin`, `flattopwin`,
+  and `hanning`
+
+## ravetools 0.1.7
+
+CRAN release: 2024-07-17
+
+- Fixed a `c++` template issue caused by `vcglib`, which fails to
+  compile under `clang19`
+- `decimate` agrees with `Matlab` now (both `fir` and `iir` filters)
+- Implemented `freqz2` to obtain the frequency response of a digital
+  filter (similar to
+  [`gsignal::freqz`](https://rdrr.io/pkg/gsignal/man/freqz.html) but
+  with more accurate cutoff frequency calculation and more customize
+  plots)
+- Added filter diagnostic plot `diagnose_filter`
+- Added `check_filter` to obtain expected magnitude at given frequency
+  and reciprocal condition number
+- Removed dependency `signal` and use `gsignal` instead
+- Added `design_filter` for both `fir` and `iir` filters, allowing both
+  entry and intermediate users to design band-pass/stop, low/high pass
+  filters easily.
+- The `iir` filter order generated from `design_filter` will be checked
+  against `rcond_filter_ar` (reciprocal condition number) to make
+  improve the numeric stability
+- Fixed (hopefully) memory issues caused by `dijkstra`; the package
+  passed `asan`, `valgrind` test provided by `rhub2`
+
+## ravetools 0.1.6
+
+CRAN release: 2024-06-02
+
+- Fixed `dijkstra` method occasionally causing memory error. New method
+  is much faster now.
+- Fixed `plot.pwelch` not displaying the signal names correctly.
+- Removed `c++17` requirement and supports 11, 14, and 17 standards
+
+## ravetools 0.1.5
+
+CRAN release: 2024-05-19
+
+- Fixed `FIR1` filter
+- Fixed `pwelch` throwing warnings when signal is zero (or zero power)
+- Updated authorship
+
+## ravetools 0.1.4
+
+- Implemented `dijkstra` to find shortest paths in mesh
+- Migrated and incorporated `vcglib`
+- Fixed a `C++` template issue via type explicit calls
+- Fixed `fir1` filter when band-passing signals with incorrect `n`
+- `pwelch` plot works with zero power now; `mv_pwelch` plot error fixed
+
+## ravetools 0.1.3
+
+CRAN release: 2023-12-04
+
+- Rewrote `band_pass2` to avoid `NA` generated when upper band frequency
+  is `Nyquist`
+- Added `Vector3`, `Matrix4`, `Quaternion` for in-place calculation
+- Added support for `WASM`
+- Fixed issues reported by `CRAN`: “format string is not a string
+  literal (potentially insecure)”
+
+## ravetools 0.1.2
+
+CRAN release: 2023-07-16
+
+- Compatible with the latest `filearray`
+- Exported `grow_volume`
+- `mesh_from_volume` no longer throw errors if the mesh does not form a
+  manifold
+
+## ravetools 0.1.1
+
+CRAN release: 2023-04-19
+
+- Fixed a precision issue that caused test failure on some machine
+
+## ravetools 0.1.0
+
+CRAN release: 2023-02-18
+
+- Added `fill_surface` to fill in volume based on given surface mesh
+- Added `mesh_from_volume` to generate mesh from volume. This function
+  can be used together with `fill_surface` to generate surface envelope
+- Added `register_volume` to align two imaging data using linear or
+  non-linear registration
+- Added `fftw` on `2D` image and `3D` volume data
+- Added convolution for `1D`, `2D`, `3D` data using `FFT`
+
+## ravetools 0.0.9
+
+CRAN release: 2023-01-20
+
+- Fixed `pwelch` frequency not starting from zero issue
+- Upgraded `TinyThread` using the latest pull-request to `RcppParallel`
+
+## ravetools 0.0.8
+
+CRAN release: 2022-10-14
+
+- Added `interpolate_stimulation` to detect stimulation signals within
+  the response and interpolate with smooth signals
+- The package now imports `splines`
+- Added `fast_quantile` and `fast_mvquantile` to improve the
+  quantile/median calculation speed
+- Fixed the `plot_signals` plotting range too large when signals have
+  large values (such as stimulation)
+- Fixed `TinyThreads` library memory leak issues
+- Simplified `diagnose_channel`, avoid duplicated `pwelch` calculation
+
+## ravetools 0.0.7
+
+CRAN release: 2022-09-19
+
+- Added signal `filter`, `filtfilt` that produce the same results as
+  `Matlab` (with precision error)
+- Added two ways to perform band-pass filters
+- Allows multiple channels through `pwelch` as a row-major matrix to
+  speed up calculation
+- Added `wavelet_cycles_suggest` to provide default calculation of
+  wavelet cycles
+- Added internal argument `signature` to wavelet to resolve potential
+  cache conflicts when running in multiple processes. (This allows
+  `RAVE` to run wavelet on multiple subjects at the same time)
+
+## ravetools 0.0.6
+
+CRAN release: 2022-08-25
+
+- Added decibel average in `pwelch`
+- Allowed `pwelch` sampling frequency to be greater than the signal
+  length
+- Adjusted parameters diagnostic plot and `pwelch` plot to properly
+  handle graph text, margin, axis
+- Added `plot_signals` to plot multiple functional data within the same
+  canvas
+
+## ravetools 0.0.5
+
+CRAN release: 2022-08-06
+
+- Exposed `C++` code to `inst/includes` so other users can dynamically
+  link to the functions
+  (<https://github.com/dipterix/ravetools/issues/5>)
+- Removed confusing in-place arguments in the `fftw` related code
+- Corrected `fftw` plans to respect the flags
+- Added `C++` to convert raw binary bytes to `uint`, `int`, `float`, and
+  `string`
+
+## ravetools 0.0.4
+
+CRAN release: 2022-05-29
+
+Parallel processes might use different temporary directory paths. To
+improve the performance, it is recommended to set a shared temporary
+directory, hence this version
+
+- Allows temporary directories to be set via environment variable
+  `RAVETOOLS_TEMPDIR` or option `ravetools.tempdir`.
+
+## ravetools 0.0.3
+
+CRAN release: 2022-02-16
+
+This version fixes a memory issue reported by `CRAN` check
+(`gcc-UBSAN`).
+
+- There is a potential integer overflow where `NA_INTEGER` is subtracted
+  by one before being converted to `R_xlen_t` type. This update fixes
+  this issue
+- Removed `RcppParallel` and copied part of it into `inst/include`
+  folder, with `TBB` removed under the `GPL-3` license framework.
+
+## ravetools 0.0.2
+
+CRAN release: 2022-02-14
+
+This is an initial version of `ravetools`. Although a bare minimal set
+of signal processing functions are provided, it is sufficient to perform
+preprocess pipelines on most `iEEG` signals. Some functions are added
+from the `dipsaus` package, with considerable performance improvement.
+The `C++` functions have been tested on all major platforms, with
+different architectures (`ARM`, `i386`, `x64`).
+
+#### Documentation
+
+- Added `README` file to demonstrate basic usage
+- Added a `NEWS.md` file to track changes to the package.
+
+#### Signal processing functions
+
+- Re-implemented `decimate` with `FIR` filters creating the same results
+  as in `Matlab`
+- Added `detrend` function to
+- Added `diagnose_channel` to visually inspect channel signals
+- Added `morlet_wavelet` to enable fast and memory efficient wavelet
+  decomposition; the result agrees with existing `Matlab` code with
+  floating errors (`10^-7`)
+- Added `multitaper`
+- Added `pwelch` (`Welch` periodogram)
+- Added `notch_filter` to remove line noise
+
+#### High-performance functions
+
+The following functions are implemented in `C++` parallel. They tend to
+be faster than normal base-R implementations, depending on the number of
+`CPU` cores used.
+
+- Added `collapse` to collapse arrays
+- Added `shift_array` to shift array along certain indices
+- Added `fast_cov` to calculate `pearson` covariance matrix in parallel
+- Added `baseline_array` to calculate baseline arrays with multiple
+  margins
