@@ -219,7 +219,7 @@ implementation is released under GPL license).
   : 'Butterworth' filter with maximum order
 
 - [`carla()`](https://dipterix.org/ravetools/reference/carla.md) :
-  Common Average Re-referencing by Least Anticorrelation (CARLA)
+  Common Average Re-referencing by Least Anti-Correlation (CARLA)
 
 - [`check_filter()`](https://dipterix.org/ravetools/reference/check_filter.md)
   : Check 'Arma' filter

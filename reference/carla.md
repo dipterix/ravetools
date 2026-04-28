@@ -1,13 +1,13 @@
-# Common Average Re-referencing by Least Anticorrelation (CARLA)
+# Common Average Re-referencing by Least Anti-Correlation (CARLA)
 
 Selects an optimal subset of channels to use as the common average
-reference (CAR) for cortico-cortical evoked potential (CCEP) data,
-following the `CARLA` algorithm of Huang et al. (2024). Channels are
+reference (CAR) for cortico-cortical evoked potential (`CCEP`) data,
+following the `CARLA` (see 'Reference' and 'Citation'). Channels are
 ranked in increasing order of their cross-trial covariance (or variance
 when only one trial is available); subsets are then iteratively grown
-and the size that yields the least anticorrelation between the candidate
-reference and the remaining unreferenced channels is selected as
-optimal.
+and the size that yields the least anti-correlation between the
+candidate reference and the remaining unreferenced channels is selected
+as optimal.
 
 ## Usage
 
@@ -17,7 +17,8 @@ carla(
   nboot = 100L,
   sensitive = FALSE,
   min_size = NULL,
-  absolute_rank = FALSE
+  absolute_rank = FALSE,
+  virtual_reference = FALSE
 )
 ```
 
@@ -41,14 +42,16 @@ carla(
   logical; if `TRUE` (and more than one trial is supplied), the more
   sensitive cutoff is used, corresponding to the channel count just
   before the first statistically significant decrease in the mean
-  anticorrelation curve. The default `FALSE` returns the global maximum
+  anti-correlation curve. The default `FALSE` returns the global maximum
   of that curve.
 
 - min_size:
 
   integer, minimum subset size considered when `sensitive = TRUE`;
-  defaults to `max(2, ceiling(0.1 * nchan))` as in the original
-  implementation.
+  defaults to `max(2, ceiling(0.1 * nchan_good))`, where `nchan_good` is
+  the number of usable channels after the bad-channel mask has been
+  applied (see Details). Floored at 2 because subset size 1 is never
+  evaluated.
 
 - absolute_rank:
 
@@ -60,9 +63,25 @@ carla(
   channels. Set to `TRUE` to use the mean of the **absolute**
   covariances instead, which is more robust to evoked responses whose
   polarity flips across trials (e.g. alternating-polarity stimulation,
-  biphasic CCEPs with jitter), at the cost of an upward bias on the
+  biphasic `CCEPs` with jitter), at the cost of an upward bias on the
   non-responsive floor. Ignored when only one trial is supplied (the
   per-channel variance is used in that case).
+
+- virtual_reference:
+
+  logical; if `TRUE`, runs the modified CARLA before the iterative
+  subset evaluation: rank channels once, designate the channel with the
+  median rank as a "virtual reference", subtract its signal from every
+  channel, then re-rank on the subtracted data. The virtual channel
+  itself is pinned to the very end of the new ordering so it is never
+  picked into the CAR until the final subset size. This is intended for
+  data where the recording reference is contaminated by stimulation
+  artifact or evoked activity: a contaminated reference makes every
+  channel look artificially similar and biases the covariance/variance
+  ranking statistic, but subtracting a mid-rank proxy of that
+  contamination unbiases the ranking so genuinely responsive channels
+  rise to the top. Default `FALSE` reproduces the original CARLA
+  algorithm bit-for-bit.
 
 ## Value
 
@@ -82,47 +101,85 @@ A list with the following elements:
 
 - `order`:
 
-  integer vector, channel indices sorted in increasing order of the
-  ranking statistic.
+  integer vector, indices of the **good** channels sorted in increasing
+  order of the ranking statistic. Bad channels (zero variance /
+  all-`NA`; see Details) are excluded.
 
 - `vars`:
 
-  numeric vector, the per-channel ranking statistic (mean cross-trial
-  covariance, or variance for a single trial).
+  numeric vector of length `nchan` containing the per-channel ranking
+  statistic (mean cross-trial covariance, or variance for a single
+  trial). Bad channels keep their raw value (zero or `NA`) so callers
+  can audit the mask.
 
 - `n_optimum`:
 
-  integer, the optimal subset size selected.
+  integer, the optimal subset size selected (indexes into `order`).
 
 - `zmin_mean`:
 
-  numeric matrix of shape `nchan x nboot` (or a length-`nchan` vector
-  for a single trial) holding, for each subset size and bootstrap, the
-  mean Fisher z-transformed correlation of the most globally
-  anticorrelated unreferenced channel against the candidate CAR.
+  numeric matrix of shape `length(order) x nboot` (or a
+  length-`length(order)` vector for a single trial / `nboot = 1`)
+  holding, for each subset size and bootstrap, the mean Fisher
+  z-transformed correlation of the most globally anti-correlated
+  unreferenced channel against the candidate CAR. Row 1 is always `NA`
+  (subset size 1 is not evaluated).
+
+- `bad_channels`:
+
+  integer vector of channel indices that were excluded from the analysis
+  because their ranking statistic was zero or `NA` (flat / dead
+  channels, plus the virtual channel itself when
+  `virtual_reference = TRUE`).
+
+- `virtual_channel`:
+
+  integer, the index (1-based) of the channel used as the virtual
+  reference when `virtual_reference = TRUE`; `NA_integer_` otherwise.
+
+- `vars1`:
+
+  numeric vector of the first-pass ranking statistic when
+  `virtual_reference = TRUE` (the post-subtraction statistic is returned
+  in `vars`); `NULL` otherwise.
 
 ## Details
 
-The function is a faithful port of the core `CARLA.m` routine from Huang
-et al.; it does not perform notch filtering, time-window cropping, or
-grouping by stimulation site. Those steps belong to the surrounding
-pre-processing pipeline (see the example below).
+The function is a faithful port of the core `CARLA.m` routine; it does
+not perform notch filtering, time-window cropping, or grouping by
+stimulation site. Those steps belong to the surrounding preprocess
+pipeline (see the example below).
 
 For each candidate subset size \\n = 2, \ldots, N\\, the candidate
 reference is computed as the channel-wise mean of the \\n\\
 lowest-ranked channels. Each of those \\n\\ channels is then correlated,
 in its unreferenced form, against every channel of the candidate
 re-referenced subset. The resulting Pearson correlations are Fisher
-z-transformed; the row corresponding to the most globally anticorrelated
-channel is recorded as `zmin`. The optimal \\n\\ is the one that
-maximizes (i.e. makes least negative) the mean of `zmin`.
+z-transformed; the row corresponding to the most globally
+anti-correlated channel is recorded as `zmin`. The optimal \\n\\ is the
+one that maximizes (i.e. makes least negative) the mean of `zmin`.
+
+**Bad-channel mask.** Channels whose ranking statistic is exactly zero
+or `NA` are flagged as "bad" and excluded both from the CAR candidate
+pool and from the target-channel correlation rows. This catches flat /
+dead channels (constant signal, no usable variance) and , when
+`virtual_reference = TRUE`, automatically removes the virtual channel
+itself, since subtracting it from itself yields a zero trace. All
+references to channel indices in the returned `order`, `n_optimum`, and
+`zmin_mean` are with respect to the **good** channels only; `vars` is
+full-length so callers can inspect the raw scores.
 
 ## References
 
-Huang H., Ojeda Valencia G., Gregg N. M., Osman G. M., Montoya M. N.,
-Worrell G. A., Miller K. J., Hermes D. (2024). CARLA: Adjusted common
-average referencing for cortico-cortical evoked potential data. *Journal
-of Neuroscience Methods*, 407, 110153.
+The CARLA algorithm (`virtual_reference = FALSE`) is described in
+[doi:10.1016/j.jneumeth.2024.110153](https://doi.org/10.1016/j.jneumeth.2024.110153)
+; the modified CARLA precursor (`virtual_reference = TRUE`) is described
+in
+[doi:10.1016/j.jneumeth.2025.110461](https://doi.org/10.1016/j.jneumeth.2025.110461)
+, with a reference implementation at
+<https://github.com/hharveygit/SPES_reference_contam>. See
+`citation("ravetools")` for the full bibliographic entries of both
+manuscripts.
 
 ## Examples
 
