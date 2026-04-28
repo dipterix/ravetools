@@ -10,6 +10,8 @@ Morlet
 NFFT
 Nyquist
 Welch
+biphasic
+cortico
 doi
 iEEG
 multitaper
@@ -17,3 +19,5 @@ neuroimage
 preprocess
 rgl
 spectrogram
+unbiases
+unreferenced

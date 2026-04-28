@@ -1,11 +1,11 @@
-#' @title Common Average Re-referencing by Least Anticorrelation (CARLA)
+#' @title Common Average Re-referencing by Least Anti-Correlation (CARLA)
 #' @description
 #' Selects an optimal subset of channels to use as the common average reference
-#' (CAR) for cortico-cortical evoked potential (CCEP) data, following the
-#' \code{CARLA} algorithm of Huang et al. (2024). Channels are ranked in
+#' (CAR) for cortico-cortical evoked potential (\verb{CCEP}) data, following the
+#' \verb{CARLA} (see 'Reference' and 'Citation'). Channels are ranked in
 #' increasing order of their cross-trial covariance (or variance when only one
 #' trial is available); subsets are then iteratively grown and the size that
-#' yields the least anticorrelation between the candidate reference and the
+#' yields the least anti-correlation between the candidate reference and the
 #' remaining unreferenced channels is selected as optimal.
 #'
 #' @param x numeric array of shape \code{channels x time x trials}; if a
@@ -18,11 +18,14 @@
 #' @param sensitive logical; if \code{TRUE} (and more than one trial is
 #' supplied), the more sensitive cutoff is used, corresponding to the channel
 #' count just before the first statistically significant decrease in the mean
-#' anticorrelation curve. The default \code{FALSE} returns the global maximum
+#' anti-correlation curve. The default \code{FALSE} returns the global maximum
 #' of that curve.
 #' @param min_size integer, minimum subset size considered when
-#' \code{sensitive = TRUE}; defaults to \code{max(2, ceiling(0.1 * nchan))}
-#' as in the original implementation.
+#' \code{sensitive = TRUE}; defaults to
+#' \code{max(2, ceiling(0.1 * nchan_good))}, where \code{nchan_good} is
+#' the number of usable channels after the bad-channel mask has been
+#' applied (see Details). Floored at 2 because subset size 1 is never
+#' evaluated.
 #' @param absolute_rank logical; if \code{FALSE} (the default), the
 #' per-channel ranking statistic is the signed mean of the off-diagonal
 #' trial-to-trial covariances, as in the original CARLA manuscript. This
@@ -31,9 +34,22 @@
 #' from non-responsive channels. Set to \code{TRUE} to use the mean of the
 #' \strong{absolute} covariances instead, which is more robust to evoked
 #' responses whose polarity flips across trials (e.g. alternating-polarity
-#' stimulation, biphasic CCEPs with jitter), at the cost of an upward bias
-#' on the non-responsive floor. Ignored when only one trial is supplied
+#' stimulation, biphasic \verb{CCEPs} with jitter), at the cost of an upward
+#' bias on the non-responsive floor. Ignored when only one trial is supplied
 #' (the per-channel variance is used in that case).
+#' @param virtual_reference logical; if \code{TRUE}, runs the modified
+#' CARLA before the iterative subset
+#' evaluation: rank channels once, designate the channel with the median
+#' rank as a "virtual reference", subtract its signal from every channel,
+#' then re-rank on the subtracted data. The virtual channel itself is
+#' pinned to the very end of the new ordering so it is never picked into
+#' the CAR until the final subset size. This is intended for data where
+#' the recording reference is contaminated by stimulation artifact or
+#' evoked activity: a contaminated reference makes every channel look
+#' artificially similar and biases the covariance/variance ranking statistic,
+#' but subtracting a mid-rank proxy of that contamination unbiases the
+#' ranking so genuinely responsive channels rise to the top. Default
+#' \code{FALSE} reproduces the original CARLA algorithm bit-for-bit.
 #'
 #' @returns A list with the following elements:
 #' \describe{
@@ -43,22 +59,38 @@
 #' vector when only one trial is supplied) holding the common average signal
 #' computed from \code{channels}. Subtract this from each channel of the
 #' original signal to obtain the re-referenced data.}
-#' \item{\code{order}}{integer vector, channel indices sorted in increasing
-#' order of the ranking statistic.}
-#' \item{\code{vars}}{numeric vector, the per-channel ranking statistic
-#' (mean cross-trial covariance, or variance for a single trial).}
-#' \item{\code{n_optimum}}{integer, the optimal subset size selected.}
-#' \item{\code{zmin_mean}}{numeric matrix of shape \code{nchan x nboot} (or a
-#' length-\code{nchan} vector for a single trial) holding, for each subset
-#' size and bootstrap, the mean Fisher z-transformed correlation of the most
-#' globally anticorrelated unreferenced channel against the candidate CAR.}
+#' \item{\code{order}}{integer vector, indices of the \strong{good}
+#' channels sorted in increasing order of the ranking statistic. Bad
+#' channels (zero variance / all-\code{NA}; see Details) are excluded.}
+#' \item{\code{vars}}{numeric vector of length \code{nchan} containing the
+#' per-channel ranking statistic (mean cross-trial covariance, or variance
+#' for a single trial). Bad channels keep their raw value (zero or
+#' \code{NA}) so callers can audit the mask.}
+#' \item{\code{n_optimum}}{integer, the optimal subset size selected
+#' (indexes into \code{order}).}
+#' \item{\code{zmin_mean}}{numeric matrix of shape
+#' \code{length(order) x nboot} (or a length-\code{length(order)} vector
+#' for a single trial / \code{nboot = 1}) holding, for each subset size
+#' and bootstrap, the mean Fisher z-transformed correlation of the most
+#' globally anti-correlated unreferenced channel against the candidate CAR.
+#' Row 1 is always \code{NA} (subset size 1 is not evaluated).}
+#' \item{\code{bad_channels}}{integer vector of channel indices that were
+#' excluded from the analysis because their ranking statistic was zero or
+#' \code{NA} (flat / dead channels, plus the virtual channel itself when
+#' \code{virtual_reference = TRUE}).}
+#' \item{\code{virtual_channel}}{integer, the index (1-based) of the
+#' channel used as the virtual reference when \code{virtual_reference =
+#' TRUE}; \code{NA_integer_} otherwise.}
+#' \item{\code{vars1}}{numeric vector of the first-pass ranking statistic
+#' when \code{virtual_reference = TRUE} (the post-subtraction statistic is
+#' returned in \code{vars}); \code{NULL} otherwise.}
 #' }
 #'
 #' @details
-#' The function is a faithful port of the core \code{CARLA.m} routine from
-#' Huang et al.; it does not perform notch filtering, time-window cropping,
+#' The function is a faithful port of the core \code{CARLA.m} routine; it does
+#' not perform notch filtering, time-window cropping,
 #' or grouping by stimulation site. Those steps belong to the surrounding
-#' pre-processing pipeline (see the example below).
+#' preprocess pipeline (see the example below).
 #'
 #' For each candidate subset size \eqn{n = 2, \ldots, N}{n = 2, ..., N}, the
 #' candidate reference is computed as the channel-wise mean of the \eqn{n}
@@ -66,15 +98,29 @@
 #' in its unreferenced form, against every channel of the candidate
 #' re-referenced subset. The resulting Pearson correlations are
 #' Fisher z-transformed; the row corresponding to the most globally
-#' anticorrelated channel is recorded as \code{zmin}. The optimal \eqn{n}
+#' anti-correlated channel is recorded as \code{zmin}. The optimal \eqn{n}
 #' is the one that maximizes (i.e. makes least negative) the mean of
 #' \code{zmin}.
 #'
+#' \strong{Bad-channel mask.} Channels whose ranking statistic is exactly
+#' zero or \code{NA} are flagged as "bad" and excluded both from the CAR
+#' candidate pool and from the target-channel correlation rows. This
+#' catches flat / dead channels (constant signal, no usable variance) and
+#', when \code{virtual_reference = TRUE}, automatically removes the virtual
+#' channel itself, since subtracting it from itself yields a zero trace.
+#' All references to channel indices in the returned \code{order},
+#' \code{n_optimum}, and \code{zmin_mean} are with respect to the
+#' \strong{good} channels only; \code{vars} is full-length so callers can
+#' inspect the raw scores.
+#'
 #' @references
-#' Huang H., Ojeda Valencia G., Gregg N. M., Osman G. M., Montoya M. N.,
-#' Worrell G. A., Miller K. J., Hermes D. (2024). CARLA: Adjusted common
-#' average referencing for cortico-cortical evoked potential data.
-#' \emph{Journal of Neuroscience Methods}, 407, 110153.
+#' The CARLA algorithm (\code{virtual_reference = FALSE}) is described in
+#' \doi{10.1016/j.jneumeth.2024.110153}; the modified CARLA precursor
+#' (\code{virtual_reference = TRUE}) is described in
+#' \doi{10.1016/j.jneumeth.2025.110461}, with a reference implementation
+#' at \url{https://github.com/hharveygit/SPES_reference_contam}. See
+#' \code{citation("ravetools")} for the full bibliographic entries of
+#' both manuscripts.
 #'
 #' @examples
 #'
@@ -190,7 +236,7 @@
 #'
 #' @export
 carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
-                  absolute_rank = FALSE) {
+                  absolute_rank = FALSE, virtual_reference = FALSE) {
 
   stopifnot(is.numeric(x))
   if (is.matrix(x)) {
@@ -222,29 +268,31 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   }
 
   # ---- 1. Per-channel ranking statistic --------------------------------------
-  if (n_tr == 1L) {
-    vars <- apply(x, 1L, function(row) {
-      stats::var(as.numeric(row))
-    })
+  # In the original manuscript there is no `abs()`: the assumption is a
+  # phase-locked evoked response, so trial-pair covariances are positive
+  # and their signed mean is a clean score. That signed-mean form is the
+  # default here (`absolute_rank = FALSE`). Setting `absolute_rank = TRUE`
+  # takes the magnitude instead, which is robust to polarity-flipping
+  # evoked responses (e.g. alternating-polarity stimulation, biphasic
+  # CCEPs) where signed covariances can cancel.
+  cov_summary <- if (isTRUE(absolute_rank)) {
+    function(v) mean(abs(v), na.rm = TRUE)
   } else {
-    # In the original manuscript there is no `abs()`: the assumption is a
-    # phase-locked evoked response, so trial-pair covariances are positive
-    # and their signed mean is a clean score. That signed-mean form is the
-    # default here (`absolute_rank = FALSE`). Setting `absolute_rank = TRUE`
-    # takes the magnitude instead, which is robust to polarity-flipping
-    # evoked responses (e.g. alternating-polarity stimulation, biphasic
-    # CCEPs) where signed covariances can cancel.
-    cov_summary <- if (isTRUE(absolute_rank)) {
-      function(v) mean(abs(v), na.rm = TRUE)
-    } else {
-      function(v) mean(v, na.rm = TRUE)
-    }
-    vars <- vapply(seq_len(n_ch), function(ii) {
-      slice <- matrix(x[ii, , ], nrow = n_t, ncol = n_tr)  # time x trials
-      cv <- stats::cov(slice)                              # trials x trials
-      cov_summary(cv[upper.tri(cv)])
-    }, numeric(1L))
+    function(v) mean(v, na.rm = TRUE)
   }
+  rank_fn <- function(signal) {
+    if (n_tr == 1L) {
+      apply(signal, 1L, function(row) stats::var(as.numeric(row)))
+    } else {
+      vapply(seq_len(n_ch), function(ii) {
+        slice <- matrix(signal[ii, , ], nrow = n_t, ncol = n_tr)  # time x trials
+        cv <- stats::cov(slice)                                   # trials x trials
+        cov_summary(cv[upper.tri(cv)])
+      }, numeric(1L))
+    }
+  }
+
+  vars <- rank_fn(x)
 
   # Signal model (denote i: channel, j: trial, t: time):
   #   signal_ij(t) =
@@ -266,7 +314,55 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # Sorting `vars` in increasing order puts the least-responsive channels
   # first; growing the CAR subset from the top of `ord` keeps the evoked
   # response out of the reference for as long as possible.
+
+  # ---- 1b. Optional virtual-reference pre-step (modified CARLA) -------------
+  # Huang et al. (2025): when the recording reference is contaminated by
+  # stim/evoked activity, every channel inherits a copy of the
+  # contamination, which makes the ranking statistic above biased --
+  # responsive and non-responsive channels look more similar than they are.
+  # The fix is to pick the channel whose first-pass rank is in the middle
+  # (so it is unlikely to be either pure noise or a strongly responsive
+  # channel, but should still carry the contamination), subtract it from
+  # every channel, and re-rank on the subtracted signal. The virtual
+  # channel itself becomes identically zero after subtraction, so we
+  # remove it from the new order and append it at the very end -- it is
+  # never picked into the CAR until the final subset size and never
+  # influences any of the correlations downstream.
+  if (virtual_reference) {
+    vars1 <- vars
+    # MATLAB `round(nChs/2)` rounds halves AWAY from zero; R's base
+    # `round` is banker's (half-to-even). Use `floor(n/2 + 0.5)` to match
+    # the reference implementation exactly.
+    virtual_channel <- order(vars1)[as.integer(floor(n_ch / 2 + 0.5))]
+    # Force n_t x n_tr matrix even when n_tr == 1 (drop=TRUE would
+    # collapse to a length-n_t vector and break sweep over c(2, 3)).
+    vref <- matrix(x[virtual_channel, , ], nrow = n_t, ncol = n_tr)
+    x_work <- sweep(x, c(2L, 3L), vref, "-")
+    # The virtual channel is now identically zero in `x_work`, so the
+    # bad-channel mask below will (correctly) drop it from `ord`. There is
+    # no need for the explicit `c(ord[ord != vc], vc)` reordering trick.
+    vars <- rank_fn(x_work)
+  } else {
+    vars1 <- NULL
+    virtual_channel <- NA_integer_
+    x_work <- x
+  }
+
+  # ---- 1c. Bad-channel mask --------------------------------------------------
+  # Flat / dead channels (zero variance) and channels that produced an NA
+  # ranking statistic (e.g. all-NA input rows) cannot meaningfully appear in
+  # the CAR -- their correlation rows would be NaN -- and including them
+  # introduces noise into the bootstrap statistic. Drop them from `ord` and
+  # shrink the iterative loop accordingly.
+  bad_mask <- is.na(vars) | vars == 0
+  bad_channels <- which(bad_mask)
   ord <- order(vars)
+  ord <- ord[!bad_mask[ord]]
+  n_good <- length(ord)
+  if (n_good < 2L) {
+    stop("`carla` needs at least 2 good channels (found ", n_good,
+         " after dropping flat / NA channels).")
+  }
 
   # ---- 2. Iterative subset evaluation ----------------------------------------
   # zmin <- array(NA_real_, dim = c(n_ch, n_ch, nboot_eff))
@@ -309,11 +405,11 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # `kk`. Collapsing the target-channel dim here (rather than keeping a
   # full `n_ch x nboot_eff` slab and averaging later) avoids allocating a
   # `n_ch x nboot_eff x (n_ch - 1)` array we never read.
-  zmin_per_ii <- vapply(seq.int(2L, n_ch), function(ii) {
+  zmin_per_ii <- vapply(seq.int(2L, n_good), function(ii) {
     # evaluate as if the referencing channels are the first ii least important channels
     sel <- ord[seq_len(ii)]
 
-    sub <- x[sel, , , drop = FALSE]                # ii x n_t x n_tr
+    sub <- x_work[sel, , , drop = FALSE]           # ii x n_t x n_tr
     car_sub <- colMeans(sub)                       # n_t x n_tr (drops dim 1)
 
     if (n_tr == 1L) {
@@ -323,10 +419,14 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
     # Compute the reference based on these ii channels
     sub_reref <- sweep(sub, c(2L, 3L), car_sub, "-")
 
-    if (n_tr == 1L) {
-      Useg   <- t(matrix(sub[, , 1L],       nrow = ii, ncol = n_t))
-      Useg_r <- t(matrix(sub_reref[, , 1L], nrow = ii, ncol = n_t))
-      r <- stats::cor(Useg, Useg_r)
+    if (nboot_eff == 1L) {
+      # Single-pass: either a single trial was supplied, or the user asked
+      # for `nboot = 1` with multiple trials. In either case there is no
+      # bootstrap; we just collapse trials by simple mean (a no-op when
+      # n_tr == 1) and run one correlation pass.
+      Useg_m <- rowMeans(sub,       dims = 2L)     # ii x n_t
+      Uref_m <- rowMeans(sub_reref, dims = 2L)
+      r <- stats::cor(t(Useg_m), t(Uref_m))
       diag(r) <- NA_real_
       z <- atanh(r)
       kk <- which.min(rowMeans(z, na.rm = TRUE))
@@ -438,17 +538,21 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   }
 
   # ---- 3. Pick the optimum subset size ---------------------------------------
-  if (sensitive && n_tr > 1L) {
+  if (sensitive && nboot_eff > 1L) {
     if (is.null(min_size)) {
-      n_min <- max(2L, as.integer(ceiling(0.1 * n_ch)))
+      # MATLAB: `nMin = ceil(0.1 * nChs)`. We follow that on the GOOD-channel
+      # count, but floor at 2 because subset size 1 is never evaluated (row
+      # 1 of `zmin_mean` is structurally NA), so a 1-floor would short-
+      # circuit the sensitive search to `n_optimum = 1`.
+      n_min <- max(2L, as.integer(ceiling(0.1 * n_good)))
     } else {
       n_min <- max(2L, as.integer(min_size))
     }
-    zmm_x_trs <- rowMeans(zmin_mean, na.rm = TRUE)              # length n_ch
+    zmm_x_trs <- rowMeans(zmin_mean, na.rm = TRUE)              # length n_good
     ii <- n_min
-    n_optimum <- n_ch
-    while (ii <= n_ch) {
-      if (ii == n_ch) { n_optimum <- ii; break }
+    n_optimum <- n_good
+    while (ii <= n_good) {
+      if (ii == n_good) { n_optimum <- ii; break }
       if (!is.na(zmm_x_trs[ii + 1L]) &&
           zmm_x_trs[ii + 1L] > zmm_x_trs[ii]) {
         ii <- ii + 1L
@@ -495,11 +599,14 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   }
 
   list(
-    channels  = channels,
-    # car       = car,
-    order     = ord,
-    vars      = vars,
-    n_optimum = as.integer(n_optimum),
-    zmin_mean = zmin_mean
+    channels        = channels,
+    # car             = car,
+    order           = ord,
+    vars            = vars,
+    n_optimum       = as.integer(n_optimum),
+    zmin_mean       = zmin_mean,
+    bad_channels    = as.integer(bad_channels),
+    virtual_channel = as.integer(virtual_channel),
+    vars1           = vars1
   )
 }
