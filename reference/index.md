@@ -12,6 +12,9 @@
 - [`butter_max_order()`](https://dipterix.org/ravetools/reference/butter_max_order.md)
   : 'Butterworth' filter with maximum order
 
+- [`carla()`](https://dipterix.org/ravetools/reference/carla.md) :
+  Common Average Re-referencing by Least Anticorrelation (CARLA)
+
 - [`check_filter()`](https://dipterix.org/ravetools/reference/check_filter.md)
   : Check 'Arma' filter
 
