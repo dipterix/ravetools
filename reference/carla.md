@@ -237,11 +237,12 @@ resp_idx <- which(tt > 0.0 & tt <= 0.3)
 x_resp <- x_clean[, resp_idx, , drop = FALSE]
 
 # ---- 3. Run CARLA to pick reference channels ---------------------------
-fit <- carla(x_resp, sensitive = TRUE)
+fit <- carla(x_resp, sensitive = TRUE, absolute_rank = TRUE,
+             virtual_reference = TRUE)
 fit$channels        # selected reference channels (should exclude 1:4)
-#>  [1]  1  3  4  5  6  7  8  9 10 11 12 13 15 16
+#>  [1]  5  6  7  8  9 10 11 13 14 15 16
 fit$n_optimum       # number of channels in the optimal CAR
-#> [1] 14
+#> [1] 11
 
 # ---- 4. Re-reference the ORIGINAL (unfiltered) signal ------------------
 # mean or median, your choice!
