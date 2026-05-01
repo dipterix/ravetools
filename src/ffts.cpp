@@ -189,13 +189,15 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
   fftw_plan p;
 
   // c2r transforms always destroy their input (implicit for many-c2r);
-  // always copy so the caller's buffer is preserved.
+  // always plan/execute on a private copy so the caller's buffer is preserved.
+  // For non-ESTIMATE planners the planning step itself overwrites the exec
+  // buffer, so memcpy must happen *after* plan creation.
   fftw_complex* data_copy = (fftw_complex*) malloc(nc * *m * sizeof(fftw_complex));
-  memcpy(data_copy, data, nc * *m * sizeof(fftw_complex));
 
   int effort = fftw_efforts(fftwplanopt);
   p = fftw_plan_many_dft_c2r(1, n, *m, data_copy, NULL, 1,
                              nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
+  memcpy(data_copy, data, nc * *m * sizeof(fftw_complex));
 
   fftw_execute(p);
 
