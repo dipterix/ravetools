@@ -66,6 +66,7 @@ The projected vertex locations, same order as `initial_positions`.
 
 ``` r
 
+
 # Construct target surface
 
 sphere <- vcg_sphere()

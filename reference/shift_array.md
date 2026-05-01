@@ -46,6 +46,7 @@ time points (column, the second dimension) for each signal.
 ## Examples
 
 ``` r
+
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
 ravetools_threads(n_threads = 2L)
 

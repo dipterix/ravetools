@@ -50,6 +50,7 @@ the index of the intersecting face (counted from 1)
 ## Examples
 
 ``` r
+
 library(ravetools)
 sphere <- vcg_sphere(normals = FALSE)
 sphere$vb[1:3, ] <- sphere$vb[1:3, ] + c(10, 10, 10)

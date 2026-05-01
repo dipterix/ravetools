@@ -27,6 +27,7 @@ A triangular mesh of class `'mesh3d'`
 ## Examples
 
 ``` r
+
 plane <- plane_geometry(5, 10, c(12, 22))
 
 if(FALSE) {

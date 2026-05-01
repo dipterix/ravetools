@@ -27,6 +27,7 @@ An object of class "mesh3d"
 ## Examples
 
 ``` r
+
 mesh <- plane_geometry()
 
 # default

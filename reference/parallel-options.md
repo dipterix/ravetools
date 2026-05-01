@@ -30,6 +30,7 @@ nothing.
 ## Examples
 
 ``` r
+
 detect_threads()
 #> [1] 4
 

@@ -47,6 +47,7 @@ versus their previous iteration, respectively).
 ``` r
 
 
+
 x <- stats::toeplitz(.9 ^ (0:31))
 
 nmf <- naive_nmf(x, k = 7, verbose = FALSE)

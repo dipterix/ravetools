@@ -30,6 +30,7 @@ A binary volume mask
 
 ``` r
 
+
 oldpar <- par(mfrow = c(2,3), mar = c(0.1,0.1,3.1,0.1))
 
 mask <- array(0, c(21,21,21))

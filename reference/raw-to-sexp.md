@@ -77,6 +77,7 @@ Examples for comparisons.
 ## Examples
 
 ``` r
+
 # 0x00, 0x7f, 0x80, 0xFF
 x <- as.raw(c(0, 127, 128, 255))
 

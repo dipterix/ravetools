@@ -41,6 +41,7 @@ second vector is the final state of `z`
 
 ``` r
 
+
 t <- seq(0, 1, by = 0.01)
 x <- sin(2 * pi * t * 2.3)
 bf <- gsignal::butter(2, c(0.15, 0.3))

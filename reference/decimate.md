@@ -39,6 +39,7 @@ indexing fixed. The results agree with 'Matlab'.
 ## Examples
 
 ``` r
+
 x <- 1:100
 y <- decimate(x, 2, ftype = "fir")
 y

@@ -52,6 +52,7 @@ Mainly used to remove electrical line frequencies at 60, 120, and 180
 
 ``` r
 
+
 time <- seq(0, 3, 0.005)
 s <- sin(120 * pi * time) + rnorm(length(time))
 

@@ -44,6 +44,7 @@ number of columns).
 ## Examples
 
 ``` r
+
 fast_quantile(runif(1000), 0.1)
 #> [1] 0.07898944
 fast_median(1:100)
@@ -64,9 +65,9 @@ microbenchmark::microbenchmark(
   times = 100, unit = "milliseconds"
 )
 #> Unit: milliseconds
-#>         expr      min       lq      mean    median        uq      max neval
-#>  fast_median 0.100648 0.127092 0.1380152 0.1368655 0.1525050 0.175798   100
-#>  base_median 0.182109 0.190772 0.1993742 0.1967325 0.2051335 0.303477   100
+#>         expr      min        lq      mean    median       uq      max neval
+#>  fast_median 0.090347 0.1080655 0.1199175 0.1216270 0.129546 0.157426   100
+#>  base_median 0.189569 0.1974520 0.2039023 0.2021575 0.207112 0.269926   100
 
 # Multivariate cases
 # (5~7x faster than base R)
@@ -80,6 +81,6 @@ microbenchmark::microbenchmark(
 )
 #> Unit: milliseconds
 #>         expr      min       lq      mean   median       uq      max neval
-#>  fast_median 0.696671 0.721066 0.8000299 0.783643 0.801927 1.059158    10
-#>  base_median 2.720490 2.767348 2.8209103 2.782325 2.807492 3.178625    10
+#>  fast_median 0.676004 0.689899 0.7464459 0.723884 0.802561 0.864570    10
+#>  base_median 2.503155 2.523848 2.5745504 2.565685 2.596610 2.712945    10
 ```

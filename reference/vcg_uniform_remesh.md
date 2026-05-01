@@ -64,6 +64,7 @@ A triangular mesh of class `'mesh3d'`
 ## Examples
 
 ``` r
+
 sphere <- vcg_sphere()
 mesh <- vcg_uniform_remesh(sphere, voxel_size = 0.45)
 #> Resampling mesh using a volume of 5 x 5 x 5

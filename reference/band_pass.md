@@ -80,6 +80,7 @@ dimension as `x`
 
 ``` r
 
+
 t <- seq(0, 1, by = 0.0005)
 x <- sin(t * 0.4 * pi) + sin(t * 4 * pi) + 2 * sin(t * 120 * pi)
 

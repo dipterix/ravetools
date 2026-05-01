@@ -85,6 +85,7 @@ function; `morlet_wavelet` returns a file-based array if `precision` is
 ## Examples
 
 ``` r
+
 # \donttest{
 
 # generate sine waves

@@ -32,6 +32,7 @@ fail.
 
 ``` r
 
+
 # Butterworth filter with low-pass at 0.1 Hz (order = 4)
 filter <- butter(4, 0.1, "low")
 

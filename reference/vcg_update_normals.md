@@ -43,6 +43,7 @@ A `'mesh3d'` object with normal vectors.
 ## Examples
 
 ``` r
+
 if(is_not_cran()) {
 
 # Prepare mesh with no normal

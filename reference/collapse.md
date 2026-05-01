@@ -49,6 +49,7 @@ dimensions
 ## Examples
 
 ``` r
+
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
 ravetools_threads(n_threads = 2L)
 
@@ -86,8 +87,8 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>     expr     min      lq    mean  median      uq     max neval
-#>   result 410.667 410.667 410.667 410.667 410.667 410.667     1
-#>  compare 342.860 342.860 342.860 342.860 342.860 342.860     1
+#>   result 406.459 406.459 406.459 406.459 406.459 406.459     1
+#>  compare 312.003 312.003 312.003 312.003 312.003 312.003     1
 
 # large data big difference
 x = array(rnorm(prod(300,200,105)), c(300,200,105,1))
@@ -99,8 +100,8 @@ microbenchmark::microbenchmark(
   })
 #> Unit: milliseconds
 #>     expr       min        lq      mean    median        uq       max neval
-#>   result  20.53751  20.53751  20.53751  20.53751  20.53751  20.53751     1
-#>  compare 198.58659 198.58659 198.58659 198.58659 198.58659 198.58659     1
+#>   result  20.45195  20.45195  20.45195  20.45195  20.45195  20.45195     1
+#>  compare 178.92030 178.92030 178.92030 178.92030 178.92030 178.92030     1
 
 # }
 ```

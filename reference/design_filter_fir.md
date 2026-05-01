@@ -108,6 +108,7 @@ around -40 dB power at 6 Hz.
 ## Examples
 
 ``` r
+
 # ---- Basic -----------------------------
 
 sample_rate <- 500

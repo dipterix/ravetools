@@ -51,6 +51,7 @@ library precision and implementation.
 
 ``` r
 
+
 # ---- 1D convolution ------------------------------------
 x <- cumsum(rnorm(100))
 filter <- dnorm(-2:2)

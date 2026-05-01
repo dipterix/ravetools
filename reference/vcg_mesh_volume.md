@@ -21,6 +21,7 @@ The numeric volume of the mesh
 ## Examples
 
 ``` r
+
 # Initial mesh
 mesh <- vcg_sphere()
 

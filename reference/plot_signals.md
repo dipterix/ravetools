@@ -100,6 +100,7 @@ plot_signals(
 
 ``` r
 
+
 n <- 1000
 base_signal <- c(rep(0, n/2), sin(seq(0,10,length.out = n/2))) * 10
 signals <- rbind(rnorm(n) + base_signal,

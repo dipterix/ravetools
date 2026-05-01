@@ -85,6 +85,7 @@ interpolated signals.
 ``` r
 
 
+
 data("stimulation_signal")
 
 signal <- stimulation_signal$signal

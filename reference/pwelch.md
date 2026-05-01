@@ -208,6 +208,7 @@ items:
 ## Examples
 
 ``` r
+
 x <- rnorm(1000)
 pwel <- pwelch(x, 100)
 pwel

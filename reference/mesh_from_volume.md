@@ -81,6 +81,7 @@ surface otherwise.
 
 ``` r
 
+
 volume <- array(0, dim = c(8,8,8))
 volume[4:5, 4:5, 4:5] <- 1
 

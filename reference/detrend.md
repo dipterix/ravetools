@@ -32,6 +32,7 @@ the number of signals, and number of rows is length of the signals
 ## Examples
 
 ``` r
+
 x <- rnorm(100, mean = 1) + c(
   seq(0, 5, length.out = 50),
   seq(5, 3, length.out = 50))

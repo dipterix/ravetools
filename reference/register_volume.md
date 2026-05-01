@@ -48,6 +48,7 @@ See [`niftyreg`](https://rdrr.io/pkg/RNiftyReg/man/niftyreg.html)
 ## Examples
 
 ``` r
+
 # \donttest{
 
 source <- system.file("extdata", "epi_t2.nii.gz", package="RNiftyReg")

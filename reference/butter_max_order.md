@@ -42,6 +42,7 @@ butter_max_order(
 ## Examples
 
 ``` r
+
 # Find highest order (sharpest transition) of a band-pass filter
 sample_rate <- 500
 nyquist <- sample_rate / 2

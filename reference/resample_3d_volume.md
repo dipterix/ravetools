@@ -49,6 +49,7 @@ coordinate system. The underlying storage mode is the same as `x`
 
 ``` r
 
+
 # up-sample and rotate image
 x <- array(0, c(9, 9, 9))
 x[4:6, 4:6, 4:6] <- 1

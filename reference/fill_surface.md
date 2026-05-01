@@ -64,6 +64,7 @@ Zhengjia Wang
 ## Examples
 
 ``` r
+
 # \donttest{
 
 # takes > 5s to run example

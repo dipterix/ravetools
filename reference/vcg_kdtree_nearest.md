@@ -47,6 +47,7 @@ target point.
 ## Examples
 
 ``` r
+
 # Find nearest point in B with the smallest distance for each point in A
 
 library(ravetools)

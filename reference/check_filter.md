@@ -40,6 +40,7 @@ A list of power estimation and the reciprocal condition number of the
 
 ``` r
 
+
 # create a butterworth filter with -3dB (half-power) at [1, 5] Hz
 # and -60dB stop-band attenuation at [0.5, 6] Hz
 
@@ -73,7 +74,7 @@ check_filter(
 #>   Freq=0.5 xPi rad/s, mag=-3 dB (expected=3 dB)
 #>   Freq=0.05 xPi rad/s, mag=-129.7 dB (expected=60 dB)
 #>   Freq=0.6 xPi rad/s, mag=-63.23 dB (expected=60 dB)
-#> Reciprocal condition number: 4.4e-21 < .Machine$double.eps
+#> Reciprocal condition number: 4.3e-21 < .Machine$double.eps
 #> 
 #> WARNING: 
 #>  * Unstable autoregressive (AR) polynomial coefficients

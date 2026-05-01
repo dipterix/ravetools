@@ -47,6 +47,7 @@ matrices.
 ## Examples
 
 ``` r
+
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
 ravetools_threads(n_threads = 2L)
 
@@ -83,8 +84,8 @@ microbenchmark::microbenchmark(
 )
 #> Unit: milliseconds
 #>      expr      min       lq     mean   median       uq      max neval
-#>  fast_cov 1.539565 1.550064 1.738516 1.563449 1.585932 2.987829    10
-#>       cov 5.401176 5.407577 5.439594 5.426172 5.437523 5.550734    10
+#>  fast_cov 1.406501 1.463788 1.770014 1.572793 1.689423 3.686286    10
+#>       cov 2.621909 2.631404 2.640024 2.637763 2.643250 2.675183    10
 
 # }
 

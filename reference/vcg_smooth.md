@@ -101,6 +101,7 @@ An object of class "mesh3d" with:
 ## Examples
 
 ``` r
+
 if(is_not_cran()) {
 
 # Prepare mesh with no normals

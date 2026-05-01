@@ -16,6 +16,7 @@ The package is available on `CRAN`. To install the compiled version,
 simply run:
 
 ``` r
+
 install.packages("ravetools")
 ```
 
@@ -38,6 +39,7 @@ signal. The goal here is to:
 ### 1. Generate toy examples:
 
 ``` r
+
 library(ravetools)
 
 # Generate 20 second data at 2000 Hz
@@ -56,6 +58,7 @@ diagnose_channel(signal, srate = 2000)
 ### 2. Apply `Notch` filters and inspect `Periodograms`
 
 ``` r
+
 ## ------- Notch filter --------
 signal2 <- notch_filter(signal, sample_rate = 2000)
 
@@ -77,6 +80,7 @@ is smoother than `Wavelet`.
 #### Using `Wavelet`:
 
 ``` r
+
 ## ---------- Wavelet -----------
 coef <- morlet_wavelet(
   signal2, freqs = seq(1, 100, by = 1), 
@@ -110,6 +114,7 @@ algorithm is modified from source code
 them as well if you adopt this approach.
 
 ``` r
+
 ## ---------- Multitaper -----------
 res <- multitaper(
   data = signal2,
@@ -142,6 +147,7 @@ image(
 `non-linear`.
 
 ``` r
+
 source <- system.file("extdata", "epi_t2.nii.gz", package="RNiftyReg")
 target <- system.file("extdata", "flash_t1.nii.gz", package="RNiftyReg")
 aligned <- register_volume(source, target, verbose = FALSE)

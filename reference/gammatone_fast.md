@@ -70,6 +70,7 @@ A file-array object of filtered and potentially down-sampled data; see
 
 ``` r
 
+
 fs <- 4000
 time <- seq_len(8000) / fs
 x <- sin(160 * pi * time) +

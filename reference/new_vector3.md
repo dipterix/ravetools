@@ -32,6 +32,7 @@ A `Vector3` instance
 ## Examples
 
 ``` r
+
 vec3 <- new_vector3(
   x = 1:9,
   y = 9:1,

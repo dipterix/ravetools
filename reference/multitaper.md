@@ -95,6 +95,7 @@ always recommended, the modified code allows other choices.
 ## Examples
 
 ``` r
+
 # \donttest{
 
 # Takes long to run

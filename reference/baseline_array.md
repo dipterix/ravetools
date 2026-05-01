@@ -119,6 +119,7 @@ these baseline methods are:
 ## Examples
 
 ``` r
+
 # Set ncores = 2 to comply to CRAN policy. Please don't run this line
 ravetools_threads(n_threads = 2L)
 
@@ -176,9 +177,9 @@ range(f1() - f2())
 #> [1] -1.818989e-12  2.273737e-12
 microbenchmark::microbenchmark(f1(), f2(), times = 10L)
 #> Unit: milliseconds
-#>  expr       min         lq      mean   median        uq       max neval
-#>  f1() 98.274976 100.607021 125.37235 106.6733 171.99038 184.49224    10
-#>  f2()  7.996514   8.527884  10.15211  10.2730  11.46527  12.49923    10
+#>  expr      min        lq      mean    median        uq       max neval
+#>  f1() 97.73286 103.34796 125.08729 107.37933 170.53991 175.27421    10
+#>  f2() 11.16699  11.65232  12.81724  13.11321  13.70049  14.12358    10
 
 # }
 

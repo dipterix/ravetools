@@ -184,6 +184,7 @@ manuscripts.
 ## Examples
 
 ``` r
+
 # ---- Simulate a small CCEP-like dataset --------------------------------
 # 16 channels, 12 trials, sampled at 1 kHz, 0.5 s peri-stimulus epoch.
 # Channels 1:4 are "responsive" (carry an evoked potential); the rest are

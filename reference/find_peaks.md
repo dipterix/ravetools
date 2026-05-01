@@ -35,6 +35,7 @@ A list of peak index (1-based) and the corresponding value.
 
 ``` r
 
+
 # Basic example
 x <- sin(seq(0, 10, 0.01)) + rnorm(1001) * 0.1
 

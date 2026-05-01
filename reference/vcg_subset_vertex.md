@@ -26,6 +26,7 @@ A triangular mesh of class `'mesh3d'`, a subset of `x`
 ## Examples
 
 ``` r
+
 sphere <- vcg_sphere()
 
 nv <- ncol(sphere$vb)

@@ -47,6 +47,7 @@ rgl_plot_normals(x, length = 1, lwd = 1, col = 1, ...)
 
 ``` r
 
+
 # Make sure the example does not run when compiling
 # or check the package
 if(FALSE) {

@@ -41,6 +41,7 @@ A triangular mesh of class `'mesh3d'`
 
 ``` r
 
+
 if(is_not_cran()) {
 
 library(ravetools)

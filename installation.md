@@ -30,6 +30,7 @@ old versions of R. Choosing the latest R is always the best choice.
   copy-paste the following R command and hit return:
 
 ``` r
+
 write('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', file = "~/.Renviron", append = TRUE)
 ```
 
@@ -65,6 +66,7 @@ letter `M`
   the following code and return line-by-line.
 
 ``` r
+
 if(system.file(package = 'remotes') == ""){ install.packages('remotes') }
 
 remotes::install_github('dipterix/ravetools')
@@ -144,6 +146,7 @@ If you have Intel-based machine, type
   the following code and return line-by-line.
 
 ``` r
+
 if(system.file(package = 'remotes') == ""){ install.packages('remotes') }
 
 remotes::install_github('dipterix/ravetools')
@@ -165,6 +168,7 @@ such as RedHat or CentOS.
   open R environment, and run the following R commands.
 
 ``` r
+
 if(system.file(package = 'remotes') == ""){ install.packages('remotes') }
 
 remotes::install_github('dipterix/ravetools')

@@ -25,6 +25,7 @@ A `'mesh3d'` object
 ## Examples
 
 ``` r
+
 vcg_sphere()
 #> $vb
 #>            [,1]        [,2]      [,3]      [,4]      [,5]       [,6]       [,7]

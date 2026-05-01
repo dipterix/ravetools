@@ -75,6 +75,7 @@ shortest path.
 ## Examples
 
 ``` r
+
 # ---- Toy example --------------------
 
 # Position is 2D, total 6 points

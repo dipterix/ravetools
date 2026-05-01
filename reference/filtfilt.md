@@ -31,6 +31,7 @@ The filtered signal, normally the same length as the input signal `x`.
 ## Examples
 
 ``` r
+
 t <- seq(0, 1, by = 0.01)
 x <- sin(2 * pi * t * 2.3)
 bf <- gsignal::butter(2, c(0.15, 0.3))

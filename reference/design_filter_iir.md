@@ -72,6 +72,7 @@ A filter in 'Arma' form.
 ## Examples
 
 ``` r
+
 sample_rate <- 500
 
 my_diagnose <- function(

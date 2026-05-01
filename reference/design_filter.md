@@ -86,6 +86,7 @@ returns the generator function.
 
 ``` r
 
+
 sample_rate <- 200
 t <- seq(0, 10, by = 1 / sample_rate)
 x <- sin(t * 4 * pi) + sin(t * 20 * pi) +
