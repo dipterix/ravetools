@@ -1,0 +1,122 @@
+# Documentation-only file. The functions below are defined in
+# R/RcppExports.R (auto-generated). This file adds roxygen documentation
+# and `@export` tags so the wrappers appear in the package NAMESPACE.
+
+#' Low-level FFTW3 wrappers
+#'
+#' @name fftw-internal
+#' @aliases fftw_r2c fftw_c2r fftw_c2c
+#'   mvfftw_r2c mvfftw_c2c mvfftw_c2r
+#'   fftw_r2c_2d fftw_c2c_2d fftw_r2c_3d fftw_c2c_3d
+#'
+#' @description
+#' Thin R bindings around the FFTW3 library. These are
+#' \strong{low-level} routines exposed primarily for advanced users and other
+#' packages that need maximum throughput. They perform minimal input checking
+#' and follow FFTW conventions (e.g. unnormalized inverse transforms,
+#' one-sided real-to-complex spectra). For most user code prefer
+#' \code{\link[stats]{fft}}, \code{\link[stats]{mvfft}}, or higher-level
+#' helpers in this package such as \code{\link{convolve}}, \code{\link{pwelch}},
+#' \code{\link{multitaper}}, and the filtering utilities.
+#'
+#' \strong{Warning:} the API is intentionally close to FFTW's C interface and
+#' may change between releases. Outputs match the corresponding base R
+#' transforms up to floating-point round-off.
+#'
+#' @param data Numeric (real) or complex input. For 2D/3D variants, a matrix
+#'   or 3-dimensional array. For \code{mvfftw_*} functions, a matrix whose
+#'   columns are transformed independently.
+#' @param HermConj Integer \code{0} or \code{1}. When \code{1}, return the
+#'   full Hermitian-symmetric spectrum of length \code{N} (matching
+#'   \code{stats::fft}); when \code{0}, return only the non-redundant
+#'   one-sided half of length \code{floor(N/2) + 1}.
+#' @param inverse Integer \code{0} (forward) or \code{1} (inverse). The
+#'   inverse transform is \strong{unnormalized}; divide by the number of
+#'   elements to invert a forward transform, mirroring
+#'   \code{stats::fft(., inverse = TRUE)}.
+#' @param fftwplanopt Integer planner effort: \code{0} = \code{FFTW_ESTIMATE}
+#'   (default, fast planning), \code{1} = \code{FFTW_MEASURE},
+#'   \code{2} = \code{FFTW_PATIENT}, \code{3} = \code{FFTW_EXHAUSTIVE}.
+#' @param retrows Integer; expected number of rows of the time-domain signal
+#'   for \code{mvfftw_c2r} when reconstructing from a one-sided spectrum.
+#' @param ret Optional pre-allocated output buffer of the correct type and
+#'   length; pass \code{NULL} (default) to let the function allocate one.
+#'
+#' @return A complex (or real, for \code{*_c2r}) vector / matrix / array
+#'   matching the corresponding base R transform up to floating-point error.
+#'
+#' @details
+#' All functions preserve their \code{data} argument: the input buffer is
+#' copied internally before planning when needed, so callers may safely reuse
+#' \code{data} after the call. For multi-dimensional variants, axis ordering
+#' follows R (column-major) conventions.
+#'
+#' @examples
+#' set.seed(1)
+#'
+#' ## --- 1D real-to-complex --------------------------------------------------
+#' x <- rnorm(16)
+#' a <- ravetools::fftw_r2c(x, HermConj = 1)
+#' b <- stats::fft(x)
+#' all.equal(a, b)                                  # TRUE (within tol)
+#'
+#' # one-sided spectrum (length floor(N/2)+1)
+#' a_half <- ravetools::fftw_r2c(x, HermConj = 0)
+#' all.equal(a_half, b[seq_len(length(x) %/% 2 + 1)])
+#'
+#' ## --- 1D complex-to-complex ----------------------------------------------
+#' z <- complex(real = rnorm(16), imaginary = rnorm(16))
+#' all.equal(ravetools::fftw_c2c(z, inverse = 0), stats::fft(z))
+#' all.equal(ravetools::fftw_c2c(z, inverse = 1), stats::fft(z, inverse = TRUE))
+#'
+#' ## --- 1D complex-to-real (inverse of fftw_r2c) ---------------------------
+#' # Using the full Hermitian spectrum:
+#' xr <- ravetools::fftw_c2r(a, HermConj = 1) / length(x)
+#' all.equal(xr, x)
+#'
+#' ## --- Multivariate (column-wise) ----------------------------------------
+#' M <- matrix(rnorm(32), nrow = 8, ncol = 4)
+#' all.equal(ravetools::mvfftw_r2c(M, HermConj = 1), stats::mvfft(M + 0i))
+#'
+#' Mz <- matrix(complex(real = rnorm(32), imaginary = rnorm(32)),
+#'              nrow = 8, ncol = 4)
+#' all.equal(ravetools::mvfftw_c2c(Mz, inverse = 0), stats::mvfft(Mz))
+#' all.equal(ravetools::mvfftw_c2c(Mz, inverse = 1),
+#'           stats::mvfft(Mz, inverse = TRUE))
+#'
+#' # one-sided -> back to real signal
+#' Mh <- ravetools::mvfftw_r2c(M, HermConj = 0)
+#' Mr <- ravetools::mvfftw_c2r(Mh, retrows = nrow(M)) / nrow(M)
+#' all.equal(Mr, M)
+#'
+#' ## --- 2D ----------------------------------------------------------------
+#' X2 <- matrix(rnorm(20), nrow = 5, ncol = 4)
+#' all.equal(ravetools::fftw_r2c_2d(X2, HermConj = 1), stats::fft(X2 + 0i))
+#'
+#' Z2 <- matrix(complex(real = rnorm(20), imaginary = rnorm(20)),
+#'              nrow = 5, ncol = 4)
+#' all.equal(ravetools::fftw_c2c_2d(Z2, inverse = 0), stats::fft(Z2))
+#' all.equal(ravetools::fftw_c2c_2d(Z2, inverse = 1),
+#'           stats::fft(Z2, inverse = TRUE))
+#'
+#' ## --- 3D ----------------------------------------------------------------
+#' X3 <- array(rnorm(60), dim = c(5, 4, 3))
+#' all.equal(ravetools::fftw_r2c_3d(X3, HermConj = 1), stats::fft(X3 + 0i))
+#'
+#' Z3 <- array(complex(real = rnorm(60), imaginary = rnorm(60)),
+#'             dim = c(5, 4, 3))
+#' all.equal(ravetools::fftw_c2c_3d(Z3, inverse = 0), stats::fft(Z3))
+#' all.equal(ravetools::fftw_c2c_3d(Z3, inverse = 1),
+#'           stats::fft(Z3, inverse = TRUE))
+#'
+#' @export fftw_r2c
+#' @export fftw_c2r
+#' @export fftw_c2c
+#' @export mvfftw_r2c
+#' @export mvfftw_c2c
+#' @export mvfftw_c2r
+#' @export fftw_r2c_2d
+#' @export fftw_c2c_2d
+#' @export fftw_r2c_3d
+#' @export fftw_c2c_3d
+NULL

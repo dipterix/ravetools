@@ -53,12 +53,16 @@ fftw_c2r <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_c2r`, data, HermConj, fftwplanopt, ret)
 }
 
-mvfftw_r2c <- function(data, fftwplanopt = 0L, ret = NULL) {
-    .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, ret)
+mvfftw_r2c <- function(data, fftwplanopt = 0L, HermConj = 0L, ret = NULL) {
+    .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, HermConj, ret)
 }
 
-mvfft_c2r <- function(data, fftwplanopt = 0L, retrows = 0L, ret = NULL) {
-    .Call(`_ravetools_mvfft_c2r`, data, fftwplanopt, retrows, ret)
+mvfftw_c2c <- function(data, inverse = 0L, fftwplanopt = 0L, ret = NULL) {
+    .Call(`_ravetools_mvfftw_c2c`, data, inverse, fftwplanopt, ret)
+}
+
+mvfftw_c2r <- function(data, fftwplanopt = 0L, retrows = 0L, ret = NULL) {
+    .Call(`_ravetools_mvfftw_c2r`, data, fftwplanopt, retrows, ret)
 }
 
 fftw_r2c_2d <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {

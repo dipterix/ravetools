@@ -164,7 +164,7 @@ void cmvfft_r2c(int *n, int *m, double* data,
 
   if( effort == FFTW_ESTIMATE ){
     p = fftw_plan_many_dft_r2c(1, n, *m, data, NULL, 1,
-                               *n, res, NULL, 1, nc, FFTW_DESTROY_INPUT | effort);
+                               *n, res, NULL, 1, nc, effort);
   } else {
     data_copy = (double*) malloc(*n * *m * sizeof(double));
     p = fftw_plan_many_dft_r2c(1, n, *m, data_copy, NULL, 1,
@@ -188,28 +188,19 @@ void cmvfft_c2r(int *n, int *m, fftw_complex* data,
   int nc = *n/2 +1;
   fftw_plan p;
 
-
-  fftw_complex* data_copy = NULL;
+  // c2r transforms always destroy their input (implicit for many-c2r);
+  // always copy so the caller's buffer is preserved.
+  fftw_complex* data_copy = (fftw_complex*) malloc(nc * *m * sizeof(fftw_complex));
+  memcpy(data_copy, data, nc * *m * sizeof(fftw_complex));
 
   int effort = fftw_efforts(fftwplanopt);
-  if(effort == FFTW_ESTIMATE) {
-    p = fftw_plan_many_dft_c2r(1, n, *m, data, NULL, 1,
-                               nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
-  } else {
-    data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
-    p = fftw_plan_many_dft_c2r(1, n, *m, data_copy, NULL, 1,
-                               nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
-    memcpy(data_copy, data, *n * sizeof(fftw_complex));
-  }
+  p = fftw_plan_many_dft_c2r(1, n, *m, data_copy, NULL, 1,
+                             nc, res, NULL, 1, *n, FFTW_DESTROY_INPUT | effort);
 
   fftw_execute(p);
 
   fftw_destroy_plan(p);
-
-  if(data_copy != NULL){
-    free(data_copy);
-    data_copy = NULL;
-  }
+  free(data_copy);
 
 }
 
@@ -229,13 +220,16 @@ void cmvfft_c2c(int *n, int *m, fftw_complex* data,
 
   int effort = fftw_efforts(fftwplanopt);
   if(effort == FFTW_ESTIMATE) {
+    // FFTW_ESTIMATE does not overwrite the input during planning, but
+    // FFTW_DESTROY_INPUT would still permit execute() to overwrite it.
+    // Omit FFTW_DESTROY_INPUT so the caller's `data` buffer is preserved.
     p = fftw_plan_many_dft(1, n, *m, data, NULL, 1, *n, res,
-                           NULL, 1, *n, sign, FFTW_DESTROY_INPUT | effort);
+                           NULL, 1, *n, sign, effort);
   } else {
     data_copy = (fftw_complex*) malloc(*n * *m * sizeof(fftw_complex));
     p = fftw_plan_many_dft(1, n, *m, data_copy, NULL, 1, *n, res,
                            NULL, 1, *n, sign, FFTW_DESTROY_INPUT | effort);
-    memcpy(data_copy, data, *n * sizeof(fftw_complex));
+    memcpy(data_copy, data, *n * *m * sizeof(fftw_complex));
   }
 
   fftw_execute(p);
@@ -283,8 +277,12 @@ void cfft_c2c_2d(int* nx, int* ny, fftw_complex* data,
 
   int effort = fftw_efforts(fftwplanopt);
 
+  // Always plan/execute on a private copy so the caller's `data` is preserved.
+  // The plan must be created on `data_copy` (its actual exec buffer); for
+  // non-ESTIMATE plans, planning may scribble on `data_copy`, so we memcpy
+  // *after* planning. For ESTIMATE the order does not matter.
   data_copy = (fftw_complex*) malloc(n * sizeof(fftw_complex));
-  fftw_plan p = fftw_plan_dft_2d(*nx, *ny, data, res, sign, FFTW_DESTROY_INPUT | effort);
+  fftw_plan p = fftw_plan_dft_2d(*nx, *ny, data_copy, res, sign, FFTW_DESTROY_INPUT | effort);
   memcpy(data_copy, data, n * sizeof(fftw_complex));
 
   fftw_execute(p);
@@ -335,8 +333,9 @@ void cfft_c2c_3d(int* nx, int* ny, int *nz, fftw_complex* data,
 
   int effort = fftw_efforts(fftwplanopt);
 
+  // Always plan/execute on a private copy so the caller's `data` is preserved.
   data_copy = (fftw_complex*) malloc(n * sizeof(fftw_complex));
-  fftw_plan p = fftw_plan_dft_3d(*nx, *ny, *nz, data, res,
+  fftw_plan p = fftw_plan_dft_3d(*nx, *ny, *nz, data_copy, res,
                                  sign, FFTW_DESTROY_INPUT | effort);
   memcpy(data_copy, data, n * sizeof(fftw_complex));
 

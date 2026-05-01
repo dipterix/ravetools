@@ -3,11 +3,17 @@
 
 #include <Rcpp.h>
 
-SEXP fftw_r2c(SEXP data, int HermConj, SEXP ret);
+SEXP fftw_r2c(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
 
-SEXP mvfft_r2c(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
+SEXP fftw_c2r(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
 
-SEXP fftw_c2c(SEXP data, int inverse, SEXP ret);
+SEXP mvfftw_r2c(SEXP data, int fftwplanopt, int HermConj, SEXP ret);
+
+SEXP fftw_c2c(SEXP data, int inverse, int fftwplanopt, SEXP ret);
+
+SEXP mvfftw_c2c(SEXP data, int inverse, int fftwplanopt, SEXP ret);
+
+SEXP mvfftw_c2r(SEXP data, int fftwplanopt, int retrows, SEXP ret);
 
 SEXP fftw_r2c_2d(SEXP data, int HermConj, int fftwplanopt, SEXP ret);
 
