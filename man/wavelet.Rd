@@ -17,6 +17,7 @@ morlet_wavelet(
   precision = c("float", "double"),
   trend = c("constant", "linear", "none"),
   signature = NULL,
+  segment_length = NULL,
   ...
 )
 
@@ -44,6 +45,19 @@ smoothness); positive integers are strongly suggested}
 \code{'linear'}: remove the linear trend; \code{'none'} do nothing}
 
 \item{signature}{signature to calculate kernel path to save, internally used}
+
+\item{segment_length}{optional positive integer; when provided, long signals
+are processed in overlapping segments of this length (in samples) using
+batched \code{\link{mvfftw_c2c}} convolutions instead of a single full-length
+FFT. This dramatically reduces peak memory and FFT cost for long recordings
+(e.g. multi-hour). Must be strictly greater than the longest wavelet kernel
+length (the kernel at the lowest frequency); otherwise an error is raised.
+Default is \code{NULL}, which uses the legacy single-shot path. When
+\code{segment_length >= length(data)} the function silently falls back to
+the legacy path. Results match the legacy path on the interior of the
+signal up to floating-point error; the first/last
+\code{ceiling(max_kernel_len/2)} samples may differ near the global
+boundaries (both implementations have boundary artifacts there).}
 
 \item{...}{further passed to \code{\link{detrend}};}
 

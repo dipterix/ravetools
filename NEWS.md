@@ -1,5 +1,6 @@
 # ravetools 0.2.5
 
+* `morlet_wavelet` gains a `segment_length` argument (default `NULL`) that processes long signals (e.g. multi-hour recordings) in overlapping segments using batched `mvfftw_c2c` convolutions, dramatically reducing peak memory and FFT cost while preserving the legacy result on the signal interior
 * `baseline_array` now supports seven baseline methods: `"percentage"`, `"sqrt_percentage"`, `"decibel"`, `"zscore"`, `"sqrt_zscore"`, `"db_zscore"`, and `"subtract_mean"`; newly added methods include decibel z-score normalization
 * Added spike sorting helpers for normality test, spike detection, per-channel waveform extraction, and `Haar` wavelet feature extraction
 * Replaced `wavelets` package dependency with `waveslim` for discrete wavelet transform used in spike sorting utilities
