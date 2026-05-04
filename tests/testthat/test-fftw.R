@@ -93,7 +93,7 @@ test_that("mvfftw_r2c HermConj", {
   expect_equal(half, full[1:51, ])
 
   # --- pre-allocated ret for HermConj=1 ---
-  ret_full <- matrix(0+0i, nrow = 100, ncol = 10)
+  ret_full <- matrix(0 + 0i, nrow = 100, ncol = 10)
   ravetools:::mvfftw_r2c(x, HermConj = 1L, ret = ret_full)
   expect_equal(ret_full, ref)
 

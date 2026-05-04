@@ -12,7 +12,7 @@
 \alias{fftw_c2c_2d}
 \alias{fftw_r2c_3d}
 \alias{fftw_c2c_3d}
-\title{Low-level FFTW3 wrappers}
+\title{Low-level \pkg{FFTW3} wrappers}
 \arguments{
 \item{data}{Numeric (real) or complex input. For 2D/3D variants, a matrix
 or 3-dimensional array. For \code{mvfftw_*} functions, a matrix whose
@@ -35,25 +35,27 @@ elements to invert a forward transform, mirroring
 \item{retrows}{Integer; expected number of rows of the time-domain signal
 for \code{mvfftw_c2r} when reconstructing from a one-sided spectrum.}
 
-\item{ret}{Optional pre-allocated output buffer of the correct type and
-length; pass \code{NULL} (default) to let the function allocate one.}
+\item{ret}{Optional reusable output buffer of the correct type and
+length; pass \code{NULL} (default) to let the function allocate one.
+This input is for advanced users; leave \code{NULL} if you do not know
+what you are d}
 }
 \value{
 A complex (or real, for \code{*_c2r}) vector / matrix / array
   matching the corresponding base R transform up to floating-point error.
 }
 \description{
-Thin R bindings around the FFTW3 library. These are
+Thin R bindings around the \pkg{FFTW3} library. These are
 \strong{low-level} routines exposed primarily for advanced users and other
 packages that need maximum throughput. They perform minimal input checking
-and follow FFTW conventions (e.g. unnormalized inverse transforms,
+and follow \pkg{FFTW} conventions (e.g. unnormalized inverse transforms,
 one-sided real-to-complex spectra). For most user code prefer
 \code{\link[stats]{fft}}, \code{\link[stats]{mvfft}}, or higher-level
 helpers in this package such as \code{\link{convolve}}, \code{\link{pwelch}},
 \code{\link{multitaper}}, and the filtering utilities.
 
-\strong{Warning:} the API is intentionally close to FFTW's C interface and
-may change between releases. Outputs match the corresponding base R
+\strong{Warning:} the API is intentionally close to \pkg{FFTW}'s C interface
+and may change between releases. Outputs match the corresponding base R
 transforms up to floating-point round-off.
 }
 \details{

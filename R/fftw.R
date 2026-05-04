@@ -2,7 +2,7 @@
 # R/RcppExports.R (auto-generated). This file adds roxygen documentation
 # and `@export` tags so the wrappers appear in the package NAMESPACE.
 
-#' Low-level FFTW3 wrappers
+#' Low-level \pkg{FFTW3} wrappers
 #'
 #' @name fftw-internal
 #' @aliases fftw_r2c fftw_c2r fftw_c2c
@@ -10,17 +10,17 @@
 #'   fftw_r2c_2d fftw_c2c_2d fftw_r2c_3d fftw_c2c_3d
 #'
 #' @description
-#' Thin R bindings around the FFTW3 library. These are
+#' Thin R bindings around the \pkg{FFTW3} library. These are
 #' \strong{low-level} routines exposed primarily for advanced users and other
 #' packages that need maximum throughput. They perform minimal input checking
-#' and follow FFTW conventions (e.g. unnormalized inverse transforms,
+#' and follow \pkg{FFTW} conventions (e.g. unnormalized inverse transforms,
 #' one-sided real-to-complex spectra). For most user code prefer
 #' \code{\link[stats]{fft}}, \code{\link[stats]{mvfft}}, or higher-level
 #' helpers in this package such as \code{\link{convolve}}, \code{\link{pwelch}},
 #' \code{\link{multitaper}}, and the filtering utilities.
 #'
-#' \strong{Warning:} the API is intentionally close to FFTW's C interface and
-#' may change between releases. Outputs match the corresponding base R
+#' \strong{Warning:} the API is intentionally close to \pkg{FFTW}'s C interface
+#' and may change between releases. Outputs match the corresponding base R
 #' transforms up to floating-point round-off.
 #'
 #' @param data Numeric (real) or complex input. For 2D/3D variants, a matrix
@@ -39,8 +39,10 @@
 #'   \code{2} = \code{FFTW_PATIENT}, \code{3} = \code{FFTW_EXHAUSTIVE}.
 #' @param retrows Integer; expected number of rows of the time-domain signal
 #'   for \code{mvfftw_c2r} when reconstructing from a one-sided spectrum.
-#' @param ret Optional pre-allocated output buffer of the correct type and
+#' @param ret Optional reusable output buffer of the correct type and
 #'   length; pass \code{NULL} (default) to let the function allocate one.
+#'   This input is for advanced users; leave \code{NULL} if you do not know
+#'   what you are d
 #'
 #' @return A complex (or real, for \code{*_c2r}) vector / matrix / array
 #'   matching the corresponding base R transform up to floating-point error.

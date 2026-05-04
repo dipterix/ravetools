@@ -1,9 +1,11 @@
-#' @title Canonical Response Parameterization (CRP)
+#' @title Canonical Response Parameterization (\verb{CRP})
 #' @description
 #' Parameterizes single-trial evoked responses (e.g. cortico-cortical evoked
 #' potentials, \verb{CCEPs}) using the Canonical Response Parameterization
-#' method of Miller \emph{et al.} (2023). The function estimates the response
-#' duration \eqn{\tau_R} from the time course of cross-trial projection
+#' method (see 'Citation'). The function estimates the response
+#' duration \eqn{\tau_R}, the time after stimulus at which the evoked
+#' response has its most consistent, shared structure across trials.
+#' The estimator is obtained from the time course of cross-trial projection
 #' magnitudes, extracts the canonical response shape \eqn{C(t)} via a linear
 #' kernel-trick PCA on the trial matrix truncated at \eqn{\tau_R}, and
 #' reports per-trial weights, residuals, signal-to-noise, explained variance
@@ -25,7 +27,7 @@
 #' (in seconds) defining the analysis window. Defaults match the MATLAB
 #' illustration (\code{0.015 s} to \code{1 s}).
 #' @param remove_artifacts logical; if \code{TRUE} (the default), an initial
-#' CRP pass is run to identify outlier / artifactual trials, which are then
+#' \verb{CRP} pass is run to identify outlier/artifact trials, which are then
 #' dropped before the final pass. See \sQuote{Details}.
 #' @param artifact_interval character, one of \code{"full"} (the default,
 #' matching the active option in the MATLAB illustration) or \code{"tR"};
@@ -33,21 +35,21 @@
 #' projection magnitudes for the full window or only at the response
 #' duration \eqn{\tau_R}.
 #' @param artifact_p_threshold numeric, p-value threshold below which a
-#' trial is flagged as artifactual (provided its mean projection is also
+#' trial is flagged as artifact (provided its mean projection is also
 #' below the cohort mean); defaults to \code{1e-5}.
 #' @param threshold_quantile numeric in \code{(0, 1)}; the fraction of the
 #' peak mean projection magnitude used to derive the duration-uncertainty
 #' bounds \code{tau_R_lower} and \code{tau_R_upper}. Defaults to
 #' \code{0.98} as in the manuscript.
 #' @param time_step integer, sampling step (in samples) used when sweeping
-#' candidate response durations; defaults to \code{5L}, matching the
+#' candidate response duration; defaults to \code{5L}, matching the
 #' MATLAB \code{t_step}. Larger values are faster but smooth the
 #' projection profile.
 #'
 #' @returns A named list with the following elements:
 #' \describe{
 #' \item{\code{parameters}}{a list of single-trial parameterizations
-#' (\code{crp_parms} in MATLAB), with fields:
+#' (\code{crp_params} in MATLAB), with fields:
 #' \code{V_tR} (voltage matrix truncated to \eqn{\tau_R}),
 #' \code{al} (alpha coefficient weights of \eqn{C} into each trial),
 #' \code{C} (canonical shape, the first kernel-PCA component),
@@ -73,7 +75,7 @@
 #' \code{t_value_tR}, \code{p_value_tR},
 #' \code{t_value_full}, \code{p_value_full}.}
 #' \item{\code{bad_trials}}{integer vector of trial indices (into the
-#' original \code{x}) flagged and removed as artifactual; \code{integer(0)}
+#' original \code{x}) flagged and removed as artifacts; \code{integer(0)}
 #' when none are removed or when \code{remove_artifacts = FALSE}.}
 #' \item{\code{tau_R_lower}, \code{tau_R_upper}}{numeric scalars, lower
 #' and upper threshold-crossing times (in seconds) bracketing \eqn{\tau_R}
@@ -89,45 +91,83 @@
 #' \enumerate{
 #' \item For a sweep of candidate durations \eqn{k}, compute pairwise
 #' L2-normalized cross-projection magnitudes between trials truncated to
-#' \eqn{[0, k]}. The duration that maximises the mean projection magnitude
+#' \eqn{[0, k]}. The duration that maximizes the mean projection magnitude
 #' is taken as the response duration \eqn{\tau_R}.
 #' \item Apply linear kernel-trick PCA to the trial matrix truncated to
 #' \eqn{\tau_R}; the first principal component is the canonical response
 #' shape \eqn{C(t)}.
 #' \item Project \eqn{C(t)} into each trial to obtain per-trial weights
 #' \eqn{\alpha_k}; the residual \eqn{\epsilon_k = V_k - \alpha_k C}
-#' summarises trial-by-trial deviation from the canonical shape.
+#' summarizes trial-by-trial deviation from the canonical shape.
 #' }
 #' Significance is assessed by a one-sided t-test on the off-diagonal
 #' projection magnitudes against zero, restricted to a non-overlapping
 #' subset of comparison pairs to avoid double-counting.
 #'
 #' When \code{remove_artifacts = TRUE}, the function performs an initial
-#' CRP pass and runs an unpaired t-test for each trial comparing the
+#' \verb{CRP} pass and runs an unpaired t-test for each trial comparing the
 #' projections it participates in against all other off-diagonal
 #' projections. Trials with \code{p < artifact_p_threshold} \emph{and}
-#' mean projection below the cohort mean are dropped, and CRP is re-run.
+#' mean projection below the cohort mean are dropped, and \verb{CRP} is re-run.
 #'
 #' @references
-#' The CRP algorithm is described in \doi{10.1371/journal.pcbi.1011105},
+#' The \verb{CRP} algorithm is described in \doi{10.1371/journal.pcbi.1011105},
 #' with a reference MATLAB implementation at
 #' \url{https://github.com/kaijmiller/crp_scripts}. See
 #' \code{citation("ravetools")} for the full bibliographic entry.
 #'
 #' @examples
+#'
+#'
+#' set.seed(42)
+#'
 #' # Synthetic CCEP-like data: shared canonical shape with per-trial scaling
-#' set.seed(1)
 #' n_time <- 500L
 #' n_trials <- 20L
 #' tt <- seq(-0.05, 1, length.out = n_time)
 #' canonical <- exp(-((tt - 0.10) / 0.05)^2) -
 #'              0.5 * exp(-((tt - 0.30) / 0.10)^2)
 #' V <- outer(canonical, runif(n_trials, 0.5, 1.5)) +
-#'      matrix(rnorm(n_time * n_trials, sd = 0.1), n_time, n_trials)
+#'      matrix(rnorm(n_time * n_trials, sd = 0.3), n_time, n_trials)
+#' V <- V * 100
 #'
 #' res <- crp(V, tt)
 #' res$parameters$tR
 #' res$projections$p_value_tR
+#'
+#'
+#' matplot(tt, V, type = 'l', lty = 1, col = "#80808080", las = 1,
+#'         xlab = "Time (s)", ylab = bquote(mu * V),
+#'         main = bquote(tau[R] ~ ": estimated ERP duration"))
+#'
+#' # Mean response excluding bad trials
+#' V_mean <- rowMeans(V[, -res$bad_trials])
+#' lines(tt, V_mean, col = "black", lwd = 2)
+#'
+#' # Plot CRP response stopped at tR
+#' sel_lower <- tt <= res$tau_R_lower & tt > 0
+#' sel_tR <- tt <= res$parameters$tR & tt > 0
+#' sel_upper <- tt <= res$tau_R_upper & tt > 0
+#'
+#' lines(tt[sel_upper], V_mean[sel_upper], col = "red", lwd = 2)
+#' lines(tt[sel_tR], V_mean[sel_tR], col = "orange2", lwd = 2)
+#' lines(tt[sel_lower], V_mean[sel_lower], col = "cyan", lwd = 2)
+#'
+#' idx_lower <- which.min(abs(tt - res$tau_R_lower))
+#' idx_tR <- which.min(abs(tt - res$parameters$tR))
+#' idx_upper <- which.min(abs(tt - res$tau_R_upper))
+#' idx <- c(idx_lower, idx_tR, idx_upper)
+#' points(tt[idx], V_mean[idx], col = c("cyan", "orange2", "red"))
+#' text(tt[idx], V_mean[idx] + 20,
+#'      labels = expression(tau[lb], tau[R], tau[up]),
+#'      adj = c(0.5, 0))
+#'
+#' # The underlying duration
+#' underlying_duration <- max(tt[which(abs(canonical) > 0.1)])
+#' abline(v = underlying_duration, lty = 3)
+#' text(x = underlying_duration, y = 100,
+#'      labels = " Underlying duration", adj = 0, cex = 0.6)
+#'
 #'
 #' @export
 crp <- function(
@@ -200,7 +240,7 @@ crp <- function(
   # ---- final CRP pass ------------------------------------------------------
   out <- .crp_core(V, t_win, srate, time_step)
   crp_projs <- out$crp_projs
-  crp_parms <- out$crp_parms
+  crp_params <- out$crp_params
 
   # ---- duration-uncertainty bounds (threshold_quantile of peak) ----------
   m <- crp_projs$mean_proj_profile
@@ -221,10 +261,11 @@ crp <- function(
   tau_R_upper <- crp_projs$proj_tpts[hb]
 
   list(
-    parameters = crp_parms,
+    parameters = crp_params,
     projections = crp_projs,
     bad_trials = bad_trials,
     tau_R_lower = tau_R_lower,
+    tau_R = crp_params$tR,
     tau_R_upper = tau_R_upper,
     t_start = t_start,
     t_end = t_end,
@@ -407,7 +448,7 @@ crp <- function(
     p_value_full = p_value_full
   )
 
-  crp_parms <- list(
+  crp_params <- list(
     V_tR = V_tR,
     al = al,
     C = C,
@@ -421,5 +462,5 @@ crp <- function(
     expl_var = 1 - ep2 / v2_tR
   )
 
-  list(crp_projs = crp_projs, crp_parms = crp_parms)
+  list(crp_projs = crp_projs, crp_params = crp_params)
 }

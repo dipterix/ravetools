@@ -553,7 +553,10 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
     ii <- n_min
     n_optimum <- n_good
     while (ii <= n_good) {
-      if (ii == n_good) { n_optimum <- ii; break }
+      if (ii == n_good) {
+        n_optimum <- ii
+        break
+      }
       if (!is.na(zmm_x_trs[ii + 1L]) &&
           zmm_x_trs[ii + 1L] > zmm_x_trs[ii]) {
         ii <- ii + 1L
