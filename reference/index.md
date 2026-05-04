@@ -28,6 +28,10 @@
 
   Convolution of `1D`, `2D`, `3D` data via `FFT`
 
+- [`crp()`](https://dipterix.org/ravetools/reference/crp.md) :
+
+  Canonical Response Parameterization (`CRP`)
+
 - [`decimate()`](https://dipterix.org/ravetools/reference/decimate.md) :
   Decimate with 'FIR' or 'IIR' filter
 
@@ -75,7 +79,9 @@
   [`fftw_c2c_2d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
   [`fftw_r2c_3d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
   [`fftw_c2c_3d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  : Low-level FFTW3 wrappers
+  :
+
+  Low-level FFTW3 wrappers
 
 - [`fill_surface()`](https://dipterix.org/ravetools/reference/fill_surface.md)
   : Fill a volume cube based on water-tight surface

@@ -11,7 +11,7 @@ differences."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@ differences.</p>
 <span>  precision <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"float"</span>, <span class="st">"double"</span><span class="op">)</span>,</span>
 <span>  trend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"constant"</span>, <span class="st">"linear"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  signature <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  segment_length <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -99,6 +100,21 @@ smoothness); positive integers are strongly suggested</p></dd>
 
 <dt id="arg-signature">signature<a class="anchor" aria-label="anchor" href="#arg-signature"></a></dt>
 <dd><p>signature to calculate kernel path to save, internally used</p></dd>
+
+
+<dt id="arg-segment-length">segment_length<a class="anchor" aria-label="anchor" href="#arg-segment-length"></a></dt>
+<dd><p>optional positive integer; when provided, long signals
+are processed in overlapping segments of this length (in samples) using
+batched <code><a href="fftw-internal.html">mvfftw_c2c</a></code> convolutions instead of a single full-length
+FFT. This dramatically reduces peak memory and FFT cost for long recordings
+(e.g. multi-hour). Must be strictly greater than the longest wavelet kernel
+length (the kernel at the lowest frequency); otherwise an error is raised.
+Default is <code>NULL</code>, which uses the legacy single-shot path. When
+<code>segment_length &gt;= length(data)</code> the function silently falls back to
+the legacy path. Results match the legacy path on the interior of the
+signal up to floating-point error; the first/last
+<code>ceiling(max_kernel_len/2)</code> samples may differ near the global
+boundaries (both implementations have boundary artifacts there).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -7,8 +7,8 @@ one-sided real-to-complex spectra). For most user code prefer
 fft, mvfft, or higher-level
 helpers in this package such as convolve, pwelch,
 multitaper, and the filtering utilities.
-Warning: the API is intentionally close to FFTW's C interface and
-may change between releases. Outputs match the corresponding base R
+Warning: the API is intentionally close to FFTW's C interface
+and may change between releases. Outputs match the corresponding base R
 transforms up to floating-point round-off."><meta property="og:description" content="Thin R bindings around the FFTW3 library. These are
 low-level routines exposed primarily for advanced users and other
 packages that need maximum throughput. They perform minimal input checking
@@ -17,8 +17,8 @@ one-sided real-to-complex spectra). For most user code prefer
 fft, mvfft, or higher-level
 helpers in this package such as convolve, pwelch,
 multitaper, and the filtering utilities.
-Warning: the API is intentionally close to FFTW's C interface and
-may change between releases. Outputs match the corresponding base R
+Warning: the API is intentionally close to FFTW's C interface
+and may change between releases. Outputs match the corresponding base R
 transforms up to floating-point round-off."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -27,7 +27,7 @@ transforms up to floating-point round-off."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,22 +48,22 @@ transforms up to floating-point round-off."></head><body>
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Low-level FFTW3 wrappers</h1>
+      <h1>Low-level <span class="pkg">FFTW3</span> wrappers</h1>
       <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/fftw.R" class="external-link"><code>R/fftw.R</code></a></small>
       <div class="d-none name"><code>fftw-internal.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
-    <p>Thin R bindings around the FFTW3 library. These are
+    <p>Thin R bindings around the <span class="pkg">FFTW3</span> library. These are
 <strong>low-level</strong> routines exposed primarily for advanced users and other
 packages that need maximum throughput. They perform minimal input checking
-and follow FFTW conventions (e.g. unnormalized inverse transforms,
+and follow <span class="pkg">FFTW</span> conventions (e.g. unnormalized inverse transforms,
 one-sided real-to-complex spectra). For most user code prefer
 <code><a href="https://rdrr.io/r/stats/fft.html" class="external-link">fft</a></code>, <code><a href="https://rdrr.io/r/stats/fft.html" class="external-link">mvfft</a></code>, or higher-level
 helpers in this package such as <code><a href="convolve.html">convolve</a></code>, <code><a href="pwelch.html">pwelch</a></code>,
 <code><a href="multitaper.html">multitaper</a></code>, and the filtering utilities.</p>
-<p><strong>Warning:</strong> the API is intentionally close to FFTW's C interface and
-may change between releases. Outputs match the corresponding base R
+<p><strong>Warning:</strong> the API is intentionally close to <span class="pkg">FFTW</span>'s C interface
+and may change between releases. Outputs match the corresponding base R
 transforms up to floating-point round-off.</p>
     </div>
 
@@ -104,8 +104,10 @@ for <code>mvfftw_c2r</code> when reconstructing from a one-sided spectrum.</p></
 
 
 <dt id="arg-ret">ret<a class="anchor" aria-label="anchor" href="#arg-ret"></a></dt>
-<dd><p>Optional pre-allocated output buffer of the correct type and
-length; pass <code>NULL</code> (default) to let the function allocate one.</p></dd>
+<dd><p>Optional reusable output buffer of the correct type and
+length; pass <code>NULL</code> (default) to let the function allocate one.
+This input is for advanced users; leave <code>NULL</code> if you do not know
+what you are d</p></dd>
 
 </dl></div>
     <div class="section level2">

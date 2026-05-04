@@ -51,8 +51,9 @@ transforms up to floating-point round-off.
 
 - ret:
 
-  Optional pre-allocated output buffer of the correct type and length;
-  pass `NULL` (default) to let the function allocate one.
+  Optional reusable output buffer of the correct type and length; pass
+  `NULL` (default) to let the function allocate one. This input is for
+  advanced users; leave `NULL` if you do not know what you are d
 
 ## Value
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.5" id="ravetools-025">ravetools 0.2.5<a class="anchor" aria-label="anchor" href="#ravetools-025"></a></h2>
 <ul><li>
+<code>morlet_wavelet</code> gains a <code>segment_length</code> argument (default <code>NULL</code>) that processes long signals (e.g. multi-hour recordings) in overlapping segments using batched <code>mvfftw_c2c</code> convolutions, dramatically reducing peak memory and FFT cost while preserving the legacy result on the signal interior</li>
+<li>
 <code>baseline_array</code> now supports seven baseline methods: <code>"percentage"</code>, <code>"sqrt_percentage"</code>, <code>"decibel"</code>, <code>"zscore"</code>, <code>"sqrt_zscore"</code>, <code>"db_zscore"</code>, and <code>"subtract_mean"</code>; newly added methods include decibel z-score normalization</li>
 <li>Added spike sorting helpers for normality test, spike detection, per-channel waveform extraction, and <code>Haar</code> wavelet feature extraction</li>
 <li>Replaced <code>wavelets</code> package dependency with <code>waveslim</code> for discrete wavelet transform used in spike sorting utilities</li>

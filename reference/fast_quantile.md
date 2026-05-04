@@ -46,15 +46,15 @@ number of columns).
 ``` r
 
 fast_quantile(runif(1000), 0.1)
-#> [1] 0.07898944
+#> [1] 0.1157489
 fast_median(1:100)
 #> [1] 50.5
 
 x <- matrix(rnorm(100), ncol = 2)
 fast_mvquantile(x, 0.2)
-#> [1] -0.7574816 -0.4833724
+#> [1] -0.8980551 -1.1179596
 fast_mvmedian(x)
-#> [1] 0.2505846 0.1350877
+#> [1] -0.3705184 -0.2642868
 
 # Compare speed for vectors (usually 30% faster)
 x <- rnorm(10000)
@@ -65,9 +65,9 @@ microbenchmark::microbenchmark(
   times = 100, unit = "milliseconds"
 )
 #> Unit: milliseconds
-#>         expr      min       lq      mean   median        uq      max neval
-#>  fast_median 0.105598 0.131230 0.1434572 0.144410 0.1541775 0.186128   100
-#>  base_median 0.183133 0.193666 0.2036064 0.201406 0.2084345 0.297406   100
+#>         expr      min        lq      mean    median        uq      max neval
+#>  fast_median 0.095067 0.1304335 0.1406933 0.1419950 0.1514325 0.193831   100
+#>  base_median 0.135382 0.1613965 0.1728805 0.1696065 0.1804415 0.309908   100
 
 # Multivariate cases
 # (5~7x faster than base R)
@@ -80,7 +80,7 @@ microbenchmark::microbenchmark(
   times = 10, unit = "milliseconds"
 )
 #> Unit: milliseconds
-#>         expr      min       lq      mean    median       uq      max neval
-#>  fast_median 0.702071 0.758437 0.7903388 0.7799565 0.810083 0.979298    10
-#>  base_median 2.683491 2.746198 2.7982743 2.7884420 2.817642 3.023847    10
+#>         expr      min       lq      mean   median       uq      max neval
+#>  fast_median 0.732255 0.747714 0.8307049 0.817494 0.855996 1.056590    10
+#>  base_median 2.764945 2.799209 2.8659879 2.821942 2.874389 3.235012    10
 ```

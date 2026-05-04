@@ -80,3 +80,20 @@ doi:10.1016/j.jneumeth.2025.110461.
       pages = {110461},
       doi = {10.1016/j.jneumeth.2025.110461},
     }
+
+Miller KJ, Mueller K-R, Ojeda Valencia G, Huang H, Gregg NM, Worrell GA,
+Hermes D (2023). Canonical response parameterization: Quantifying the
+structure of responses to single-pulse intracranial electrical brain
+stimulation. PLOS Computational Biology, 19(5), e1011105.
+doi:10.1371/journal.pcbi.1011105.
+
+    @Article{,
+      title = {Canonical response parameterization: Quantifying the structure of responses to single-pulse intracranial electrical brain stimulation},
+      author = {Kai J. Miller and Klaus-Robert Mueller and Gabriela Ojeda Valencia and Harvey Huang and Nicholas M. Gregg and Gregory A. Worrell and Dora Hermes},
+      journal = {PLOS Computational Biology},
+      year = {2023},
+      volume = {19},
+      number = {5},
+      pages = {e1011105},
+      doi = {10.1371/journal.pcbi.1011105},
+    }

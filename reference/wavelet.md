@@ -16,6 +16,7 @@ morlet_wavelet(
   precision = c("float", "double"),
   trend = c("constant", "linear", "none"),
   signature = NULL,
+  segment_length = NULL,
   ...
 )
 
@@ -59,6 +60,22 @@ wavelet_cycles_suggest(
 - signature:
 
   signature to calculate kernel path to save, internally used
+
+- segment_length:
+
+  optional positive integer; when provided, long signals are processed
+  in overlapping segments of this length (in samples) using batched
+  [`mvfftw_c2c`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  convolutions instead of a single full-length FFT. This dramatically
+  reduces peak memory and FFT cost for long recordings (e.g.
+  multi-hour). Must be strictly greater than the longest wavelet kernel
+  length (the kernel at the lowest frequency); otherwise an error is
+  raised. Default is `NULL`, which uses the legacy single-shot path.
+  When `segment_length >= length(data)` the function silently falls back
+  to the legacy path. Results match the legacy path on the interior of
+  the signal up to floating-point error; the first/last
+  `ceiling(max_kernel_len/2)` samples may differ near the global
+  boundaries (both implementations have boundary artifacts there).
 
 - ...:
 
