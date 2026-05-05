@@ -15,6 +15,7 @@ design_filter(
   passband_ripple = 0.1,
   stopband_attenuation = 40,
   filter_order = NA,
+  use_sos = TRUE,
   ...,
   data_size = length(data)
 )
@@ -39,8 +40,15 @@ see \code{\link{design_filter_fir}} or \code{\link{design_filter_iir}}}
 \item{stopband_attenuation}{minimum stop-band attenuation (in decibel) at
 transition frequency; default is \code{40} dB.}
 
-\item{filter_order}{suggested filter order; 'RAVE' may or may not adopt this
+\item{filter_order}{suggested filter order; for 'IIR' methods, see
+\code{\link{design_filter_iir}} for details on how this interacts with
+\code{use_sos}; for 'FIR' methods 'RAVE' may or may not adopt this
 suggestion depending on the data and numerical feasibility}
+
+\item{use_sos}{logical; passed to \code{\link{design_filter_iir}} for 'IIR'
+methods (ignored for 'FIR'). When \code{TRUE} (default), filtering is done
+via 'SOS' form using \code{gsignal::filtfilt}; when \code{FALSE}, the
+ravetools 'ARMA' \code{filtfilt} is used.}
 
 \item{...}{passed to filter generator functions}
 

@@ -8,6 +8,7 @@ design_filter_iir(
   method = c("butter", "cheby1", "cheby2", "ellip"),
   sample_rate,
   filter_order = NA,
+  use_sos = TRUE,
   high_pass_freq = NA,
   high_pass_trans_freq = NA,
   low_pass_freq = NA,
@@ -22,10 +23,17 @@ design_filter_iir(
 
 \item{sample_rate}{sampling frequency}
 
-\item{filter_order}{suggested filter order. Notice filters with higher orders
-may become numerically unstable, hence this number is only a suggested
-number. If the filter is unstable, this function will choose a lower order;
-leave this input \code{NA} (default) if undecided.}
+\item{filter_order}{suggested filter order. When \code{use_sos=TRUE}
+(default) this order is used as-is since 'SOS' form is numerically stable
+at any order. When \code{use_sos=FALSE} and 'ARMA' form becomes numerically
+unstable, the order will be automatically reduced with a warning;
+leave \code{NA} (default) to let the function choose automatically.}
+
+\item{use_sos}{logical; when \code{TRUE} (default), the filter is also
+stored as a \code{Sos} (second-order sections) object in \code{filter$sos},
+and no stability-based order correction is performed. When \code{FALSE},
+the order is capped at the maximum stable 'ARMA' order (with a warning if
+a specific \code{filter_order} was requested).}
 
 \item{high_pass_freq}{high-pass frequency; default is \code{NA} (no high-pass
 filter will be applied)}
@@ -46,7 +54,8 @@ is automatically inferred from filter type.}
 transition frequency; default is \code{40} dB.}
 }
 \value{
-A filter in 'Arma' form.
+A filter object with \code{$b}/\code{$a} 'ARMA' coefficients and
+\code{$sos} second-order sections (a \code{gsignal} \code{Sos} object).
 }
 \description{
 Design an 'IIR' filter

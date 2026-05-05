@@ -263,14 +263,14 @@ test_that("mvfftw_c2r", {
   x <- matrix(rnorm(1000), nrow = 100, ncol = 10)  # real input
   xx <- x + 1
 
-  # --- half-spectrum from r2c (nrows=51 → retrows=100) ---
+  # --- half-spectrum from r2c (nrows=51 -> retrows=100) ---
   half <- ravetools:::mvfftw_r2c(x)                 # 51 × 10 complex
   half2 <- ravetools:::mvfftw_r2c(xx - 1)
 
   # input validation
   expect_error(ravetools:::mvfftw_c2r(data = half, ret = complex(510)))  # wrong type
   expect_error(ravetools:::mvfftw_c2r(data = half, ret = double(509)))   # wrong length
-  expect_error(ravetools:::mvfftw_c2r(data = half, retrows = 99L))       # invalid retrows (nc=51 → only 100 or 101 allowed)
+  expect_error(ravetools:::mvfftw_c2r(data = half, retrows = 99L))       # invalid retrows (nc=51 -> only 100 or 101 allowed)
 
   expect_equal(xx - 1, x)
   expect_equal(half, half2)

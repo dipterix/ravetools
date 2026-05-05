@@ -93,14 +93,22 @@ filtfilt_naive2 <- function(b, a, y, z, nfact) {
 }
 
 #' @title Forward and reverse filter a one-dimensional signal
+#' 
 #' @description The result has been tested against 'Matlab' \code{filtfilt}
-#' function. Currently this function only supports one filter at a time.
+#'    function. Currently this function only supports one filter at a time.
+#' 
 #' @param b one-dimensional real numerical vector, the moving-average
-#' coefficients of an \code{ARMA} filter
-#' @param a the auto-regressive (recursive) coefficients of an \code{ARMA} filter
-#' @param x numerical vector input (real value)
+#'    coefficients of an \code{ARMA} filter; alternatively, a \code{Sos}
+#'    (second-order sections) object from \code{gsignal}, in which case
+#'    \code{a} is ignored and \code{gsignal::filtfilt} is used internally
+#' 
+#' @param a the auto-regressive (recursive) coefficients of an \code{ARMA}
+#'    filter; ignored when \code{b} is a \code{Sos} object
+#' 
+#' @param x numerical vector or matrix input (real value)
+#' 
 #' @returns The filtered signal, normally the same length as the input signal
-#' \code{x}.
+#'    \code{x}.
 #' @examples
 #'
 #' t <- seq(0, 1, by = 0.01)
@@ -116,13 +124,30 @@ filtfilt_naive2 <- function(b, a, y, z, nfact) {
 #' # res = filtfilt(b, a, x)
 #'
 #' @export
-filtfilt <- function(b, a, x) {
+filtfilt <- function(b, a = 1, x) {
 
   # DIPSAUS DEBUG START
   # filter <- ravetools::butter(5, c(1 / 250, 50 / 250), "pass")
   # b <- filter$b
   # a <- filter$a
   # x <- sample_signal(500)
+
+  if (!inherits(b, "Sos") && length(a) > 1 && rcond_filter_ar(a) <= .Machine$double.eps) {
+    # This filter is ARMA filter with unstable AR part, which cannot be applied with the current implementation of filtfilt.
+    # Conversion to SOS form may help if the filter is IIR
+    b <- gsignal::as.Sos(gsignal::Arma(b = b, a = a))
+  }
+
+  # SOS dispatch: b is a Sos object, use gsignal::filtfilt
+  if (inherits(b, "Sos")) {
+    if (is.matrix(x)) {
+      dn <- dimnames(x)
+      out <- apply(x, 2L, function(col) gsignal::filtfilt(b, x = col))
+      dimnames(out) <- dn
+      return(out)
+    }
+    return(gsignal::filtfilt(b, x = x))
+  }
 
   if (is.matrix(x)) {
     # DIPSAUS DEBUG START

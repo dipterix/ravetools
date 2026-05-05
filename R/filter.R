@@ -18,8 +18,14 @@
 #' \code{0.1}
 #' @param stopband_attenuation minimum stop-band attenuation (in decibel) at
 #' transition frequency; default is \code{40} dB.
-#' @param filter_order suggested filter order; 'RAVE' may or may not adopt this
+#' @param filter_order suggested filter order; for 'IIR' methods, see
+#' \code{\link{design_filter_iir}} for details on how this interacts with
+#' \code{use_sos}; for 'FIR' methods 'RAVE' may or may not adopt this
 #' suggestion depending on the data and numerical feasibility
+#' @param use_sos logical; passed to \code{\link{design_filter_iir}} for 'IIR'
+#' methods (ignored for 'FIR'). When \code{TRUE} (default), filtering is done
+#' via 'SOS' form using \code{gsignal::filtfilt}; when \code{FALSE}, the
+#' ravetools 'ARMA' \code{filtfilt} is used.
 #' @param data_size used by 'FIR' filter design to determine maximum order,
 #' ignored in 'IIR' filters; automatically derived from \code{data}
 #' @param ... passed to filter generator functions
@@ -97,7 +103,7 @@ design_filter <- function(
     high_pass_freq = NA, high_pass_trans_freq = NA,
     low_pass_freq = NA, low_pass_trans_freq = NA,
     passband_ripple = 0.1, stopband_attenuation = 40,
-    filter_order = NA,
+    filter_order = NA, use_sos = TRUE,
     ..., data_size = length(data)
 ) {
   method <- match.arg(method)
@@ -131,6 +137,7 @@ design_filter <- function(
       method = method,
       sample_rate = sample_rate,
       filter_order = filter_order,
+      use_sos = use_sos,
       high_pass_freq = high_pass_freq,
       high_pass_trans_freq = high_pass_trans_freq,
       low_pass_freq = low_pass_freq,
@@ -141,7 +148,11 @@ design_filter <- function(
   }
 
   if (length(data)) {
-    re <- filtfilt(b = filter$b, a = filter$a, x = data)
+    if (use_sos && !is.null(filter$sos)) {
+      re <- filtfilt(b = filter$sos, x = data)
+    } else {
+      re <- filtfilt(b = filter$b, a = filter$a, x = data)
+    }
   } else {
     re <- filter
   }
@@ -154,10 +165,16 @@ design_filter <- function(
 #' @param sample_rate sampling frequency
 #' @param method filter method name, choices are \code{"butter"},
 #' \code{"cheby1"}, \code{"cheby2"}, and \code{"ellip"}
-#' @param filter_order suggested filter order. Notice filters with higher orders
-#' may become numerically unstable, hence this number is only a suggested
-#' number. If the filter is unstable, this function will choose a lower order;
-#' leave this input \code{NA} (default) if undecided.
+#' @param filter_order suggested filter order. When \code{use_sos=TRUE}
+#' (default) this order is used as-is since 'SOS' form is numerically stable
+#' at any order. When \code{use_sos=FALSE} and 'ARMA' form becomes numerically
+#' unstable, the order will be automatically reduced with a warning;
+#' leave \code{NA} (default) to let the function choose automatically.
+#' @param use_sos logical; when \code{TRUE} (default), the filter is also
+#' stored as a \code{Sos} (second-order sections) object in \code{filter$sos},
+#' and no stability-based order correction is performed. When \code{FALSE},
+#' the order is capped at the maximum stable 'ARMA' order (with a warning if
+#' a specific \code{filter_order} was requested).
 #' @param high_pass_freq high-pass frequency; default is \code{NA} (no high-pass
 #' filter will be applied)
 #' @param high_pass_trans_freq high-pass frequency band-width; default
@@ -170,7 +187,8 @@ design_filter <- function(
 #' \code{0.1}
 #' @param stopband_attenuation minimum stop-band attenuation (in decibel) at
 #' transition frequency; default is \code{40} dB.
-#' @returns A filter in 'Arma' form.
+#' @returns A filter object with \code{$b}/\code{$a} 'ARMA' coefficients and
+#' \code{$sos} second-order sections (a \code{gsignal} \code{Sos} object).
 #'
 #' @examples
 #'
@@ -259,7 +277,7 @@ design_filter <- function(
 #' @export
 design_filter_iir <- function(
     method = c("butter", "cheby1", "cheby2", "ellip"),
-    sample_rate, filter_order = NA,
+    sample_rate, filter_order = NA, use_sos = TRUE,
     high_pass_freq = NA, high_pass_trans_freq = NA,
     low_pass_freq = NA, low_pass_trans_freq = NA,
     passband_ripple = 0.1, stopband_attenuation = 40
@@ -336,18 +354,33 @@ design_filter_iir <- function(
   # get filter specs
   get_specs <- function(fun_ord, fun_make, min_order = 1) {
     spec <- fun_ord(Wp = w_pass, Ws = w_stop, Rp = r_pass, Rs = r_stop)
-    validator <- function(n) {
-      spec$n <- n
-      filter <- gsignal::as.Arma(fun_make(spec))
-      reciprocal_condition <- rcond_filter_ar(a = filter$a)
-      reciprocal_condition > .Machine$double.eps
+    # apply user-specified order if provided
+    if (!is.na(filter_order) && is.finite(filter_order) && filter_order >= 1) {
+      spec$n <- as.integer(filter_order)
     }
-    max_order <- guess_max_integer(validator, initial = spec$n, min_v = min_order)
-    if (is.na(max_order)) {
-      max_order <- 1
-    }
-    if ( spec$n > max_order ) {
-      spec$n <- max_order
+    if (!use_sos) {
+      # ARMA stability correction
+      requested_n <- spec$n
+      validator <- function(n) {
+        spec$n <- n
+        filter <- gsignal::as.Arma(fun_make(spec))
+        reciprocal_condition <- rcond_filter_ar(a = filter$a)
+        reciprocal_condition > .Machine$double.eps
+      }
+      max_order <- guess_max_integer(validator, initial = spec$n, min_v = min_order)
+      if (is.na(max_order)) {
+        max_order <- 1
+      }
+      if (spec$n > max_order) {
+        if (!is.na(filter_order) && is.finite(filter_order) && filter_order >= 1) {
+          warning(sprintf(
+            paste0("Requested filter_order=%d reduced to %d for numerical stability ",
+                   "in ARMA form. Set use_sos=TRUE to avoid order correction."),
+            requested_n, max_order
+          ))
+        }
+        spec$n <- max_order
+      }
     }
     spec
   }
@@ -374,9 +407,24 @@ design_filter_iir <- function(
     {
       # "butter"
       spec <- gsignal::buttord(Wp = w_pass, Ws = w_stop, Rp = r_pass, Rs = r_stop)
-      order <- butter_max_order(w = w_pass, r = r_pass, type = ftype)$n
-      if (spec$n < order) {
+      if (!is.na(filter_order) && is.finite(filter_order) && filter_order >= 1) {
+        order <- as.integer(filter_order)
+        if (!use_sos) {
+          max_stable <- butter_max_order(w = w_pass, r = r_pass, type = ftype)$n
+          if (order > max_stable) {
+            warning(sprintf(
+              paste0("Requested filter_order=%d reduced to %d for numerical stability ",
+                     "in ARMA form. Set use_sos=TRUE to avoid order correction."),
+              order, max_stable
+            ))
+            order <- max_stable
+          }
+        }
+      } else if (use_sos) {
         order <- spec$n
+      } else {
+        max_stable <- butter_max_order(w = w_pass, r = r_pass, type = ftype)$n
+        order <- min(spec$n, max_stable)
       }
       w_cutoff <- butter_cutoff(type = ftype, n = order, w = w_pass, r = r_pass)
       spec <- gsignal::FilterSpecs(n = order, Wc = w_cutoff, type = ftype)
@@ -405,6 +453,7 @@ design_filter_iir <- function(
 
   filter$parameters <- params
   filter$checks <- checks
+  filter$sos <- gsignal::as.Sos(filter)
 
 
   class(filter) <- c(

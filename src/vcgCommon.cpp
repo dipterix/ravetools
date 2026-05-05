@@ -421,7 +421,7 @@ SEXP vcgEdgeSubdivision(SEXP vb_, SEXP it_)
     // 3) allocate one new vertex PER EDGE
     vcg::tri::Allocator<ravetools::MyMesh>::AddVertices(m, origEn);
 
-    // 4) compute each midpoint and build a map (edge→new‐vertex)
+    // 4) compute each midpoint and build a map (edge->new‐vertex)
     std::unordered_map<
       ravetools::EdgePair,
       ravetools::VertexPointer,

@@ -299,7 +299,7 @@ test_that("Baseline - db_zscore and guard conditions", {
   expect_equal(act, exp)
 
   # ── db_zscore guard: constant baseline (bl_sd = 0) ───────────────────────
-  # All baseline values identical (> 0) → sd(log10(bl)) = 0 → output 0
+  # All baseline values identical (> 0) -> sd(log10(bl)) = 0 -> output 0
 
   x <- array(1, dm)
   exp <- array(0, dm)
@@ -328,7 +328,7 @@ test_that("Baseline - db_zscore and guard conditions", {
   # New guard (bl_valid_len == 0) correctly computes 10*(log10(x) - 0).
 
   dm_small <- c(1, 10, 1, 1)
-  # Baseline points 1-4: c(10, 0.1, 10, 0.1) → log10 values c(1,-1,1,-1) → mean = 0
+  # Baseline points 1-4: c(10, 0.1, 10, 0.1) -> log10 values c(1,-1,1,-1) -> mean = 0
   x_small <- array(c(10, 0.1, 10, 0.1, 10, 100, 1000, 0.1, 0.01, 0.001), dm_small)
   exp_small <- array(10 * log10(as.vector(x_small)), dm_small)
 

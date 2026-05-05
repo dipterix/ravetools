@@ -68,7 +68,7 @@ fir1 <- function(
     n, w, type = c("low", "high", "stop", "pass", "DC-0", "DC-1"),
     window = hamming, scale = TRUE, hilbert = FALSE
 ) {
-  type <- match.arg(type)
+  type_missing <- missing(type)
 
   nw <- length(w)
   if (!nw || any(w < 0 | w > 1)) {
@@ -85,7 +85,7 @@ fir1 <- function(
     } else {
       type <- "DC-0"
     }
-  } else if (missing(type)) {
+  } else if (type_missing) {
     if (nw == 1) {
       type <- "low"
     } else if (nw == 2) {

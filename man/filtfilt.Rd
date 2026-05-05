@@ -4,23 +4,26 @@
 \alias{filtfilt}
 \title{Forward and reverse filter a one-dimensional signal}
 \usage{
-filtfilt(b, a, x)
+filtfilt(b, a = 1, x)
 }
 \arguments{
 \item{b}{one-dimensional real numerical vector, the moving-average
-coefficients of an \code{ARMA} filter}
+coefficients of an \code{ARMA} filter; alternatively, a \code{Sos}
+(second-order sections) object from \code{gsignal}, in which case
+\code{a} is ignored and \code{gsignal::filtfilt} is used internally}
 
-\item{a}{the auto-regressive (recursive) coefficients of an \code{ARMA} filter}
+\item{a}{the auto-regressive (recursive) coefficients of an \code{ARMA}
+filter; ignored when \code{b} is a \code{Sos} object}
 
-\item{x}{numerical vector input (real value)}
+\item{x}{numerical vector or matrix input (real value)}
 }
 \value{
 The filtered signal, normally the same length as the input signal
-\code{x}.
+   \code{x}.
 }
 \description{
 The result has been tested against 'Matlab' \code{filtfilt}
-function. Currently this function only supports one filter at a time.
+   function. Currently this function only supports one filter at a time.
 }
 \examples{
 

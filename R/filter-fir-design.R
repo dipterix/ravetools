@@ -265,7 +265,7 @@ design_filter_fir <- function(
       filter <- fir1(
         n = kaisprm$n, w = kaisprm$Wc, type = kaisprm$type,
         window = gsignal::kaiser(kaisprm$n + 1, kaisprm$beta),
-        scale = FALSE
+        scale = FALSE  # outer block handles scaling uniformly across all methods
       )
       params$cutoff <- kaisprm$Wc
       params$beta <- kaisprm$beta
@@ -295,24 +295,76 @@ design_filter_fir <- function(
     }
   )
   if ( scale ) {
-    # scale
+    # Normalize filter to unity gain at a reference frequency f0.
+    # Formula (matches MATLAB scalefilter / fir1 internals):
+    #   b <- b / |H(e^{j*pi*f0})| = b / |sum_k b[k] * exp(-j*2*pi*k*f0/2)|
+    #
+    # Reference frequency f0 (in normalized [0,1] units, 1 = Nyquist):
+    #   low-pass  -> f0 = 0   (DC gain = 1)
+    #   high-pass -> f0 = 1   (Nyquist gain = 1)
+    #   band-pass -> f0 = mean(kaisprm$Wc), the average of the two transition-band
+    #               midpoints.  kaisprm$Wc[k] = (band_stop_edge[k] + band_pass_edge[k]) / 2,
+    #               so mean(Wc) = (w_stop[1] + w_pass[1] + w_pass[2] + w_stop[2]) / 4.
+    #               This is the convention used by MATLAB fir1 / scale_filter: f0 is taken
+    #               from freq[3:4] of the internal frequency vector built by fir1, which are
+    #               exactly the two edges of the first passband, i.e. Wc[1] and Wc[2].
+    #
+    #               FIX (2026-05): the original code used f0 = mean(w_pass), i.e. the
+    #               midpoint of the passband edges only.  This differs from MATLAB's choice
+    #               by (w_trans_high - w_trans_low) / 4 — zero only when both transition
+    #               bandwidths are equal.  Using mean(kaisprm$Wc) matches MATLAB exactly.
+    #
+    #               # OLD (pre-fix): f0 <- mean(w_pass)
+    #
+    #   band-stop -> f0 = 0   (DC gain = 1).
+    #               MATLAB fir1 sets fband = TRUE for stop-band filters, which causes
+    #               scale_filter to use b / sum(b), i.e. normalise at DC regardless of
+    #               where the notch sits.
+    #
+    #               FIX (2026-05): the original code used a heuristic:
+    #                 if (w_stop[1] + w_stop[2] > 1) f0 <- 0 else f0 <- 1
+    #               The intent was to pick whichever passband (low or high) is larger,
+    #               but this is inconsistent with MATLAB and can flip for borderline notch
+    #               positions near Nyquist/2.  Always using f0 = 0 matches MATLAB.
+    #
+    #               # OLD (pre-fix):
+    #               # if (w_stop[[1]] + w_stop[[2]] > 1) {
+    #               #   # high-frequency band stop
+    #               #   f0 <- 0
+    #               # } else {
+    #               #   f0 <- 1
+    #               # }
     switch(
       ftype,
-      "low" = { f0 <- 0 },
+      "low"  = { f0 <- 0 },
       "high" = { f0 <- 1 },
       "pass" = {
-        # unity gain at center of passband
-        f0 <- mean(w_pass)
+        # Old code used mean(w_pass), i.e. midpoint of passband edges only, 
+        # which differs from MATLAB's choice by (w_trans_high - w_trans_low) / 4
+        # f0 <- mean(w_pass)
+
+        # Updated: 2026-05
+        # transition-band midpoints average — matches MATLAB fir1 scale_filter
+        f0 <- mean(kaisprm$Wc)
       },
       {
-        if (w_stop[[1]] + w_stop[[2]] > 1) {
-          # high-freqeuncy band stop
-          f0 <- 0
-        } else {
-          f0 <- 1
-        }
+        # if (w_stop[[1]] + w_stop[[2]] > 1) {
+        #   # high-freqeuncy band stop
+        #   f0 <- 0
+        # } else {
+        #   f0 <- 1
+        # }
+
+        # Updated: 2026-05
+        # Always normalise at DC (f0 = 0) for band-stop filters,
+        # band-stop: always DC, matching MATLAB fir1 (fband=TRUE -> b/sum(b))
+        f0 <- 0
       }
     )
+    L <- length(filter$b)
+    filter$b <- filter$b / Mod(sum(
+      exp(-1i * 2 * pi * seq(0, L - 1) * (f0 / 2)) * filter$b
+    ))
   }
 
   filter$parameters <- params
