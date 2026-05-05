@@ -6,7 +6,7 @@ Currently this function only supports one filter at a time.
 ## Usage
 
 ``` r
-filtfilt(b, a, x)
+filtfilt(b, a = 1, x)
 ```
 
 ## Arguments
@@ -14,15 +14,19 @@ filtfilt(b, a, x)
 - b:
 
   one-dimensional real numerical vector, the moving-average coefficients
-  of an `ARMA` filter
+  of an `ARMA` filter; alternatively, a `Sos` (second-order sections)
+  object from `gsignal`, in which case `a` is ignored and
+  [`gsignal::filtfilt`](https://rdrr.io/pkg/gsignal/man/filtfilt.html)
+  is used internally
 
 - a:
 
-  the auto-regressive (recursive) coefficients of an `ARMA` filter
+  the auto-regressive (recursive) coefficients of an `ARMA` filter;
+  ignored when `b` is a `Sos` object
 
 - x:
 
-  numerical vector input (real value)
+  numerical vector or matrix input (real value)
 
 ## Value
 

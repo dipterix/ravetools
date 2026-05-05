@@ -11,7 +11,7 @@ design_filter_iir."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@ design_filter_iir."></head><body>
 <span>  passband_ripple <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  stopband_attenuation <span class="op">=</span> <span class="fl">40</span>,</span>
 <span>  filter_order <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  use_sos <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  data_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -99,8 +100,17 @@ transition frequency; default is <code>40</code> dB.</p></dd>
 
 
 <dt id="arg-filter-order">filter_order<a class="anchor" aria-label="anchor" href="#arg-filter-order"></a></dt>
-<dd><p>suggested filter order; 'RAVE' may or may not adopt this
+<dd><p>suggested filter order; for 'IIR' methods, see
+<code><a href="design_filter_iir.html">design_filter_iir</a></code> for details on how this interacts with
+<code>use_sos</code>; for 'FIR' methods 'RAVE' may or may not adopt this
 suggestion depending on the data and numerical feasibility</p></dd>
+
+
+<dt id="arg-use-sos">use_sos<a class="anchor" aria-label="anchor" href="#arg-use-sos"></a></dt>
+<dd><p>logical; passed to <code><a href="design_filter_iir.html">design_filter_iir</a></code> for 'IIR'
+methods (ignored for 'FIR'). When <code>TRUE</code> (default), filtering is done
+via 'SOS' form using <code><a href="https://rdrr.io/pkg/gsignal/man/filtfilt.html" class="external-link">gsignal::filtfilt</a></code>; when <code>FALSE</code>, the
+ravetools 'ARMA' <code>filtfilt</code> is used.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

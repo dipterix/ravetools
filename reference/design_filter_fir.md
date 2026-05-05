@@ -130,8 +130,8 @@ print(filter)
 #>   Method: kaiser
 #>   Order: 332
 #>   Magnitude:
-#>     Freq=5 Hz, mag=-0.1005 dB (expected=-0.0873 dB)
-#>     Freq=8.4 Hz, mag=-40.92 dB (expected=-40 dB)
+#>     Freq=5 Hz, mag=-0.06546 dB (expected=-0.0873 dB)
+#>     Freq=8.4 Hz, mag=-40.88 dB (expected=-40 dB)
 #>   Reciprocal condition number: 1 > .Machine$double.eps
 
 diagnose_filter(
@@ -167,10 +167,10 @@ print(filter)
 #>   Method: firls
 #>   Order: 160
 #>   Magnitude:
-#>     Freq=3 Hz, mag=-5.137 dB (expected=-0.0873 dB)
-#>     Freq=8 Hz, mag=-5.196 dB (expected=-0.0873 dB)
-#>     Freq=3.5 Hz, mag=-6.376 dB (expected=-40 dB)
-#>     Freq=7.5 Hz, mag=-6.44 dB (expected=-40 dB)
+#>     Freq=3 Hz, mag=-3.819 dB (expected=-0.0873 dB)
+#>     Freq=8 Hz, mag=-3.878 dB (expected=-0.0873 dB)
+#>     Freq=3.5 Hz, mag=-5.058 dB (expected=-40 dB)
+#>     Freq=7.5 Hz, mag=-5.122 dB (expected=-40 dB)
 #>   Reciprocal condition number: 1 > .Machine$double.eps
 
 diagnose_filter(

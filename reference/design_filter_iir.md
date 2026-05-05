@@ -9,6 +9,7 @@ design_filter_iir(
   method = c("butter", "cheby1", "cheby2", "ellip"),
   sample_rate,
   filter_order = NA,
+  use_sos = TRUE,
   high_pass_freq = NA,
   high_pass_trans_freq = NA,
   low_pass_freq = NA,
@@ -31,10 +32,19 @@ design_filter_iir(
 
 - filter_order:
 
-  suggested filter order. Notice filters with higher orders may become
-  numerically unstable, hence this number is only a suggested number. If
-  the filter is unstable, this function will choose a lower order; leave
-  this input `NA` (default) if undecided.
+  suggested filter order. When `use_sos=TRUE` (default) this order is
+  used as-is since 'SOS' form is numerically stable at any order. When
+  `use_sos=FALSE` and 'ARMA' form becomes numerically unstable, the
+  order will be automatically reduced with a warning; leave `NA`
+  (default) to let the function choose automatically.
+
+- use_sos:
+
+  logical; when `TRUE` (default), the filter is also stored as a `Sos`
+  (second-order sections) object in `filter$sos`, and no stability-based
+  order correction is performed. When `FALSE`, the order is capped at
+  the maximum stable 'ARMA' order (with a warning if a specific
+  `filter_order` was requested).
 
 - high_pass_freq:
 
@@ -67,7 +77,8 @@ design_filter_iir(
 
 ## Value
 
-A filter in 'Arma' form.
+A filter object with `$b`/`$a` 'ARMA' coefficients and `$sos`
+second-order sections (a `gsignal` `Sos` object).
 
 ## Examples
 
@@ -101,13 +112,16 @@ filter
 #> <IIR filter>
 #>   Type : pass
 #>   Method: butter
-#>   Order: 5
+#>   Order: 9
 #>   Magnitude:
-#>     Freq=8 Hz, mag=-0.1059 dB (expected=-0.1 dB)
-#>     Freq=12 Hz, mag=-0.1019 dB (expected=-0.1 dB)
-#>     Freq=6 Hz, mag=-23.46 dB (expected=-40 dB)
-#>     Freq=15 Hz, mag=-17.06 dB (expected=-40 dB)
-#>   Reciprocal condition number: 1.8e-15 > .Machine$double.eps
+#>     Freq=8 Hz, mag=-175.2 dB (expected=-0.1 dB)
+#>     Freq=12 Hz, mag=-146.5 dB (expected=-0.1 dB)
+#>     Freq=6 Hz, mag=-198.9 dB (expected=-40 dB)
+#>     Freq=15 Hz, mag=-124.6 dB (expected=-40 dB)
+#>   Reciprocal condition number: 2.7e-22 < .Machine$double.eps
+#>   
+#>   WARNING: 
+#>    * Unstable autoregressive (AR) polynomial coefficients
 
 my_diagnose(filter)
 

@@ -19,6 +19,7 @@ design_filter(
   passband_ripple = 0.1,
   stopband_attenuation = 40,
   filter_order = NA,
+  use_sos = TRUE,
   ...,
   data_size = length(data)
 )
@@ -64,8 +65,20 @@ design_filter(
 
 - filter_order:
 
-  suggested filter order; 'RAVE' may or may not adopt this suggestion
-  depending on the data and numerical feasibility
+  suggested filter order; for 'IIR' methods, see
+  [`design_filter_iir`](https://dipterix.org/ravetools/reference/design_filter_iir.md)
+  for details on how this interacts with `use_sos`; for 'FIR' methods
+  'RAVE' may or may not adopt this suggestion depending on the data and
+  numerical feasibility
+
+- use_sos:
+
+  logical; passed to
+  [`design_filter_iir`](https://dipterix.org/ravetools/reference/design_filter_iir.md)
+  for 'IIR' methods (ignored for 'FIR'). When `TRUE` (default),
+  filtering is done via 'SOS' form using
+  [`gsignal::filtfilt`](https://rdrr.io/pkg/gsignal/man/filtfilt.html);
+  when `FALSE`, the ravetools 'ARMA' `filtfilt` is used.
 
 - ...:
 

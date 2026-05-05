@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"butter"</span>, <span class="st">"cheby1"</span>, <span class="st">"cheby2"</span>, <span class="st">"ellip"</span><span class="op">)</span>,</span>
 <span>  <span class="va">sample_rate</span>,</span>
 <span>  filter_order <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  use_sos <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  high_pass_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  high_pass_trans_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  low_pass_freq <span class="op">=</span> <span class="cn">NA</span>,</span>
@@ -66,10 +67,19 @@
 
 
 <dt id="arg-filter-order">filter_order<a class="anchor" aria-label="anchor" href="#arg-filter-order"></a></dt>
-<dd><p>suggested filter order. Notice filters with higher orders
-may become numerically unstable, hence this number is only a suggested
-number. If the filter is unstable, this function will choose a lower order;
-leave this input <code>NA</code> (default) if undecided.</p></dd>
+<dd><p>suggested filter order. When <code>use_sos=TRUE</code>
+(default) this order is used as-is since 'SOS' form is numerically stable
+at any order. When <code>use_sos=FALSE</code> and 'ARMA' form becomes numerically
+unstable, the order will be automatically reduced with a warning;
+leave <code>NA</code> (default) to let the function choose automatically.</p></dd>
+
+
+<dt id="arg-use-sos">use_sos<a class="anchor" aria-label="anchor" href="#arg-use-sos"></a></dt>
+<dd><p>logical; when <code>TRUE</code> (default), the filter is also
+stored as a <code>Sos</code> (second-order sections) object in <code>filter$sos</code>,
+and no stability-based order correction is performed. When <code>FALSE</code>,
+the order is capped at the maximum stable 'ARMA' order (with a warning if
+a specific <code>filter_order</code> was requested).</p></dd>
 
 
 <dt id="arg-high-pass-freq">high_pass_freq<a class="anchor" aria-label="anchor" href="#arg-high-pass-freq"></a></dt>
@@ -104,7 +114,8 @@ transition frequency; default is <code>40</code> dB.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A filter in 'Arma' form.</p>
+    <p>A filter object with <code>$b</code>/<code>$a</code> 'ARMA' coefficients and
+<code>$sos</code> second-order sections (a <code>gsignal</code> <code>Sos</code> object).</p>
     </div>
 
     <div class="section level2">
@@ -138,13 +149,16 @@ transition frequency; default is <code>40</code> dB.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;IIR filter&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Type : pass</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Method: butter</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Order: 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Order: 9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Magnitude:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=8 Hz, mag=-0.1059 dB (expected=-0.1 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=12 Hz, mag=-0.1019 dB (expected=-0.1 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=6 Hz, mag=-23.46 dB (expected=-40 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=15 Hz, mag=-17.06 dB (expected=-40 dB)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Reciprocal condition number: 1.8e-15 &gt; .Machine$double.eps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=8 Hz, mag=-175.2 dB (expected=-0.1 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=12 Hz, mag=-146.5 dB (expected=-0.1 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=6 Hz, mag=-198.9 dB (expected=-40 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Freq=15 Hz, mag=-124.6 dB (expected=-40 dB)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Reciprocal condition number: 2.7e-22 &lt; .Machine$double.eps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   WARNING: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    * Unstable autoregressive (AR) polynomial coefficients</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">my_diagnose</span><span class="op">(</span><span class="va">filter</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="design_filter_iir-1.png" alt="" width="700" height="433"></span>
