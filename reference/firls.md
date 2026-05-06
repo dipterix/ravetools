@@ -6,7 +6,7 @@ error in the specified bands is minimized.
 ## Usage
 
 ``` r
-firls(N, freq, A, W = NULL, ftype = "")
+firls(N, freq, A, W = NULL, ftype = "", legacy = FALSE)
 ```
 
 ## Arguments
@@ -35,6 +35,12 @@ firls(N, freq, A, W = NULL, ftype = "")
 
   transformer type; default is `""`; alternatively, `'h'` or `'hilbert'`
   for 'Hilbert' transformer.
+
+- legacy:
+
+  whether to use the legacy implementations, which uses
+  [`qr.solve`](https://rdrr.io/r/base/qr.html) instead of faster
+  [`chol`](https://rdrr.io/r/base/chol.html)
 
 ## Value
 
