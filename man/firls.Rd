@@ -4,7 +4,7 @@
 \alias{firls}
 \title{Least-squares linear-phase \code{FIR} filter design}
 \usage{
-firls(N, freq, A, W = NULL, ftype = "")
+firls(N, freq, A, W = NULL, ftype = "", legacy = FALSE)
 }
 \arguments{
 \item{N}{filter order, must be even (if odd, then will be increased by one)}
@@ -21,12 +21,15 @@ length of \code{freq}.}
 
 \item{ftype}{transformer type; default is \code{""}; alternatively,
 \code{'h'} or \code{'hilbert'} for 'Hilbert' transformer.}
+
+\item{legacy}{whether to use the legacy implementations, which uses
+\code{\link{qr.solve}} instead of faster \code{\link{chol}}}
 }
 \value{
 The \code{FIR} filter coefficients with class \code{'Arma'}.
-The moving average coefficient is a vector of length \code{n+1}.
+   The moving average coefficient is a vector of length \code{n+1}.
 }
 \description{
 Produce a linear phase filter from the weighted mean squared such that error
-in the specified bands is minimized.
+   in the specified bands is minimized.
 }

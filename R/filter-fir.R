@@ -159,21 +159,23 @@ sinc <- function(x) {
 #' Least-squares linear-phase \code{FIR} filter design
 #' @description
 #' Produce a linear phase filter from the weighted mean squared such that error
-#' in the specified bands is minimized.
+#'    in the specified bands is minimized.
 #' @param N filter order, must be even (if odd, then will be increased by one)
 #' @param freq vector of frequency points in the range from 0 to 1, where 1
-#' corresponds to the \code{Nyquist} frequency.
+#'    corresponds to the \code{Nyquist} frequency.
 #' @param A vector of the same length as \code{freq} containing the desired
-#' amplitude at each of the points specified in \code{freq}.
+#'    amplitude at each of the points specified in \code{freq}.
 #' @param W weighting function that contains one value for each band that
-#' weights the mean squared error in that band. \code{W} must be half the
-#' length of \code{freq}.
+#'    weights the mean squared error in that band. \code{W} must be half the
+#'    length of \code{freq}.
 #' @param ftype transformer type; default is \code{""}; alternatively,
-#' \code{'h'} or \code{'hilbert'} for 'Hilbert' transformer.
+#'    \code{'h'} or \code{'hilbert'} for 'Hilbert' transformer.
+#' @param legacy whether to use the legacy implementations, which uses
+#'    \code{\link{qr.solve}} instead of faster \code{\link{chol}}
 #' @returns The \code{FIR} filter coefficients with class \code{'Arma'}.
-#' The moving average coefficient is a vector of length \code{n+1}.
+#'    The moving average coefficient is a vector of length \code{n+1}.
 #' @export
-firls <- function(N, freq, A, W = NULL, ftype = "") {
+firls <- function(N, freq, A, W = NULL, ftype = "", legacy = FALSE) {
 
   if (!is.numeric(N) || length(N) != 1 || !is.finite(N) || N <= 0) {
     stop("Invalid input for N.")
@@ -231,7 +233,16 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
   fullband <- FALSE
 
   if (lendF > 1) {
-    fullband <- all(dF == 0)
+    if (legacy) {
+      # Original check: effectively always FALSE for standard fir1 inputs
+      fullband <- all(dF == 0)
+    } else {
+      # Correct check: the "gaps" between adjacent bands are the even-indexed
+      # diffs (1-based). fir1 builds freq = c(0, w1, w1, w2, w2, ..., 1) so
+      # those gap diffs are exactly 0 -> fullband = TRUE -> fast path, no matrix.
+      gap_idx <- seq(2, length(dF), by = 2)
+      fullband <- all(dF[gap_idx] == 0)
+    }
   }
 
   tempW <- wt - wt[1]
@@ -293,7 +304,18 @@ firls <- function(N, freq, A, W = NULL, ftype = "") {
     }
 
     if (need_matrix) {
-      a <- qr.solve(G, b, tol = 1e-30)
+      if (legacy) {
+        a <- qr.solve(G, b, tol = 1e-30)
+      } else {
+        # G is symmetric positive (semi-)definite; Cholesky is ~3x faster than QR.
+        # Fall back to QR if G is numerically singular.
+        R <- tryCatch(chol(G), error = function(e) NULL)
+        if (is.null(R)) {
+          a <- qr.solve(G, b, tol = 1e-30)
+        } else {
+          a <- backsolve(R, backsolve(R, b, transpose = TRUE))
+        }
+      }
     } else {
       a <- (wt[1]^2) * 4 * b
       if (Nodd) {
