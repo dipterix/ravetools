@@ -5,9 +5,8 @@
 #' Low-level \pkg{FFTW3} wrappers
 #'
 #' @name fftw-internal
-#' @aliases fftw_r2c fftw_c2r fftw_c2c
-#'   mvfftw_r2c mvfftw_c2c mvfftw_c2r
-#'   fftw_r2c_2d fftw_c2c_2d fftw_r2c_3d fftw_c2c_3d
+#' @aliases fftw_r2c fftw_c2r fftw_c2c mvfftw_r2c mvfftw_c2c mvfftw_c2r
+#' @aliases fftw_r2c_2d fftw_c2c_2d fftw_r2c_3d fftw_c2c_3d
 #'
 #' @description
 #' Thin R bindings around the \pkg{FFTW3} library. These are

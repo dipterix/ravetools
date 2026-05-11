@@ -24,6 +24,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{gsignal}{\code{\link[gsignal]{buttap}}, \code{\link[gsignal]{butter}}, \code{\link[gsignal]{buttord}}, \code{\link[gsignal]{cheb1ap}}, \code{\link[gsignal]{cheb1ord}}, \code{\link[gsignal]{cheb2ap}}, \code{\link[gsignal]{cheb2ord}}, \code{\link[gsignal]{cheby1}}, \code{\link[gsignal]{cheby2}}, \code{\link[gsignal]{ellip}}, \code{\link[gsignal]{ellipap}}, \code{\link[gsignal]{ellipord}}, \code{\link[gsignal]{hilbert}}, \code{\link[gsignal]{resample}}}
+  \item{gsignal}{\code{\link[gsignal:buttap]{buttap()}}, \code{\link[gsignal:butter]{butter()}}, \code{\link[gsignal:buttord]{buttord()}}, \code{\link[gsignal:cheb1ap]{cheb1ap()}}, \code{\link[gsignal:cheb1ord]{cheb1ord()}}, \code{\link[gsignal:cheb2ap]{cheb2ap()}}, \code{\link[gsignal:cheb2ord]{cheb2ord()}}, \code{\link[gsignal:cheby1]{cheby1()}}, \code{\link[gsignal:cheby2]{cheby2()}}, \code{\link[gsignal:ellip]{ellip()}}, \code{\link[gsignal:ellipap]{ellipap()}}, \code{\link[gsignal:ellipord]{ellipord()}}, \code{\link[gsignal:hilbert]{hilbert()}}, \code{\link[gsignal:resample]{resample()}}}
 }}
 
