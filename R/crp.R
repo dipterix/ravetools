@@ -176,6 +176,7 @@
 #' res <- crp(V, tt)
 #'
 #' op <- par(mfrow = c(1, 3), mar = c(4.5, 4, 3, 1))
+#' on.exit({ par(op) })
 #'
 #' # ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------
 #' parms <- res$parameters
@@ -309,17 +310,108 @@ crp <- function(
   tau_R_lower <- crp_projs$proj_tpts[lb]
   tau_R_upper <- crp_projs$proj_tpts[hb]
 
-  list(
-    parameters = crp_params,
-    projections = crp_projs,
-    bad_trials = bad_trials,
-    tau_R_lower = tau_R_lower,
-    tau_R = crp_params$tR,
-    tau_R_upper = tau_R_upper,
-    t_start = t_start,
-    t_end = t_end,
-    sample_rate = srate
+  structure(
+    class = "ravetools_crp",
+    list(
+      parameters = crp_params,
+      projections = crp_projs,
+      bad_trials = bad_trials,
+      tau_R_lower = tau_R_lower,
+      tau_R = crp_params$tR,
+      tau_R_upper = tau_R_upper,
+      t_start = t_start,
+      t_end = t_end,
+      sample_rate = srate,
+      .data = list(V = V, time = t_win)
+    )
   )
+}
+
+#' @title Plot CRP results
+#' @description
+#' S3 plot method for objects of class \code{ravetools_crp} returned by
+#' \code{\link{crp}}.  Produces a three-panel figure:
+#' \enumerate{
+#' \item Single-trial traces over the full analysis window with the mean
+#'   and the scaled canonical shape \eqn{C(t)} overlaid (the shape is
+#'   drawn only up to \eqn{\tau_R}, so the cut-off is itself informative).
+#' \item Per-trial \eqn{\alpha'} weights sorted in ascending order.
+#' \item Mean cross-trial projection profile with vertical lines marking
+#'   \eqn{\tau_{lb}}, \eqn{\tau_R} and \eqn{\tau_{ub}}.
+#' }
+#' @param x an object of class \code{ravetools_crp} as returned by
+#' \code{\link{crp}}.
+#' @param ... additional graphical parameters passed to \code{\link{par}}
+#' (e.g. \code{mar}, \code{cex.axis}); currently unused beyond restoring
+#' the previous \code{par} state on exit.
+#' @return Invisibly returns \code{x}.
+#' @export
+plot.ravetools_crp <- function(x, ...) {
+  parms <- x$parameters
+  proj  <- x$projections
+  V  <- x$.data$V
+  tt <- x$.data$time
+
+  op <- graphics::par(mfrow = c(1, 3))
+  on.exit(graphics::par(op), add = TRUE)
+
+  # ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------
+  graphics::matplot(tt, V, type = "l", lty = 1, las = 1,
+                    col = "#80808060", xlab = "Time (s)",
+                    ylab = expression(mu * V),
+                    main = expression("Canonical shape " * C(t)))
+
+  # C(t) is drawn only up to tau_R; scale amplitude to match mean trace
+  C_scaled <- parms$C * max(abs(rowMeans(V))) / max(abs(parms$C))
+
+  graphics::abline(v = x$tau_R, col = "red", lwd = 1)
+  graphics::text(
+    x = x$tau_R, y = min(C_scaled),
+    labels = bquote(tau[R] * "=" * .(sprintf("%.3s", x$tau_R))),
+    col = "red", pos = 4, offset = 1
+  )
+
+  graphics::lines(parms$params_times, C_scaled, col = "#FFFF0080", lwd = 3)
+  graphics::lines(tt, rowMeans(V), col = "black", lwd = 1)
+  graphics::legend("topright", c("mean", "C(t) scaled"),
+                   col = c("black", "#FFFF00"), lty = c(1, 2), lwd = 3,
+                   bty = "n", cex = 0.8)
+
+  # ---- Panel 2: per-trial alpha-prime weights -----------------------------
+  graphics::barplot(
+    sort(parms$al_p),
+    col = "steelblue",
+    border = NA,
+    las = 1,
+    xlab = "Trial (sorted)",
+    ylab = expression(alpha * "'" ~ (mu * V)),
+    main = expression("Per-trial " * alpha * "' (alpha-prime)")
+  )
+  graphics::abline(h = c(0, mean(parms$al_p)), lty = c(1, 2))
+
+  # ---- Panel 3: mean projection profile with tau_R bounds ----------------
+  graphics::plot(
+    proj$proj_tpts, proj$mean_proj_profile, type = "l", lwd = 2,
+    xlab = "Candidate duration (s)",
+    ylab = expression(bar(S) ~ (mu * V %.% s^{0.5})),
+    main = expression("Projection profile & " * tau[R]),
+    las = 1
+  )
+  graphics::abline(
+    v = c(x$tau_R_lower, x$tau_R, x$tau_R_upper),
+    col = c("grey", "red", "grey"),
+    lty = c(2, 1, 2), lwd = 2)
+  graphics::legend(
+    "topright",
+    legend = c(
+     bquote(tau[lb] * "=" * .(sprintf("%.3fs", x$tau_R_lower))),
+     bquote(tau[R] * "=" * .(sprintf("%.3fs", x$tau_R))),
+     bquote(tau[ub] * "=" * .(sprintf("%.3fs", x$tau_R)))
+    ),
+    col = c("grey", "red", "grey"),
+     lty = c(2, 1, 2), lwd = 2, bty = "n")
+
+  invisible(x)
 }
 
 
