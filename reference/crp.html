@@ -33,7 +33,7 @@ implementation; see &amp;#8216;References&amp;#8217;."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -151,51 +151,136 @@ projection profile.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named list with the following elements:</p><dl><dt><code>parameters</code></dt>
-<dd><p>a list of single-trial parameterizations
-(<code>crp_params</code> in MATLAB), with fields:
-<code>V_tR</code> (voltage matrix truncated to \(\tau_R\)),
-<code>al</code> (alpha coefficient weights of \(C\) into each trial),
-<code>C</code> (canonical shape, the first kernel-PCA component),
-<code>ep</code> (residual epsilon after removing \(\alpha C\) from each
-trial), <code>tR</code> (response duration in seconds),
-<code>params_times</code> (times for parameterized data),
-<code>avg_trace_tR</code> (simple average trace, truncated to \(\tau_R\)),
-<code>al_p</code> (alpha-prime: \(\alpha\) scaled by
-\(\sqrt{\textrm{length}(C)}\)),
-<code>epep_root</code> (per-trial residual norm),
-<code>Vsnr</code> (per-trial signal-to-noise),
-<code>expl_var</code> (per-trial explained variance).</p></dd>
+<dd><p>A list of single-trial parameterizations
+(<code>crp_parms</code> in MATLAB):</p><dl><dt><code>C</code></dt>
+<dd><p>Numeric vector of length \(T_R\) (timepoints up to
+    \(\tau_R\)), the canonical response shape \(C(t)\): the first
+    eigenvector of the linear kernel PCA on <code>V_tR</code>, unit-normalized
+    (\(\|C\| = 1\)). The matching time axis is in <code>params_times</code>.</p></dd>
+
+  <dt><code>al</code></dt>
+<dd><p>Numeric vector of length \(K\) (number of trials),
+    the per-trial alpha coefficient \(\alpha_k = C^\top V_k\): scalar
+    projection of trial \(k\) onto \(C(t)\). Larger magnitude means
+    the trial resembles the canonical shape more strongly; sign reflects
+    polarity relative to \(C\).</p></dd>
+
+  <dt><code>al_p</code></dt>
+<dd><p>Numeric vector of length \(K\), alpha-prime
+    \(\alpha_k / \sqrt{T_R}\): <code>al</code> rescaled to remove the
+    duration dependence from the unit-norm convention on \(C\).
+    Expressed in \(\mu V\) and comparable across electrodes or
+    conditions with different \(\tau_R\).</p></dd>
+
+  <dt><code>ep</code></dt>
+<dd><p>Numeric matrix of shape \(T_R \times K\), the
+    per-trial residual \(\epsilon_k(t) = V_k(t) - \alpha_k C(t)\)
+    after the shared component is removed. Access trial \(k\) via
+    <code>ep[, k]</code>.</p></dd>
+
+  <dt><code>epep_root</code></dt>
+<dd><p>Numeric vector of length \(K\),
+    \(\|\epsilon_k\| = \sqrt{\epsilon_k^\top \epsilon_k}\): L2 norm
+    of the residual per trial. Smaller values indicate the canonical
+    shape describes that trial more faithfully.</p></dd>
+
+  <dt><code>Vsnr</code></dt>
+<dd><p>Numeric vector of length \(K\), per-trial
+    signal-to-noise \(\alpha_k / \|\epsilon_k\|\). Values \(&gt; 1\)
+    indicate the canonical component is larger than the residual.</p></dd>
+
+  <dt><code>expl_var</code></dt>
+<dd><p>Numeric vector of length \(K\), per-trial
+    explained variance \(1 - \|\epsilon_k\|^2 / \|V_k\|^2\): fraction
+    of each trial's energy accounted for by \(\alpha_k C(t)\).
+    Ranges in \([0, 1]\).</p></dd>
+
+  <dt><code>tR</code></dt>
+<dd><p>Numeric scalar, response duration \(\tau_R\) in
+    seconds: the time at which mean cross-trial projection magnitude is
+    maximized.</p></dd>
+
+  <dt><code>params_times</code></dt>
+<dd><p>Numeric vector of length \(T_R\), time
+    axis for <code>C</code>, <code>V_tR</code>, <code>ep</code>, and
+    <code>avg_trace_tR</code>.</p></dd>
+
+  <dt><code>V_tR</code></dt>
+<dd><p>Numeric matrix \(T_R \times K\), trial matrix
+    truncated to \(\tau_R\) — the data actually decomposed.</p></dd>
+
+  <dt><code>avg_trace_tR</code></dt>
+<dd><p>Numeric vector of length \(T_R\), simple
+    trial average truncated to \(\tau_R\).</p></dd>
+
+
+</dl></dd>
 
 <dt><code>projections</code></dt>
-<dd><p>a list of projection-stage outputs
-(<code>crp_projs</code> in MATLAB), with fields:
-<code>proj_tpts</code> (projection times in seconds),
-<code>S_all</code> (matrix of projection magnitudes; rows are non-redundant
-trial pairs, columns are durations),
-<code>mean_proj_profile</code>, <code>var_proj_profile</code>,
-<code>tR_index</code> (column of <code>S_all</code> corresponding to \(\tau_R\)),
-<code>avg_trace_input</code> (mean trace over the full window),
-<code>stat_indices</code> (row indices of <code>S_all</code> used for the
-significance t-tests; non-overlapping comparison pairs),
-<code>t_value_tR</code>, <code>p_value_tR</code>,
-<code>t_value_full</code>, <code>p_value_full</code>.</p></dd>
+<dd><p>A list of projection-stage outputs
+(<code>crp_projs</code> in MATLAB):</p><dl><dt><code>proj_tpts</code></dt>
+<dd><p>Numeric vector, candidate duration time points
+    (seconds) at which projection magnitudes were evaluated.</p></dd>
+
+  <dt><code>S_all</code></dt>
+<dd><p>Numeric matrix; rows are non-redundant off-diagonal
+    trial-pair projections, columns correspond to <code>proj_tpts</code>.
+    Units: \(\mu V \cdot s^{1/2}\).</p></dd>
+
+  <dt><code>mean_proj_profile</code></dt>
+<dd><p>Numeric vector, mean of <code>S_all</code>
+    across trial pairs at each candidate duration — the profile whose
+    maximum defines \(\tau_R\).</p></dd>
+
+  <dt><code>var_proj_profile</code></dt>
+<dd><p>Numeric vector, variance of
+    <code>S_all</code> across trial pairs at each candidate duration.</p></dd>
+
+  <dt><code>tR_index</code></dt>
+<dd><p>Integer, column index into <code>S_all</code> and
+    <code>proj_tpts</code> corresponding to \(\tau_R\).</p></dd>
+
+  <dt><code>avg_trace_input</code></dt>
+<dd><p>Numeric vector, simple trial average
+    over the full analysis window (not truncated to \(\tau_R\)).</p></dd>
+
+  <dt><code>stat_indices</code></dt>
+<dd><p>Integer vector, row indices of <code>S_all</code>
+    used for the significance t-tests, constructed so each trial-pair
+    comparison appears at most once.</p></dd>
+
+  <dt><code>t_value_tR</code>, <code>p_value_tR</code></dt>
+<dd><p>t-statistic and one-sided
+    p-value (H1: mean projection \(&gt; 0\)) at \(\tau_R\). Primary
+    extraction-significance test reported in the manuscript.</p></dd>
+
+  <dt><code>t_value_full</code>, <code>p_value_full</code></dt>
+<dd><p>Same test at the full
+    analysis-window duration.</p></dd>
+
+
+</dl></dd>
 
 <dt><code>bad_trials</code></dt>
-<dd><p>integer vector of trial indices (into the
-original <code>x</code>) flagged and removed as artifacts; <code>integer(0)</code>
-when none are removed or when <code>remove_artifacts = FALSE</code>.</p></dd>
+<dd><p>Integer vector of column indices into the
+original <code>x</code> flagged and removed as artifacts; <code>integer(0)</code>
+when none removed or when <code>remove_artifacts = FALSE</code>.</p></dd>
+
+<dt><code>tau_R</code></dt>
+<dd><p>Numeric scalar, estimated response duration
+\(\tau_R\) in seconds (convenience copy of <code>parameters$tR</code>).</p></dd>
 
 <dt><code>tau_R_lower</code>, <code>tau_R_upper</code></dt>
-<dd><p>numeric scalars, lower
-and upper threshold-crossing times (in seconds) bracketing \(\tau_R\)
+<dd><p>Numeric scalars, lower
+and upper threshold-crossing times (seconds) bracketing \(\tau_R\)
 at the <code>threshold_quantile</code> fraction of the peak mean projection
 magnitude.</p></dd>
 
 <dt><code>t_start</code>, <code>t_end</code></dt>
-<dd><p>the analysis window used.</p></dd>
+<dd><p>The analysis window used.</p></dd>
 
 <dt><code>sample_rate</code></dt>
-<dd><p>numeric, sampling rate inferred from
+<dd><p>Numeric, sampling rate inferred from
 <code>time</code>.</p></dd>
 
 
@@ -232,60 +317,62 @@ with a reference MATLAB implementation at
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Synthetic CCEP-like data: shared canonical shape with per-trial scaling</span></span></span>
-<span class="r-in"><span><span class="va">n_time</span> <span class="op">&lt;-</span> <span class="fl">500L</span></span></span>
+<span class="r-in"><span><span class="va">n_time</span>   <span class="op">&lt;-</span> <span class="fl">500L</span></span></span>
 <span class="r-in"><span><span class="va">n_trials</span> <span class="op">&lt;-</span> <span class="fl">20L</span></span></span>
 <span class="r-in"><span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">n_time</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">canonical</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="fl">0.10</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span></span></span>
 <span class="r-in"><span>             <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="fl">0.30</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">canonical</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_trials</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>     <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_time</span> <span class="op">*</span> <span class="va">n_trials</span>, sd <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>, <span class="va">n_time</span>, <span class="va">n_trials</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">V</span> <span class="op">&lt;-</span> <span class="va">V</span> <span class="op">*</span> <span class="fl">100</span></span></span>
+<span class="r-in"><span><span class="va">V</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">canonical</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_trials</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>       <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_time</span> <span class="op">*</span> <span class="va">n_trials</span>, sd <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>, <span class="va">n_time</span>, <span class="va">n_trials</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">crp</span><span class="op">(</span><span class="va">V</span>, <span class="va">tt</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">parameters</span><span class="op">$</span><span class="va">tR</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3918838</span>
-<span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">projections</span><span class="op">$</span><span class="va">p_value_tR</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.183469e-90</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matplot</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">V</span>, type <span class="op">=</span> <span class="st">'l'</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"#80808080"</span>, las <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>        xlab <span class="op">=</span> <span class="st">"Time (s)"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span> <span class="op">*</span> <span class="va">V</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">tau</span><span class="op">[</span><span class="va">R</span><span class="op">]</span> <span class="op">~</span> <span class="st">": estimated ERP duration"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------</span></span></span>
+<span class="r-in"><span><span class="va">parms</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">parameters</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matplot</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">V</span>, type <span class="op">=</span> <span class="st">"l"</span>, lty <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>        col <span class="op">=</span> <span class="st">"#80808060"</span>, xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,</span></span>
+<span class="r-in"><span>        ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span> <span class="op">*</span> <span class="va">V</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Canonical shape "</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/zC.html" class="external-link">C</a></span><span class="op">(</span><span class="va">t</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># scale C(t) to the amplitude of the mean trace for overlay;</span></span></span>
+<span class="r-in"><span><span class="co"># C(t) ends at tau_R so the line is cut off there naturally</span></span></span>
+<span class="r-in"><span><span class="va">C_scaled</span> <span class="op">&lt;-</span> <span class="va">parms</span><span class="op">$</span><span class="va">C</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">V</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">parms</span><span class="op">$</span><span class="va">C</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">parms</span><span class="op">$</span><span class="va">params_times</span>, <span class="va">C_scaled</span>, col <span class="op">=</span> <span class="st">"#FFFF0080"</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Mean response excluding bad trials</span></span></span>
-<span class="r-in"><span><span class="va">V_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">V</span><span class="op">[</span>, <span class="op">-</span><span class="va">res</span><span class="op">$</span><span class="va">bad_trials</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">V_mean</span>, col <span class="op">=</span> <span class="st">"black"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Mean</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tt</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">V</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"black"</span>, lwd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"C(t) scaled"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"#FFFF00"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>       bty <span class="op">=</span> <span class="st">"n"</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Plot CRP response stopped at tR</span></span></span>
-<span class="r-in"><span><span class="va">sel_lower</span> <span class="op">&lt;-</span> <span class="va">tt</span> <span class="op">&lt;=</span> <span class="va">res</span><span class="op">$</span><span class="va">tau_R_lower</span> <span class="op">&amp;</span> <span class="va">tt</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="va">sel_tR</span> <span class="op">&lt;-</span> <span class="va">tt</span> <span class="op">&lt;=</span> <span class="va">res</span><span class="op">$</span><span class="va">parameters</span><span class="op">$</span><span class="va">tR</span> <span class="op">&amp;</span> <span class="va">tt</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="va">sel_upper</span> <span class="op">&lt;-</span> <span class="va">tt</span> <span class="op">&lt;=</span> <span class="va">res</span><span class="op">$</span><span class="va">tau_R_upper</span> <span class="op">&amp;</span> <span class="va">tt</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span><span class="co"># ---- Panel 2: per-trial alpha-prime weights -----------------------------</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">parms</span><span class="op">$</span><span class="va">al_p</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, border <span class="op">=</span> <span class="cn">NA</span>, las <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>        xlab <span class="op">=</span> <span class="st">"Trial (sorted)"</span>,</span></span>
+<span class="r-in"><span>        ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">alpha</span> <span class="op">*</span> <span class="st">"'"</span> <span class="op">~</span> <span class="op">(</span><span class="va">mu</span> <span class="op">*</span> <span class="va">V</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Per-trial "</span> <span class="op">*</span> <span class="va">alpha</span> <span class="op">*</span> <span class="st">"' (alpha-prime)"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">parms</span><span class="op">$</span><span class="va">al_p</span><span class="op">)</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tt</span><span class="op">[</span><span class="va">sel_upper</span><span class="op">]</span>, <span class="va">V_mean</span><span class="op">[</span><span class="va">sel_upper</span><span class="op">]</span>, col <span class="op">=</span> <span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tt</span><span class="op">[</span><span class="va">sel_tR</span><span class="op">]</span>, <span class="va">V_mean</span><span class="op">[</span><span class="va">sel_tR</span><span class="op">]</span>, col <span class="op">=</span> <span class="st">"orange2"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tt</span><span class="op">[</span><span class="va">sel_lower</span><span class="op">]</span>, <span class="va">V_mean</span><span class="op">[</span><span class="va">sel_lower</span><span class="op">]</span>, col <span class="op">=</span> <span class="st">"cyan"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">idx_lower</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="va">res</span><span class="op">$</span><span class="va">tau_R_lower</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">idx_tR</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="va">res</span><span class="op">$</span><span class="va">parameters</span><span class="op">$</span><span class="va">tR</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">idx_upper</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="va">res</span><span class="op">$</span><span class="va">tau_R_upper</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">idx_lower</span>, <span class="va">idx_tR</span>, <span class="va">idx_upper</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">tt</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>, <span class="va">V_mean</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyan"</span>, <span class="st">"orange2"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">tt</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>, <span class="va">V_mean</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span> <span class="op">+</span> <span class="fl">20</span>,</span></span>
-<span class="r-in"><span>     labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">tau</span><span class="op">[</span><span class="va">lb</span><span class="op">]</span>, <span class="va">tau</span><span class="op">[</span><span class="va">R</span><span class="op">]</span>, <span class="va">tau</span><span class="op">[</span><span class="va">up</span><span class="op">]</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>     adj <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The underlying duration</span></span></span>
-<span class="r-in"><span><span class="va">underlying_duration</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">tt</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">canonical</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">underlying_duration</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">underlying_duration</span>, y <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>     labels <span class="op">=</span> <span class="st">" Underlying duration"</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># ---- Panel 3: mean projection profile with tau_R bounds ----------------</span></span></span>
+<span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">projections</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">proj</span><span class="op">$</span><span class="va">proj_tpts</span>, <span class="va">proj</span><span class="op">$</span><span class="va">mean_proj_profile</span>, type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>     xlab <span class="op">=</span> <span class="st">"Candidate duration (s)"</span>,</span></span>
+<span class="r-in"><span>     ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">bar</span><span class="op">(</span><span class="va">S</span><span class="op">)</span> <span class="op">~</span> <span class="op">(</span><span class="va">mu</span> <span class="op">*</span> <span class="va">V</span> <span class="op">%.%</span> <span class="va">s</span><span class="op">^</span><span class="op">{</span><span class="fl">0.5</span><span class="op">}</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"Projection profile &amp; "</span> <span class="op">*</span> <span class="va">tau</span><span class="op">[</span><span class="va">R</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>     las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">tau_R_lower</span>, <span class="va">res</span><span class="op">$</span><span class="va">tau_R</span>, <span class="va">res</span><span class="op">$</span><span class="va">tau_R_upper</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyan3"</span>, <span class="st">"orange2"</span>, <span class="st">"red"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span></span>
+<span class="r-in"><span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">tau</span><span class="op">[</span><span class="va">lb</span><span class="op">]</span>, <span class="va">tau</span><span class="op">[</span><span class="va">R</span><span class="op">]</span>, <span class="va">tau</span><span class="op">[</span><span class="va">ub</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyan3"</span>, <span class="st">"orange2"</span>, <span class="st">"red"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, bty <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="crp-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

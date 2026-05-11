@@ -89,47 +89,151 @@ A named list with the following elements:
 
 - `parameters`:
 
-  a list of single-trial parameterizations (`crp_params` in MATLAB),
-  with fields: `V_tR` (voltage matrix truncated to \\\tau_R\\), `al`
-  (alpha coefficient weights of \\C\\ into each trial), `C` (canonical
-  shape, the first kernel-PCA component), `ep` (residual epsilon after
-  removing \\\alpha C\\ from each trial), `tR` (response duration in
-  seconds), `params_times` (times for parameterized data),
-  `avg_trace_tR` (simple average trace, truncated to \\\tau_R\\), `al_p`
-  (alpha-prime: \\\alpha\\ scaled by \\\sqrt{\textrm{length}(C)}\\),
-  `epep_root` (per-trial residual norm), `Vsnr` (per-trial
-  signal-to-noise), `expl_var` (per-trial explained variance).
+  A list of single-trial parameterizations (`crp_parms` in MATLAB):
+
+  `C`
+
+  :   Numeric vector of length \\T_R\\ (timepoints up to \\\tau_R\\),
+      the canonical response shape \\C(t)\\: the first eigenvector of
+      the linear kernel PCA on `V_tR`, unit-normalized (\\\\C\\ = 1\\).
+      The matching time axis is in `params_times`.
+
+  `al`
+
+  :   Numeric vector of length \\K\\ (number of trials), the per-trial
+      alpha coefficient \\\alpha_k = C^\top V_k\\: scalar projection of
+      trial \\k\\ onto \\C(t)\\. Larger magnitude means the trial
+      resembles the canonical shape more strongly; sign reflects
+      polarity relative to \\C\\.
+
+  `al_p`
+
+  :   Numeric vector of length \\K\\, alpha-prime \\\alpha_k /
+      \sqrt{T_R}\\: `al` rescaled to remove the duration dependence from
+      the unit-norm convention on \\C\\. Expressed in \\\mu V\\ and
+      comparable across electrodes or conditions with different
+      \\\tau_R\\.
+
+  `ep`
+
+  :   Numeric matrix of shape \\T_R \times K\\, the per-trial residual
+      \\\epsilon_k(t) = V_k(t) - \alpha_k C(t)\\ after the shared
+      component is removed. Access trial \\k\\ via `ep[, k]`.
+
+  `epep_root`
+
+  :   Numeric vector of length \\K\\, \\\\\epsilon_k\\ =
+      \sqrt{\epsilon_k^\top \epsilon_k}\\: L2 norm of the residual per
+      trial. Smaller values indicate the canonical shape describes that
+      trial more faithfully.
+
+  `Vsnr`
+
+  :   Numeric vector of length \\K\\, per-trial signal-to-noise
+      \\\alpha_k / \\\epsilon_k\\\\. Values \\\> 1\\ indicate the
+      canonical component is larger than the residual.
+
+  `expl_var`
+
+  :   Numeric vector of length \\K\\, per-trial explained variance \\1 -
+      \\\epsilon_k\\^2 / \\V_k\\^2\\: fraction of each trial's energy
+      accounted for by \\\alpha_k C(t)\\. Ranges in \\\[0, 1\]\\.
+
+  `tR`
+
+  :   Numeric scalar, response duration \\\tau_R\\ in seconds: the time
+      at which mean cross-trial projection magnitude is maximized.
+
+  `params_times`
+
+  :   Numeric vector of length \\T_R\\, time axis for `C`, `V_tR`, `ep`,
+      and `avg_trace_tR`.
+
+  `V_tR`
+
+  :   Numeric matrix \\T_R \times K\\, trial matrix truncated to
+      \\\tau_R\\ — the data actually decomposed.
+
+  `avg_trace_tR`
+
+  :   Numeric vector of length \\T_R\\, simple trial average truncated
+      to \\\tau_R\\.
 
 - `projections`:
 
-  a list of projection-stage outputs (`crp_projs` in MATLAB), with
-  fields: `proj_tpts` (projection times in seconds), `S_all` (matrix of
-  projection magnitudes; rows are non-redundant trial pairs, columns are
-  durations), `mean_proj_profile`, `var_proj_profile`, `tR_index`
-  (column of `S_all` corresponding to \\\tau_R\\), `avg_trace_input`
-  (mean trace over the full window), `stat_indices` (row indices of
-  `S_all` used for the significance t-tests; non-overlapping comparison
-  pairs), `t_value_tR`, `p_value_tR`, `t_value_full`, `p_value_full`.
+  A list of projection-stage outputs (`crp_projs` in MATLAB):
+
+  `proj_tpts`
+
+  :   Numeric vector, candidate duration time points (seconds) at which
+      projection magnitudes were evaluated.
+
+  `S_all`
+
+  :   Numeric matrix; rows are non-redundant off-diagonal trial-pair
+      projections, columns correspond to `proj_tpts`. Units: \\\mu V
+      \cdot s^{1/2}\\.
+
+  `mean_proj_profile`
+
+  :   Numeric vector, mean of `S_all` across trial pairs at each
+      candidate duration — the profile whose maximum defines \\\tau_R\\.
+
+  `var_proj_profile`
+
+  :   Numeric vector, variance of `S_all` across trial pairs at each
+      candidate duration.
+
+  `tR_index`
+
+  :   Integer, column index into `S_all` and `proj_tpts` corresponding
+      to \\\tau_R\\.
+
+  `avg_trace_input`
+
+  :   Numeric vector, simple trial average over the full analysis window
+      (not truncated to \\\tau_R\\).
+
+  `stat_indices`
+
+  :   Integer vector, row indices of `S_all` used for the significance
+      t-tests, constructed so each trial-pair comparison appears at most
+      once.
+
+  `t_value_tR`, `p_value_tR`
+
+  :   t-statistic and one-sided p-value (H1: mean projection \\\> 0\\)
+      at \\\tau_R\\. Primary extraction-significance test reported in
+      the manuscript.
+
+  `t_value_full`, `p_value_full`
+
+  :   Same test at the full analysis-window duration.
 
 - `bad_trials`:
 
-  integer vector of trial indices (into the original `x`) flagged and
-  removed as artifacts; `integer(0)` when none are removed or when
+  Integer vector of column indices into the original `x` flagged and
+  removed as artifacts; `integer(0)` when none removed or when
   `remove_artifacts = FALSE`.
+
+- `tau_R`:
+
+  Numeric scalar, estimated response duration \\\tau_R\\ in seconds
+  (convenience copy of `parameters$tR`).
 
 - `tau_R_lower`, `tau_R_upper`:
 
-  numeric scalars, lower and upper threshold-crossing times (in seconds)
+  Numeric scalars, lower and upper threshold-crossing times (seconds)
   bracketing \\\tau_R\\ at the `threshold_quantile` fraction of the peak
   mean projection magnitude.
 
 - `t_start`, `t_end`:
 
-  the analysis window used.
+  The analysis window used.
 
 - `sample_rate`:
 
-  numeric, sampling rate inferred from `time`.
+  Numeric, sampling rate inferred from `time`.
 
 ## Details
 
@@ -169,58 +273,60 @@ for the full bibliographic entry.
 ## Examples
 
 ``` r
-
-
 set.seed(42)
 
 # Synthetic CCEP-like data: shared canonical shape with per-trial scaling
-n_time <- 500L
+n_time   <- 500L
 n_trials <- 20L
 tt <- seq(-0.05, 1, length.out = n_time)
 canonical <- exp(-((tt - 0.10) / 0.05)^2) -
              0.5 * exp(-((tt - 0.30) / 0.10)^2)
-V <- outer(canonical, runif(n_trials, 0.5, 1.5)) +
-     matrix(rnorm(n_time * n_trials, sd = 0.3), n_time, n_trials)
-V <- V * 100
+V <- (outer(canonical, runif(n_trials, 0.5, 1.5)) +
+       matrix(rnorm(n_time * n_trials, sd = 0.3), n_time, n_trials)) * 2
 
 res <- crp(V, tt)
-res$parameters$tR
-#> [1] 0.3918838
-res$projections$p_value_tR
-#> [1] 4.183469e-90
+
+op <- par(mfrow = c(1, 3), mar = c(4.5, 4, 3, 1))
+
+# ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------
+parms <- res$parameters
+matplot(tt, V, type = "l", lty = 1,
+        col = "#80808060", xlab = "Time (s)",
+        ylab = expression(mu * V),
+        main = expression("Canonical shape " * C(t)))
+# scale C(t) to the amplitude of the mean trace for overlay;
+# C(t) ends at tau_R so the line is cut off there naturally
+C_scaled <- parms$C * max(abs(rowMeans(V))) / max(abs(parms$C))
+lines(parms$params_times, C_scaled, col = "#FFFF0080", lwd = 3)
+
+# Mean
+lines(tt, rowMeans(V), col = "black", lwd = 1)
+legend("topright", c("mean", "C(t) scaled"),
+       col = c("black", "#FFFF00"), lty = c(1, 2), lwd = 2,
+       bty = "n", cex = 0.8)
+
+# ---- Panel 2: per-trial alpha-prime weights -----------------------------
+barplot(sort(parms$al_p), col = "steelblue", border = NA, las = 1,
+        xlab = "Trial (sorted)",
+        ylab = expression(alpha * "'" ~ (mu * V)),
+        main = expression("Per-trial " * alpha * "' (alpha-prime)"))
+abline(h = c(0, mean(parms$al_p)), lty = 2)
+
+# ---- Panel 3: mean projection profile with tau_R bounds ----------------
+proj <- res$projections
+plot(proj$proj_tpts, proj$mean_proj_profile, type = "l", lwd = 2,
+     xlab = "Candidate duration (s)",
+     ylab = expression(bar(S) ~ (mu * V %.% s^{0.5})),
+     main = expression("Projection profile & " * tau[R]),
+     las = 1)
+abline(v = c(res$tau_R_lower, res$tau_R, res$tau_R_upper),
+       col = c("cyan3", "orange2", "red"),
+       lty = c(2, 1, 2), lwd = 2)
+legend("topright",
+       legend = expression(tau[lb], tau[R], tau[ub]),
+       col = c("cyan3", "orange2", "red"),
+       lty = c(2, 1, 2), lwd = 2, bty = "n")
 
 
-matplot(tt, V, type = 'l', lty = 1, col = "#80808080", las = 1,
-        xlab = "Time (s)", ylab = bquote(mu * V),
-        main = bquote(tau[R] ~ ": estimated ERP duration"))
-
-# Mean response excluding bad trials
-V_mean <- rowMeans(V[, -res$bad_trials])
-lines(tt, V_mean, col = "black", lwd = 2)
-
-# Plot CRP response stopped at tR
-sel_lower <- tt <= res$tau_R_lower & tt > 0
-sel_tR <- tt <= res$parameters$tR & tt > 0
-sel_upper <- tt <= res$tau_R_upper & tt > 0
-
-lines(tt[sel_upper], V_mean[sel_upper], col = "red", lwd = 2)
-lines(tt[sel_tR], V_mean[sel_tR], col = "orange2", lwd = 2)
-lines(tt[sel_lower], V_mean[sel_lower], col = "cyan", lwd = 2)
-
-idx_lower <- which.min(abs(tt - res$tau_R_lower))
-idx_tR <- which.min(abs(tt - res$parameters$tR))
-idx_upper <- which.min(abs(tt - res$tau_R_upper))
-idx <- c(idx_lower, idx_tR, idx_upper)
-points(tt[idx], V_mean[idx], col = c("cyan", "orange2", "red"))
-text(tt[idx], V_mean[idx] + 20,
-     labels = expression(tau[lb], tau[R], tau[up]),
-     adj = c(0.5, 0))
-
-# The underlying duration
-underlying_duration <- max(tt[which(abs(canonical) > 0.1)])
-abline(v = underlying_duration, lty = 3)
-text(x = underlying_duration, y = 100,
-     labels = " Underlying duration", adj = 0, cex = 0.6)
-
-
+par(op)
 ```
