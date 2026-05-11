@@ -168,6 +168,9 @@
 - [`plane_geometry()`](https://dipterix.org/ravetools/reference/plane_geometry.md)
   : Create a two-dimensional plane in three dimensional space
 
+- [`plot(`*`<ravetools_crp>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_crp.md)
+  : Plot CRP results
+
 - [`plot_signals()`](https://dipterix.org/ravetools/reference/plot_signals.md)
   : Plot one or more signal traces in the same figure
 
