@@ -33,7 +33,7 @@ Description: Implemented fast and memory-efficient Notch-filter,
     <doi:10.1016/j.neuroimage.2020.117341>; see 'citation("ravetools")' for 
     details.
 BugReports: https://github.com/dipterix/ravetools/issues
-URL: https://rave.wiki, https://dipterix.org/ravetools/
+URL: https://rave.wiki, https://dipterix.org/ravetools/, https://github.com/dipterix/ravetools
 License: GPL (>= 2)
 Encoding: UTF-8
 Depends: R (>= 4.0.0)
