@@ -2,7 +2,7 @@
 % Please edit documentation in R/crp.R
 \name{plot.ravetools_crp}
 \alias{plot.ravetools_crp}
-\title{Plot CRP results}
+\title{Plot \verb{CRP} results}
 \usage{
 \method{plot}{ravetools_crp}(x, ...)
 }

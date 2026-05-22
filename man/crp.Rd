@@ -196,6 +196,7 @@ V <- (outer(canonical, runif(n_trials, 0.5, 1.5)) +
 res <- crp(V, tt)
 
 op <- par(mfrow = c(1, 3), mar = c(4.5, 4, 3, 1))
+on.exit({ par(op) })
 
 # ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------
 parms <- res$parameters

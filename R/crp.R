@@ -327,7 +327,7 @@ crp <- function(
   )
 }
 
-#' @title Plot CRP results
+#' @title Plot \verb{CRP} results
 #' @description
 #' S3 plot method for objects of class \code{ravetools_crp} returned by
 #' \code{\link{crp}}.  Produces a three-panel figure:
