@@ -72,7 +72,7 @@ crm_uniform <- function(x0, x1, x2, x3, tension) {
 #'     the curve as a named numeric vector), and \code{distance} (Euclidean
 #'     distance from \code{query} to the curve).  The search uses
 #'     \code{coarse_n} uniform samples for an initial bracket followed by
-#'     scalar optimisation.}
+#'     scalar optimization.}
 #'   \item{\code{t_keypoints}}{Numeric vector of length \eqn{n} with the
 #'     \code{t} parameter value where each key point lies on the curve.
 #'     First element is always \code{0}, last is always \code{1}.}
@@ -248,7 +248,7 @@ catmull_rom_3d <- function(
     lo    <- max(0.0, ts_c[[best_i]] - dt)
     hi    <- min(1.0, ts_c[[best_i]] + dt)
 
-    # Fine pass: scalar optimisation within the bracket
+    # Fine pass: scalar optimization within the bracket
     res   <- stats::optimize(function(t) sum((get_point(t) - query)^2),
                              interval = c(lo, hi))
     t_opt <- res$minimum

@@ -52,7 +52,7 @@ An object of class \code{"ravetools_curve"} (a list) with the
     the curve as a named numeric vector), and \code{distance} (Euclidean
     distance from \code{query} to the curve).  The search uses
     \code{coarse_n} uniform samples for an initial bracket followed by
-    scalar optimisation.}
+    scalar optimization.}
   \item{\code{t_keypoints}}{Numeric vector of length \eqn{n} with the
     \code{t} parameter value where each key point lies on the curve.
     First element is always \code{0}, last is always \code{1}.}
