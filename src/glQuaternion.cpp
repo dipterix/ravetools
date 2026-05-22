@@ -240,7 +240,7 @@ void Quaternion__set_from_axis_angle(
 }
 
 
-Quaternion& Quaternion::setFromRotationMatrix(Matrix4& m) {
+Quaternion& Quaternion::setFromRotationMatrix(Matrix4& m, int fix_qfac) {
 
   // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
@@ -248,9 +248,20 @@ Quaternion& Quaternion::setFromRotationMatrix(Matrix4& m) {
 
   std::vector<double>::iterator te = m.elements.begin();
 
-  const double &m11 = te[0], &m12 = te[4], &m13 = te[8];
-  const double &m21 = te[1], &m22 = te[5], &m23 = te[9];
-  const double &m31 = te[2], &m32 = te[6], &m33 = te[10];
+  double qfac_sign = 1.0;
+  if (fix_qfac) {
+    double det3 = te[0]*(te[5]*te[10] - te[9]*te[6])
+                - te[4]*(te[1]*te[10] - te[9]*te[2])
+                + te[8]*(te[1]*te[6]  - te[5]*te[2]);
+    if (det3 < 0) qfac_sign = -1.0;
+  }
+
+  const double &m11 = te[0], &m12 = te[4];
+  const double &m21 = te[1], &m22 = te[5];
+  const double &m31 = te[2], &m32 = te[6];
+  const double m13 = qfac_sign * te[8];
+  const double m23 = qfac_sign * te[9];
+  const double m33 = qfac_sign * te[10];
   const double trace = m11 + m22 + m33;
 
   double s;
@@ -297,10 +308,10 @@ Quaternion& Quaternion::setFromRotationMatrix(Matrix4& m) {
 
 // [[Rcpp::export]]
 void Quaternion__set_from_rotation_matrix(
-    SEXP& self, SEXP& m) {
+    SEXP& self, SEXP& m, int& fix_qfac) {
   Rcpp::XPtr<Quaternion> ptr(self);
   Rcpp::XPtr<Matrix4> ptr_m(m);
-  ptr->setFromRotationMatrix(*ptr_m);
+  ptr->setFromRotationMatrix(*ptr_m, fix_qfac);
 }
 
 

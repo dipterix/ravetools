@@ -33,7 +33,7 @@ public:
   //
   Quaternion& setFromAxisAngle(Vector3& axis, const double& angle);
 
-  Quaternion& setFromRotationMatrix(Matrix4& m);
+  Quaternion& setFromRotationMatrix(Matrix4& m, int fix_qfac = 0);
 
   Quaternion& setFromUnitVectors(Vector3& vFrom, Vector3& vTo);
 

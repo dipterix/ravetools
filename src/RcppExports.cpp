@@ -1248,13 +1248,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // Quaternion__set_from_rotation_matrix
-void Quaternion__set_from_rotation_matrix(SEXP& self, SEXP& m);
-RcppExport SEXP _ravetools_Quaternion__set_from_rotation_matrix(SEXP selfSEXP, SEXP mSEXP) {
+void Quaternion__set_from_rotation_matrix(SEXP& self, SEXP& m, int& fix_qfac);
+RcppExport SEXP _ravetools_Quaternion__set_from_rotation_matrix(SEXP selfSEXP, SEXP mSEXP, SEXP fix_qfacSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type self(selfSEXP);
     Rcpp::traits::input_parameter< SEXP& >::type m(mSEXP);
-    Quaternion__set_from_rotation_matrix(self, m);
+    Rcpp::traits::input_parameter< int& >::type fix_qfac(fix_qfacSEXP);
+    Quaternion__set_from_rotation_matrix(self, m, fix_qfac);
     return R_NilValue;
 END_RCPP
 }
@@ -3951,7 +3952,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_Quaternion__getW", (DL_FUNC) &_ravetools_Quaternion__getW, 1},
     {"_ravetools_Quaternion__setW", (DL_FUNC) &_ravetools_Quaternion__setW, 2},
     {"_ravetools_Quaternion__set_from_axis_angle", (DL_FUNC) &_ravetools_Quaternion__set_from_axis_angle, 3},
-    {"_ravetools_Quaternion__set_from_rotation_matrix", (DL_FUNC) &_ravetools_Quaternion__set_from_rotation_matrix, 2},
+    {"_ravetools_Quaternion__set_from_rotation_matrix", (DL_FUNC) &_ravetools_Quaternion__set_from_rotation_matrix, 3},
     {"_ravetools_Quaternion__set_from_unit_vectors", (DL_FUNC) &_ravetools_Quaternion__set_from_unit_vectors, 3},
     {"_ravetools_Quaternion__angle_to", (DL_FUNC) &_ravetools_Quaternion__angle_to, 2},
     {"_ravetools_Quaternion__rotate_towards", (DL_FUNC) &_ravetools_Quaternion__rotate_towards, 3},

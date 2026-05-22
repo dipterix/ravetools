@@ -249,8 +249,8 @@ Quaternion__set_from_axis_angle <- function(self, axis, angle) {
     invisible(.Call(`_ravetools_Quaternion__set_from_axis_angle`, self, axis, angle))
 }
 
-Quaternion__set_from_rotation_matrix <- function(self, m) {
-    invisible(.Call(`_ravetools_Quaternion__set_from_rotation_matrix`, self, m))
+Quaternion__set_from_rotation_matrix <- function(self, m, fix_qfac) {
+    invisible(.Call(`_ravetools_Quaternion__set_from_rotation_matrix`, self, m, fix_qfac))
 }
 
 Quaternion__set_from_unit_vectors <- function(self, v_from, v_to) {

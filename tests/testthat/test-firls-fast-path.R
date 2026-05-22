@@ -21,17 +21,20 @@ test_that("firls new vs legacy agree for no-gap (fir1-compatible) specs", {
 
   cases <- list(
     # name,  N,   freq,                    A
-    list("low-pass even",     100, c(0, 0.3, 0.3, 1),       c(1,1,0,0)),
-    list("low-pass odd",      101, c(0, 0.3, 0.3, 1),       c(1,1,0,0)),
-    list("high-pass even",    80,  c(0, 0.6, 0.6, 1),       c(0,0,1,1)),
-    list("band-pass even",    120, c(0, 0.2, 0.2, 0.5, 0.5, 1), c(0,0,1,1,0,0)),
-    list("band-stop even",    120, c(0, 0.2, 0.2, 0.5, 0.5, 1), c(1,1,0,0,1,1)),
+    list("low-pass even",     100, c(0, 0.3, 0.3, 1),       c(1, 1, 0, 0)),
+    list("low-pass odd",      101, c(0, 0.3, 0.3, 1),       c(1, 1, 0, 0)),
+    list("high-pass even",    80,  c(0, 0.6, 0.6, 1),       c(0, 0, 1, 1)),
+    list("band-pass even",    120, c(0, 0.2, 0.2, 0.5, 0.5, 1), c(0, 0, 1, 1, 0, 0)),
+    list("band-stop even",    120, c(0, 0.2, 0.2, 0.5, 0.5, 1), c(1, 1, 0, 0, 1, 1)),
     list("multi-band even",   60,  c(0, 0.1, 0.1, 0.3, 0.3, 0.6, 0.6, 1),
-                                   c(1,1,0,0,1,1,0,0))
+                                   c(1, 1, 0, 0, 1, 1, 0, 0))
   )
 
   for (case in cases) {
-    label <- case[[1]]; N <- case[[2]]; freq <- case[[3]]; A <- case[[4]]
+    label <- case[[1]]
+    N <- case[[2]]
+    freq <- case[[3]]
+    A <- case[[4]]
 
     b_new    <- firls(N, freq, A)$b
     b_legacy <- firls(N, freq, A, legacy = TRUE)$b
@@ -74,19 +77,19 @@ test_that("fir1 coefficients are unchanged by the fast-path fix", {
 test_that("firls (new path) satisfies passband gain requirements", {
 
   # Low-pass: gain near 1 in passband, near 0 in stopband
-  b <- firls(100, c(0, 0.3, 0.3, 1), c(1,1,0,0))$b
+  b <- firls(100, c(0, 0.3, 0.3, 1), c(1, 1, 0, 0))$b
   expect_gt(fir_gain(b, 0),   0.99)   # DC gain close to 1
   expect_gt(fir_gain(b, 0.15), 0.9)   # mid-passband
   expect_lt(fir_gain(b, 0.5),  0.05)  # well into stopband
 
   # High-pass
-  b <- firls(100, c(0, 0.6, 0.6, 1), c(0,0,1,1))$b
+  b <- firls(100, c(0, 0.6, 0.6, 1), c(0, 0, 1, 1))$b
   expect_lt(fir_gain(b, 0.1),  0.05)
   expect_gt(fir_gain(b, 0.8),  0.9)
   expect_gt(fir_gain(b, 1.0),  0.99)
 
   # Band-pass
-  b <- firls(120, c(0, 0.2, 0.2, 0.6, 0.6, 1), c(0,0,1,1,0,0))$b
+  b <- firls(120, c(0, 0.2, 0.2, 0.6, 0.6, 1), c(0, 0, 1, 1, 0, 0))$b
   expect_lt(fir_gain(b, 0.05), 0.1)
   expect_gt(fir_gain(b, 0.4),  0.9)
   expect_lt(fir_gain(b, 0.85), 0.1)
