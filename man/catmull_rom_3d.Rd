@@ -45,6 +45,14 @@ An object of class \code{"ravetools_curve"} (a list) with the
   \item{\code{get_points}}{A \code{function(n)} that returns an
     \eqn{n \times 3} matrix of \code{n} evenly spaced points along the
     curve, with column names \code{"x"}, \code{"y"}, \code{"z"}.}
+  \item{\code{get_closest_t}}{A \code{function(query, coarse_n = 200L)}
+    that, given a 3-element numeric vector \code{query} (\code{x}, \code{y},
+    \code{z}), returns a list with elements \code{t} (the parameter value in
+    \eqn{[0, 1]} of the nearest point), \code{point} (the closest point on
+    the curve as a named numeric vector), and \code{distance} (Euclidean
+    distance from \code{query} to the curve).  The search uses
+    \code{coarse_n} uniform samples for an initial bracket followed by
+    scalar optimisation.}
   \item{\code{t_keypoints}}{Numeric vector of length \eqn{n} with the
     \code{t} parameter value where each key point lies on the curve.
     First element is always \code{0}, last is always \code{1}.}
@@ -78,6 +86,9 @@ head(smooth)
 
 # Evaluate the curve at t = 0.5 (midpoint)
 curve$get_point(0.5)
+
+# get closest point on curve
+curve$get_closest_t(c(-49, -10, -22))
 
 plot(curve, use_rgl = FALSE)
 

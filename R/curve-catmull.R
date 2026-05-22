@@ -65,6 +65,14 @@ crm_uniform <- function(x0, x1, x2, x3, tension) {
 #'   \item{\code{get_points}}{A \code{function(n)} that returns an
 #'     \eqn{n \times 3} matrix of \code{n} evenly spaced points along the
 #'     curve, with column names \code{"x"}, \code{"y"}, \code{"z"}.}
+#'   \item{\code{get_closest_t}}{A \code{function(query, coarse_n = 200L)}
+#'     that, given a 3-element numeric vector \code{query} (\code{x}, \code{y},
+#'     \code{z}), returns a list with elements \code{t} (the parameter value in
+#'     \eqn{[0, 1]} of the nearest point), \code{point} (the closest point on
+#'     the curve as a named numeric vector), and \code{distance} (Euclidean
+#'     distance from \code{query} to the curve).  The search uses
+#'     \code{coarse_n} uniform samples for an initial bracket followed by
+#'     scalar optimisation.}
 #'   \item{\code{t_keypoints}}{Numeric vector of length \eqn{n} with the
 #'     \code{t} parameter value where each key point lies on the curve.
 #'     First element is always \code{0}, last is always \code{1}.}
@@ -98,6 +106,9 @@ crm_uniform <- function(x0, x1, x2, x3, tension) {
 #'
 #' # Evaluate the curve at t = 0.5 (midpoint)
 #' curve$get_point(0.5)
+#'
+#' # get closest point on curve
+#' curve$get_closest_t(c(-49, -10, -22))
 #'
 #' plot(curve, use_rgl = FALSE)
 #'
@@ -221,6 +232,30 @@ catmull_rom_3d <- function(
     mat
   }
 
+  # ---- closest point on curve to a query 3D point -------------------------
+  get_closest_t <- function(query, coarse_n = 200L) {
+    query    <- as.numeric(query)[seq_len(3L)]
+    coarse_n <- max(as.integer(coarse_n[[1L]]), 2L)
+
+    # Coarse pass: evaluate the curve uniformly and find the nearest sample
+    pts_c  <- get_points(coarse_n)
+    d2_c   <- rowSums(sweep(pts_c, 2L, query)^2)
+    best_i <- which.min(d2_c)
+
+    # Narrow the search bracket to ±1 coarse step around the best sample
+    dt    <- 1.0 / (coarse_n - 1L)
+    ts_c  <- seq.int(0L, coarse_n - 1L) / (coarse_n - 1L)
+    lo    <- max(0.0, ts_c[[best_i]] - dt)
+    hi    <- min(1.0, ts_c[[best_i]] + dt)
+
+    # Fine pass: scalar optimisation within the bracket
+    res   <- stats::optimize(function(t) sum((get_point(t) - query)^2),
+                             interval = c(lo, hi))
+    t_opt <- res$minimum
+    pt    <- get_point(t_opt)
+    list(t = t_opt, point = pt, distance = sqrt(res$objective))
+  }
+
   # ---- segment arc lengths (numerical integration, 50 sub-samples each) ---
   n_segs    <- if (closed) l else l - 1L
   t_seg_end <- c(t_keypoints[-1L], if (closed) 1.0)
@@ -245,7 +280,8 @@ catmull_rom_3d <- function(
       t_keypoints     = t_keypoints,
       segment_lengths = segment_lengths,
       get_point       = get_point,
-      get_points      = get_points
+      get_points      = get_points,
+      get_closest_t   = get_closest_t
     ),
     class = "ravetools_curve"
   )
