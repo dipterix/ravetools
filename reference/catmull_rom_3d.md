@@ -78,7 +78,7 @@ elements:
   closest point on the curve as a named numeric vector), and `distance`
   (Euclidean distance from `query` to the curve). The search uses
   `coarse_n` uniform samples for an initial bracket followed by scalar
-  optimisation.
+  optimization.
 
 - `t_keypoints`:
 
