@@ -8,6 +8,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/baseline_array.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/butter_max_order.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/carla.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/catmull_rom_3d.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/check_filter.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/collapse.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/convolve.html</loc></url>
@@ -48,7 +49,9 @@
 <url><loc>https://dipterix.org/ravetools/reference/parallel-options.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plane_geometry.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plot.ravetools_crp.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/plot.ravetools_curve.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plot_signals.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/print.ravetools_curve.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/project_plane.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/pwelch.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/raw-to-sexp.html</loc></url>

@@ -1,4 +1,4 @@
-# Plot CRP results
+# Plot `CRP` results
 
 S3 plot method for objects of class `ravetools_crp` returned by
 [`crp`](https://dipterix.org/ravetools/reference/crp.md). Produces a

@@ -287,6 +287,7 @@ V <- (outer(canonical, runif(n_trials, 0.5, 1.5)) +
 res <- crp(V, tt)
 
 op <- par(mfrow = c(1, 3), mar = c(4.5, 4, 3, 1))
+on.exit({ par(op) })
 
 # ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------
 parms <- res$parameters
@@ -305,12 +306,14 @@ legend("topright", c("mean", "C(t) scaled"),
        col = c("black", "#FFFF00"), lty = c(1, 2), lwd = 2,
        bty = "n", cex = 0.8)
 
+
 # ---- Panel 2: per-trial alpha-prime weights -----------------------------
 barplot(sort(parms$al_p), col = "steelblue", border = NA, las = 1,
         xlab = "Trial (sorted)",
         ylab = expression(alpha * "'" ~ (mu * V)),
         main = expression("Per-trial " * alpha * "' (alpha-prime)"))
 abline(h = c(0, mean(parms$al_p)), lty = 2)
+
 
 # ---- Panel 3: mean projection profile with tau_R bounds ----------------
 proj <- res$projections

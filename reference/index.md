@@ -15,6 +15,11 @@
 - [`carla()`](https://dipterix.org/ravetools/reference/carla.md) :
   Common Average Re-referencing by Least Anti-Correlation (CARLA)
 
+- [`catmull_rom_3d()`](https://dipterix.org/ravetools/reference/catmull_rom_3d.md)
+  :
+
+  `Catmull-Rom` 3D Spline Curve
+
 - [`check_filter()`](https://dipterix.org/ravetools/reference/check_filter.md)
   : Check 'Arma' filter
 
@@ -169,10 +174,22 @@
   : Create a two-dimensional plane in three dimensional space
 
 - [`plot(`*`<ravetools_crp>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_crp.md)
-  : Plot CRP results
+  :
+
+  Plot `CRP` results
+
+- [`plot(`*`<ravetools_curve>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_curve.md)
+  :
+
+  Plot method for `ravetools_curve`
 
 - [`plot_signals()`](https://dipterix.org/ravetools/reference/plot_signals.md)
   : Plot one or more signal traces in the same figure
+
+- [`print(`*`<ravetools_curve>`*`)`](https://dipterix.org/ravetools/reference/print.ravetools_curve.md)
+  :
+
+  Print method for `ravetools_curve`
 
 - [`project_plane()`](https://dipterix.org/ravetools/reference/project_plane.md)
   : Project plane to a surface
