@@ -43,6 +43,16 @@
 <li>
 <code>project_plane</code> gains an <code>n_iters</code> argument to control the number of projection iterations (default is <code>5</code>)</li>
 <li>Applied lint fixes and improved code style consistency across all source files</li>
+<li>Added <code>carla</code> implementing the Common Average Re-referencing by Least Anti-Correlation (<code>CARLA</code>) algorithm (see <code>CITATION</code>) for selecting an optimal subset of channels as the common average reference in <code>CCEP</code> data</li>
+<li>Added <code>crp</code> implementing the Canonical Response Parameterization (<code>CRP</code>) method for characterizing single-trial evoked responses (e.g. <code>CCEP</code>s): estimates response duration, extracts the canonical response shape, and reports per-trial weights, <code>SNR</code>, and explained variance</li>
+<li>Exposed low-level <code>FFTW3</code> wrappers (<code>fftw_r2c</code>, <code>fftw_c2r</code>, <code>fftw_c2c</code>, <code>mvfftw_r2c</code>, <code>mvfftw_c2c</code>, <code>mvfftw_c2r</code>, and their <code>2D</code>/<code>3D</code> variants) with memory bugs fixed; these are thin bindings for advanced users requiring maximum throughput</li>
+<li>Fixed <code>design_filter_fir</code> band-pass scaling reference frequency to use the average of the transition-band midpoints (matching <code>MATLAB</code> <code>fir1</code>/<code>scale_filter</code>), and fixed band-stop scaling to always normalize at <code>DC</code>; previously both could produce incorrect gain for asymmetric transition bands</li>
+<li>
+<code>filtfilt</code> now accepts a <code>Sos</code> (second-order sections) object from <code>gsignal</code> and delegates to <code><a href="https://rdrr.io/pkg/gsignal/man/filtfilt.html" class="external-link">gsignal::filtfilt</a></code> in that case</li>
+<li>Added <code>catmull_rom_3d</code> for smooth <code>Catmull-Rom</code> spline interpolation through 3D point sequences, including closest-point projection from an arbitrary 3D point onto the curve</li>
+<li>Fixed <code>qfac</code> handling in the matrix to <code>quaternion</code> conversion so that right-handed transforms (negative determinant) are correctly represented</li>
+<li>
+<code>fir1</code> filter computation is significantly faster via an optimized internal implementation</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4" id="ravetools-024">ravetools 0.2.4<a class="anchor" aria-label="anchor" href="#ravetools-024"></a></h2><p class="text-muted">CRAN release: 2025-09-10</p>
