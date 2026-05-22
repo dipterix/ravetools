@@ -70,6 +70,16 @@ elements:
   A `function(n)` that returns an \\n \times 3\\ matrix of `n` evenly
   spaced points along the curve, with column names `"x"`, `"y"`, `"z"`.
 
+- `get_closest_t`:
+
+  A `function(query, coarse_n = 200L)` that, given a 3-element numeric
+  vector `query` (`x`, `y`, `z`), returns a list with elements `t` (the
+  parameter value in \\\[0, 1\]\\ of the nearest point), `point` (the
+  closest point on the curve as a named numeric vector), and `distance`
+  (Euclidean distance from `query` to the curve). The search uses
+  `coarse_n` uniform samples for an initial bracket followed by scalar
+  optimisation.
+
 - `t_keypoints`:
 
   Numeric vector of length \\n\\ with the `t` parameter value where each
@@ -132,6 +142,19 @@ head(smooth)
 curve$get_point(0.5)
 #>         x         y         z 
 #> -49.10740 -10.30476 -22.16855 
+
+# get closest point on curve
+curve$get_closest_t(c(-49, -10, -22))
+#> $t
+#> [1] 0.4971589
+#> 
+#> $point
+#>         x         y         z 
+#> -49.00257 -10.30682 -22.16636 
+#> 
+#> $distance
+#> [1] 0.3490284
+#> 
 
 plot(curve, use_rgl = FALSE)
 
