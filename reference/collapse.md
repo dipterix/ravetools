@@ -87,8 +87,8 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>     expr     min      lq    mean  median      uq     max neval
-#>   result 486.427 486.427 486.427 486.427 486.427 486.427     1
-#>  compare 341.366 341.366 341.366 341.366 341.366 341.366     1
+#>   result 600.732 600.732 600.732 600.732 600.732 600.732     1
+#>  compare 424.593 424.593 424.593 424.593 424.593 424.593     1
 
 # large data big difference
 x = array(rnorm(prod(300,200,105)), c(300,200,105,1))
@@ -100,8 +100,8 @@ microbenchmark::microbenchmark(
   })
 #> Unit: milliseconds
 #>     expr       min        lq      mean    median        uq       max neval
-#>   result  19.47206  19.47206  19.47206  19.47206  19.47206  19.47206     1
-#>  compare 272.43358 272.43358 272.43358 272.43358 272.43358 272.43358     1
+#>   result  19.72758  19.72758  19.72758  19.72758  19.72758  19.72758     1
+#>  compare 284.13947 284.13947 284.13947 284.13947 284.13947 284.13947     1
 
 # }
 ```
