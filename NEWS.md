@@ -6,6 +6,14 @@
 * Replaced `wavelets` package dependency with `waveslim` for discrete wavelet transform used in spike sorting utilities
 * `project_plane` gains an `n_iters` argument to control the number of projection iterations (default is `5`)
 * Applied lint fixes and improved code style consistency across all source files
+* Added `carla` implementing the Common Average Re-referencing by Least Anti-Correlation (`CARLA`) algorithm (see `CITATION`) for selecting an optimal subset of channels as the common average reference in `CCEP` data
+* Added `crp` implementing the Canonical Response Parameterization (`CRP`) method for characterizing single-trial evoked responses (e.g. `CCEP`s): estimates response duration, extracts the canonical response shape, and reports per-trial weights, `SNR`, and explained variance
+* Exposed low-level `FFTW3` wrappers (`fftw_r2c`, `fftw_c2r`, `fftw_c2c`, `mvfftw_r2c`, `mvfftw_c2c`, `mvfftw_c2r`, and their `2D`/`3D` variants) with memory bugs fixed; these are thin bindings for advanced users requiring maximum throughput
+* Fixed `design_filter_fir` band-pass scaling reference frequency to use the average of the transition-band midpoints (matching `MATLAB` `fir1`/`scale_filter`), and fixed band-stop scaling to always normalize at `DC`; previously both could produce incorrect gain for asymmetric transition bands
+* `filtfilt` now accepts a `Sos` (second-order sections) object from `gsignal` and delegates to `gsignal::filtfilt` in that case
+* Added `catmull_rom_3d` for smooth `Catmull-Rom` spline interpolation through 3D point sequences, including closest-point projection from an arbitrary 3D point onto the curve
+* Fixed `qfac` handling in the matrix to `quaternion` conversion so that right-handed transforms (negative determinant) are correctly represented
+* `fir1` filter computation is significantly faster via an optimized internal implementation
 
 # ravetools 0.2.4
 
