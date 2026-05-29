@@ -9,13 +9,13 @@ draws them in a single
 Meshes without faces (point clouds) are substituted by a small sphere
 ([`vcg_sphere`](https://dipterix.org/ravetools/reference/vcg_sphere.md))
 centered at each point and scaled by `cex`; they then participate in the
-same rasterizer as ordinary faced meshes.
+same rendering pipeline as ordinary faced meshes.
 
 A camera-facing clipping pass discards triangles whose outward normal
 points along the camera ray (signed \\n \cdot z\_{cam}\\ \\\> 1 -
 \mathrm{mesh\\clipping}\\), peeling the front cap off the surface so the
 back wall (and any interior meshes) become visible. Set
-`mesh_clipping = 0` to disable clipping. Point-cloud meshes (those
+`mesh_clipping = 1` to disable clipping. Point-cloud meshes (those
 rendered as substitute
 [`vcg_sphere`](https://dipterix.org/ravetools/reference/vcg_sphere.md)
 instances) are exempt from this clip so they remain solid even when the
@@ -42,13 +42,15 @@ plot_mesh_polygon(
   ylim = NULL,
   xlab = "",
   ylab = "",
-  side = c("both", "front", "back"),
-  mesh_clipping = 0,
+  side = c("front", "back", "both"),
+  mesh_clipping = 1,
   sphere_subdivision = 1L,
   alpha = 1,
   shadow_color = NULL,
   light_intensity = 1,
   ambient_intensity = 0.2,
+  clipping_plane = NULL,
+  clipping_plane_enabled = TRUE,
   ...
 )
 ```
@@ -102,19 +104,19 @@ plot_mesh_polygon(
 
 - side:
 
-  which side of each triangle to render. One of `"both"` (default, shows
-  all triangles), `"front"`, or `"back"`.
+  which side of each triangle to render. One of `"front"` (default),
+  `"back"`, or `"both"` (shows all triangles).
 
 - mesh_clipping:
 
   numeric in `[0, 1]` controlling camera-facing clipping: any triangle
   whose signed Lambert dot product (\\n \cdot z\_{cam}\\, i.e. positive
-  for front-facing) exceeds `1 - mesh_clipping` is discarded. A value of
-  `0` keeps the full surface; `0.5` peels a 60-degree cap off the front
-  and reveals the back wall (whose absolute Lambert shade is still
-  large, so it renders brightly); `1` clips every front-facing triangle
-  and shows the interior only. Back-facing triangles are never clipped
-  by this rule. Default `0`.
+  for front-facing) is at or above `mesh_clipping` is discarded. A value
+  of `1` (default) keeps the full surface; `0.5` peels a 60-degree cap
+  off the front and reveals the back wall (whose absolute Lambert shade
+  is still large, so it renders brightly); `0` clips every front-facing
+  triangle and shows the interior only. Back-facing triangles are never
+  clipped by this rule. Default `1`.
 
 - sphere_subdivision:
 
@@ -152,8 +154,32 @@ plot_mesh_polygon(
   scalar in `[0, 1]` acting as a lower bound on the Lambert shade so
   grazing/back faces still receive some light and never collapse fully
   to `shadow_color`. An effective shade of
-  `max(shade, ambient_intensity)` is used in the bg/light lerp. Default
-  `0.2`.
+  `max(shade, ambient_intensity)` is used in the background-to-light
+  blend. Default `0.2`.
+
+- clipping_plane:
+
+  optional list of world-space clipping planes used to hide parts of the
+  scene. Each plane is a numeric vector of length 5: the first three
+  entries are the plane normal \\(n_x, n_y, n_z)\\ (must be non-zero;
+  normalized internally), the fourth is the signed distance from the
+  world origin to the plane along that normal (so the plane equation is
+  \\n \cdot x = d\\), and the fifth indicates which half-space is kept:
+  `1` keeps the front side (the side the normal points to), `-1` keeps
+  the back side, and `0` keeps whichever side currently faces the camera
+  (auto-flipped per call based on `eye`). Multiple planes are
+  intersected. Clipping is applied per face using the face centroid (a
+  face is kept only when its centroid lies on the kept side of every
+  plane). A single length-5 numeric vector is also accepted as shorthand
+  for a one-plane list. Default `NULL` (no clipping).
+
+- clipping_plane_enabled:
+
+  logical vector, one entry per mesh (recycled), controlling whether
+  `clipping_plane` is applied to that mesh. `TRUE` (default) means the
+  mesh participates in clipping; `FALSE` exempts the mesh entirely (all
+  of its faces are kept regardless of the clipping planes). Has no
+  effect when `clipping_plane` is `NULL`.
 
 - ...:
 
@@ -181,6 +207,31 @@ Limitations of the base-R polygon path (no `rgl`):
   [`svg()`](https://rdrr.io/r/grDevices/cairo.html),
   [`pdf()`](https://rdrr.io/r/grDevices/pdf.html)) produce cleaner
   output than the default quartz/X11 path.
+
+## Coercing `ieegio_surface` inputs
+
+When `surface` is an `'ieegio_surface'` object, the returned `mesh3d$vb`
+contains vertices that have been left-multiplied by
+`surface$geometry$transforms[[1]]` (the first transform stored in the
+geometry, typically the `ScannerAnat` or voxel-to-world transform).
+
+**Breaking change:** Earlier versions of ravetools returned the raw
+`surface$geometry$vertices` without applying any transform, so
+downstream code often multiplied by `surface$geometry$transforms[[1]]`
+(or an equivalent) manually before working in world space. Such code
+will now *double* apply the transform and produce incorrect coordinates.
+If you previously applied a transform from `surface$geometry$transforms`
+by hand after calling a ravetools mesh function on an
+`'ieegio_surface'`, remove that manual step.
+
+Surfaces with an empty or missing `geometry$transforms` list (for
+example, surfaces produced by ieegio's `volume_to_surface`, which stores
+an identity transform) are unaffected.
+
+If `geometry$transforms` contains multiple transforms targeting
+different coordinate spaces, only the first one is used. Callers that
+need a specific target space should select and apply that transform
+themselves before calling ravetools mesh functions.
 
 ## See also
 

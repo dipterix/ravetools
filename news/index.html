@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,8 +35,11 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.6" id="ravetools-026">ravetools 0.2.6<a class="anchor" aria-label="anchor" href="#ravetools-026"></a></h2>
 <ul><li>Added <code>plot_mesh_dotcloud</code> for rendering one or more <code>mesh3d</code> objects as an orthographic rim-lit dot cloud in base R (no <code>rgl</code> dependency); supports per-vertex colors, depth-gradient palettes, per-mesh alpha, <code>side</code> filtering, and painter’s-algorithm depth sorting across multiple meshes</li>
-<li>Added <code>plot_mesh_polygon</code> for rendering one or more <code>mesh3d</code> objects as flat-shaded Lambert-lit triangles in base R; point-cloud meshes (no face matrix) are automatically substituted by small icospheres; supports camera-facing clipping (<code>mesh_clipping</code>), <code>side</code> filtering, per-mesh alpha blending, and configurable <code>shadow_color</code>, <code>light_intensity</code>, and <code>ambient_intensity</code>
+<li>Added <code>plot_mesh_polygon</code> for rendering one or more <code>mesh3d</code> objects as flat-shaded Lambert-lit triangles in base R; point-cloud meshes (no face matrix) are automatically substituted by small sphere instances; supports camera-facing clipping (<code>mesh_clipping</code>), <code>side</code> filtering, per-mesh alpha blending, and configurable <code>shadow_color</code>, <code>light_intensity</code>, and <code>ambient_intensity</code>
 </li>
+<li>
+<code>plot_mesh_dotcloud</code> and <code>plot_mesh_polygon</code> gain a <code>clipping_plane</code> argument (a 4-element numeric normal-and-offset vector, or a list of such vectors) to discard geometry on one side of arbitrary planes before rendering, and a per-mesh <code>clipping_plane_enabled</code> logical toggle to opt individual meshes in or out of clipping</li>
+<li>Exported <code>ensure_mesh3d</code> for coercing various surface formats (<code>mesh3d</code>, <code>ieegio_surface</code>, <code>fs.surface</code>, <code>surf.asc</code>) to a canonical <code>mesh3d</code> object; previously internal-only</li>
 <li>Fixed <code>freqz2</code> plot legend: the cutoff legend used the raw <code>cutoffs</code> argument (and could index past the color palette, yielding <code>NA</code> colors) when a requested cutoff did not actually intersect the magnitude curve; the legend now only lists cutoffs that are drawn, and labels the unit as <code>dB</code> instead of the filter’s frequency unit</li>
 </ul></div>
     <div class="section level2">

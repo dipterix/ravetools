@@ -9,10 +9,18 @@
   multiple meshes
 - Added `plot_mesh_polygon` for rendering one or more `mesh3d` objects
   as flat-shaded Lambert-lit triangles in base R; point-cloud meshes (no
-  face matrix) are automatically substituted by small icospheres;
+  face matrix) are automatically substituted by small sphere instances;
   supports camera-facing clipping (`mesh_clipping`), `side` filtering,
   per-mesh alpha blending, and configurable `shadow_color`,
   `light_intensity`, and `ambient_intensity`
+- `plot_mesh_dotcloud` and `plot_mesh_polygon` gain a `clipping_plane`
+  argument (a 4-element numeric normal-and-offset vector, or a list of
+  such vectors) to discard geometry on one side of arbitrary planes
+  before rendering, and a per-mesh `clipping_plane_enabled` logical
+  toggle to opt individual meshes in or out of clipping
+- Exported `ensure_mesh3d` for coercing various surface formats
+  (`mesh3d`, `ieegio_surface`, `fs.surface`, `surf.asc`) to a canonical
+  `mesh3d` object; previously internal-only
 - Fixed `freqz2` plot legend: the cutoff legend used the raw `cutoffs`
   argument (and could index past the color palette, yielding `NA`
   colors) when a requested cutoff did not actually intersect the

@@ -276,6 +276,11 @@ implementation is released under GPL license).
   [`surface_path()`](https://dipterix.org/ravetools/reference/dijkstras-path.md)
   : Calculate distances along a surface
 
+- [`ensure_mesh3d()`](https://dipterix.org/ravetools/reference/ensure_mesh3d.md)
+  :
+
+  Coerce a surface object to a `'mesh3d'` mesh
+
 - [`fast_cov()`](https://dipterix.org/ravetools/reference/fast_cov.md) :
   Calculate massive covariance matrix in parallel
 
