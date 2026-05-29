@@ -152,7 +152,7 @@ A named list with the following elements:
   `V_tR`
 
   :   Numeric matrix \\T_R \times K\\, trial matrix truncated to
-      \\\tau_R\\ — the data actually decomposed.
+      \\\tau_R\\ - the data actually decomposed.
 
   `avg_trace_tR`
 
@@ -177,7 +177,7 @@ A named list with the following elements:
   `mean_proj_profile`
 
   :   Numeric vector, mean of `S_all` across trial pairs at each
-      candidate duration — the profile whose maximum defines \\\tau_R\\.
+      candidate duration, the profile whose maximum defines \\\tau_R\\.
 
   `var_proj_profile`
 

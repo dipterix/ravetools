@@ -183,6 +183,12 @@
 
   Plot method for `ravetools_curve`
 
+- [`plot_mesh_dotcloud()`](https://dipterix.org/ravetools/reference/plot_mesh_dotcloud.md)
+  : Render one or more meshes as an orthographic dot cloud in base R
+
+- [`plot_mesh_polygon()`](https://dipterix.org/ravetools/reference/plot_mesh_polygon.md)
+  : Render one or more meshes as flat-shaded triangles in base R
+
 - [`plot_signals()`](https://dipterix.org/ravetools/reference/plot_signals.md)
   : Plot one or more signal traces in the same figure
 
