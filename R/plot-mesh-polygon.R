@@ -7,7 +7,7 @@
 #'
 #' Meshes without faces (point clouds) are substituted by a small sphere
 #' (\code{\link{vcg_sphere}}) centered at each point and scaled by
-#' \code{cex}; they then participate in the same rasterizer as ordinary
+#' \code{cex}; they then participate in the same rendering pipeline as ordinary
 #' faced meshes.
 #'
 #' A camera-facing clipping pass discards triangles whose outward normal
@@ -98,7 +98,7 @@
 #'   bound on the Lambert shade so grazing/back faces still receive some
 #'   light and never collapse fully to \code{shadow_color}.  An effective
 #'   shade of \code{max(shade, ambient_intensity)} is used in the
-#'   bg/light lerp.  Default \code{0.2}.
+#'   background-to-light blend.  Default \code{0.2}.
 #' @param ... additional graphical parameters forwarded to
 #'   \code{\link[graphics]{plot.default}} (new plot only).
 #'
@@ -149,7 +149,7 @@
 #'
 #' @seealso \code{\link{plot_mesh_dotcloud}}, \code{\link{vcg_isosurface}}
 #'
-#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#' @inheritSection ensure_mesh3d Coercing \verb{ieegio_surface} inputs
 #'
 #' @export
 plot_mesh_polygon <- function(

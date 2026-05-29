@@ -172,7 +172,7 @@
 #'
 #' @seealso \code{\link{vcg_update_normals}}, \code{\link{vcg_isosurface}}
 #'
-#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#' @inheritSection ensure_mesh3d Coercing \verb{ieegio_surface} inputs
 #'
 #' @export
 plot_mesh_dotcloud <- function(

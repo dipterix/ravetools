@@ -93,7 +93,7 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
 #' @param n_iters number of iterations; default is five
 #' @returns The projected vertex locations, same order as \code{initial_positions}.
 #'
-#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#' @inheritSection ensure_mesh3d Coercing \verb{ieegio_surface} inputs
 #'
 #' @examples
 #'

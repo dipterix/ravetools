@@ -30,7 +30,7 @@
 #' @returns A list containing the filled volume and parameters used to generate
 #' the volume
 #'
-#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#' @inheritSection ensure_mesh3d Coercing \verb{ieegio_surface} inputs
 #'
 #' @seealso \code{\link{ensure_mesh3d}}
 #'
@@ -62,7 +62,7 @@ NULL
 #' @param surface a surface object. One of the following:
 #' \describe{
 #'   \item{\code{'mesh3d'}}{returned unchanged.}
-#'   \item{\code{'fs.surface'}}{a FreeSurfer surface as produced by
+#'   \item{\code{'fs.surface'}}{a surface in the format produced by
 #'     \code{freesurferformats::read.fs.surface}. Vertices and faces are
 #'     copied into a \code{'mesh3d'} list; zero-indexed faces are bumped
 #'     by 1.}
@@ -80,17 +80,17 @@ NULL
 #' (vertex) component and, when face information is available, an \code{it}
 #' (triangle index) component.
 #'
-#' @section Coercing 'ieegio_surface' inputs:
+#' @section Coercing \verb{ieegio_surface} inputs:
 #' When \code{surface} is an \code{'ieegio_surface'} object, the returned
 #' \code{mesh3d$vb} contains vertices that have been left-multiplied by
 #' \code{surface$geometry$transforms[[1]]} (the first transform stored in the
-#' geometry, typically the \code{ScannerAnat} or vox-to-world transform).
+#' geometry, typically the \code{ScannerAnat} or voxel-to-world transform).
 #'
 #' \strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
 #' raw \code{surface$geometry$vertices} without applying any transform, so
 #' downstream code often multiplied by
 #' \code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
-#' working in world / scanner-RAS space. Such code will now \emph{double}
+#' working in world space. Such code will now \emph{double}
 #' apply the transform and produce incorrect coordinates. If you previously
 #' applied a transform from \code{surface$geometry$transforms} by hand after
 #' calling a \pkg{ravetools} mesh function on an \code{'ieegio_surface'},

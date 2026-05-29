@@ -36,18 +36,18 @@ index of the intersecting face (counted from 1)
 \description{
 Cast rays to intersect with mesh
 }
-\section{Coercing 'ieegio_surface' inputs}{
+\section{Coercing \verb{ieegio_surface} inputs}{
 
 When \code{surface} is an \code{'ieegio_surface'} object, the returned
 \code{mesh3d$vb} contains vertices that have been left-multiplied by
 \code{surface$geometry$transforms[[1]]} (the first transform stored in the
-geometry, typically the \code{ScannerAnat} or vox-to-world transform).
+geometry, typically the \code{ScannerAnat} or voxel-to-world transform).
 
 \strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
 raw \code{surface$geometry$vertices} without applying any transform, so
 downstream code often multiplied by
 \code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
-working in world / scanner-RAS space. Such code will now \emph{double}
+working in world space. Such code will now \emph{double}
 apply the transform and produce incorrect coordinates. If you previously
 applied a transform from \code{surface$geometry$transforms} by hand after
 calling a \pkg{ravetools} mesh function on an \code{'ieegio_surface'},
