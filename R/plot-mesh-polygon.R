@@ -13,7 +13,7 @@
 #' A camera-facing clipping pass discards triangles whose outward normal
 #' points along the camera ray (signed \eqn{n \cdot z_{cam}} \eqn{> 1 - \mathrm{mesh\_clipping}}),
 #' peeling the front cap off the surface so the back wall (and any
-#' interior meshes) become visible. Set \code{mesh_clipping = 0} to disable
+#' interior meshes) become visible. Set \code{mesh_clipping = 1} to disable
 #' clipping. Point-cloud meshes (those rendered as substitute
 #' \code{\link{vcg_sphere}} instances) are exempt from this clip so they
 #' remain solid even when the enclosing surface is peeled.
@@ -45,23 +45,44 @@
 #'   instead of opening a new one.  Default \code{FALSE}.
 #' @param axes,asp,xlim,ylim,xlab,ylab passed to \code{\link[graphics]{plot.default}}
 #'   when \code{add = FALSE}.
-#' @param side which side of each triangle to render.  One of \code{"both"}
-#'   (default, shows all triangles), \code{"front"}, or \code{"back"}.
+#' @param side which side of each triangle to render.  One of \code{"front"}
+#'   (default), \code{"back"}, or \code{"both"} (shows all triangles).
 #' @param mesh_clipping numeric in \code{[0, 1]} controlling camera-facing
 #'   clipping: any triangle whose signed Lambert dot product
-#'   (\eqn{n \cdot z_{cam}}, i.e. positive for front-facing) exceeds
-#'   \code{1 - mesh_clipping} is discarded.  A value of \code{0} keeps the
-#'   full surface; \code{0.5} peels a 60-degree cap off the front and
-#'   reveals the back wall (whose absolute Lambert shade is still large,
-#'   so it renders brightly); \code{1} clips every front-facing triangle
-#'   and shows the interior only.  Back-facing triangles are never
-#'   clipped by this rule.  Default \code{0}.
+#'   (\eqn{n \cdot z_{cam}}, i.e. positive for front-facing) is at or
+#'   above \code{mesh_clipping} is discarded.  A value of \code{1}
+#'   (default) keeps the full surface; \code{0.5} peels a 60-degree cap
+#'   off the front and reveals the back wall (whose absolute Lambert
+#'   shade is still large, so it renders brightly); \code{0} clips
+#'   every front-facing triangle and shows the interior only.
+#'   Back-facing triangles are never clipped by this rule.  Default
+#'   \code{1}.
 #' @param alpha numeric in \code{[0, 1]}; one value per mesh (recycled),
 #'   sets the transparency of each mesh (\code{1} = fully opaque,
 #'   \code{0} = fully transparent).  Faces belonging to a mesh with
 #'   \code{alpha = 0} are dropped entirely.  Because faces are drawn in
 #'   back-to-front (painter's) order, alpha blending across multiple
 #'   meshes follows that order.  Default \code{1}.
+#' @param clipping_plane optional list of world-space clipping planes used to
+#'   hide parts of the scene.  Each plane is a numeric vector of length 5:
+#'   the first three entries are the plane normal \eqn{(n_x, n_y, n_z)}
+#'   (must be non-zero; normalized internally), the fourth is the signed
+#'   distance from the world origin to the plane along that normal (so the
+#'   plane equation is \eqn{n \cdot x = d}), and the fifth indicates which
+#'   half-space is kept: \code{1} keeps the front side (the side the normal
+#'   points to), \code{-1} keeps the back side, and \code{0} keeps whichever
+#'   side currently faces the camera (auto-flipped per call based on
+#'   \code{eye}).  Multiple planes are intersected.  Clipping is applied
+#'   per face using the face centroid (a face is kept only when its
+#'   centroid lies on the kept side of every plane).  A single length-5
+#'   numeric vector is also accepted as shorthand for a one-plane list.
+#'   Default \code{NULL} (no clipping).
+#' @param clipping_plane_enabled logical vector, one entry per mesh
+#'   (recycled), controlling whether \code{clipping_plane} is applied to
+#'   that mesh.  \code{TRUE} (default) means the mesh participates in
+#'   clipping; \code{FALSE} exempts the mesh entirely (all of its faces
+#'   are kept regardless of the clipping planes).  Has no effect when
+#'   \code{clipping_plane} is \code{NULL}.
 #' @param shadow_color color used for fully unlit (grazing/back) faces.
 #'   The Lambert shade linearly interpolates from \code{shadow_color}
 #'   (at \code{shade = 0}) toward the face color lit by a white light
@@ -127,6 +148,9 @@
 #' )
 #'
 #' @seealso \code{\link{plot_mesh_dotcloud}}, \code{\link{vcg_isosurface}}
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @export
 plot_mesh_polygon <- function(
     mesh,
@@ -142,13 +166,15 @@ plot_mesh_polygon <- function(
     ylim   = NULL,
     xlab   = "",
     ylab   = "",
-    side   = c("both", "front", "back"),
-    mesh_clipping = 0,
+    side   = c("front", "back", "both"),
+    mesh_clipping = 1,
     sphere_subdivision = 1L,
     alpha  = 1,
     shadow_color = NULL,
     light_intensity = 1,
     ambient_intensity = 0.2,
+    clipping_plane = NULL,
+    clipping_plane_enabled = TRUE,
     ...
 ) {
   side <- match.arg(side)
@@ -158,7 +184,7 @@ plot_mesh_polygon <- function(
   # list2env(envir = .GlobalEnv, list(
   #   eye = c(150, 0, 0), lookat = c(0, 0, 0), up = c(0, 0, 1),
   #   col = "steelblue", cex = 1, add = FALSE, axes = FALSE, asp = 1,
-  #   xlim = NULL, ylim = NULL, xlab = "", ylab = "", mesh_clipping = 0
+  #   xlim = NULL, ylim = NULL, xlab = "", ylab = "", mesh_clipping = 1
   # ))
   # DIPSAUS DEBUG END
 
@@ -180,6 +206,8 @@ plot_mesh_polygon <- function(
   })
 
   alpha_vec <- pmax(0, pmin(1, rep_len(as.numeric(unlist(alpha)), n_meshes)))
+  clip_enabled_vec <- rep_len(as.logical(clipping_plane_enabled), n_meshes)
+  clip_enabled_vec[is.na(clip_enabled_vec)] <- TRUE
 
   # Shading parameters: shadow color (defaults to par("fg")) and white-light
   # intensity. Resolved once here so par() is only queried per call.
@@ -314,11 +342,11 @@ plot_mesh_polygon <- function(
   # ---- 6. Camera-facing clip (peel away the cap facing the camera) -----
   #         + side filter
   # Discard triangles whose outward normal points along the camera ray:
-  # signed facing = n . z_cam > 1 - mesh_clipping. mesh_clipping = 0 keeps
-  # the full surface; larger values peel a wider cap and reveal the back
+  # signed facing = n . z_cam >= mesh_clipping. mesh_clipping = 1 keeps
+  # the full surface; smaller values peel a wider cap and reveal the back
   # wall (whose Lambert shade |facing| is still large, so it renders
   # brightly).
-  keep <- facing < (1 - mesh_clipping)
+  keep <- facing <= mesh_clipping
   if (side == "front") {
     keep <- keep & (facing > 0)
   } else if (side == "back") {
@@ -326,6 +354,19 @@ plot_mesh_polygon <- function(
   }
   keep <- is_pointcloud | keep   # point clouds are exempt from camera-facing clip
   keep <- keep & (alpha_face > 0)
+
+  # User-supplied world-space clipping planes (per-face cull via centroid).
+  # Applies to point-cloud sphere instances as well. Meshes with
+  # `clipping_plane_enabled = FALSE` are exempted from this cull.
+  if (length(clipping_plane)) {
+    centroids <- (all_vb[, i1, drop = FALSE] +
+                  all_vb[, i2, drop = FALSE] +
+                  all_vb[, i3, drop = FALSE]) / 3
+    cp_keep <- .apply_clipping_planes(centroids, eye[1:3], clipping_plane)
+    clip_enabled_face <- rep(clip_enabled_vec, n_faces_vec)
+    cp_keep[!clip_enabled_face] <- TRUE
+    keep <- keep & cp_keep
+  }
 
   # ---- 7. Per-face base color (one entry per mesh) ----------------------
   dr <- range(depth_face, na.rm = TRUE)

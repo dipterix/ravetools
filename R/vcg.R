@@ -121,6 +121,9 @@ invertFaces <- function(mesh) {
 #' entry specifies the amount of smoothing iterations to be performed.
 #' @param verbose whether to verbose the progress
 #' @returns A \code{'mesh3d'} object with normal vectors.
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @examples
 #'
 #' if(is_not_cran()) {
@@ -234,6 +237,8 @@ vcg_edge_subdivision <- function(mesh) {
 #' centers.
 #' @returns An object of class "mesh3d"
 #'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @examples
 #'
 #' mesh <- plane_geometry()
@@ -304,6 +309,9 @@ vcg_subdivision <- function(mesh, method = c("edge", "barycenter")) {
 #' \item{\code{vb}}{vertex coordinates}
 #' \item{\code{normals}}{vertex normal vectors}
 #' \item{\code{it}}{triangular face index}
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @examples
 #'
 #' if(is_not_cran()) {
@@ -423,6 +431,8 @@ vcg_smooth_explicit <- function(
 #' @param mesh triangular mesh of class \code{'mesh3d'}
 #' @returns The numeric volume of the mesh
 #'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @examples
 #'
 #' # Initial mesh
@@ -536,6 +546,9 @@ vcg_isosurface <- function(
 #' @param merge_clost whether to merge close vertices; default is \code{TRUE}
 #' @param verbose whether to verbose the progress; default is \code{TRUE}
 #' @returns A triangular mesh of class \code{'mesh3d'}
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @examples
 #'
 #' sphere <- vcg_sphere()
@@ -592,6 +605,9 @@ vcg_uniform_remesh <- function(
 #' @returns A list of ray casting results: whether any intersection is found,
 #' position and face normal of the intersection, distance of the ray, and the
 #' index of the intersecting face (counted from 1)
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @examples
 #'
 #' library(ravetools)
@@ -684,6 +700,8 @@ vcg_raycaster <- function(
 #' \code{query} point. If no point in \code{target} is found, then \code{NA}
 #' will be presented. Each \code{distance} is the corresponding distance
 #' from the query point to the target point.
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
 #'
 #' @examples
 #'
@@ -784,6 +802,8 @@ vcg_kdtree_nearest <- function(
 #' consistent with the number of vertices in \code{x}: which nodes are
 #' to be kept
 #' @returns A triangular mesh of class \code{'mesh3d'}, a subset of \code{x}
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
 #'
 #' @examples
 #'

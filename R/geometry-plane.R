@@ -74,7 +74,8 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
 #' @param target target surface to be projected to, must be object that can
 #' be converted to \code{'mesh3d'} (\code{'rgl'} surface), for example,
 #' \code{'fs.surface'} (from \code{'freesurferformat'} package) or
-#' \code{'ieegio_surface'} from \code{'ieegio'} package.
+#' \code{'ieegio_surface'} from \pkg{ieegio} package; see
+#' \code{\link{ensure_mesh3d}} for the coercion rules.
 #' @param width,height width and height of the plane in world space (for
 #' \code{'ECoG'} grid, the unit is millimeter)
 #' @param shape vector of two integers: the first element is the number of
@@ -91,6 +92,8 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
 #' progress.
 #' @param n_iters number of iterations; default is five
 #' @returns The projected vertex locations, same order as \code{initial_positions}.
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
 #'
 #' @examples
 #'

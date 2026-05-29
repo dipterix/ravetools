@@ -13,8 +13,11 @@ fill_surface(
 )
 }
 \arguments{
-\item{surface}{a surface mesh, can be mesh objects from \code{rgl} or
-\code{freesurferformats} packages}
+\item{surface}{a surface mesh; accepted classes include \code{'mesh3d'}
+(from \code{rgl}), \code{'fs.surface'} (from \code{freesurferformats}),
+\code{'ieegio_surface'} (from \pkg{ieegio}), or a bare list containing a
+\code{vb} vertex matrix; see \code{\link{ensure_mesh3d}} for details and
+for how \code{'ieegio_surface'} inputs are coerced}
 
 \item{inflate}{amount of 'voxels' to inflate on the final result; must be
 a non-negative integer. A zero \code{inflate} value means the resulting
@@ -46,6 +49,33 @@ the volume will be bucket-filled from a corner, forming a negated mask of
 "outside-of-surface" area. The inverted bucket-filled volume is then shrunk
 so the mask boundary tightly fits the surface
 }
+\section{Coercing 'ieegio_surface' inputs}{
+
+When \code{surface} is an \code{'ieegio_surface'} object, the returned
+\code{mesh3d$vb} contains vertices that have been left-multiplied by
+\code{surface$geometry$transforms[[1]]} (the first transform stored in the
+geometry, typically the \code{ScannerAnat} or vox-to-world transform).
+
+\strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
+raw \code{surface$geometry$vertices} without applying any transform, so
+downstream code often multiplied by
+\code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
+working in world / scanner-RAS space. Such code will now \emph{double}
+apply the transform and produce incorrect coordinates. If you previously
+applied a transform from \code{surface$geometry$transforms} by hand after
+calling a \pkg{ravetools} mesh function on an \code{'ieegio_surface'},
+remove that manual step.
+
+Surfaces with an empty or missing \code{geometry$transforms} list (for
+example, surfaces produced by \pkg{ieegio}'s \code{volume_to_surface},
+which stores an identity transform) are unaffected.
+
+If \code{geometry$transforms} contains multiple transforms targeting
+different coordinate spaces, only the first one is used. Callers that need
+a specific target space should select and apply that transform themselves
+before calling \pkg{ravetools} mesh functions.
+}
+
 \examples{
 
 \donttest{
@@ -60,6 +90,9 @@ fill_surface(surface, preview = TRUE)
 
 }
 
+}
+\seealso{
+\code{\link{ensure_mesh3d}}
 }
 \author{
 Zhengjia Wang

@@ -1,3 +1,47 @@
+# Internal: apply user-supplied world-space clipping planes to a 3 x N matrix
+# of points. Returns a logical keep mask of length N. `eye_world` is used
+# only for planes whose `side` element is 0 (auto camera-facing). A NULL or
+# zero-length `clipping_plane` returns an all-TRUE mask. A bare length-5
+# numeric vector is accepted as shorthand for a one-plane list.
+.apply_clipping_planes <- function(points_world, eye_world, clipping_plane) {
+  n_pts <- ncol(points_world)
+  keep <- rep(TRUE, n_pts)
+  if (!length(clipping_plane)) return(keep)
+  if (is.numeric(clipping_plane) && !is.list(clipping_plane)) {
+    clipping_plane <- list(clipping_plane)
+  } else if (!is.list(clipping_plane)) {
+    stop("`clipping_plane` must be NULL, a length-5 numeric vector, or a list of such vectors")
+  }
+  for (cp in clipping_plane) {
+    cp <- as.numeric(cp)
+    if (length(cp) != 5L || anyNA(cp)) {
+      stop("`clipping_plane`: each plane must be a numeric vector of length 5 with no NA")
+    }
+    nrm <- cp[1:3]
+    nlen <- sqrt(sum(nrm * nrm))
+    if (!is.finite(nlen) || nlen == 0) {
+      stop("`clipping_plane`: the first three elements (normal vector) must not be zero")
+    }
+    nrm <- nrm / nlen
+    d <- cp[[4L]] / nlen
+    sd <- cp[[5L]]
+    if (!isTRUE(sd %in% c(-1, 0, 1))) {
+      stop("`clipping_plane`: the fifth element must be -1, 0, or 1")
+    }
+    if (sd == 0) {
+      signed_eye <- sum(nrm * eye_world) - d
+      sd <- if (signed_eye >= 0) 1 else -1
+    }
+    signed_pts <- as.numeric(nrm %*% points_world) - d
+    if (sd > 0) {
+      keep <- keep & (signed_pts >= 0)
+    } else {
+      keep <- keep & (signed_pts <= 0)
+    }
+  }
+  keep
+}
+
 #' @title Render one or more meshes as an orthographic dot cloud in base R
 #' @description
 #' Projects mesh vertices onto a 2D plane using an orthographic camera defined
@@ -53,22 +97,42 @@
 #' @param normal_weight passed to \code{\link{vcg_update_normals}} when normals
 #'   must be recomputed; one of \code{"auto"} (area if no normals present,
 #'   otherwise skip), \code{"area"}, or \code{"angle"}.  Default \code{"auto"}.
-#' @param side which side of meshed surfaces to render.  One of \code{"both"}
-#'   (default, renders all vertices), \code{"front"}, or \code{"back"}.  Point clouds are always
+#' @param side which side of meshed surfaces to render.  One of \code{"front"}
+#'   (default), \code{"back"}, or \code{"both"} (renders all vertices).  Point clouds are always
 #'   rendered regardless of this setting.
-#' @param mesh_clipping numeric in \code{[0, 1]} controlling how much of the
-#'   surface is peeled away from the camera-facing direction.  Vertices
-#'   whose rim-light weight (\eqn{1 - |n \cdot z_{cam}|}) is at or below
-#'   this threshold are dropped, leaving only the silhouette/grazing band.
-#'   Surviving vertices are drawn opaque, and their \code{cex} is
-#'   multiplied by the rim-light weight so grazing-edge dots appear larger
-#'   than near-front-facing dots.  Drawing opaque points with
-#'   size-modulated weight is dramatically faster than R's true per-point
-#'   transparency.  Default \code{0.3}.
+#' @param mesh_clipping numeric in \code{[0, 1]} controlling how much of
+#'   the surface is kept relative to the camera-facing direction.
+#'   Vertices whose rim-light weight (\eqn{1 - |n \cdot z_{cam}|}) is at
+#'   or below \code{1 - mesh_clipping} are dropped, leaving only the
+#'   silhouette/grazing band.  \code{mesh_clipping = 1} (no clipping)
+#'   keeps all vertices; smaller values peel away more of the
+#'   front/back-facing dots.  Surviving vertices are drawn opaque, and
+#'   their \code{cex} is multiplied by the rim-light weight so
+#'   grazing-edge dots appear larger than near-front-facing dots.
+#'   Drawing opaque points with size-modulated weight is dramatically
+#'   faster than R's true per-point transparency.  Default \code{0.7}.
 #' @param alpha numeric in \code{[0, 1]}; one value per mesh (recycled),
 #'   sets the transparency of each mesh (\code{1} = fully opaque,
 #'   \code{0} = fully transparent).  Vertices belonging to a mesh with
 #'   \code{alpha = 0} are dropped entirely.  Default \code{1}.
+#' @param clipping_plane optional list of world-space clipping planes used to
+#'   hide parts of the scene.  Each plane is a numeric vector of length 5:
+#'   the first three entries are the plane normal \eqn{(n_x, n_y, n_z)}
+#'   (must be non-zero; normalized internally), the fourth is the signed
+#'   distance from the world origin to the plane along that normal (so the
+#'   plane equation is \eqn{n \cdot x = d}), and the fifth indicates which
+#'   half-space is kept: \code{1} keeps the front side (the side the normal
+#'   points to), \code{-1} keeps the back side, and \code{0} keeps whichever
+#'   side currently faces the camera (auto-flipped per call based on
+#'   \code{eye}).  Multiple planes are intersected.  Clipping is applied
+#'   per vertex.  A single length-5 numeric vector is also accepted as
+#'   shorthand for a one-plane list.  Default \code{NULL} (no clipping).
+#' @param clipping_plane_enabled logical vector, one entry per mesh
+#'   (recycled), controlling whether \code{clipping_plane} is applied to
+#'   that mesh.  \code{TRUE} (default) means the mesh participates in
+#'   clipping; \code{FALSE} exempts the mesh entirely (all of its vertices
+#'   are kept regardless of the clipping planes).  Has no effect when
+#'   \code{clipping_plane} is \code{NULL}.
 #' @param ... additional graphical parameters forwarded to
 #'   \code{\link[graphics]{plot.default}} (new plot) or
 #'   \code{\link[graphics]{points}} (when \code{add = TRUE}).
@@ -107,6 +171,9 @@
 #' )
 #'
 #' @seealso \code{\link{vcg_update_normals}}, \code{\link{vcg_isosurface}}
+#'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
 #' @export
 plot_mesh_dotcloud <- function(
     mesh,
@@ -124,9 +191,11 @@ plot_mesh_dotcloud <- function(
     xlab = "",
     ylab = "",
     normal_weight = c("auto", "area", "angle"),
-    side = c("both", "front", "back"),
-    mesh_clipping = 0.3,
+    side = c("front", "back", "both"),
+    mesh_clipping = 0.7,
     alpha = 1,
+    clipping_plane = NULL,
+    clipping_plane_enabled = TRUE,
     ...
 ) {
   normal_weight <- match.arg(normal_weight)
@@ -175,6 +244,8 @@ plot_mesh_dotcloud <- function(
   pch_vec   <- rep_len(as.integer(unlist(pch)),   n_meshes)
   cex_vec   <- rep_len(as.numeric(unlist(cex)),   n_meshes)
   alpha_vec <- pmax(0, pmin(1, rep_len(as.numeric(unlist(alpha)), n_meshes)))
+  clip_enabled_vec <- rep_len(as.logical(clipping_plane_enabled), n_meshes)
+  clip_enabled_vec[is.na(clip_enabled_vec)] <- TRUE
 
   # ---- 1. View matrix: world -> camera (R6 Vector3 / Matrix4) -----------
   # look_at builds R_c2w (camera-to-world, rotation only, three.js convention).
@@ -302,11 +373,20 @@ plot_mesh_dotcloud <- function(
   }
 
   # ---- 5. mesh_clipping cull + side filter (point clouds always pass) ---
-  keep <- !is.na(rim_weight) & (rim_weight > mesh_clipping) & (alpha_all > 0)
+  keep <- !is.na(rim_weight) & (rim_weight >= (1 - mesh_clipping)) & (alpha_all > 0)
   if (side == "front") {
     keep <- keep & (is.na(facing_all) | facing_all > 0)
   } else if (side == "back") {
     keep <- keep & (is.na(facing_all) | facing_all < 0)
+  }
+
+  # User-supplied world-space clipping planes (per-vertex cull). Meshes
+  # with `clipping_plane_enabled = FALSE` are exempted from this cull.
+  if (length(clipping_plane)) {
+    cp_keep <- .apply_clipping_planes(all_vb, eye[1:3], clipping_plane)
+    clip_enabled_all <- rep(clip_enabled_vec, n_verts_vec)
+    cp_keep[!clip_enabled_all] <- TRUE
+    keep <- keep & cp_keep
   }
 
   # ---- 6. Screen limits -------------------------------------------------

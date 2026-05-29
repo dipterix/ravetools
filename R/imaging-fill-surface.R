@@ -3,8 +3,11 @@
 #' @description Create a cube volume (\code{256} 'voxels' on each margin), fill
 #' in the 'voxels' that are inside of the surface.
 #'
-#' @param surface a surface mesh, can be mesh objects from \code{rgl} or
-#' \code{freesurferformats} packages
+#' @param surface a surface mesh; accepted classes include \code{'mesh3d'}
+#' (from \code{rgl}), \code{'fs.surface'} (from \code{freesurferformats}),
+#' \code{'ieegio_surface'} (from \pkg{ieegio}), or a bare list containing a
+#' \code{vb} vertex matrix; see \code{\link{ensure_mesh3d}} for details and
+#' for how \code{'ieegio_surface'} inputs are coerced
 #' @param inflate amount of 'voxels' to inflate on the final result; must be
 #' a non-negative integer. A zero \code{inflate} value means the resulting
 #' volume is tightly close to the surface
@@ -27,6 +30,10 @@
 #' @returns A list containing the filled volume and parameters used to generate
 #' the volume
 #'
+#' @inheritSection ensure_mesh3d Coercing 'ieegio_surface' inputs
+#'
+#' @seealso \code{\link{ensure_mesh3d}}
+#'
 #' @examples
 #'
 #' \donttest{
@@ -44,6 +51,73 @@
 #' @name fill_surface
 NULL
 
+#' @title Coerce a surface object to a \code{'mesh3d'} mesh
+#' @description
+#' Internal helper used throughout \pkg{ravetools} to accept a variety of
+#' surface representations and return a list of class \code{'mesh3d'} (the
+#' format used by the \code{rgl} package). Most mesh-consuming functions in
+#' this package call \code{ensure_mesh3d} on their surface arguments, so the
+#' coercion rules described here apply to all of them.
+#'
+#' @param surface a surface object. One of the following:
+#' \describe{
+#'   \item{\code{'mesh3d'}}{returned unchanged.}
+#'   \item{\code{'fs.surface'}}{a FreeSurfer surface as produced by
+#'     \code{freesurferformats::read.fs.surface}. Vertices and faces are
+#'     copied into a \code{'mesh3d'} list; zero-indexed faces are bumped
+#'     by 1.}
+#'   \item{\code{'ieegio_surface'}}{a surface object produced by
+#'     \pkg{ieegio} (e.g. from \code{read_surface} or
+#'     \code{volume_to_surface}). See the section below for important
+#'     behavior changes.}
+#'   \item{a bare \code{list}}{must contain a numeric \code{vb} matrix with
+#'     3 or 4 rows; the list is reclassified as \code{'mesh3d'} with no
+#'     other modification.}
+#' }
+#' Any other input triggers an error.
+#'
+#' @returns An object of class \code{'mesh3d'} with at least the \code{vb}
+#' (vertex) component and, when face information is available, an \code{it}
+#' (triangle index) component.
+#'
+#' @section Coercing 'ieegio_surface' inputs:
+#' When \code{surface} is an \code{'ieegio_surface'} object, the returned
+#' \code{mesh3d$vb} contains vertices that have been left-multiplied by
+#' \code{surface$geometry$transforms[[1]]} (the first transform stored in the
+#' geometry, typically the \code{ScannerAnat} or vox-to-world transform).
+#'
+#' \strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
+#' raw \code{surface$geometry$vertices} without applying any transform, so
+#' downstream code often multiplied by
+#' \code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
+#' working in world / scanner-RAS space. Such code will now \emph{double}
+#' apply the transform and produce incorrect coordinates. If you previously
+#' applied a transform from \code{surface$geometry$transforms} by hand after
+#' calling a \pkg{ravetools} mesh function on an \code{'ieegio_surface'},
+#' remove that manual step.
+#'
+#' Surfaces with an empty or missing \code{geometry$transforms} list (for
+#' example, surfaces produced by \pkg{ieegio}'s \code{volume_to_surface},
+#' which stores an identity transform) are unaffected.
+#'
+#' If \code{geometry$transforms} contains multiple transforms targeting
+#' different coordinate spaces, only the first one is used. Callers that need
+#' a specific target space should select and apply that transform themselves
+#' before calling \pkg{ravetools} mesh functions.
+#'
+#' @examples
+#'
+#' # mesh3d input is returned unchanged in shape
+#' sphere <- vcg_sphere()
+#' m <- ensure_mesh3d(sphere)
+#' identical(m$vb, sphere$vb)
+#'
+#' # A bare list with a `vb` slot is reclassified to mesh3d
+#' bare <- list(vb = rbind(matrix(rnorm(30), nrow = 3), 1))
+#' m <- ensure_mesh3d(bare)
+#' inherits(m, "mesh3d")
+#'
+#' @export
 ensure_mesh3d <- function(surface) {
   # check if surface is read from `freesurferformats`
   if (inherits(surface, "fs.surface")) {
@@ -66,6 +140,12 @@ ensure_mesh3d <- function(surface) {
       vertices <- array(0.0, c(3, max(node_index)))
       vertices[1:3, ] <- surface$geometry$vertices[1:3, ]
       vertices <- rbind(vertices, 1)
+    }
+
+    # Apply transforms
+    if (length(surface$geometry$transforms)) {
+      transform <- surface$geometry$transforms[[1]]
+      vertices <- transform %*% vertices
     }
 
     face <- surface$geometry$faces

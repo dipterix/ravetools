@@ -20,9 +20,11 @@ plot_mesh_dotcloud(
   xlab = "",
   ylab = "",
   normal_weight = c("auto", "area", "angle"),
-  side = c("both", "front", "back"),
-  mesh_clipping = 0.3,
+  side = c("front", "back", "both"),
+  mesh_clipping = 0.7,
   alpha = 1,
+  clipping_plane = NULL,
+  clipping_plane_enabled = TRUE,
   ...
 )
 }
@@ -78,24 +80,46 @@ choose automatically from all meshes' projected vertices.  Ignored when
 must be recomputed; one of \code{"auto"} (area if no normals present,
 otherwise skip), \code{"area"}, or \code{"angle"}.  Default \code{"auto"}.}
 
-\item{side}{which side of meshed surfaces to render.  One of \code{"both"}
-(default, renders all vertices), \code{"front"}, or \code{"back"}.  Point clouds are always
+\item{side}{which side of meshed surfaces to render.  One of \code{"front"}
+(default), \code{"back"}, or \code{"both"} (renders all vertices).  Point clouds are always
 rendered regardless of this setting.}
 
-\item{mesh_clipping}{numeric in \code{[0, 1]} controlling how much of the
-surface is peeled away from the camera-facing direction.  Vertices
-whose rim-light weight (\eqn{1 - |n \cdot z_{cam}|}) is at or below
-this threshold are dropped, leaving only the silhouette/grazing band.
-Surviving vertices are drawn opaque, and their \code{cex} is
-multiplied by the rim-light weight so grazing-edge dots appear larger
-than near-front-facing dots.  Drawing opaque points with
-size-modulated weight is dramatically faster than R's true per-point
-transparency.  Default \code{0.3}.}
+\item{mesh_clipping}{numeric in \code{[0, 1]} controlling how much of
+the surface is kept relative to the camera-facing direction.
+Vertices whose rim-light weight (\eqn{1 - |n \cdot z_{cam}|}) is at
+or below \code{1 - mesh_clipping} are dropped, leaving only the
+silhouette/grazing band.  \code{mesh_clipping = 1} (no clipping)
+keeps all vertices; smaller values peel away more of the
+front/back-facing dots.  Surviving vertices are drawn opaque, and
+their \code{cex} is multiplied by the rim-light weight so
+grazing-edge dots appear larger than near-front-facing dots.
+Drawing opaque points with size-modulated weight is dramatically
+faster than R's true per-point transparency.  Default \code{0.7}.}
 
 \item{alpha}{numeric in \code{[0, 1]}; one value per mesh (recycled),
 sets the transparency of each mesh (\code{1} = fully opaque,
 \code{0} = fully transparent).  Vertices belonging to a mesh with
 \code{alpha = 0} are dropped entirely.  Default \code{1}.}
+
+\item{clipping_plane}{optional list of world-space clipping planes used to
+hide parts of the scene.  Each plane is a numeric vector of length 5:
+the first three entries are the plane normal \eqn{(n_x, n_y, n_z)}
+(must be non-zero; normalized internally), the fourth is the signed
+distance from the world origin to the plane along that normal (so the
+plane equation is \eqn{n \cdot x = d}), and the fifth indicates which
+half-space is kept: \code{1} keeps the front side (the side the normal
+points to), \code{-1} keeps the back side, and \code{0} keeps whichever
+side currently faces the camera (auto-flipped per call based on
+\code{eye}).  Multiple planes are intersected.  Clipping is applied
+per vertex.  A single length-5 numeric vector is also accepted as
+shorthand for a one-plane list.  Default \code{NULL} (no clipping).}
+
+\item{clipping_plane_enabled}{logical vector, one entry per mesh
+(recycled), controlling whether \code{clipping_plane} is applied to
+that mesh.  \code{TRUE} (default) means the mesh participates in
+clipping; \code{FALSE} exempts the mesh entirely (all of its vertices
+are kept regardless of the clipping planes).  Has no effect when
+\code{clipping_plane} is \code{NULL}.}
 
 \item{...}{additional graphical parameters forwarded to
 \code{\link[graphics]{plot.default}} (new plot) or
@@ -121,6 +145,33 @@ so the painter's algorithm works correctly across meshes.  Meshes without
 faces (point clouds) are rendered at full size and are not affected
 by the \code{side} filter.
 }
+\section{Coercing 'ieegio_surface' inputs}{
+
+When \code{surface} is an \code{'ieegio_surface'} object, the returned
+\code{mesh3d$vb} contains vertices that have been left-multiplied by
+\code{surface$geometry$transforms[[1]]} (the first transform stored in the
+geometry, typically the \code{ScannerAnat} or vox-to-world transform).
+
+\strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
+raw \code{surface$geometry$vertices} without applying any transform, so
+downstream code often multiplied by
+\code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
+working in world / scanner-RAS space. Such code will now \emph{double}
+apply the transform and produce incorrect coordinates. If you previously
+applied a transform from \code{surface$geometry$transforms} by hand after
+calling a \pkg{ravetools} mesh function on an \code{'ieegio_surface'},
+remove that manual step.
+
+Surfaces with an empty or missing \code{geometry$transforms} list (for
+example, surfaces produced by \pkg{ieegio}'s \code{volume_to_surface},
+which stores an identity transform) are unaffected.
+
+If \code{geometry$transforms} contains multiple transforms targeting
+different coordinate spaces, only the first one is used. Callers that need
+a specific target space should select and apply that transform themselves
+before calling \pkg{ravetools} mesh functions.
+}
+
 \examples{
 
 mesh <- vcg_isosurface(left_hippocampus_mask)

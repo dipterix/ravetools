@@ -18,13 +18,15 @@ plot_mesh_polygon(
   ylim = NULL,
   xlab = "",
   ylab = "",
-  side = c("both", "front", "back"),
-  mesh_clipping = 0,
+  side = c("front", "back", "both"),
+  mesh_clipping = 1,
   sphere_subdivision = 1L,
   alpha = 1,
   shadow_color = NULL,
   light_intensity = 1,
   ambient_intensity = 0.2,
+  clipping_plane = NULL,
+  clipping_plane_enabled = TRUE,
   ...
 )
 }
@@ -56,18 +58,19 @@ instead of opening a new one.  Default \code{FALSE}.}
 \item{axes, asp, xlim, ylim, xlab, ylab}{passed to \code{\link[graphics]{plot.default}}
 when \code{add = FALSE}.}
 
-\item{side}{which side of each triangle to render.  One of \code{"both"}
-(default, shows all triangles), \code{"front"}, or \code{"back"}.}
+\item{side}{which side of each triangle to render.  One of \code{"front"}
+(default), \code{"back"}, or \code{"both"} (shows all triangles).}
 
 \item{mesh_clipping}{numeric in \code{[0, 1]} controlling camera-facing
 clipping: any triangle whose signed Lambert dot product
-(\eqn{n \cdot z_{cam}}, i.e. positive for front-facing) exceeds
-\code{1 - mesh_clipping} is discarded.  A value of \code{0} keeps the
-full surface; \code{0.5} peels a 60-degree cap off the front and
-reveals the back wall (whose absolute Lambert shade is still large,
-so it renders brightly); \code{1} clips every front-facing triangle
-and shows the interior only.  Back-facing triangles are never
-clipped by this rule.  Default \code{0}.}
+(\eqn{n \cdot z_{cam}}, i.e. positive for front-facing) is at or
+above \code{mesh_clipping} is discarded.  A value of \code{1}
+(default) keeps the full surface; \code{0.5} peels a 60-degree cap
+off the front and reveals the back wall (whose absolute Lambert
+shade is still large, so it renders brightly); \code{0} clips
+every front-facing triangle and shows the interior only.
+Back-facing triangles are never clipped by this rule.  Default
+\code{1}.}
 
 \item{sphere_subdivision}{integer subdivision level forwarded to
 \code{\link{vcg_sphere}} when substituting point clouds.  Higher values
@@ -100,6 +103,28 @@ light and never collapse fully to \code{shadow_color}.  An effective
 shade of \code{max(shade, ambient_intensity)} is used in the
 bg/light lerp.  Default \code{0.2}.}
 
+\item{clipping_plane}{optional list of world-space clipping planes used to
+hide parts of the scene.  Each plane is a numeric vector of length 5:
+the first three entries are the plane normal \eqn{(n_x, n_y, n_z)}
+(must be non-zero; normalized internally), the fourth is the signed
+distance from the world origin to the plane along that normal (so the
+plane equation is \eqn{n \cdot x = d}), and the fifth indicates which
+half-space is kept: \code{1} keeps the front side (the side the normal
+points to), \code{-1} keeps the back side, and \code{0} keeps whichever
+side currently faces the camera (auto-flipped per call based on
+\code{eye}).  Multiple planes are intersected.  Clipping is applied
+per face using the face centroid (a face is kept only when its
+centroid lies on the kept side of every plane).  A single length-5
+numeric vector is also accepted as shorthand for a one-plane list.
+Default \code{NULL} (no clipping).}
+
+\item{clipping_plane_enabled}{logical vector, one entry per mesh
+(recycled), controlling whether \code{clipping_plane} is applied to
+that mesh.  \code{TRUE} (default) means the mesh participates in
+clipping; \code{FALSE} exempts the mesh entirely (all of its faces
+are kept regardless of the clipping planes).  Has no effect when
+\code{clipping_plane} is \code{NULL}.}
+
 \item{...}{additional graphical parameters forwarded to
 \code{\link[graphics]{plot.default}} (new plot only).}
 }
@@ -121,7 +146,7 @@ faced meshes.
 A camera-facing clipping pass discards triangles whose outward normal
 points along the camera ray (signed \eqn{n \cdot z_{cam}} \eqn{> 1 - \mathrm{mesh\_clipping}}),
 peeling the front cap off the surface so the back wall (and any
-interior meshes) become visible. Set \code{mesh_clipping = 0} to disable
+interior meshes) become visible. Set \code{mesh_clipping = 1} to disable
 clipping. Point-cloud meshes (those rendered as substitute
 \code{\link{vcg_sphere}} instances) are exempt from this clip so they
 remain solid even when the enclosing surface is peeled.
@@ -144,6 +169,33 @@ Limitations of the base-R polygon path (no \code{rgl}):
     quartz/X11 path.
 }
 }
+\section{Coercing 'ieegio_surface' inputs}{
+
+When \code{surface} is an \code{'ieegio_surface'} object, the returned
+\code{mesh3d$vb} contains vertices that have been left-multiplied by
+\code{surface$geometry$transforms[[1]]} (the first transform stored in the
+geometry, typically the \code{ScannerAnat} or vox-to-world transform).
+
+\strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
+raw \code{surface$geometry$vertices} without applying any transform, so
+downstream code often multiplied by
+\code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
+working in world / scanner-RAS space. Such code will now \emph{double}
+apply the transform and produce incorrect coordinates. If you previously
+applied a transform from \code{surface$geometry$transforms} by hand after
+calling a \pkg{ravetools} mesh function on an \code{'ieegio_surface'},
+remove that manual step.
+
+Surfaces with an empty or missing \code{geometry$transforms} list (for
+example, surfaces produced by \pkg{ieegio}'s \code{volume_to_surface},
+which stores an identity transform) are unaffected.
+
+If \code{geometry$transforms} contains multiple transforms targeting
+different coordinate spaces, only the first one is used. Callers that need
+a specific target space should select and apply that transform themselves
+before calling \pkg{ravetools} mesh functions.
+}
+
 \examples{
 
 mesh <- vcg_isosurface(left_hippocampus_mask)
