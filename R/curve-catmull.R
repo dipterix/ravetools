@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------- #
-#  Catmull-Rom 3D spline – mirrors THREE.CatmullRomCurve3
+#  Catmull-Rom 3D spline - mirrors THREE.CatmullRomCurve3
 #  Supports: centripetal (default), chordal, uniform (catmullrom + tension)
 # --------------------------------------------------------------------------- #
 
@@ -146,7 +146,7 @@ catmull_rom_3d <- function(
   # Closed: t_i = i / l      => t[1]=0, t[l]=(l-1)/l
   t_keypoints <- seq.int(0L, l - 1L) / (if (closed) l else (l - 1L))
 
-  # Helper: 0-based index i → 1-based row, wrapping with modulo
+  # Helper: 0-based index i -> 1-based row, wrapping with modulo
   get_ctrl <- function(i) {
     points[(i %% l) + 1L, ]
   }
@@ -155,7 +155,7 @@ catmull_rom_3d <- function(
   get_point <- function(t) {
     t <- as.numeric(t[[1L]])
 
-    # Map t ∈ [0,1] to floating segment index + intra-segment weight
+    # Map t in [0,1] to floating segment index + intra-segment weight
     p_raw <- (l - (if (closed) 0L else 1L)) * t
     seg   <- floor(p_raw)
     w     <- p_raw - seg
@@ -242,7 +242,7 @@ catmull_rom_3d <- function(
     d2_c   <- rowSums(sweep(pts_c, 2L, query)^2)
     best_i <- which.min(d2_c)
 
-    # Narrow the search bracket to ±1 coarse step around the best sample
+    # Narrow the search bracket to +/-1 coarse step around the best sample
     dt    <- 1.0 / (coarse_n - 1L)
     ts_c  <- seq.int(0L, coarse_n - 1L) / (coarse_n - 1L)
     lo    <- max(0.0, ts_c[[best_i]] - dt)

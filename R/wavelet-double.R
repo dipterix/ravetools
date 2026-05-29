@@ -197,7 +197,7 @@ morlet_wavelet_double <- function(data, freqs, srate, wave_num,
     new_ind <- seq_len(plan$segment_length)
     new_ind <- c(new_ind[-ind], new_ind[ind])
 
-    # Pre-allocated buffer avoids a full segment_length × n_seg complex alloc
+    # Pre-allocated buffer avoids a full segment_length * n_seg complex alloc
     # per frequency. mvfftw_c2c writes in-place via `ret`; norm_factor division
     # is deferred to the small per-segment subsets.
     buffer <- array(0 + 0i, dim = c(plan$segment_length, n_seg))

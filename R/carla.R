@@ -326,7 +326,7 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # channel, but should still carry the contamination), subtract it from
   # every channel, and re-rank on the subtracted signal. The virtual
   # channel itself becomes identically zero after subtraction, so we
-  # remove it from the new order and append it at the very end -- it is
+  # remove it from the new order and append it at the very end: it is
   # never picked into the CAR until the final subset size and never
   # influences any of the correlations downstream.
   if (virtual_reference) {
@@ -352,7 +352,7 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # ---- 1c. Bad-channel mask --------------------------------------------------
   # Flat / dead channels (zero variance) and channels that produced an NA
   # ranking statistic (e.g. all-NA input rows) cannot meaningfully appear in
-  # the CAR -- their correlation rows would be NaN -- and including them
+  # the CAR - their correlation rows would be NaN - and including them
   # introduces noise into the bootstrap statistic. Drop them from `ord` and
   # shrink the iterative loop accordingly.
   bad_mask <- is.na(vars) | vars == 0

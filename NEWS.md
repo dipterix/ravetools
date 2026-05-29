@@ -1,3 +1,10 @@
+# ravetools 0.2.6
+
+* Added `plot_mesh_dotcloud` for rendering one or more `mesh3d` objects as an orthographic rim-lit dot cloud in base R (no `rgl` dependency); supports per-vertex colors, depth-gradient palettes, per-mesh alpha, `side` filtering, and painter's-algorithm depth sorting across multiple meshes
+* Added `plot_mesh_polygon` for rendering one or more `mesh3d` objects as flat-shaded Lambert-lit triangles in base R; point-cloud meshes (no face matrix) are automatically substituted by small icospheres; supports camera-facing clipping (`mesh_clipping`), `side` filtering, per-mesh alpha blending, and configurable `shadow_color`, `light_intensity`, and `ambient_intensity`
+* Fixed `freqz2` plot legend: the cutoff legend used the raw `cutoffs` argument (and could index past the color palette, yielding `NA` colors) when a requested cutoff did not actually intersect the magnitude curve; the legend now only lists cutoffs that are drawn, and labels the unit as `dB` instead of the filter's frequency unit
+
+
 # ravetools 0.2.5
 
 * `morlet_wavelet` gains a `segment_length` argument (default `NULL`) that processes long signals (e.g. multi-hour recordings) in overlapping segments using batched `mvfftw_c2c` convolutions, dramatically reducing peak memory and FFT cost while preserving the legacy result on the signal interior

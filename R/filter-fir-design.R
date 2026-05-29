@@ -311,7 +311,7 @@ design_filter_fir <- function(
     #
     #               FIX (2026-05): the original code used f0 = mean(w_pass), i.e. the
     #               midpoint of the passband edges only.  This differs from MATLAB's choice
-    #               by (w_trans_high - w_trans_low) / 4 — zero only when both transition
+    #               by (w_trans_high - w_trans_low) / 4: zero only when both transition
     #               bandwidths are equal.  Using mean(kaisprm$Wc) matches MATLAB exactly.
     #
     #               # OLD (pre-fix): f0 <- mean(w_pass)
@@ -344,7 +344,7 @@ design_filter_fir <- function(
         # f0 <- mean(w_pass)
 
         # Updated: 2026-05
-        # transition-band midpoints average — matches MATLAB fir1 scale_filter
+        # transition-band midpoints average: matches MATLAB fir1 scale_filter
         f0 <- mean(kaisprm$Wc)
       },
       {

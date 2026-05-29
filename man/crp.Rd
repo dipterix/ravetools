@@ -96,7 +96,7 @@ A named list with the following elements:
     axis for \code{C}, \code{V_tR}, \code{ep}, and
     \code{avg_trace_tR}.}
   \item{\code{V_tR}}{Numeric matrix \eqn{T_R \times K}, trial matrix
-    truncated to \eqn{\tau_R} — the data actually decomposed.}
+    truncated to \eqn{\tau_R} - the data actually decomposed.}
   \item{\code{avg_trace_tR}}{Numeric vector of length \eqn{T_R}, simple
     trial average truncated to \eqn{\tau_R}.}
 }}
@@ -109,7 +109,7 @@ A named list with the following elements:
     trial-pair projections, columns correspond to \code{proj_tpts}.
     Units: \eqn{\mu V \cdot s^{1/2}}.}
   \item{\code{mean_proj_profile}}{Numeric vector, mean of \code{S_all}
-    across trial pairs at each candidate duration — the profile whose
+    across trial pairs at each candidate duration, the profile whose
     maximum defines \eqn{\tau_R}.}
   \item{\code{var_proj_profile}}{Numeric vector, variance of
     \code{S_all} across trial pairs at each candidate duration.}
