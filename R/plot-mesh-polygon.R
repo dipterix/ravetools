@@ -45,6 +45,16 @@
 #'   instead of opening a new one.  Default \code{FALSE}.
 #' @param axes,asp,xlim,ylim,xlab,ylab passed to \code{\link[graphics]{plot.default}}
 #'   when \code{add = FALSE}.
+#' @param zoom positive numeric magnification applied to the auto-computed
+#'   axis limits when \code{xlim} or \code{ylim} is \code{NULL}.  Values
+#'   greater than \code{1} zoom in, values in \code{(0, 1)} zoom out.
+#'   When \code{asp} is set, the zoom is plot-region aware (queried via
+#'   \code{par("pin")}): the axis that already fills the device after
+#'   \code{asp}-induced expansion is zoomed by exactly \code{zoom}, and
+#'   the other axis is zoomed less so the data fills more of the plot
+#'   region while preserving the requested \code{asp}.  Ignored for any
+#'   axis whose limit was supplied explicitly, and when \code{add = TRUE}.
+#'   Default \code{1}.
 #' @param side which side of each triangle to render.  One of \code{"front"}
 #'   (default), \code{"back"}, or \code{"both"} (shows all triangles).
 #' @param mesh_clipping numeric in \code{[0, 1]} controlling camera-facing
@@ -126,7 +136,7 @@
 #' # Surface alone
 #' plot_mesh_polygon(
 #'   mesh,
-#'   eye    = c(150, 0, 0),
+#'   eye    = c(150, 30, 0),
 #'   lookat = c(0, 0, 0),
 #'   up     = c(0, 0, 1),
 #'   col    = "steelblue"
@@ -135,21 +145,23 @@
 #' # Surface + electrode point cloud (rendered as small icospheres)
 #' n_elec <- 20
 #' electrodes <- structure(
-#'   list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec)),
+#'   list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec) +
+#'          rowMeans(mesh$vb)[1:3]),
 #'   class = "mesh3d"
 #' )
 #' plot_mesh_polygon(
 #'   mesh = list(mesh, electrodes),
-#'   eye    = c(150, 0, 0),
+#'   eye    = c(150, -30, 0),
 #'   lookat = c(0, 0, 0),
 #'   up     = c(0, 0, 1),
+#'   alpha  = c(0.5, 1),
 #'   col    = list("steelblue", "red"),
 #'   cex    = 1.5
 #' )
 #'
 #' @seealso \code{\link{plot_mesh_dotcloud}}, \code{\link{vcg_isosurface}}
 #'
-#' @inheritSection ensure_mesh3d Coercing \verb{ieegio_surface} inputs
+#' @inheritSection ensure_mesh3d Coercing Surface Inputs
 #'
 #' @export
 plot_mesh_polygon <- function(
@@ -164,6 +176,7 @@ plot_mesh_polygon <- function(
     asp    = 1,
     xlim   = NULL,
     ylim   = NULL,
+    zoom   = 1,
     xlab   = "",
     ylab   = "",
     side   = c("front", "back", "both"),
@@ -362,7 +375,7 @@ plot_mesh_polygon <- function(
     centroids <- (all_vb[, i1, drop = FALSE] +
                   all_vb[, i2, drop = FALSE] +
                   all_vb[, i3, drop = FALSE]) / 3
-    cp_keep <- .apply_clipping_planes(centroids, eye[1:3], clipping_plane)
+    cp_keep <- apply_clipping_planes(centroids, eye[1:3], clipping_plane)
     clip_enabled_face <- rep(clip_enabled_vec, n_faces_vec)
     cp_keep[!clip_enabled_face] <- TRUE
     keep <- keep & cp_keep
@@ -449,20 +462,33 @@ plot_mesh_polygon <- function(
     col_shaded <- grDevices::rgb(r_out, g_out, b_out)
   }
 
-  # ---- 10. Plot limits, build NA-separated polygon arrays ---------------
-  if (!length(xlim)) xlim <- range(x_all, na.rm = TRUE)
-  if (!length(ylim)) ylim <- range(y_all, na.rm = TRUE)
+  # ---- 10. Open canvas + plot limits ------------------------------------
+  # Call plot.new() before zoom_limits so par("pin") reflects the true
+  # plot-region dimensions of this device (margins applied). Then
+  # plot.window() locks in the zoomed limits + asp before drawing.
+  if (!add) {
+    graphics::plot.new()
+  }
+  lim <- zoom_limits(xlim, ylim, x_all, y_all, zoom, asp)
+  xlim <- lim$xlim
+  ylim <- lim$ylim
+  if (!add) {
+    graphics::plot.window(xlim = xlim, ylim = ylim, asp = asp, ...)
+    if (axes) {
+      graphics::axis(1)
+      graphics::axis(2)
+      graphics::box()
+    }
+    if (nzchar(xlab) || nzchar(ylab)) {
+      graphics::title(xlab = xlab, ylab = ylab)
+    }
+  }
 
   # 4 rows per triangle: v1, v2, v3, NA. Flatten column-major for polygon().
   tri_x <- rbind(x_all[i1k], x_all[i2k], x_all[i3k], NA_real_)
   tri_y <- rbind(y_all[i1k], y_all[i2k], y_all[i3k], NA_real_)
 
   # ---- 11. Render -------------------------------------------------------
-  if (!add) {
-    graphics::plot.default(NA, NA, xlim = xlim, ylim = ylim,
-                           asp = asp, axes = axes, type = "n",
-                           xlab = xlab, ylab = ylab, ...)
-  }
   grDevices::dev.hold()
   on.exit(grDevices::dev.flush(), add = TRUE)
   # Hide the anti-aliasing seam between adjacent triangles by drawing the

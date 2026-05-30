@@ -181,7 +181,7 @@ is_not_cran <- function(if_interactive = TRUE, verbose = FALSE) {
 #' @returns Function object if found, otherwise \code{on_missing}.
 #' @export
 internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL) {
-  if (!pkg %in% c("raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
+  if (!pkg %in% c("ravecore", "raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
                  "dipsaus", "filearray", "readNSx", "rpymat", "rpyANTs")) {
     stop("`extern_function`: Package [", pkg, "] is not a RAVE package.")
   }

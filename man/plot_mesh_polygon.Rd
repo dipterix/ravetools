@@ -16,6 +16,7 @@ plot_mesh_polygon(
   asp = 1,
   xlim = NULL,
   ylim = NULL,
+  zoom = 1,
   xlab = "",
   ylab = "",
   side = c("front", "back", "both"),
@@ -57,6 +58,17 @@ instead of opening a new one.  Default \code{FALSE}.}
 
 \item{axes, asp, xlim, ylim, xlab, ylab}{passed to \code{\link[graphics]{plot.default}}
 when \code{add = FALSE}.}
+
+\item{zoom}{positive numeric magnification applied to the auto-computed
+axis limits when \code{xlim} or \code{ylim} is \code{NULL}.  Values
+greater than \code{1} zoom in, values in \code{(0, 1)} zoom out.
+When \code{asp} is set, the zoom is plot-region aware (queried via
+\code{par("pin")}): the axis that already fills the device after
+\code{asp}-induced expansion is zoomed by exactly \code{zoom}, and
+the other axis is zoomed less so the data fills more of the plot
+region while preserving the requested \code{asp}.  Ignored for any
+axis whose limit was supplied explicitly, and when \code{add = TRUE}.
+Default \code{1}.}
 
 \item{side}{which side of each triangle to render.  One of \code{"front"}
 (default), \code{"back"}, or \code{"both"} (shows all triangles).}
@@ -169,16 +181,19 @@ Limitations of the base-R polygon path (no \code{rgl}):
     quartz/X11 path.
 }
 }
-\section{Coercing \verb{ieegio_surface} inputs}{
+\section{Coercing Surface Inputs}{
 
-When \code{surface} is an \code{'ieegio_surface'} object, the returned
+The surface objects are converted to \code{'mesh3d'} object before
+applying further calculations.
+
+When \code{surface} is a surface \pkg{ieegio} object, the returned
 \code{mesh3d$vb} contains vertices that have been left-multiplied by
 \code{surface$geometry$transforms[[1]]} (the first transform stored in the
 geometry, typically the \code{ScannerAnat} or voxel-to-world transform).
 
-\strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
-raw \code{surface$geometry$vertices} without applying any transform, so
-downstream code often multiplied by
+\strong{Breaking change:} Earlier versions (before 0.2.6) of \pkg{ravetools}
+returned the raw \code{surface$geometry$vertices} without applying any
+transform, so downstream code often multiplied by
 \code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
 working in world space. Such code will now \emph{double}
 apply the transform and produce incorrect coordinates. If you previously
@@ -203,7 +218,7 @@ mesh <- vcg_isosurface(left_hippocampus_mask)
 # Surface alone
 plot_mesh_polygon(
   mesh,
-  eye    = c(150, 0, 0),
+  eye    = c(150, 30, 0),
   lookat = c(0, 0, 0),
   up     = c(0, 0, 1),
   col    = "steelblue"
@@ -212,14 +227,16 @@ plot_mesh_polygon(
 # Surface + electrode point cloud (rendered as small icospheres)
 n_elec <- 20
 electrodes <- structure(
-  list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec)),
+  list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec) +
+         rowMeans(mesh$vb)[1:3]),
   class = "mesh3d"
 )
 plot_mesh_polygon(
   mesh = list(mesh, electrodes),
-  eye    = c(150, 0, 0),
+  eye    = c(150, -30, 0),
   lookat = c(0, 0, 0),
   up     = c(0, 0, 1),
+  alpha  = c(0.5, 1),
   col    = list("steelblue", "red"),
   cex    = 1.5
 )

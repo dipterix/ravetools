@@ -17,6 +17,7 @@ plot_mesh_dotcloud(
   asp = 1,
   xlim = NULL,
   ylim = NULL,
+  zoom = 1,
   xlab = "",
   ylab = "",
   normal_weight = c("auto", "area", "angle"),
@@ -72,6 +73,17 @@ Ignored when \code{add = TRUE}.}
 \item{xlim, ylim}{axis limits for the new plot; \code{NULL} (default) lets R
 choose automatically from all meshes' projected vertices.  Ignored when
 \code{add = TRUE}.}
+
+\item{zoom}{positive numeric magnification applied to the auto-computed
+axis limits when \code{xlim} or \code{ylim} is \code{NULL}.  Values
+greater than \code{1} zoom in, values in \code{(0, 1)} zoom out.
+When \code{asp} is set, the zoom is plot-region aware (queried via
+\code{par("pin")}): the axis that already fills the device after
+\code{asp}-induced expansion is zoomed by exactly \code{zoom}, and
+the other axis is zoomed less so the data fills more of the plot
+region while preserving the requested \code{asp}.  Ignored for any
+axis whose limit was supplied explicitly, and when \code{add = TRUE}.
+Default \code{1}.}
 
 \item{xlab, ylab}{axis labels for the new plot.  Ignored when
 \code{add = TRUE}.}
@@ -145,16 +157,19 @@ so the painter's algorithm works correctly across meshes.  Meshes without
 faces (point clouds) are rendered at full size and are not affected
 by the \code{side} filter.
 }
-\section{Coercing \verb{ieegio_surface} inputs}{
+\section{Coercing Surface Inputs}{
 
-When \code{surface} is an \code{'ieegio_surface'} object, the returned
+The surface objects are converted to \code{'mesh3d'} object before
+applying further calculations.
+
+When \code{surface} is a surface \pkg{ieegio} object, the returned
 \code{mesh3d$vb} contains vertices that have been left-multiplied by
 \code{surface$geometry$transforms[[1]]} (the first transform stored in the
 geometry, typically the \code{ScannerAnat} or voxel-to-world transform).
 
-\strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
-raw \code{surface$geometry$vertices} without applying any transform, so
-downstream code often multiplied by
+\strong{Breaking change:} Earlier versions (before 0.2.6) of \pkg{ravetools}
+returned the raw \code{surface$geometry$vertices} without applying any
+transform, so downstream code often multiplied by
 \code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
 working in world space. Such code will now \emph{double}
 apply the transform and produce incorrect coordinates. If you previously
@@ -183,13 +198,14 @@ plot_mesh_dotcloud(
   lookat = c(0, 0, 0),
   up = c(0, 0, 1),
   col = "steelblue",
-  cex = 0.4
+  cex = 2
 )
 
 # Two meshes: surface + electrode point cloud
 n_elec <- 20
 electrodes <- structure(
-  list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec)),
+  list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec) +
+         rowMeans(mesh$vb)[1:3]),
   class = "mesh3d"
 )
 plot_mesh_dotcloud(
@@ -199,7 +215,7 @@ plot_mesh_dotcloud(
   up     = c(0, 0, 1),
   col    = list("steelblue", "red"),
   pch    = c(16L, 17L),
-  cex    = c(0.4, 1.2)
+  cex    = c(2, 1.2)
 )
 
 }

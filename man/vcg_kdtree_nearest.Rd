@@ -33,16 +33,19 @@ from the query point to the target point.
 For each point in the query, find the nearest \code{k} points in target using
 \code{K-D} tree.
 }
-\section{Coercing \verb{ieegio_surface} inputs}{
+\section{Coercing Surface Inputs}{
 
-When \code{surface} is an \code{'ieegio_surface'} object, the returned
+The surface objects are converted to \code{'mesh3d'} object before
+applying further calculations.
+
+When \code{surface} is a surface \pkg{ieegio} object, the returned
 \code{mesh3d$vb} contains vertices that have been left-multiplied by
 \code{surface$geometry$transforms[[1]]} (the first transform stored in the
 geometry, typically the \code{ScannerAnat} or voxel-to-world transform).
 
-\strong{Breaking change:} Earlier versions of \pkg{ravetools} returned the
-raw \code{surface$geometry$vertices} without applying any transform, so
-downstream code often multiplied by
+\strong{Breaking change:} Earlier versions (before 0.2.6) of \pkg{ravetools}
+returned the raw \code{surface$geometry$vertices} without applying any
+transform, so downstream code often multiplied by
 \code{surface$geometry$transforms[[1]]} (or an equivalent) manually before
 working in world space. Such code will now \emph{double}
 apply the transform and produce incorrect coordinates. If you previously

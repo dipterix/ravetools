@@ -3,7 +3,7 @@
 # only for planes whose `side` element is 0 (auto camera-facing). A NULL or
 # zero-length `clipping_plane` returns an all-TRUE mask. A bare length-5
 # numeric vector is accepted as shorthand for a one-plane list.
-.apply_clipping_planes <- function(points_world, eye_world, clipping_plane) {
+apply_clipping_planes <- function(points_world, eye_world, clipping_plane) {
   n_pts <- ncol(points_world)
   keep <- rep(TRUE, n_pts)
   if (!length(clipping_plane)) return(keep)
@@ -40,6 +40,56 @@
     }
   }
   keep
+}
+
+# Internal: resolve auto-computed xlim/ylim with a `zoom` magnification that
+# is aware of the current device's plot region (`par("pin")`) and the
+# requested aspect ratio `asp`. When both `asp` and `pin` are usable, the
+# visible data window after `asp`-induced expansion is shrunk by `zoom`, so
+# the limiting axis is zoomed by exactly `zoom` and the other axis is
+# zoomed less (filling extra margin) while preserving `asp`. When `asp` or
+# `pin` is unavailable, falls back to a symmetric shrink by `zoom` around
+# the data midpoint. User-supplied (non-NULL) `xlim`/`ylim` are passed
+# through unchanged.
+zoom_limits <- function(xlim, ylim, x_all, y_all, zoom, asp) {
+  x_user <- length(xlim) > 0
+  y_user <- length(ylim) > 0
+  if (!x_user) xlim <- range(x_all, na.rm = TRUE)
+  if (!y_user) ylim <- range(y_all, na.rm = TRUE)
+  if (x_user && y_user) return(list(xlim = xlim, ylim = ylim))
+  if (!(is.finite(zoom) && zoom > 0) || zoom == 1) {
+    return(list(xlim = xlim, ylim = ylim))
+  }
+
+  dx <- xlim[2L] - xlim[1L]
+  dy <- ylim[2L] - ylim[1L]
+  mx <- mean(xlim)
+  my <- mean(ylim)
+
+  pin <- tryCatch(graphics::par("pin"), error = function(e) NULL)
+  asp_ok <- length(asp) == 1L && is.finite(asp) && asp > 0
+  pin_ok <- !is.null(pin) && length(pin) == 2L &&
+            all(is.finite(pin)) && all(pin > 0)
+  data_ok <- is.finite(dx) && is.finite(dy) && dx > 0 && dy > 0
+
+  if (asp_ok && pin_ok && data_ok) {
+    pw <- pin[[1L]]
+    ph <- pin[[2L]]
+    # Physical inches per x-data-unit when both axes fit (asp y/x ratio):
+    #   scale_x = min(pw/dx, ph/(asp*dy))
+    # Visible ranges: vis_dx = pw/scale_x, vis_dy = ph/(asp*scale_x).
+    # Zooming in by `zoom` scales `scale_x` by `zoom`.
+    scale_x <- min(pw / dx, ph / (asp * dy))
+    new_dx <- pw / (scale_x * zoom)
+    new_dy <- ph / (asp * scale_x * zoom)
+  } else {
+    new_dx <- dx / zoom
+    new_dy <- dy / zoom
+  }
+
+  if (!x_user) xlim <- c(mx - new_dx / 2, mx + new_dx / 2)
+  if (!y_user) ylim <- c(my - new_dy / 2, my + new_dy / 2)
+  list(xlim = xlim, ylim = ylim)
 }
 
 #' @title Render one or more meshes as an orthographic dot cloud in base R
@@ -92,6 +142,16 @@
 #' @param xlim,ylim axis limits for the new plot; \code{NULL} (default) lets R
 #'   choose automatically from all meshes' projected vertices.  Ignored when
 #'   \code{add = TRUE}.
+#' @param zoom positive numeric magnification applied to the auto-computed
+#'   axis limits when \code{xlim} or \code{ylim} is \code{NULL}.  Values
+#'   greater than \code{1} zoom in, values in \code{(0, 1)} zoom out.
+#'   When \code{asp} is set, the zoom is plot-region aware (queried via
+#'   \code{par("pin")}): the axis that already fills the device after
+#'   \code{asp}-induced expansion is zoomed by exactly \code{zoom}, and
+#'   the other axis is zoomed less so the data fills more of the plot
+#'   region while preserving the requested \code{asp}.  Ignored for any
+#'   axis whose limit was supplied explicitly, and when \code{add = TRUE}.
+#'   Default \code{1}.
 #' @param xlab,ylab axis labels for the new plot.  Ignored when
 #'   \code{add = TRUE}.
 #' @param normal_weight passed to \code{\link{vcg_update_normals}} when normals
@@ -151,13 +211,14 @@
 #'   lookat = c(0, 0, 0),
 #'   up = c(0, 0, 1),
 #'   col = "steelblue",
-#'   cex = 0.4
+#'   cex = 2
 #' )
 #'
 #' # Two meshes: surface + electrode point cloud
 #' n_elec <- 20
 #' electrodes <- structure(
-#'   list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec)),
+#'   list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec) +
+#'          rowMeans(mesh$vb)[1:3]),
 #'   class = "mesh3d"
 #' )
 #' plot_mesh_dotcloud(
@@ -167,12 +228,12 @@
 #'   up     = c(0, 0, 1),
 #'   col    = list("steelblue", "red"),
 #'   pch    = c(16L, 17L),
-#'   cex    = c(0.4, 1.2)
+#'   cex    = c(2, 1.2)
 #' )
 #'
 #' @seealso \code{\link{vcg_update_normals}}, \code{\link{vcg_isosurface}}
 #'
-#' @inheritSection ensure_mesh3d Coercing \verb{ieegio_surface} inputs
+#' @inheritSection ensure_mesh3d Coercing Surface Inputs
 #'
 #' @export
 plot_mesh_dotcloud <- function(
@@ -188,6 +249,7 @@ plot_mesh_dotcloud <- function(
     asp = 1,
     xlim = NULL,
     ylim = NULL,
+    zoom = 1,
     xlab = "",
     ylab = "",
     normal_weight = c("auto", "area", "angle"),
@@ -383,15 +445,33 @@ plot_mesh_dotcloud <- function(
   # User-supplied world-space clipping planes (per-vertex cull). Meshes
   # with `clipping_plane_enabled = FALSE` are exempted from this cull.
   if (length(clipping_plane)) {
-    cp_keep <- .apply_clipping_planes(all_vb, eye[1:3], clipping_plane)
+    cp_keep <- apply_clipping_planes(all_vb, eye[1:3], clipping_plane)
     clip_enabled_all <- rep(clip_enabled_vec, n_verts_vec)
     cp_keep[!clip_enabled_all] <- TRUE
     keep <- keep & cp_keep
   }
 
-  # ---- 6. Screen limits -------------------------------------------------
-  if (!length(xlim)) xlim <- range(x_all, na.rm = TRUE)
-  if (!length(ylim)) ylim <- range(y_all, na.rm = TRUE)
+  # ---- 6. Open canvas + screen limits -----------------------------------
+  # Call plot.new() before zoom_limits so par("pin") reflects the true
+  # plot-region dimensions of this device (margins applied). Then
+  # plot.window() locks in the zoomed limits + asp before drawing.
+  if (!add) {
+    graphics::plot.new()
+  }
+  lim <- zoom_limits(xlim, ylim, x_all, y_all, zoom, asp)
+  xlim <- lim$xlim
+  ylim <- lim$ylim
+  if (!add) {
+    graphics::plot.window(xlim = xlim, ylim = ylim, asp = asp, ...)
+    if (axes) {
+      graphics::axis(1)
+      graphics::axis(2)
+      graphics::box()
+    }
+    if (nzchar(xlab) || nzchar(ylab)) {
+      graphics::title(xlab = xlab, ylab = ylab)
+    }
+  }
 
   # ---- 7. Filter, painter's sort (far first), fold rim weight into cex --
   # Dots are drawn at full color; cex is scaled by the per-vertex rim
@@ -410,25 +490,8 @@ plot_mesh_dotcloud <- function(
   pch_k <- pch_k[ord]
   cex_k <- cex_k[ord]
 
-  # ---- 8. Plot (no transparency) ----------------------------------------
-  if (!add) {
-    graphics::plot.default(
-      x_k, y_k,
-      col  = col_k,
-      pch  = pch_k,
-      cex  = cex_k,
-      asp  = asp,
-      axes = axes,
-      xlim = xlim,
-      ylim = ylim,
-      xlab = xlab,
-      ylab = ylab,
-      type = "p",
-      ...
-    )
-  } else {
-    graphics::points(x_k, y_k, col = col_k, pch = pch_k, cex = cex_k, ...)
-  }
+  # ---- 8. Draw points ---------------------------------------------------
+  graphics::points(x_k, y_k, col = col_k, pch = pch_k, cex = cex_k, ...)
 
   invisible(list(xlim = xlim, ylim = ylim))
 }
