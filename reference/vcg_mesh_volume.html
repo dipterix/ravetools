@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,16 +55,18 @@
     <p>The numeric volume of the mesh</p>
     </div>
     <div class="section level2">
-    <h2 id="coercing-ieegio-surface-inputs">Coercing <code>ieegio_surface</code> inputs<a class="anchor" aria-label="anchor" href="#coercing-ieegio-surface-inputs"></a></h2>
+    <h2 id="coercing-surface-inputs">Coercing Surface Inputs<a class="anchor" aria-label="anchor" href="#coercing-surface-inputs"></a></h2>
 
 
-<p>When <code>surface</code> is an <code>'ieegio_surface'</code> object, the returned
+<p>The surface objects are converted to <code>'mesh3d'</code> object before
+applying further calculations.</p>
+<p>When <code>surface</code> is a surface <span class="pkg">ieegio</span> object, the returned
 <code>mesh3d$vb</code> contains vertices that have been left-multiplied by
 <code>surface$geometry$transforms[[1]]</code> (the first transform stored in the
 geometry, typically the <code>ScannerAnat</code> or voxel-to-world transform).</p>
-<p><strong>Breaking change:</strong> Earlier versions of <span class="pkg">ravetools</span> returned the
-raw <code>surface$geometry$vertices</code> without applying any transform, so
-downstream code often multiplied by
+<p><strong>Breaking change:</strong> Earlier versions (before 0.2.6) of <span class="pkg">ravetools</span>
+returned the raw <code>surface$geometry$vertices</code> without applying any
+transform, so downstream code often multiplied by
 <code>surface$geometry$transforms[[1]]</code> (or an equivalent) manually before
 working in world space. Such code will now <em>double</em>
 apply the transform and produce incorrect coordinates. If you previously

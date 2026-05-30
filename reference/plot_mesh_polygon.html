@@ -41,7 +41,7 @@ across meshes."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,6 +102,7 @@ across meshes.</p>
 <span>  asp <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  zoom <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  side <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"front"</span>, <span class="st">"back"</span>, <span class="st">"both"</span><span class="op">)</span>,</span>
@@ -162,6 +163,19 @@ instead of opening a new one.  Default <code>FALSE</code>.</p></dd>
 <dt id="arg-axes-asp-xlim-ylim-xlab-ylab">axes, asp, xlim, ylim, xlab, ylab<a class="anchor" aria-label="anchor" href="#arg-axes-asp-xlim-ylim-xlab-ylab"></a></dt>
 <dd><p>passed to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot.default</a></code>
 when <code>add = FALSE</code>.</p></dd>
+
+
+<dt id="arg-zoom">zoom<a class="anchor" aria-label="anchor" href="#arg-zoom"></a></dt>
+<dd><p>positive numeric magnification applied to the auto-computed
+axis limits when <code>xlim</code> or <code>ylim</code> is <code>NULL</code>.  Values
+greater than <code>1</code> zoom in, values in <code>(0, 1)</code> zoom out.
+When <code>asp</code> is set, the zoom is plot-region aware (queried via
+<code>par("pin")</code>): the axis that already fills the device after
+<code>asp</code>-induced expansion is zoomed by exactly <code>zoom</code>, and
+the other axis is zoomed less so the data fills more of the plot
+region while preserving the requested <code>asp</code>.  Ignored for any
+axis whose limit was supplied explicitly, and when <code>add = TRUE</code>.
+Default <code>1</code>.</p></dd>
 
 
 <dt id="arg-side">side<a class="anchor" aria-label="anchor" href="#arg-side"></a></dt>
@@ -272,16 +286,18 @@ are kept regardless of the clipping planes).  Has no effect when
     quartz/X11 path.</p></li>
 </ul></div>
     <div class="section level2">
-    <h2 id="coercing-ieegio-surface-inputs">Coercing <code>ieegio_surface</code> inputs<a class="anchor" aria-label="anchor" href="#coercing-ieegio-surface-inputs"></a></h2>
+    <h2 id="coercing-surface-inputs">Coercing Surface Inputs<a class="anchor" aria-label="anchor" href="#coercing-surface-inputs"></a></h2>
 
 
-<p>When <code>surface</code> is an <code>'ieegio_surface'</code> object, the returned
+<p>The surface objects are converted to <code>'mesh3d'</code> object before
+applying further calculations.</p>
+<p>When <code>surface</code> is a surface <span class="pkg">ieegio</span> object, the returned
 <code>mesh3d$vb</code> contains vertices that have been left-multiplied by
 <code>surface$geometry$transforms[[1]]</code> (the first transform stored in the
 geometry, typically the <code>ScannerAnat</code> or voxel-to-world transform).</p>
-<p><strong>Breaking change:</strong> Earlier versions of <span class="pkg">ravetools</span> returned the
-raw <code>surface$geometry$vertices</code> without applying any transform, so
-downstream code often multiplied by
+<p><strong>Breaking change:</strong> Earlier versions (before 0.2.6) of <span class="pkg">ravetools</span>
+returned the raw <code>surface$geometry$vertices</code> without applying any
+transform, so downstream code often multiplied by
 <code>surface$geometry$transforms[[1]]</code> (or an equivalent) manually before
 working in world space. Such code will now <em>double</em>
 apply the transform and produce incorrect coordinates. If you previously
@@ -309,7 +325,7 @@ before calling <span class="pkg">ravetools</span> mesh functions.</p>
 <span class="r-in"><span><span class="co"># Surface alone</span></span></span>
 <span class="r-in"><span><span class="fu">plot_mesh_polygon</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">mesh</span>,</span></span>
-<span class="r-in"><span>  eye    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  eye    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">30</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  lookat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  up     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  col    <span class="op">=</span> <span class="st">"steelblue"</span></span></span>
@@ -319,14 +335,16 @@ before calling <span class="pkg">ravetools</span> mesh functions.</p>
 <span class="r-in"><span><span class="co"># Surface + electrode point cloud (rendered as small icospheres)</span></span></span>
 <span class="r-in"><span><span class="va">n_elec</span> <span class="op">&lt;-</span> <span class="fl">20</span></span></span>
 <span class="r-in"><span><span class="va">electrodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>vb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">3</span> <span class="op">*</span> <span class="va">n_elec</span>, sd <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, <span class="fl">3</span>, <span class="va">n_elec</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>vb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">3</span> <span class="op">*</span> <span class="va">n_elec</span>, sd <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, <span class="fl">3</span>, <span class="va">n_elec</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>         <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">$</span><span class="va">vb</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  class <span class="op">=</span> <span class="st">"mesh3d"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">plot_mesh_polygon</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  mesh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">mesh</span>, <span class="va">electrodes</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  eye    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  eye    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="op">-</span><span class="fl">30</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  lookat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  up     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  alpha  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"red"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cex    <span class="op">=</span> <span class="fl">1.5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

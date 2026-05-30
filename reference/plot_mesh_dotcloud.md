@@ -33,6 +33,7 @@ plot_mesh_dotcloud(
   asp = 1,
   xlim = NULL,
   ylim = NULL,
+  zoom = 1,
   xlab = "",
   ylab = "",
   normal_weight = c("auto", "area", "angle"),
@@ -117,6 +118,18 @@ plot_mesh_dotcloud(
   automatically from all meshes' projected vertices. Ignored when
   `add = TRUE`.
 
+- zoom:
+
+  positive numeric magnification applied to the auto-computed axis
+  limits when `xlim` or `ylim` is `NULL`. Values greater than `1` zoom
+  in, values in `(0, 1)` zoom out. When `asp` is set, the zoom is
+  plot-region aware (queried via `par("pin")`): the axis that already
+  fills the device after `asp`-induced expansion is zoomed by exactly
+  `zoom`, and the other axis is zoomed less so the data fills more of
+  the plot region while preserving the requested `asp`. Ignored for any
+  axis whose limit was supplied explicitly, and when `add = TRUE`.
+  Default `1`.
+
 - xlab, ylab:
 
   axis labels for the new plot. Ignored when `add = TRUE`.
@@ -190,21 +203,24 @@ plot_mesh_dotcloud(
 Invisibly returns a list with components `xlim` and `ylim` (the plot
 limits used).
 
-## Coercing `ieegio_surface` inputs
+## Coercing Surface Inputs
 
-When `surface` is an `'ieegio_surface'` object, the returned `mesh3d$vb`
+The surface objects are converted to `'mesh3d'` object before applying
+further calculations.
+
+When `surface` is a surface ieegio object, the returned `mesh3d$vb`
 contains vertices that have been left-multiplied by
 `surface$geometry$transforms[[1]]` (the first transform stored in the
 geometry, typically the `ScannerAnat` or voxel-to-world transform).
 
-**Breaking change:** Earlier versions of ravetools returned the raw
-`surface$geometry$vertices` without applying any transform, so
-downstream code often multiplied by `surface$geometry$transforms[[1]]`
-(or an equivalent) manually before working in world space. Such code
-will now *double* apply the transform and produce incorrect coordinates.
-If you previously applied a transform from `surface$geometry$transforms`
-by hand after calling a ravetools mesh function on an
-`'ieegio_surface'`, remove that manual step.
+**Breaking change:** Earlier versions (before 0.2.6) of ravetools
+returned the raw `surface$geometry$vertices` without applying any
+transform, so downstream code often multiplied by
+`surface$geometry$transforms[[1]]` (or an equivalent) manually before
+working in world space. Such code will now *double* apply the transform
+and produce incorrect coordinates. If you previously applied a transform
+from `surface$geometry$transforms` by hand after calling a ravetools
+mesh function on an `'ieegio_surface'`, remove that manual step.
 
 Surfaces with an empty or missing `geometry$transforms` list (for
 example, surfaces produced by ieegio's `volume_to_surface`, which stores
@@ -233,14 +249,15 @@ plot_mesh_dotcloud(
   lookat = c(0, 0, 0),
   up = c(0, 0, 1),
   col = "steelblue",
-  cex = 0.4
+  cex = 2
 )
 
 
 # Two meshes: surface + electrode point cloud
 n_elec <- 20
 electrodes <- structure(
-  list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec)),
+  list(vb = matrix(rnorm(3 * n_elec, sd = 5), 3, n_elec) +
+         rowMeans(mesh$vb)[1:3]),
   class = "mesh3d"
 )
 plot_mesh_dotcloud(
@@ -250,7 +267,7 @@ plot_mesh_dotcloud(
   up     = c(0, 0, 1),
   col    = list("steelblue", "red"),
   pch    = c(16L, 17L),
-  cex    = c(0.4, 1.2)
+  cex    = c(2, 1.2)
 )
 
 ```
