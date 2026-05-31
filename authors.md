@@ -34,7 +34,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/dipterix/ravetools/blob/master/inst/CITATION)
+[`inst/CITATION`](https://github.com/dipterix/ravetools/blob/v0.2.6/inst/CITATION)
 
 Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE: comprehensive
 open-source software for reproducible analysis and visualization of
