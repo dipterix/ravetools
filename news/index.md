@@ -2,6 +2,8 @@
 
 ## ravetools 0.2.6
 
+CRAN release: 2026-05-31
+
 - Added `plot_mesh_dotcloud` for rendering one or more `mesh3d` objects
   as an orthographic rim-lit dot cloud in base R (no `rgl` dependency);
   supports per-vertex colors, depth-gradient palettes, per-mesh alpha,
