@@ -240,3 +240,64 @@ test_that("design_filter_fir kaiser low-pass matches MATLAB fir1", {
   # Loose tolerance: Wc/beta were entered in MATLAB with only ~7 significant figures
   expect_equal(f$b, b_matlab, tolerance = 1e-4)
 })
+
+# ── Narrow band-stop (notch narrower than the auto transition heuristic) ─────
+
+test_that("design_filter_fir: narrow band-stop with auto transitions succeeds", {
+  # Notch is only 1 Hz wide (24-25 Hz) at sr=2000.  With data_size=NA the
+  # auto suggested_trans_bandwidth is 0.01 (normalized) = 10 Hz, which is
+  # 10x the notch.  The function must silently cap it rather than error.
+  # Note: "remez" requires non-degenerate (non-zero-width) stop bands in its
+  # internal grid and errors on near-zero transitions; that is a separate
+  # gsignal constraint unrelated to this fix.
+  for (method in c("kaiser", "firls")) {
+    f <- design_filter_fir(
+      sample_rate = 2000,
+      high_pass_freq = 25, low_pass_freq = 24,
+      filter_order = 200, method = method
+    )
+    expect_true(inherits(f, "ravetools-design_filter_fir"),
+                label = sprintf("narrow notch returns filter (%s)", method))
+    # Band-stop filters normalise at DC (f0 = 0)
+    expect_equal(
+      fir_gain(f$b, 0), 1.0, tolerance = 1e-6,
+      label = sprintf("narrow notch DC gain = 1 (%s)", method)
+    )
+  }
+})
+
+test_that("design_filter_fir: narrow notch with one explicit transition succeeds", {
+  # low_pass_trans_freq explicitly set to 0.3 Hz (< notch width 1 Hz);
+  # high_pass_trans_freq is NA and will be capped to the remaining room.
+  f <- design_filter_fir(
+    sample_rate = 2000,
+    high_pass_freq = 25, low_pass_freq = 24,
+    low_pass_trans_freq = 0.3,
+    filter_order = 200
+  )
+  expect_true(inherits(f, "ravetools-design_filter_fir"))
+  expect_equal(fir_gain(f$b, 0), 1.0, tolerance = 1e-6)
+})
+
+test_that("design_filter_fir: user-supplied transitions that overlap throw an error", {
+  # Combined explicit transition (1 + 1 = 2 Hz) exceeds 1 Hz notch -> error.
+  expect_error(
+    design_filter_fir(
+      sample_rate = 2000,
+      high_pass_freq = 25, low_pass_freq = 24,
+      low_pass_trans_freq = 1, high_pass_trans_freq = 1,
+      filter_order = 200
+    ),
+    regexp = "transition bandwidths overlap"
+  )
+  # A single explicit transition (1.5 Hz) that alone exceeds the notch -> error.
+  expect_error(
+    design_filter_fir(
+      sample_rate = 2000,
+      high_pass_freq = 25, low_pass_freq = 24,
+      low_pass_trans_freq = 1.5,
+      filter_order = 200
+    ),
+    regexp = "transition bandwidths overlap"
+  )
+})

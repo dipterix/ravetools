@@ -216,10 +216,36 @@ design_filter_fir <- function(
   } else {
     ftype <- "stop"
     w_pass <- c(low_pass_freq, high_pass_freq) / nyquist
+    auto_trans <- is.na(c(low_pass_trans_freq, high_pass_trans_freq))
     w_trans <- c(low_pass_trans_freq, high_pass_trans_freq) / nyquist
-    w_trans[is.na(w_trans)] <- suggested_trans_bandwidth
+    w_trans[auto_trans] <- suggested_trans_bandwidth
 
     w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans), min = 0, max = 1)
+
+    # Guard: stopband edges must not cross. When auto-inferred transitions
+    # are too wide (notch narrower than suggested_trans_bandwidth), silently
+    # cap them so the filter remains constructible. Only error when the
+    # user explicitly supplied transition values that are the cause.
+    if (w_stop[[1]] >= w_stop[[2]]) {
+      notch_width <- w_pass[[2]] - w_pass[[1]]
+      fixed_total <- sum(abs(w_trans[!auto_trans]))
+      if (!any(auto_trans) || fixed_total >= notch_width) {
+        stopifnot2(FALSE, msg = sprintf(
+          paste0(
+            "Band-stop transition bandwidths overlap: notch is %.4g-%.4g Hz ",
+            "(width %.4g Hz) but the combined specified transition bandwidth ",
+            "exceeds it. Set each of `low_pass_trans_freq` and ",
+            "`high_pass_trans_freq` to less than %.4g Hz."
+          ),
+          low_pass_freq, high_pass_freq,
+          notch_width * nyquist,
+          notch_width * nyquist / 2
+        ))
+      }
+      n_auto <- sum(auto_trans)
+      w_trans[auto_trans] <- (notch_width - fixed_total) * (1 - 1e-6) / n_auto
+      w_stop <- clamp( w_pass + c(1, -1) * abs(w_trans), min = 0, max = 1)
+    }
 
     # kaiserord
     bands <- c(w_pass[[1]], w_stop, w_pass[[2]])

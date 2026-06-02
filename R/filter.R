@@ -312,6 +312,11 @@ design_filter_iir <- function(
   stopifnot2(is.finite(stopband_attenuation) && stopband_attenuation > 0,
              msg = "`stopband_attenuation` must be a finite positive number")
 
+  # Track which transition bandwidths were auto-inferred (NA) vs user-supplied;
+  # used in the band-stop branch to decide whether to cap or error on overlap.
+  auto_low_trans <- is.na(low_pass_trans_freq)
+  auto_high_trans <- is.na(high_pass_trans_freq)
+
   # suggested bandwidth if bandwidths are NA
 
   if (is.na(low_pass_trans_freq)) {
@@ -343,9 +348,34 @@ design_filter_iir <- function(
   } else {
     ftype <- "stop"
     w_pass <- c(low_pass_freq, high_pass_freq) / nyquist
+    auto_trans <- c(auto_low_trans, auto_high_trans)
     w_trans <- c(low_pass_trans_freq, high_pass_trans_freq) / nyquist
 
     w_stop <- clamp(w_pass + c(1, -1) * abs(w_trans), min = 0, max = 1)
+
+    # Guard: stopband edges must not cross. Silently cap auto-inferred
+    # transitions when the notch is narrower than the heuristic bandwidth.
+    # Only error when user-supplied values are the cause.
+    if (w_stop[[1]] >= w_stop[[2]]) {
+      notch_width <- w_pass[[2]] - w_pass[[1]]
+      fixed_total <- sum(abs(w_trans[!auto_trans]))
+      if (!any(auto_trans) || fixed_total >= notch_width) {
+        stopifnot2(FALSE, msg = sprintf(
+          paste0(
+            "Band-stop transition bandwidths overlap: notch is %.4g-%.4g Hz ",
+            "(width %.4g Hz) but the combined specified transition bandwidth ",
+            "exceeds it. Set each of `low_pass_trans_freq` and ",
+            "`high_pass_trans_freq` to less than %.4g Hz."
+          ),
+          low_pass_freq, high_pass_freq,
+          notch_width * nyquist,
+          notch_width * nyquist / 2
+        ))
+      }
+      n_auto <- sum(auto_trans)
+      w_trans[auto_trans] <- (notch_width - fixed_total) * (1 - 1e-6) / n_auto
+      w_stop <- clamp(w_pass + c(1, -1) * abs(w_trans), min = 0, max = 1)
+    }
   }
 
   w_stop[w_stop < 0] <- 0

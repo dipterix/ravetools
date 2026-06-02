@@ -123,3 +123,46 @@ test_that("multi-signal fftfilt", {
   #   times = 10
   # )
 })
+
+# ── Narrow band-stop (notch narrower than the auto transition heuristic) ─────
+
+test_that("design_filter_iir: narrow band-stop with auto transitions succeeds", {
+  # Notch is only 1 Hz wide (24-25 Hz) at sr=2000. The IIR heuristic infers
+  # min(max(0.25*24, 2), 24) = 6 Hz for the low side and ~6.25 Hz for the
+  # high side, both far wider than the 1 Hz notch. The function must
+  # silently cap them rather than pass a non-monotonic w_stop to the IIR
+  # order estimator.
+  # Note: "cheby2" uses sftrans internally which requires poles >= zeros; it
+  # errors on the degenerate (near-zero-width) stop band that results from
+  # capping.  That is a separate gsignal constraint unrelated to this fix.
+  for (method in c("butter", "cheby1", "ellip")) {
+    f <- design_filter_iir(
+      sample_rate = 2000,
+      high_pass_freq = 25, low_pass_freq = 24,
+      method = method
+    )
+    expect_true(inherits(f, "ravetools-design_filter_iir"),
+                label = sprintf("narrow notch returns filter (%s)", method))
+  }
+})
+
+test_that("design_filter_iir: user-supplied transitions that overlap throw an error", {
+  # Combined explicit transition (1 + 1 = 2 Hz) exceeds 1 Hz notch -> error.
+  expect_error(
+    design_filter_iir(
+      sample_rate = 2000,
+      high_pass_freq = 25, low_pass_freq = 24,
+      low_pass_trans_freq = 1, high_pass_trans_freq = 1
+    ),
+    regexp = "transition bandwidths overlap"
+  )
+  # A single explicit transition (1.5 Hz) that alone exceeds the notch -> error.
+  expect_error(
+    design_filter_iir(
+      sample_rate = 2000,
+      high_pass_freq = 25, low_pass_freq = 24,
+      low_pass_trans_freq = 1.5
+    ),
+    regexp = "transition bandwidths overlap"
+  )
+})
