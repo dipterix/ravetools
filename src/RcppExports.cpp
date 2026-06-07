@@ -3461,6 +3461,44 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mrisMakeSurfaces
+Rcpp::List mrisMakeSurfaces(SEXP vb_, SEXP it_, SEXP volume_, SEXP ras2ijk_, double white_intensity, double pial_intensity, double max_thickness, double step_size, int n_averages, int niterations, double l_intensity, double l_spring, double momentum, double dt, bool verbose);
+RcppExport SEXP _ravetools_mrisMakeSurfaces(SEXP vb_SEXP, SEXP it_SEXP, SEXP volume_SEXP, SEXP ras2ijk_SEXP, SEXP white_intensitySEXP, SEXP pial_intensitySEXP, SEXP max_thicknessSEXP, SEXP step_sizeSEXP, SEXP n_averagesSEXP, SEXP niterationsSEXP, SEXP l_intensitySEXP, SEXP l_springSEXP, SEXP momentumSEXP, SEXP dtSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type volume_(volume_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ras2ijk_(ras2ijk_SEXP);
+    Rcpp::traits::input_parameter< double >::type white_intensity(white_intensitySEXP);
+    Rcpp::traits::input_parameter< double >::type pial_intensity(pial_intensitySEXP);
+    Rcpp::traits::input_parameter< double >::type max_thickness(max_thicknessSEXP);
+    Rcpp::traits::input_parameter< double >::type step_size(step_sizeSEXP);
+    Rcpp::traits::input_parameter< int >::type n_averages(n_averagesSEXP);
+    Rcpp::traits::input_parameter< int >::type niterations(niterationsSEXP);
+    Rcpp::traits::input_parameter< double >::type l_intensity(l_intensitySEXP);
+    Rcpp::traits::input_parameter< double >::type l_spring(l_springSEXP);
+    Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP);
+    Rcpp::traits::input_parameter< double >::type dt(dtSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrisMakeSurfaces(vb_, it_, volume_, ras2ijk_, white_intensity, pial_intensity, max_thickness, step_size, n_averages, niterations, l_intensity, l_spring, momentum, dt, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mrisCurvature
+Rcpp::List mrisCurvature(SEXP vb_, SEXP it_, bool verbose);
+RcppExport SEXP _ravetools_mrisCurvature(SEXP vb_SEXP, SEXP it_SEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrisCurvature(vb_, it_, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rawToUInt8
 SEXP rawToUInt8(SEXP x);
 RcppExport SEXP _ravetools_rawToUInt8(SEXP xSEXP) {
@@ -4124,6 +4162,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_mrisSmooth", (DL_FUNC) &_ravetools_mrisSmooth, 6},
     {"_ravetools_mrisInflate", (DL_FUNC) &_ravetools_mrisInflate, 11},
     {"_ravetools_mrisSphere", (DL_FUNC) &_ravetools_mrisSphere, 10},
+    {"_ravetools_mrisMakeSurfaces", (DL_FUNC) &_ravetools_mrisMakeSurfaces, 15},
+    {"_ravetools_mrisCurvature", (DL_FUNC) &_ravetools_mrisCurvature, 3},
     {"_ravetools_rawToUInt8", (DL_FUNC) &_ravetools_rawToUInt8, 1},
     {"_ravetools_rawToInt8", (DL_FUNC) &_ravetools_rawToInt8, 1},
     {"_ravetools_rawToUInt16", (DL_FUNC) &_ravetools_rawToUInt16, 1},

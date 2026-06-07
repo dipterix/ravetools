@@ -43,8 +43,8 @@
 #'   (80 triangles per sphere).
 #' @param add logical; if \code{TRUE} the faces are added to an existing plot
 #'   instead of opening a new one.  Default \code{FALSE}.
-#' @param axes,asp,xlim,ylim,xlab,ylab passed to \code{\link[graphics]{plot.default}}
-#'   when \code{add = FALSE}.
+#' @param axes,asp,xlim,ylim,xlab,ylab,main passed to
+#'   \code{\link[graphics]{plot.default}} when \code{add = FALSE}.
 #' @param zoom positive numeric magnification applied to the auto-computed
 #'   axis limits when \code{xlim} or \code{ylim} is \code{NULL}.  Values
 #'   greater than \code{1} zoom in, values in \code{(0, 1)} zoom out.
@@ -179,6 +179,7 @@ plot_mesh_polygon <- function(
     zoom   = 1,
     xlab   = "",
     ylab   = "",
+    main   = "",
     side   = c("front", "back", "both"),
     mesh_clipping = 1,
     sphere_subdivision = 1L,
@@ -479,8 +480,8 @@ plot_mesh_polygon <- function(
       graphics::axis(2)
       graphics::box()
     }
-    if (nzchar(xlab) || nzchar(ylab)) {
-      graphics::title(xlab = xlab, ylab = ylab)
+    if (nzchar(xlab) || nzchar(ylab) || nzchar(main)) {
+      graphics::title(main = main, xlab = xlab, ylab = ylab)
     }
   }
 

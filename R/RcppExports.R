@@ -553,6 +553,14 @@ mrisSphere <- function(vb_, it_, target_radius = 100.0, n_averages = 64L, nitera
     .Call(`_ravetools_mrisSphere`, vb_, it_, target_radius, n_averages, niterations, l_dist, l_area, momentum, dt, verbose)
 }
 
+mrisMakeSurfaces <- function(vb_, it_, volume_, ras2ijk_, white_intensity, pial_intensity, max_thickness = 5.0, step_size = 0.4, n_averages = 4L, niterations = 10L, l_intensity = 1.0, l_spring = 0.5, momentum = 0.9, dt = 0.5, verbose = FALSE) {
+    .Call(`_ravetools_mrisMakeSurfaces`, vb_, it_, volume_, ras2ijk_, white_intensity, pial_intensity, max_thickness, step_size, n_averages, niterations, l_intensity, l_spring, momentum, dt, verbose)
+}
+
+mrisCurvature <- function(vb_, it_, verbose = FALSE) {
+    .Call(`_ravetools_mrisCurvature`, vb_, it_, verbose)
+}
+
 rawToUInt8 <- function(x) {
     .Call(`_ravetools_rawToUInt8`, x)
 }

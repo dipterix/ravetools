@@ -19,6 +19,7 @@ plot_mesh_polygon(
   zoom = 1,
   xlab = "",
   ylab = "",
+  main = "",
   side = c("front", "back", "both"),
   mesh_clipping = 1,
   sphere_subdivision = 1L,
@@ -56,8 +57,8 @@ mesh).  Default \code{c("white", "gray30")}.}
 \item{add}{logical; if \code{TRUE} the faces are added to an existing plot
 instead of opening a new one.  Default \code{FALSE}.}
 
-\item{axes, asp, xlim, ylim, xlab, ylab}{passed to \code{\link[graphics]{plot.default}}
-when \code{add = FALSE}.}
+\item{axes, asp, xlim, ylim, xlab, ylab, main}{passed to
+\code{\link[graphics]{plot.default}} when \code{add = FALSE}.}
 
 \item{zoom}{positive numeric magnification applied to the auto-computed
 axis limits when \code{xlim} or \code{ylim} is \code{NULL}.  Values

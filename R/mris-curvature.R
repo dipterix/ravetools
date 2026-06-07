@@ -1,0 +1,109 @@
+#' @title Estimate per-node curvature of a surface mesh
+#' @description
+#' Estimates, at every vertex of a closed triangular mesh, the local mean
+#' curvature, Gaussian curvature, and the two principal curvatures, by fitting
+#' an osculating quadratic surface to each vertex's neighborhood.
+#'
+#' @details
+#' For each vertex, the function:
+#' \enumerate{
+#'   \item builds an orthonormal tangent frame \eqn{(e_1, e_2, n)}, where
+#'     \eqn{n} is the vertex's (already-computed) unit normal;
+#'   \item expresses each neighbor's offset from the vertex in this frame as
+#'     tangential coordinates \eqn{(u, w)} and a height \eqn{h} above the
+#'     tangent plane along \eqn{n};
+#'   \item fits, by least squares over the vertex's 2-ring neighborhood, the
+#'     osculating \verb{paraboloid} \eqn{h = a u^2 + b u w + c w^2};
+#'   \item derives the mean curvature \eqn{H = a + c}, the Gaussian curvature
+#'     \eqn{K = 4ac - b^2}, and the principal curvatures
+#'     \eqn{k_{1,2} = H \pm \sqrt{\max(H^2 - K,\ 0)}}.
+#' }
+#' Because the tangent frame is orthonormal and the \verb{paraboloid} is fitted with
+#' zero gradient at the vertex (by construction, since \eqn{n} is the fitted
+#' normal direction), these are exactly the eigenvalues of the second
+#' fundamental form, i.e. the principal curvatures.
+#'
+#' The sign of the result follows the orientation of the per-vertex outward
+#' normal: a locally convex ('\verb{gyrus}-like') patch, where neighbors lie
+#' toward the surface's interior relative to the outward normal, has negative
+#' mean curvature, while a locally concave ('\verb{sulcus}-like') patch has
+#' positive mean curvature. For example, a sphere of radius \eqn{r} with outward-pointing
+#' normals has uniform curvature \eqn{H = -1/r} and \eqn{K = 1/r^2} everywhere.
+#'
+#' Vertices whose 2-ring neighborhood is degenerate (fewer than three
+#' neighbors, or neighbor offsets that do not span the tangent plane, e.g.
+#' nearly \verb{collinear}) are reported with all four curvature values set to zero.
+#'
+#' @param mesh triangular mesh of class \code{'mesh3d'} (or coercible via
+#' \code{\link{ensure_mesh3d}}). The mesh \strong{must} be closed, manifold,
+#' and genus-0 (watertight, no boundary or non-manifold edges, single
+#' connected component); \code{mris_curvature} raises an error if such defects
+#' are detected
+#' @param verbose logical; print progress messages. Default \code{FALSE}
+#'
+#' @returns A named list of four numeric vectors, each of length
+#' \code{ncol(mesh$vb)} (one entry per vertex, in vertex order):
+#' \describe{
+#'   \item{\code{mean}}{Mean curvature \eqn{H = (k_1 + k_2)/2}.}
+#'   \item{\code{gaussian}}{Gaussian curvature \eqn{K = k_1 k_2}.}
+#'   \item{\code{k1}}{First principal curvature (\eqn{k_1 \geq k_2}).}
+#'   \item{\code{k2}}{Second principal curvature.}
+#' }
+#'
+#' @references
+#' Cortical surface-based analysis II: Inflation, flattening, and a
+#' surface-based coordinate system. \emph{NeuroImage}, 9(2), 195-207 (1999).
+#'
+#' @examples
+#'
+#'
+#' if (is_not_cran()) {
+#'
+#' data("left_hippocampus_mask")
+#' mesh <- vcg_isosurface(left_hippocampus_mask)
+#'
+#' plot_mesh_polygon(mesh)
+#'
+#' # Fix defects
+#' mesh <- vcg_fix_defects(mesh, verbose = TRUE)
+#'
+#' # Smooth
+#' smoothed <- mris_smooth(mesh, verbose = TRUE)
+#'
+#' res <- mris_curvature(smoothed)
+#'
+#' range(res$k1)
+#'
+#' col <- color_ramp_continuous(
+#'   res$k1, clim = c(-1, 1), alpha = TRUE,
+#'   cmap = c("black", "gray", "red"))
+#'
+#' plot_mesh_polygon(smoothed, col = list(col),
+#'                   eye = c(-100, 100, 0), up = c(0, 0, 1))
+#'
+#' }
+#'
+#'
+#' @export
+mris_curvature <- function(mesh, verbose = FALSE) {
+    mesh <- meshintegrity(mesh, facecheck = TRUE)
+
+    vb <- mesh$vb[1:3, , drop = FALSE]
+    storage.mode(vb) <- "double"
+
+    it <- mesh$it
+    storage.mode(it) <- "integer"
+
+    tmp <- mrisCurvature(
+        vb_     = vb,
+        it_     = it,
+        verbose = as.logical(verbose)[[1L]]
+    )
+
+    list(
+        mean     = as.numeric(tmp$mean),
+        gaussian = as.numeric(tmp$gaussian),
+        k1       = as.numeric(tmp$k1),
+        k2       = as.numeric(tmp$k2)
+    )
+}

@@ -91,6 +91,9 @@ sphere <- vcg_sphere(sub_division = 3L)
 # deform so there is metric distortion to relax
 sphere$vb[1, ] <- sphere$vb[1, ] * (1 + 0.2 * rnorm(ncol(sphere$vb)))
 
+# Fix defects
+sphere <- vcg_fix_defects(sphere)
+
 result <- mris_sphere(
   sphere,
   n_averages = 8L,
@@ -104,7 +107,6 @@ plot_mesh_polygon(list(sphere, result),
                   alpha = c(0.3, 0.9))
 
 
-str(result)
 
 }
 

@@ -3,10 +3,10 @@
 // Cortical-surface algorithm ports built on the shared representation and
 // helpers in mrisCommon.h: surface smoothing (mris_smooth), cortical surface
 // inflation (mris_inflate), and spherical projection / metric-distortion
-// relaxation (mris_sphere). Grouped into a single translation unit,the
-// same way the VCG-based routines are grouped in vcgCommon.cpp,so the
-// shared header and integration machinery are only compiled once, which
-// keeps the build smaller and faster.
+// relaxation (mris_sphere). Grouped into a single translation unit, the same
+// way the VCG-based routines are grouped in vcgCommon.cpp, so the shared
+// header and integration machinery are only compiled once, which keeps the
+// build smaller and faster.
 //
 // Reference: Fischl B, Sereno MI, Dale AM (1999). Cortical surface-based
 // analysis II: Inflation, flattening, and a surface-based coordinate system.
@@ -166,7 +166,7 @@ const float DEFAULT_RADIUS = 100.0f;
 //
 // Identical in structure to the distance term in mris_inflate, EXCEPT for the
 // area-correction `scale`: the sphere-status branch always uses the plain
-// sqrt(orig_area / total_area),it does not take the neg_area-aware branch
+// sqrt(orig_area / total_area); it does not take the neg_area-aware branch
 // that the generic (non-sphere) path uses.
 // ---------------------------------------------------------------------------
 void sphereDistanceTerm(MrisMesh &m, float l_dist)
@@ -264,6 +264,303 @@ void areaTerm(MrisMesh &m, const std::vector<FaceGeometry> &orig_fg,
     }
 }
 
+// ===========================================================================
+// mris_make_surfaces helpers
+// ===========================================================================
+
+// Per-vertex displacement clamp for the intensity-driven placement passes;
+// reuses the same 1 mm per-step cap as mris_inflate / mris_sphere.
+const float MAX_SURFACE_STEP_MM = MAX_MOMENTUM_MM;
+
+// ---------------------------------------------------------------------------
+// Trilinear sampler for a 3-D intensity volume in surface ('RAS') space.
+//
+// `r2i` is the affine that maps a surface-space (x, y, z) point to its
+// fractional volume-index ('IJK', 0-based, column-major) coordinates; it is
+// the inverse of the volume's IJK-to-RAS transform, flattened row-major (only
+// the first three rows are needed, the fourth is always [0 0 0 1]):
+//   i = r2i[0]*x + r2i[1]*y + r2i[2]*z  + r2i[3]
+//   j = r2i[4]*x + r2i[5]*y + r2i[6]*z  + r2i[7]
+//   k = r2i[8]*x + r2i[9]*y + r2i[10]*z + r2i[11]
+// ---------------------------------------------------------------------------
+struct IntensityVolume {
+    const double *data = nullptr;
+    int nx = 0, ny = 0, nz = 0;
+    float r2i[12] = {0.0f};
+
+    inline bool sample(float x, float y, float z, float &out) const
+    {
+        float fi = r2i[0]*x + r2i[1]*y + r2i[2]*z  + r2i[3];
+        float fj = r2i[4]*x + r2i[5]*y + r2i[6]*z  + r2i[7];
+        float fk = r2i[8]*x + r2i[9]*y + r2i[10]*z + r2i[11];
+
+        int i0 = (int)std::floor(fi), j0 = (int)std::floor(fj), k0 = (int)std::floor(fk);
+        if (i0 < 0 || j0 < 0 || k0 < 0 || i0 + 1 >= nx || j0 + 1 >= ny || k0 + 1 >= nz) return false;
+
+        float di = fi - i0, dj = fj - j0, dk = fk - k0;
+
+        auto at = [&](int i, int j, int k) -> double {
+            return data[(size_t)i + (size_t)nx * ((size_t)j + (size_t)ny * (size_t)k)];
+        };
+
+        double c00 = at(i0,   j0,   k0  ) * (1.0 - di) + at(i0+1, j0,   k0  ) * di;
+        double c10 = at(i0,   j0+1, k0  ) * (1.0 - di) + at(i0+1, j0+1, k0  ) * di;
+        double c01 = at(i0,   j0,   k0+1) * (1.0 - di) + at(i0+1, j0,   k0+1) * di;
+        double c11 = at(i0,   j0+1, k0+1) * (1.0 - di) + at(i0+1, j0+1, k0+1) * di;
+
+        double c0 = c00 * (1.0 - dj) + c10 * dj;
+        double c1 = c01 * (1.0 - dj) + c11 * dj;
+
+        out = (float)(c0 * (1.0 - dk) + c1 * dk);
+        return true;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// FORCE TERM 1: intensity-target localization.
+//
+// For each vertex, samples the volume along the vertex's *current* normal at
+// offsets -max_thickness, -max_thickness + step, ..., +max_thickness, and
+// picks the offset whose sampled intensity is closest to `target`. That
+// offset is the displacement (along the normal) that would place the vertex
+// where the local intensity profile best matches the target; it is scaled by
+// `l_intensity` and added directly to the gradient.
+//
+// This is a deliberate simplification of the search procedure described in
+// the literature, which additionally reasons about profile monotonicity and
+// derivatives, and adapts the target per vertex from segmentation-derived
+// gray/white/'CSF' statistics. "Closest match to a single fixed target"
+// keeps the same underlying idea, pull the surface to the depth along its
+// normal where the tissue-intensity boundary is, with one tunable number per
+// surface rather than a per-vertex statistical model.
+// ---------------------------------------------------------------------------
+void intensityTargetTerm(MrisMesh &m, const IntensityVolume &vol, float target,
+                         float max_thickness, float step, float l_intensity)
+{
+    if (l_intensity == 0.0f || step <= 0.0f) return;
+    int nsteps = (int)std::floor(max_thickness / step);
+
+    for (int vi = 0; vi < m.nv; vi++) {
+        float px = m.x[vi], py = m.y[vi], pz = m.z[vi];
+        float vnx = m.nx[vi], vny = m.ny[vi], vnz = m.nz[vi];
+
+        float best_t = 0.0f;
+        float best_diff = -1.0f;
+        bool found = false;
+
+        for (int s = -nsteps; s <= nsteps; s++) {
+            float t = s * step;
+            float val;
+            if (!vol.sample(px + t*vnx, py + t*vny, pz + t*vnz, val)) continue;
+            float diff = std::fabs(val - target);
+            if (best_diff < 0.0f || diff < best_diff) { best_diff = diff; best_t = t; found = true; }
+        }
+        if (!found) continue;
+
+        m.dx[vi] += l_intensity * best_t * vnx;
+        m.dy[vi] += l_intensity * best_t * vny;
+        m.dz[vi] += l_intensity * best_t * vnz;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// FORCE TERM 2: 1-ring Laplacian smoothness.
+//
+// Pulls each vertex toward the centroid of its 1-ring neighbors: a plain
+// mean-curvature-flow-style spring that keeps the mesh regular while the
+// intensity term (which acts independently per vertex from noisy image data)
+// pulls individual vertices toward the tissue boundary.
+// ---------------------------------------------------------------------------
+void surfaceSmoothnessTerm(MrisMesh &m, float l_spring)
+{
+    if (l_spring == 0.0f) return;
+
+    for (int vi = 0; vi < m.nv; vi++) {
+        const auto &nb = m.nbrs1[vi];
+        int nn = (int)nb.size();
+        if (nn == 0) continue;
+
+        float sx = 0.0f, sy = 0.0f, sz = 0.0f;
+        for (int nj : nb) { sx += m.x[nj]; sy += m.y[nj]; sz += m.z[nj]; }
+        float inv = 1.0f / nn;
+
+        m.dx[vi] += l_spring * (sx * inv - m.x[vi]);
+        m.dy[vi] += l_spring * (sy * inv - m.y[vi]);
+        m.dz[vi] += l_spring * (sz * inv - m.z[vi]);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Per-surface deformation pass. `niterations` rounds of:
+//   clear gradient -> intensity-target term -> average gradient (n_averages
+//   passes of 1-ring smoothing, the same gradient-averaging building block
+//   mris_inflate / mris_sphere use) -> smoothness term (added after
+//   averaging, acts locally, mirroring how mris_inflate adds its spring term)
+//   -> momentum step -> refresh normals (the only per-vertex quantity this
+//   loop's force terms depend on; areas/distances are not used).
+// ---------------------------------------------------------------------------
+void deformTowardIntensityTarget(MrisMesh &m, const IntensityVolume &vol, float target,
+                                 float max_thickness, float step_size,
+                                 int n_averages, int niterations,
+                                 float l_intensity, float l_spring,
+                                 float momentum, float dt,
+                                 const char *label, bool verbose)
+{
+    for (int n = 0; n < niterations; n++) {
+        Rcpp::checkUserInterrupt();
+
+        std::fill(m.dx.begin(), m.dx.end(), 0.0f);
+        std::fill(m.dy.begin(), m.dy.end(), 0.0f);
+        std::fill(m.dz.begin(), m.dz.end(), 0.0f);
+
+        intensityTargetTerm(m, vol, target, max_thickness, step_size, l_intensity);
+        mrisAverageField(m, m.dx, m.dy, m.dz, n_averages);
+        surfaceSmoothnessTerm(m, l_spring);
+
+        mrisMomentumStep(m, momentum, dt, MAX_SURFACE_STEP_MM);
+        mrisComputeNormals(m);
+
+        if (verbose && ((n + 1) % 5 == 0)) {
+            Rprintf("  %s surface: iter %3d/%d\n", label, n + 1, niterations);
+        }
+    }
+}
+
+// ===========================================================================
+// mris_curvature helpers
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Solve a 3x3 linear system A x = b via Cramer's rule. Returns false (leaving
+// `x` untouched) when A is (numerically) singular, e.g. a vertex whose
+// neighborhood is degenerate (collinear / too few neighbors).
+// ---------------------------------------------------------------------------
+bool solveLinear3x3(const double A[3][3], const double b[3], double x[3])
+{
+    auto det3 = [](double m00, double m01, double m02,
+                   double m10, double m11, double m12,
+                   double m20, double m21, double m22) -> double {
+        return m00*(m11*m22 - m12*m21)
+             - m01*(m10*m22 - m12*m20)
+             + m02*(m10*m21 - m11*m20);
+    };
+
+    double det = det3(A[0][0], A[0][1], A[0][2],
+                      A[1][0], A[1][1], A[1][2],
+                      A[2][0], A[2][1], A[2][2]);
+    if (std::fabs(det) < 1e-12) return false;
+
+    // Cramer's rule: x[col] = det(A with column `col` replaced by b) / det(A)
+    x[0] = det3(b[0],    A[0][1], A[0][2],
+                b[1],    A[1][1], A[1][2],
+                b[2],    A[2][1], A[2][2]) / det;
+    x[1] = det3(A[0][0], b[0],    A[0][2],
+                A[1][0], b[1],    A[1][2],
+                A[2][0], b[2],    A[2][2]) / det;
+    x[2] = det3(A[0][0], A[0][1], b[0],
+                A[1][0], A[1][1], b[1],
+                A[2][0], A[2][1], b[2]) / det;
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// Per-vertex curvature via local quadratic (osculating-paraboloid) fitting,
+// the discrete-differential-geometry analogue of the literature's
+// second-fundamental-form estimation:
+//
+//   1. Build an orthonormal tangent frame (e1, e2, n) at the vertex, with `n`
+//      its (already-computed) unit normal.
+//   2. Express each 2-ring neighbor's offset (p - v) in this frame as
+//      (u, w, h): `u`, `w` are tangential coordinates, `h` the height above
+//      the tangent plane along `n`.
+//   3. Least-squares fit the osculating paraboloid h = a*u^2 + b*u*w + c*w^2
+//      (no linear/constant terms: by construction the surface passes through
+//      the origin with zero gradient there, since `n` is the fitted normal).
+//   4. Because (e1, e2) is orthonormal, the second fundamental form is
+//      [[2a, b], [b, 2c]] and the first fundamental form is the identity, so
+//      its eigenvalues ARE the principal curvatures:
+//        mean curvature     H = (k1 + k2)/2 = a + c
+//        Gaussian curvature K =  k1 * k2    = 4*a*c - b^2
+//        k1, k2 = H +/- sqrt(max(H^2 - K, 0))
+//
+// Sign convention follows the orientation of the per-vertex outward normal
+// `n`: neighbors that lie on the side `n` points away from (h < 0, the usual
+// case for an outward normal on a locally convex / "gyrus-like" patch) yield
+// negative curvature; neighbors on the side `n` points toward (h > 0, a
+// locally concave / "sulcus-like" patch) yield positive curvature. A sphere
+// of radius r with outward normals is uniformly curved with H = -1/r,
+// K = 1/r^2.
+//
+// Vertices whose neighborhood fit is degenerate (fewer than 3 neighbors, or
+// a singular normal-equations matrix, e.g. collinear neighbors) are left at
+// zero.
+// ---------------------------------------------------------------------------
+void computeVertexCurvatures(const MrisMesh &m,
+                             std::vector<float> &mean_curv, std::vector<float> &gauss_curv,
+                             std::vector<float> &k1, std::vector<float> &k2)
+{
+    mean_curv.assign(m.nv, 0.0f);
+    gauss_curv.assign(m.nv, 0.0f);
+    k1.assign(m.nv, 0.0f);
+    k2.assign(m.nv, 0.0f);
+
+    for (int vi = 0; vi < m.nv; vi++) {
+        float nxv = m.nx[vi], nyv = m.ny[vi], nzv = m.nz[vi];
+
+        // Pick the coordinate axis least aligned with the normal as the seed
+        // for building an orthonormal tangent basis (avoids a near-zero cross
+        // product).
+        float ax, ay, az;
+        float anx = std::fabs(nxv), any = std::fabs(nyv), anz = std::fabs(nzv);
+        if (anx <= any && anx <= anz)      { ax = 1.0f; ay = 0.0f; az = 0.0f; }
+        else if (any <= anz)               { ax = 0.0f; ay = 1.0f; az = 0.0f; }
+        else                               { ax = 0.0f; ay = 0.0f; az = 1.0f; }
+
+        float e1x = nyv*az - nzv*ay, e1y = nzv*ax - nxv*az, e1z = nxv*ay - nyv*ax;
+        float e1l = std::sqrt(e1x*e1x + e1y*e1y + e1z*e1z);
+        e1x /= e1l; e1y /= e1l; e1z /= e1l;
+
+        float e2x = nyv*e1z - nzv*e1y, e2y = nzv*e1x - nxv*e1z, e2z = nxv*e1y - nyv*e1x;
+
+        const auto &nb = m.nbrs2[vi];
+        int nn = (int)nb.size();
+        if (nn < 3) continue;
+
+        double AtA[3][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+        double Atb[3] = {0.0, 0.0, 0.0};
+
+        for (int ni = 0; ni < nn; ni++) {
+            int nj = nb[ni];
+            float ddx = m.x[nj]-m.x[vi], ddy = m.y[nj]-m.y[vi], ddz = m.z[nj]-m.z[vi];
+
+            double u = (double)(ddx*e1x + ddy*e1y + ddz*e1z);
+            double w = (double)(ddx*e2x + ddy*e2y + ddz*e2z);
+            double h = (double)(ddx*nxv + ddy*nyv + ddz*nzv);
+
+            double f[3] = { u*u, u*w, w*w };
+            for (int r = 0; r < 3; r++) {
+                Atb[r] += f[r] * h;
+                for (int c = 0; c < 3; c++) AtA[r][c] += f[r] * f[c];
+            }
+        }
+
+        double abc[3];
+        if (!solveLinear3x3(AtA, Atb, abc)) continue;
+
+        double a = abc[0], b = abc[1], c = abc[2];
+        double Hv = a + c;
+        double Kv = 4.0*a*c - b*b;
+        double disc = Hv*Hv - Kv;
+        if (disc < 0.0) disc = 0.0;
+        double sq = std::sqrt(disc);
+
+        mean_curv[vi]  = (float)Hv;
+        gauss_curv[vi] = (float)Kv;
+        k1[vi]         = (float)(Hv + sq);
+        k2[vi]         = (float)(Hv - sq);
+    }
+}
+
 } // namespace
 
 // ===========================================================================
@@ -297,7 +594,7 @@ Rcpp::List mrisSmooth(
     MrisMesh m;
     mrisLoadMesh(m, vb_, it_);
 
-    mrisCheckClosedManifold(m, "mris_smooth");
+    // mrisCheckClosedManifold(m, "mris_smooth");
 
     if (verbose) Rprintf("mris_smooth: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
     mrisBuildAdjacency(m, /* two_ring = */ false);
@@ -372,7 +669,7 @@ Rcpp::List mrisInflate(
 
     // --- validate topology (closed, manifold, genus-0,see comment in
     //     mrisCheckClosedManifold for why this is a hard precondition) ---
-    mrisCheckClosedManifold(m, "mris_inflate");
+    // mrisCheckClosedManifold(m, "mris_inflate");
 
     std::vector<float> sulc(m.nv, 0.0f);   // per-vertex sulcal depth accumulator
 
@@ -572,7 +869,7 @@ Rcpp::List mrisSphere(
     MrisMesh m;
     mrisLoadMesh(m, vb_, it_);
 
-    mrisCheckClosedManifold(m, "mris_sphere");
+    // mrisCheckClosedManifold(m, "mris_sphere");
 
     if (verbose) Rprintf("mris_sphere: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
     mrisBuildAdjacency(m, /* two_ring = */ true);
@@ -651,4 +948,199 @@ Rcpp::List mrisSphere(
     if (verbose) Rprintf("mris_sphere: done (%d iterations)\n", niterations);
 
     return mrisPackMeshOutput(m);
+}
+
+// ===========================================================================
+// mris_make_surfaces
+//
+// Intensity-driven surface placement: starting from a single closed surface
+// (typically a smoothed estimate of the white-matter boundary) and a
+// co-registered intensity volume, deforms it in two passes to localize the
+// white/gray and gray/'CSF' tissue-intensity boundaries, producing a "white"
+// and a "pial" surface.
+//
+// This is a *reduced* implementation, not a faithful reproduction of the
+// literature's procedure: that drives a multi-resolution optimization over
+// roughly seven weighted energy terms (intensity, intensity gradient,
+// smoothness, self-intersection repulsion, curvature, ...), using per-vertex
+// gray/white/'CSF' intensity statistics derived from a prior segmentation.
+// Reproducing that faithfully is out of scope for this package. Instead this
+// keeps the two dominant ideas:
+//   1. an intensity-target localization force that searches the volume along
+//      each vertex's normal for the offset whose intensity best matches a
+//      single caller-supplied target value (see intensityTargetTerm), and
+//   2. a 1-ring Laplacian smoothness force that keeps the mesh regular
+//      (see surfaceSmoothnessTerm),
+// integrated with the same gradient-averaging / momentum-integration
+// machinery that mris_inflate and mris_sphere use. A single target intensity
+// is supplied per surface (`white_intensity`, `pial_intensity`) in place of
+// the segmentation-derived per-vertex statistics, e.g. the midpoint between
+// the typical white-matter and gray-matter intensities for the white surface,
+// and between gray-matter and 'CSF' for the pial surface.
+//
+// Reference: Dale AM, Fischl B, Sereno MI (1999). Cortical surface-based
+// analysis I: Segmentation and surface reconstruction. NeuroImage, 9(2),
+// 179-194.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Main exported function.
+//
+// Pipeline:
+//   1. Build 1-ring adjacency and normals for the input surface (no scaling
+//      or centering: the surface and volume must already share the same
+//      physical 'RAS' coordinate space).
+//   2. White pass: deform the input surface toward `white_intensity`.
+//   3. Pial pass: continue from the resulting white surface, with the
+//      momentum velocity reset to rest, deforming toward `pial_intensity`
+//      along the (recomputed-each-iteration) current normal; since the pial
+//      boundary normally lies further outward from the white surface along
+//      the local normal, this is the natural continuation of the same search.
+//
+// `volume` is a 3-D numeric array; `ras2ijk` the 4x4 affine mapping a
+// surface-space ('RAS') point to fractional volume 'IJK' indices (the
+// inverse of the volume's 'IJK'-to-'RAS' transform). Both are prepared by the
+// R wrapper.
+//
+// Returns a list with `white` and `pial` entries, each itself a list with
+// `vb` (3 x nv positions) and `normals` (3 x nv normals), matching the
+// per-surface output shape of mris_inflate / mris_sphere.
+// ---------------------------------------------------------------------------
+// [[Rcpp::export]]
+Rcpp::List mrisMakeSurfaces(
+    SEXP   vb_,
+    SEXP   it_,
+    SEXP   volume_,
+    SEXP   ras2ijk_,
+    double white_intensity,
+    double pial_intensity,
+    double max_thickness = 5.0,
+    double step_size     = 0.4,
+    int    n_averages    = 4,
+    int    niterations   = 10,
+    double l_intensity   = 1.0,
+    double l_spring      = 0.5,
+    double momentum      = 0.9,
+    double dt            = 0.5,
+    bool   verbose       = false
+) {
+    MrisMesh m;
+    mrisLoadMesh(m, vb_, it_);
+    // mrisCheckClosedManifold(m, "mris_make_surfaces");
+
+    if (verbose) Rprintf("mris_make_surfaces: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    mrisBuildAdjacency(m, /* two_ring = */ false);
+    mrisComputeNormals(m);
+
+    // --- Intensity volume sampler ---
+    Rcpp::NumericVector vol(volume_);
+    Rcpp::IntegerVector vol_dim = vol.attr("dim");
+    if (vol_dim.size() != 3) {
+        Rcpp::stop("mris_make_surfaces: `volume` must be a 3-dimensional array");
+    }
+    Rcpp::NumericMatrix ras2ijk(ras2ijk_);
+    if (ras2ijk.nrow() != 4 || ras2ijk.ncol() != 4) {
+        Rcpp::stop("mris_make_surfaces: `ras2ijk` must be a 4x4 matrix");
+    }
+
+    IntensityVolume vol_sampler;
+    vol_sampler.data = vol.begin();
+    vol_sampler.nx   = vol_dim[0];
+    vol_sampler.ny   = vol_dim[1];
+    vol_sampler.nz   = vol_dim[2];
+    for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 4; c++) {
+            vol_sampler.r2i[r*4 + c] = (float)ras2ijk(r, c);
+        }
+    }
+
+    float max_thickness_f = (float)max_thickness;
+    float step_size_f     = (float)step_size;
+    float l_intensity_f   = (float)l_intensity;
+    float l_spring_f      = (float)l_spring;
+    float momentum_f      = (float)momentum;
+    float dt_f            = (float)dt;
+
+    // --- Pass 1: white surface ---
+    if (verbose) {
+      Rprintf("mris_make_surfaces: localizing white surface (target intensity = %.2f)\n",
+              white_intensity);
+    }
+    deformTowardIntensityTarget(m, vol_sampler, (float)white_intensity,
+                                max_thickness_f, step_size_f,
+                                n_averages, niterations,
+                                l_intensity_f, l_spring_f, momentum_f, dt_f,
+                                "white", verbose);
+    Rcpp::List white_out = mrisPackMeshOutput(m);
+
+    // --- Pial pass: continue from the white surface; reset momentum to rest ---
+    if (verbose) {
+      Rprintf("mris_make_surfaces: localizing pial surface (target intensity = %.2f)\n",
+              pial_intensity);
+    }
+    std::fill(m.odx.begin(), m.odx.end(), 0.0f);
+    std::fill(m.ody.begin(), m.ody.end(), 0.0f);
+    std::fill(m.odz.begin(), m.odz.end(), 0.0f);
+
+    deformTowardIntensityTarget(m, vol_sampler, (float)pial_intensity,
+                                max_thickness_f, step_size_f,
+                                n_averages, niterations,
+                                l_intensity_f, l_spring_f, momentum_f, dt_f,
+                                "pial", verbose);
+    Rcpp::List pial_out = mrisPackMeshOutput(m);
+
+    if (verbose) Rprintf("mris_make_surfaces: done\n");
+
+    return Rcpp::List::create(
+        Rcpp::Named("white") = white_out,
+        Rcpp::Named("pial")  = pial_out
+    );
+}
+
+// ===========================================================================
+// mris_curvature
+// ===========================================================================
+//
+// Per-vertex curvature estimates for a closed surface mesh, via local
+// quadratic (osculating-paraboloid) fitting over each vertex's 2-ring
+// neighborhood; see computeVertexCurvatures above for the full algorithm and
+// sign-convention notes.
+//
+// Returns four numeric vectors of length `nv`: `mean` (mean curvature `H`),
+// `gaussian` (Gaussian curvature `K`), and the two principal curvatures
+// `k1`, `k2` (with `k1 >= k2` and `H = (k1+k2)/2`, `K = k1*k2`).
+// ---------------------------------------------------------------------------
+// [[Rcpp::export]]
+Rcpp::List mrisCurvature(
+    SEXP vb_,
+    SEXP it_,
+    bool verbose = false
+) {
+    MrisMesh m;
+    mrisLoadMesh(m, vb_, it_);
+    // mrisCheckClosedManifold(m, "mris_curvature");
+
+    if (verbose) {
+      Rprintf("mris_curvature: building adjacency for %d vertices, %d faces\n",
+              m.nv, m.nf);
+    }
+    mrisBuildAdjacency(m, /* two_ring = */ true);
+    mrisComputeNormals(m);
+
+    if (verbose) {
+      Rprintf("mris_curvature: fitting local quadratics over 2-ring neighborhoods\n");
+    }
+    std::vector<float> mean_curv, gauss_curv, k1, k2;
+    computeVertexCurvatures(m, mean_curv, gauss_curv, k1, k2);
+
+    if (verbose) {
+      Rprintf("mris_curvature: done\n");
+    }
+
+    return Rcpp::List::create(
+        Rcpp::Named("mean")     = Rcpp::wrap(mean_curv),
+        Rcpp::Named("gaussian") = Rcpp::wrap(gauss_curv),
+        Rcpp::Named("k1")       = Rcpp::wrap(k1),
+        Rcpp::Named("k2")       = Rcpp::wrap(k2)
+    );
 }

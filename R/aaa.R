@@ -232,3 +232,42 @@ lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NU
   }
   ret
 }
+
+
+color_ramp_continuous <- function(values, clim = range(values, na.rm = TRUE),
+                                  cmap = grDevices::hcl.colors(11), ...) {
+  clim[is.finite(clim)]
+  if (!length(clim)) {
+    stop("Value range is invalid: the value range must be finite values")
+  }
+  clim <- range(clim, na.rm = TRUE)
+  span <- clim[[2]] - clim[[1]]
+  if (span <= 0) { span <- 1}
+  values_01 <- (values - clim[[1]]) / span
+
+  values_01[values_01 < 0] <- 0
+  values_01[values_01 > 1] <- 1
+
+  # cmap is either a vector or a function returned by colorRamp
+  if (!is.function(cmap)) {
+    cmap <- grDevices::colorRamp(colors = cmap, ...)
+  }
+  cmap <- cmap(values_01)
+  if (ncol(cmap) >= 4) {
+    col <- grDevices::rgb(
+      red = cmap[, 1],
+      green = cmap[, 2],
+      blue = cmap[, 3],
+      alpha =  cmap[, 4],
+      maxColorValue = 255
+    )
+  } else {
+    col <- grDevices::rgb(
+      red = cmap[, 1],
+      green = cmap[, 2],
+      blue = cmap[, 3],
+      maxColorValue = 255
+    )
+  }
+  col
+}
