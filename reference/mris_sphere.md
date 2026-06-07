@@ -124,6 +124,9 @@ sphere <- vcg_sphere(sub_division = 3L)
 # deform so there is metric distortion to relax
 sphere$vb[1, ] <- sphere$vb[1, ] * (1 + 0.2 * rnorm(ncol(sphere$vb)))
 
+# Fix defects
+sphere <- vcg_fix_defects(sphere)
+
 result <- mris_sphere(
   sphere,
   n_averages = 8L,
@@ -137,19 +140,13 @@ plot_mesh_polygon(list(sphere, result),
                   alpha = c(0.3, 0.9))
 
 
-str(result)
 
 }
 #> mris_sphere: building adjacency for 642 vertices, 1280 faces
 #> mris_sphere: projecting onto sphere of radius 1.00
-#> mris_sphere: starting unfolding, initial neg_area=0.4502 (total_area=12.9263)
-#>   iter   5: neg_area=0.48446 (total_area=12.9563)
-#>   iter  10: neg_area=0.55859 (total_area=13.0220)
+#> mris_sphere: starting unfolding, initial neg_area=0.4999 (total_area=12.9821)
+#>   iter   5: neg_area=0.53725 (total_area=13.0182)
+#>   iter  10: neg_area=0.61820 (total_area=13.0965)
 #> mris_sphere: done (10 iterations)
 
-#> List of 3
-#>  $ vb     : num [1:4, 1:642] 0.4267 0.901 0.0811 1 0.505 ...
-#>  $ it     : int [1:3, 1:1280] 1 2 3 4 1 3 5 2 1 6 ...
-#>  $ normals: num [1:4, 1:642] 0.4005 0.9153 0.0425 1 0.361 ...
-#>  - attr(*, "class")= chr "mesh3d"
 ```

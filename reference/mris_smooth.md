@@ -68,12 +68,16 @@ For each of `npasses` passes, the algorithm:
 ## Examples
 
 ``` r
+
 if (is_not_cran()) {
 
 sphere <- vcg_sphere(sub_division = 4L)
 
 # roughen the sphere slightly so smoothing has something to do
 sphere$vb[1, ] <- sphere$vb[1, ] * (1 + 0.05 * rnorm(ncol(sphere$vb)))
+
+# Fix defects
+sphere <- vcg_fix_defects(sphere)
 
 smoothed <- mris_smooth(sphere, niterations = 5L, verbose = TRUE)
 

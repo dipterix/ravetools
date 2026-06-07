@@ -43,6 +43,7 @@ plot_mesh_polygon(
   zoom = 1,
   xlab = "",
   ylab = "",
+  main = "",
   side = c("front", "back", "both"),
   mesh_clipping = 1,
   sphere_subdivision = 1L,
@@ -97,7 +98,7 @@ plot_mesh_polygon(
   logical; if `TRUE` the faces are added to an existing plot instead of
   opening a new one. Default `FALSE`.
 
-- axes, asp, xlim, ylim, xlab, ylab:
+- axes, asp, xlim, ylim, xlab, ylab, main:
 
   passed to
   [`plot.default`](https://rdrr.io/r/graphics/plot.default.html) when

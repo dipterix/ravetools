@@ -26,6 +26,9 @@
 - [`collapse()`](https://dipterix.org/ravetools/reference/collapse.md) :
   Collapse array
 
+- [`color_ramp_continuous()`](https://dipterix.org/ravetools/reference/color_ramp_continuous.md)
+  : Map continuous values to colors
+
 - [`convolve_signal()`](https://dipterix.org/ravetools/reference/convolve.md)
   [`convolve_image()`](https://dipterix.org/ravetools/reference/convolve.md)
   [`convolve_volume()`](https://dipterix.org/ravetools/reference/convolve.md)
@@ -143,8 +146,16 @@
 - [`mesh_from_volume()`](https://dipterix.org/ravetools/reference/mesh_from_volume.md)
   : Generate 3D mesh surface from volume data
 
+- [`mris_curvature()`](https://dipterix.org/ravetools/reference/mris_curvature.md)
+  : Estimate per-node curvature of a surface mesh
+
 - [`mris_inflate()`](https://dipterix.org/ravetools/reference/mris_inflate.md)
   : Inflate a cortical surface mesh
+
+- [`mris_make_surfaces()`](https://dipterix.org/ravetools/reference/mris_make_surfaces.md)
+  :
+
+  Localize white-matter and `pial` surfaces from an intensity volume
 
 - [`mris_smooth()`](https://dipterix.org/ravetools/reference/mris_smooth.md)
   : Smooth a surface mesh
