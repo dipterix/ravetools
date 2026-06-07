@@ -308,7 +308,7 @@ static void VertexMaxCurvFromCurvatureDir(MeshType &m)
  * 
  * J. Koenderink and A. van Doorn. 
  * Surface shape and curvature scales. 
- * Image and vision computing, 10(8):557–565, 1992.
+ * Image and vision computing, 10(8):557-565, 1992.
  */
 
 static void VertexShapeIndexFromCurvatureDir(MeshType &m)
@@ -331,7 +331,7 @@ static void VertexShapeIndexFromCurvatureDir(MeshType &m)
  * 
  * J. Koenderink and A. van Doorn. 
  * Surface shape and curvature scales. 
- * Image and vision computing, 10(8):557–565, 1992.
+ * Image and vision computing, 10(8):557-565, 1992.
  */
 static void VertexCurvednessFromCurvatureDir(MeshType &m)
 {

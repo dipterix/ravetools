@@ -464,7 +464,7 @@ public:
     enum PolyQualityType{QAngle,QPlanar,QTemplate};
 
     /*! \brief update the quality of the faces by considering different possibilities
-     * QAngle   = consider the angle deviation from ideal one (ex 90° quad, 60° triangle...)
+     * QAngle   = consider the angle deviation from ideal one (ex 90 deg quad, 60 deg triangle...)
      * QPlanar  = consider the difference wrt interpolating plane
      * QTemplate= consider the difference wrt template polygon as in "Statics Aware Grid Shells"
     */

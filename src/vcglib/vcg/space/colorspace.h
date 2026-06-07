@@ -71,13 +71,13 @@
  ILLUMINANT F7 - BROAD BAND DAYLIGHT (BROAD BAND WHITE FLUORESCENT)
 
  The CIE standard Illuminant F7 represents a broad band daylight fluorescent source.
- Examples of this type of source are the GE® and Philips® Daylight fluorescent sources.
+ Examples of this type of source are the GE and Philips Daylight fluorescent sources.
 
  ILLUMINANT F11 - NARROW BAND WHITE (TL84 FLUORESCENT)
 
  The CIE standard illuminant F11 represents a narrow band white fluorescent source.
- Sources similar to this illuminant are the Philips® F40AX41 and TL841, as
- well as the GE® SPX41.
+ Sources similar to this illuminant are the Philips F40AX41 and TL841, as
+ well as the GE SPX41.
 
  ILLUMINANT F12 - ULTRALUME 3000 FLUORESCENT
 
@@ -1473,7 +1473,7 @@ public:
 
         if (delta < 0.00000000001)   // This is a gray, no chroma...
         {
-            H = 0.0;                   // HSV results = 0 ÷ 1
+            H = 0.0;                   // HSV results = 0 - 1
             S = 0.0;
         }
         else                         // Chromatic data...

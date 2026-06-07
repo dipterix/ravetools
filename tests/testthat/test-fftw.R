@@ -264,7 +264,7 @@ test_that("mvfftw_c2r", {
   xx <- x + 1
 
   # --- half-spectrum from r2c (nrows=51 -> retrows=100) ---
-  half <- ravetools:::mvfftw_r2c(x)                 # 51 × 10 complex
+  half <- ravetools:::mvfftw_r2c(x)                 # 51 x 10 complex
   half2 <- ravetools:::mvfftw_r2c(xx - 1)
 
   # input validation
@@ -301,7 +301,7 @@ test_that("mvfftw_c2r", {
   # --- odd retrows (101 rows of output) ---
   # build half-spectrum from a 101-row real matrix
   x_odd <- matrix(rnorm(1010), nrow = 101, ncol = 10)
-  half_odd <- ravetools:::mvfftw_r2c(x_odd)         # 51 × 10 (nc = 51)
+  half_odd <- ravetools:::mvfftw_r2c(x_odd)         # 51 x 10 (nc = 51)
   result_odd <- ravetools:::mvfftw_c2r(half_odd, retrows = 101L)
   expect_true(is.matrix(result_odd))
   expect_equal(dim(result_odd), c(101L, 10L))

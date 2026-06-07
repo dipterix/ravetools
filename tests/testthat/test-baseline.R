@@ -241,7 +241,7 @@ test_that("Baseline", {
 
 test_that("Baseline - db_zscore and guard conditions", {
 
-  # ── Normal cases ──────────────────────────────────────────────────────────
+  # -- Normal cases ----------------------------------------------------------
 
   set.seed(0)
   dm <- c(5, 40, 10, 6)
@@ -275,7 +275,7 @@ test_that("Baseline - db_zscore and guard conditions", {
   }), dm[c(2, 3, 1, 4)]), c(3, 1, 2, 4))
   expect_equal(act, exp)
 
-  # ── db_zscore guard: all-zero baseline (bl_sd = 0) ───────────────────────
+  # -- db_zscore guard: all-zero baseline (bl_sd = 0) -----------------------
 
   x <- array(0, dm)
   exp <- x
@@ -298,7 +298,7 @@ test_that("Baseline - db_zscore and guard conditions", {
   )
   expect_equal(act, exp)
 
-  # ── db_zscore guard: constant baseline (bl_sd = 0) ───────────────────────
+  # -- db_zscore guard: constant baseline (bl_sd = 0) -----------------------
   # All baseline values identical (> 0) -> sd(log10(bl)) = 0 -> output 0
 
   x <- array(1, dm)
@@ -322,7 +322,7 @@ test_that("Baseline - db_zscore and guard conditions", {
   )
   expect_equal(act, exp)
 
-  # ── decibel guard fix: geometric mean of baseline = 1 ────────────────────
+  # -- decibel guard fix: geometric mean of baseline = 1 --------------------
   # mean(log10(bl)) == 0 but there are valid baseline values.
   # Old guard (bl_mean == 0.0) would incorrectly zero out all output.
   # New guard (bl_valid_len == 0) correctly computes 10*(log10(x) - 0).

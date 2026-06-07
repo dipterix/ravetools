@@ -602,7 +602,7 @@ It simply add signed noise to the color of the mesh. The noise has uniform distr
 	}
 
 	//Performs contrast operations on color, i.e expands or compress the histogram around
-	//the midpoint value.  NewValue = (OldValue - 128) ◊ factor + 128
+	//the midpoint value.  NewValue = (OldValue - 128) * factor + 128
 	static Color4b ColorMul(Color4b c, float factor)
 	{
 		return Color4b( ValueMul(c[0], factor), ValueMul(c[1], factor), ValueMul(c[2], factor), 1);

@@ -102,7 +102,7 @@ static void UniformCone(int vn, std::vector<Point3<ScalarType > > &NN, ScalarTyp
   }
  }
 
-// This is an Implementation of the Dave Rusin’s Disco Ball algorithm
+// This is an Implementation of the Dave Rusin's Disco Ball algorithm
 // You can spread the points as follows:
 // Put  N+1  points on the meridian from north to south poles, equally spaced.
 // If you swing this meridian around the sphere, you'll sweep out the entire

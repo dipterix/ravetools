@@ -96,13 +96,13 @@ public:
   // Sets this matrix as a translation transform from vector the v,
   Matrix4& makeTranslation(Vector3& v);
 
-  // Sets this matrix as a rotational transformation around the X axis by theta (θ) radians.
+  // Sets this matrix as a rotational transformation around the X axis by theta radians.
   Matrix4& makeRotationX(const double& theta);
 
-  // Sets this matrix as a rotational transformation around the Y axis by theta (θ) radians.
+  // Sets this matrix as a rotational transformation around the Y axis by theta radians.
   Matrix4& makeRotationY(const double& theta);
 
-  // Sets this matrix as a rotational transformation around the Z axis by theta (θ) radians.
+  // Sets this matrix as a rotational transformation around the Z axis by theta radians.
   Matrix4& makeRotationZ(const double& theta);
 
   Matrix4& makeRotationAxis(Vector3& axis, const double& angle);

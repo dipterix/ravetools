@@ -28,7 +28,7 @@ Revision 1.2  2007/03/12 15:37:21  tarini
 Texture coord name change!  "TCoord" and "Texture" are BAD. "TexCoord" is GOOD.
 
 Revision 1.1  2005/10/15 16:24:10  ganovelli
-Working release (compilata solo su MSVC), component_occ � migrato da component_opt
+Working release (compilata solo su MSVC), component_occ e' migrato da component_opt
 
 
 

@@ -60,7 +60,7 @@ d5------d1------d2	->	d5--e5--d1--e2--d2			 l--M--r
 /*!
  * \brief Weight class for classical Loop's scheme.
  *
- * See Zorin, D. & Schröeder, P.: Subdivision for modeling and animation. Proc. ACM SIGGRAPH [Courses], 2000
+ * See Zorin, D. & Schroeder, P.: Subdivision for modeling and animation. Proc. ACM SIGGRAPH [Courses], 2000
  */
 template<class SCALAR_TYPE>
 struct LoopWeight {

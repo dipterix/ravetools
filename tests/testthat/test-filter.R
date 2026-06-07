@@ -124,7 +124,7 @@ test_that("multi-signal fftfilt", {
   # )
 })
 
-# ── Narrow band-stop (notch narrower than the auto transition heuristic) ─────
+# -- Narrow band-stop (notch narrower than the auto transition heuristic) -----
 
 test_that("design_filter_iir: narrow band-stop with auto transitions succeeds", {
   # Notch is only 1 Hz wide (24-25 Hz) at sr=2000. The IIR heuristic infers

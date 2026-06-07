@@ -537,7 +537,7 @@ So if
 
     /*
   Improved Laplacian Smoothing of Noisy Surface Meshes
-  J. Vollmer, R. Mencl, and H. M�ller
+  J. Vollmer, R. Mencl, and H. Mueller
   EUROGRAPHICS Volume 18 (1999), Number 3
 */
 

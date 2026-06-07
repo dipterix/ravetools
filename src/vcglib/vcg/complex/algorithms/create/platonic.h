@@ -694,7 +694,7 @@ void SuperToroid(MeshType &m, float hRingRadius, float vRingRadius, float vSquar
 
 }
 /**
- * Generate a SuperEllipsoid eg  a solid whose horizontal sections are super-ellipses (Lamé curves)
+ * Generate a SuperEllipsoid eg  a solid whose horizontal sections are super-ellipses (Lame curves)
  * with the same exponent r, and whose vertical sections through the center are super-ellipses with 
  * the same exponent t.
  */

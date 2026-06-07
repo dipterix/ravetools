@@ -15,7 +15,7 @@ fir_gain <- function(b, f0) {
   Mod(sum(exp(-1i * 2 * pi * seq(0, L - 1) * (f0 / 2)) * b))
 }
 
-# ── 1. fir1-compatible specs: no inter-band gaps ──────────────────────────────
+# -- 1. fir1-compatible specs: no inter-band gaps ------------------------------
 
 test_that("firls new vs legacy agree for no-gap (fir1-compatible) specs", {
 
@@ -46,7 +46,7 @@ test_that("firls new vs legacy agree for no-gap (fir1-compatible) specs", {
   }
 })
 
-# ── 2. fir1() output unchanged ────────────────────────────────────────────────
+# -- 2. fir1() output unchanged ------------------------------------------------
 # fir1 calls firls internally; verify that the window-based filter coefficients
 # are unchanged across several filter types.
 
@@ -70,7 +70,7 @@ test_that("fir1 coefficients are unchanged by the fast-path fix", {
   }
 })
 
-# ── 3. Gain correctness after fix ────────────────────────────────────────────
+# -- 3. Gain correctness after fix --------------------------------------------
 # Independent check: filters produced by the new path must satisfy their
 # passband / stopband specifications to within reasonable tolerance.
 
@@ -95,7 +95,7 @@ test_that("firls (new path) satisfies passband gain requirements", {
   expect_lt(fir_gain(b, 0.85), 0.1)
 })
 
-# ── 4. Specs with inter-band gaps must still give correct results ─────────────
+# -- 4. Specs with inter-band gaps must still give correct results -------------
 # When freq has genuine gaps (transition bands), fullband=FALSE -> matrix path.
 # Verify the Cholesky solver gives the same answer as QR for these cases.
 
@@ -125,7 +125,7 @@ test_that("firls with inter-band gaps: Cholesky agrees with legacy QR", {
   }
 })
 
-# ── 5. design_filter_fir ("firls" method) coefficients unchanged by fix ───────
+# -- 5. design_filter_fir ("firls" method) coefficients unchanged by fix -------
 # design_filter_fir builds the firls freq spec as:
 #   w   = c(0, rep(bands, each = 2), 1)       # no gaps between adjacent bands
 #   a   = rep(mag2, each = 2)[-c(1, end)]

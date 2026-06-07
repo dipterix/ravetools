@@ -145,11 +145,11 @@ namespace tri {
 
 
 // La classe Walker implementa la politica di visita del volume; conoscendo l'ordine di visita del volume
-// Ë conveniente che il Walker stesso si faccia carico del caching dei dati utilizzati durante l'esecuzione
+// E' conveniente che il Walker stesso si faccia carico del caching dei dati utilizzati durante l'esecuzione
 // degli algoritmi MarchingCubes ed ExtendedMarchingCubes, in particolare il calcolo del volume ai vertici
 // delle celle e delle intersezioni della superficie con le celle. In questo esempio il volume da processare
 // viene suddiviso in fette; in questo modo se il volume ha dimensione h*l*w (rispettivamente altezza,
-// larghezza e profondit‡), lo spazio richiesto per il caching dei vertici gi‡ allocati passa da O(h*l*w)
+// larghezza e profondita'), lo spazio richiesto per il caching dei vertici gia' allocati passa da O(h*l*w)
 // a O(h*l).
 
 template <class MeshType, class VolumeType>
