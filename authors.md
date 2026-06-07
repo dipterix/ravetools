@@ -50,6 +50,21 @@ intracranial EEG data. NeuroImage, 223, p.117341.
       doi = {10.1016/j.neuroimage.2020.117341},
     }
 
+Fischl B, Sereno MI, Dale AM (1999). Cortical surface-based analysis:
+II: inflation, flattening, and a surface-based coordinate system.
+Neuroimage, 9(2), 195-207. doi:10.1006/nimg.1998.0396.
+
+    @Article{,
+      title = {Cortical surface-based analysis: II: inflation, flattening, and a surface-based coordinate system},
+      author = {Bruce Fischl and Martin I. Sereno and Anders M. Dale},
+      journal = {Neuroimage},
+      year = {1999},
+      volume = {9},
+      number = {2},
+      pages = {195-207},
+      doi = {10.1006/nimg.1998.0396},
+    }
+
 Huang H, Ojeda Valencia G, Gregg NM, Osman GM, Montoya MN, Worrell GA,
 Miller KJ, Hermes D (2024). CARLA: Adjusted common average referencing
 for cortico-cortical evoked potential data. Journal of Neuroscience

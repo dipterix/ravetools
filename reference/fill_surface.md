@@ -9,6 +9,8 @@ Create a cube volume (`256` 'voxels' on each margin), fill in the
 fill_surface(
   surface,
   inflate = 0,
+  close_radius = NULL,
+  resolution = 256L,
   IJK2RAS = NULL,
   preview = FALSE,
   preview_frame = 128
@@ -31,11 +33,45 @@ fill_surface(
   non-negative integer. A zero `inflate` value means the resulting
   volume is tightly close to the surface
 
+- close_radius:
+
+  radius (in 'voxels' along the finest 'IJK' axis; see `IJK2RAS`) of the
+  morphological closing (dilate-then-erode) operation used to connect
+  the embedded surface into a water-tight shell *and* to remove small
+  topological handles/tunnels (for example a hole drilled through an
+  otherwise solid structure) before the surface is filled; default is
+  `NULL`, which derives a radius from the surface geometry (capped at
+  `15` 'voxels'). Handles/tunnels wider than roughly twice this radius
+  (in physical, `RAS` space) will not be closed, so when the input
+  surface is known to contain larger topological defects, set this to a
+  larger number explicitly. Larger radii cost more time and memory (the
+  closing operates on a dense `resolution^3` volume) and - because the
+  operation is performed in a fixed-size volume - must leave enough
+  margin that the dilated shell does not reach the volume boundary;
+  radii that are too large for the working cube will be capped with a
+  warning
+
+- resolution:
+
+  number of 'voxels' along each margin of the working cube volume that
+  the surface is embedded into; default is `256`. Larger values increase
+  the spatial precision of the fill and the closing operation (at the
+  cost of memory and computation time, which scale with `resolution^3`);
+  the value must leave enough room for the surface (transformed into
+  'IJK' space via `IJK2RAS`) plus the closing margin to fit inside the
+  cube
+
 - IJK2RAS:
 
   volume 'IJK' (zero-indexed coordinate index) to `'tkrRAS'` transform,
   default is automatically determined leave it \`NULL\` if you don't
-  know how to set it
+  know how to set it. When the linear part of `IJK2RAS` encodes voxel
+  sizes that differ across axes (`pixdim`, i.e. the three 'IJK' axes do
+  not advance by the same physical distance per 'voxel'), the
+  dilate/erode operations underlying `close_radius` and `inflate`
+  automatically use a different number of 'voxels' along each axis so
+  that the resulting structuring element stays isotropic in physical
+  (`RAS`) space
 
 - preview:
 
@@ -9533,8 +9569,20 @@ fill_surface(surface, preview = TRUE)
 #> [3,]    0   -1    0  128
 #> [4,]    0    0    0    1
 #> 
+#> $resolution
+#> [1] 256
+#> 
 #> $fill
 #> [1] 15
+#> 
+#> $close_radius
+#> [1] 15
+#> 
+#> $close_radius_voxels
+#> [1] 15 15 15
+#> 
+#> $pixdim
+#> [1] 1 1 1
 #> 
 #> $inflate
 #> [1] 0

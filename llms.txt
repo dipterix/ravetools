@@ -355,6 +355,15 @@ implementation is released under GPL license).
 - [`mesh_from_volume()`](https://dipterix.org/ravetools/reference/mesh_from_volume.md)
   : Generate 3D mesh surface from volume data
 
+- [`mris_inflate()`](https://dipterix.org/ravetools/reference/mris_inflate.md)
+  : Inflate a cortical surface mesh
+
+- [`mris_smooth()`](https://dipterix.org/ravetools/reference/mris_smooth.md)
+  : Smooth a surface mesh
+
+- [`mris_sphere()`](https://dipterix.org/ravetools/reference/mris_sphere.md)
+  : Project a surface onto a sphere and relax metric distortion
+
 - [`multitaper_config()`](https://dipterix.org/ravetools/reference/multitaper.md)
   [`multitaper()`](https://dipterix.org/ravetools/reference/multitaper.md)
   : Compute 'multitaper' spectral densities of time-series data
@@ -465,6 +474,15 @@ implementation is released under GPL license).
 
 - [`stimulation_signal`](https://dipterix.org/ravetools/reference/stimulation_signal.md)
   : Sample stimulation recording
+
+- [`vcg_average_edge_length()`](https://dipterix.org/ravetools/reference/vcg_average_edge_length.md)
+  : Compute the average edge length of a triangular mesh
+
+- [`vcg_count_edge_defects()`](https://dipterix.org/ravetools/reference/vcg_count_edge_defects.md)
+  : Count boundary and non-manifold edges of a triangular mesh
+
+- [`vcg_fix_defects()`](https://dipterix.org/ravetools/reference/vcg_fix_defects.md)
+  : Detect and repair defects in a triangular surface mesh
 
 - [`vcg_isosurface()`](https://dipterix.org/ravetools/reference/vcg_isosurface.md)
   : Create surface mesh from 3D-array

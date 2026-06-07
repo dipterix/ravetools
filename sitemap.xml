@@ -41,6 +41,9 @@
 <url><loc>https://dipterix.org/ravetools/reference/left_hippocampus_mask.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/matlab_palette.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mesh_from_volume.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/mris_inflate.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/mris_smooth.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/mris_sphere.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/multitaper.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/naive_nmf.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/new_matrix4.html</loc></url>
@@ -66,6 +69,9 @@
 <url><loc>https://dipterix.org/ravetools/reference/shift_array.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimpulse_interpolate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimulation_signal.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_average_edge_length.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_count_edge_defects.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_fix_defects.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_kdtree_nearest.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_mesh_volume.html</loc></url>

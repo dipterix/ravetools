@@ -9,7 +9,7 @@ in the 'voxels' that are inside of the surface."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,8 @@ in the 'voxels' that are inside of the surface.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fill_surface</span><span class="op">(</span></span>
 <span>  <span class="va">surface</span>,</span>
 <span>  inflate <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  close_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  resolution <span class="op">=</span> <span class="fl">256L</span>,</span>
 <span>  IJK2RAS <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  preview <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  preview_frame <span class="op">=</span> <span class="fl">128</span></span>
@@ -69,10 +71,43 @@ a non-negative integer. A zero <code>inflate</code> value means the resulting
 volume is tightly close to the surface</p></dd>
 
 
+<dt id="arg-close-radius">close_radius<a class="anchor" aria-label="anchor" href="#arg-close-radius"></a></dt>
+<dd><p>radius (in 'voxels' along the finest 'IJK' axis; see
+<code>IJK2RAS</code>) of the morphological closing (dilate-then-erode) operation
+used to connect the embedded surface into a water-tight shell <em>and</em> to
+remove small topological handles/tunnels (for example a hole drilled
+through an otherwise solid structure) before the surface is filled; default
+is <code>NULL</code>, which derives a radius from the surface geometry (capped at
+<code>15</code> 'voxels'). Handles/tunnels wider than roughly twice this radius
+(in physical, <code>RAS</code> space) will not be closed, so when the input
+surface is known to contain larger topological defects, set this to a
+larger number explicitly. Larger radii cost more time and memory (the
+closing operates on a dense <code>resolution^3</code> volume) and - because the
+operation is performed in a fixed-size volume - must leave enough margin
+that the dilated shell does not reach the volume boundary; radii that are
+too large for the working cube will be capped with a warning</p></dd>
+
+
+<dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
+<dd><p>number of 'voxels' along each margin of the working
+cube volume that the surface is embedded into; default is <code>256</code>.
+Larger values increase the spatial precision of the fill and the closing
+operation (at the cost of memory and computation time, which scale with
+<code>resolution^3</code>); the value must leave enough room for the surface
+(transformed into 'IJK' space via <code>IJK2RAS</code>) plus the closing margin
+to fit inside the cube</p></dd>
+
+
 <dt id="arg-ijk-ras">IJK2RAS<a class="anchor" aria-label="anchor" href="#arg-ijk-ras"></a></dt>
 <dd><p>volume 'IJK' (zero-indexed coordinate index) to
 <code>'tkrRAS'</code> transform, default is automatically determined
-leave it `NULL` if you don't know how to set it</p></dd>
+leave it `NULL` if you don't know how to set it. When the linear part of
+<code>IJK2RAS</code> encodes voxel sizes that differ across axes (<code>pixdim</code>,
+i.e. the three 'IJK' axes do not advance by the same physical distance per
+'voxel'), the dilate/erode operations underlying <code>close_radius</code> and
+<code>inflate</code> automatically use a different number of 'voxels' along each
+axis so that the resulting structuring element stays isotropic in physical
+(<code>RAS</code>) space</p></dd>
 
 
 <dt id="arg-preview">preview<a class="anchor" aria-label="anchor" href="#arg-preview"></a></dt>
@@ -9571,8 +9606,20 @@ before calling <span class="pkg">ravetools</span> mesh functions.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0   -1    0  128</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,]    0    0    0    1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resolution</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fill</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $close_radius</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $close_radius_voxels</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 15 15 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $pixdim</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $inflate</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
