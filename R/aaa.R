@@ -234,6 +234,29 @@ lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NU
 }
 
 
+#' @title Map continuous values to colors
+#' @description
+#' Linearly maps a numeric vector onto a color ramp, clamping values outside
+#' the given range to the range's endpoints.
+#'
+#' @param values numeric vector of values to map to colors
+#' @param clim length-two numeric vector giving the value range to map from;
+#' values outside \code{[clim[1], clim[2]]} are clamped to the nearer endpoint
+#' before mapping. Default is \code{range(values, na.rm = TRUE)}
+#' @param cmap the color ramp to map onto: either a vector of colors (passed
+#' to \code{\link[grDevices]{colorRamp}} to build the ramp function) or a
+#' function such as the one returned by \code{\link[grDevices]{colorRamp}}
+#' that takes a numeric vector with elements in \code{[0, 1]} and returns an
+#' \code{n x 3} (or \code{n x 4}, with alpha) matrix of color-channel values
+#' in \code{[0, 255]}. Default is \code{grDevices::hcl.colors(11)}
+#' @param ... passed to \code{\link[grDevices]{colorRamp}} when \code{cmap} is
+#' a vector of colors (for example, \code{alpha = TRUE} to build an
+#' alpha-aware ramp)
+#'
+#' @returns A character vector of \code{'#RRGGBB'} (or \code{'#RRGGBBAA'})
+#' color strings, the same length as \code{values}.
+#'
+#' @export
 color_ramp_continuous <- function(values, clim = range(values, na.rm = TRUE),
                                   cmap = grDevices::hcl.colors(11), ...) {
   clim[is.finite(clim)]
