@@ -46,3 +46,42 @@ color_ramp_continuous(
 
 A character vector of `'#RRGGBB'` (or `'#RRGGBBAA'`) color strings, the
 same length as `values`.
+
+## Examples
+
+``` r
+
+x <- rnorm(100)
+col <- color_ramp_continuous(x)
+
+plot(x, col = col, pch = 16)
+
+
+
+# Change color palettes with vector of colors
+col <- color_ramp_continuous(
+  x, cmap = c("lightgreen", "white", "pink"))
+plot(x, col = col, pch = 16)
+
+
+# Using colorRamp
+col <- color_ramp_continuous(
+  x, cmap = colorRamp(c("black", "orangered", "orange")))
+plot(x, col = col, pch = 16)
+
+
+# Using color ramp palette `function(n) { ... }`
+col <- color_ramp_continuous(
+  x, cmap = hcl.colors, palette = "Blue-Red 3")
+plot(x, col = col, pch = 16)
+
+
+# Set range
+col <- color_ramp_continuous(
+  x, clim = c(0, 1),
+  cmap = c("black", "orangered", "orange"))
+plot(x, col = col, pch = 16)
+
+
+
+```
