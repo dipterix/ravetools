@@ -7,6 +7,8 @@
 fill_surface(
   surface,
   inflate = 0,
+  close_radius = NULL,
+  resolution = 256L,
   IJK2RAS = NULL,
   preview = FALSE,
   preview_frame = 128
@@ -23,9 +25,38 @@ for how \code{'ieegio_surface'} inputs are coerced}
 a non-negative integer. A zero \code{inflate} value means the resulting
 volume is tightly close to the surface}
 
+\item{close_radius}{radius (in 'voxels' along the finest 'IJK' axis; see
+\code{IJK2RAS}) of the morphological closing (dilate-then-erode) operation
+used to connect the embedded surface into a water-tight shell \emph{and} to
+remove small topological handles/tunnels (for example a hole drilled
+through an otherwise solid structure) before the surface is filled; default
+is \code{NULL}, which derives a radius from the surface geometry (capped at
+\code{15} 'voxels'). Handles/tunnels wider than roughly twice this radius
+(in physical, \verb{RAS} space) will not be closed, so when the input
+surface is known to contain larger topological defects, set this to a
+larger number explicitly. Larger radii cost more time and memory (the
+closing operates on a dense \code{resolution^3} volume) and - because the
+operation is performed in a fixed-size volume - must leave enough margin
+that the dilated shell does not reach the volume boundary; radii that are
+too large for the working cube will be capped with a warning}
+
+\item{resolution}{number of 'voxels' along each margin of the working
+cube volume that the surface is embedded into; default is \code{256}.
+Larger values increase the spatial precision of the fill and the closing
+operation (at the cost of memory and computation time, which scale with
+\code{resolution^3}); the value must leave enough room for the surface
+(transformed into 'IJK' space via \code{IJK2RAS}) plus the closing margin
+to fit inside the cube}
+
 \item{IJK2RAS}{volume 'IJK' (zero-indexed coordinate index) to
 \code{'tkrRAS'} transform, default is automatically determined
-leave it `NULL` if you don't know how to set it}
+leave it `NULL` if you don't know how to set it. When the linear part of
+\code{IJK2RAS} encodes voxel sizes that differ across axes (\code{pixdim},
+i.e. the three 'IJK' axes do not advance by the same physical distance per
+'voxel'), the dilate/erode operations underlying \code{close_radius} and
+\code{inflate} automatically use a different number of 'voxels' along each
+axis so that the resulting structuring element stays isotropic in physical
+(\verb{RAS}) space}
 
 \item{preview}{whether to preview the results; default is false}
 

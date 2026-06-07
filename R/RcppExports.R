@@ -541,6 +541,18 @@ Vector3__set_from_matrix_scale <- function(self, m) {
     invisible(.Call(`_ravetools_Vector3__set_from_matrix_scale`, self, m))
 }
 
+mrisSmooth <- function(vb_, it_, niterations = 10L, npasses = 1L, rescale = FALSE, verbose = FALSE) {
+    .Call(`_ravetools_mrisSmooth`, vb_, it_, niterations, npasses, rescale, verbose)
+}
+
+mrisInflate <- function(vb_, it_, n_averages = 16L, niterations = 10L, l_spring_norm = 1.0, l_dist = 0.1, momentum = 0.9, dt = 0.9, desired_rms = 0.015, scale_brain = TRUE, verbose = FALSE) {
+    .Call(`_ravetools_mrisInflate`, vb_, it_, n_averages, niterations, l_spring_norm, l_dist, momentum, dt, desired_rms, scale_brain, verbose)
+}
+
+mrisSphere <- function(vb_, it_, target_radius = 100.0, n_averages = 64L, niterations = 25L, l_dist = 1.0, l_area = 1.0, momentum = 0.9, dt = 0.05, verbose = FALSE) {
+    .Call(`_ravetools_mrisSphere`, vb_, it_, target_radius, n_averages, niterations, l_dist, l_area, momentum, dt, verbose)
+}
+
 rawToUInt8 <- function(x) {
     .Call(`_ravetools_rawToUInt8`, x)
 }
@@ -635,6 +647,18 @@ vcgKDTreeSearch <- function(target_, query_, k, nPointsPerCell = 16L, maxDepth =
 
 vcgSubset <- function(vb_, it_, selector_) {
     .Call(`_ravetools_vcgSubset`, vb_, it_, selector_)
+}
+
+vcgCountEdgeDefects <- function(vb_, it_) {
+    .Call(`_ravetools_vcgCountEdgeDefects`, vb_, it_)
+}
+
+vcgAverageEdgeLength <- function(vb_, it_) {
+    .Call(`_ravetools_vcgAverageEdgeLength`, vb_, it_)
+}
+
+vcgFixDefects <- function(vb_, it_, merge_tolerance = -1.0, max_hole_size = 100L, verbose = FALSE) {
+    .Call(`_ravetools_vcgFixDefects`, vb_, it_, merge_tolerance, max_hole_size, verbose)
 }
 
 # Register entry points for exported C++ functions

@@ -14,12 +14,12 @@ A named list with elements \code{boundary_edges} (number of
 boundary edges), \code{nonmanifold_edges} (number of non-manifold edges),
 and \code{is_closed_manifold} (\code{TRUE} when both counts are zero,
 i.e. the mesh is closed and manifold and ready for
-\code{\link{vcg_inflate}}).
+\code{\link{mris_inflate}}).
 }
 \description{
 Detects topology defects that prevent a mesh from being a closed,
-manifold, genus-0 surface -- a hard precondition of algorithms such as
-\code{\link{vcg_inflate}}.  An edge is a \emph{boundary} edge when it is
+manifold, genus-0 surface, a hard precondition of algorithms such as
+\code{\link{mris_inflate}}.  An edge is a \emph{boundary} edge when it is
 referenced by exactly one face (i.e. it bounds a hole), and
 \emph{non-manifold} when it is referenced by more than two faces.
 }

@@ -202,10 +202,10 @@ plot_mesh_polygon <- function(
   # DIPSAUS DEBUG END
 
   # ---- 0. Normalize mesh + col list -------------------------------------
-  if (inherits(mesh, "mesh3d") || (!is.null(mesh$vb))) {
-    mesh_list <- list(mesh)
+  if (inherits(mesh, c("mesh3d", "fs.surface", "ieegio_surface"))) {
+    mesh_list <- list(ensure_mesh3d(mesh))
   } else {
-    mesh_list <- mesh
+    mesh_list <- lapply(mesh, ensure_mesh3d)
   }
   n_meshes <- length(mesh_list)
 
@@ -253,7 +253,7 @@ plot_mesh_polygon <- function(
 
   mesh_data <- vector("list", n_meshes)
   for (i in seq_len(n_meshes)) {
-    m  <- ensure_mesh3d(mesh_list[[i]])
+    m  <- mesh_list[[i]]
     vb <- m$vb
     if (nrow(vb) > 3L) vb <- vb[1:3, , drop = FALSE]
 

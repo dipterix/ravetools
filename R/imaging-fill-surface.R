@@ -11,9 +11,36 @@
 #' @param inflate amount of 'voxels' to inflate on the final result; must be
 #' a non-negative integer. A zero \code{inflate} value means the resulting
 #' volume is tightly close to the surface
+#' @param close_radius radius (in 'voxels' along the finest 'IJK' axis; see
+#' \code{IJK2RAS}) of the morphological closing (dilate-then-erode) operation
+#' used to connect the embedded surface into a water-tight shell \emph{and} to
+#' remove small topological handles/tunnels (for example a hole drilled
+#' through an otherwise solid structure) before the surface is filled; default
+#' is \code{NULL}, which derives a radius from the surface geometry (capped at
+#' \code{15} 'voxels'). Handles/tunnels wider than roughly twice this radius
+#' (in physical, \verb{RAS} space) will not be closed, so when the input
+#' surface is known to contain larger topological defects, set this to a
+#' larger number explicitly. Larger radii cost more time and memory (the
+#' closing operates on a dense \code{resolution^3} volume) and - because the
+#' operation is performed in a fixed-size volume - must leave enough margin
+#' that the dilated shell does not reach the volume boundary; radii that are
+#' too large for the working cube will be capped with a warning
+#' @param resolution number of 'voxels' along each margin of the working
+#' cube volume that the surface is embedded into; default is \code{256}.
+#' Larger values increase the spatial precision of the fill and the closing
+#' operation (at the cost of memory and computation time, which scale with
+#' \code{resolution^3}); the value must leave enough room for the surface
+#' (transformed into 'IJK' space via \code{IJK2RAS}) plus the closing margin
+#' to fit inside the cube
 #' @param IJK2RAS volume 'IJK' (zero-indexed coordinate index) to
 #' \code{'tkrRAS'} transform, default is automatically determined
-#' leave it `NULL` if you don't know how to set it
+#' leave it `NULL` if you don't know how to set it. When the linear part of
+#' \code{IJK2RAS} encodes voxel sizes that differ across axes (\code{pixdim},
+#' i.e. the three 'IJK' axes do not advance by the same physical distance per
+#' 'voxel'), the dilate/erode operations underlying \code{close_radius} and
+#' \code{inflate} automatically use a different number of 'voxels' along each
+#' axis so that the resulting structuring element stays isotropic in physical
+#' (\verb{RAS}) space
 #' @param preview whether to preview the results; default is false
 #' @param preview_frame integer from 1 to 256 the depth frame used to generate
 #' preview.
@@ -185,8 +212,9 @@ ensure_mesh3d <- function(surface) {
 
 #' @rdname fill_surface
 #' @export
-fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
-                         preview_frame = 128) {
+fill_surface <- function(surface, inflate = 0, close_radius = NULL,
+                         resolution = 256L, IJK2RAS = NULL,
+                         preview = FALSE, preview_frame = 128) {
   # DIPSAUS DEBUG START
   # surface <- freesurferformats::read.fs.surface('~/Dropbox (PENN Neurotrauma)/RAVE/Samples/raw/PAV010/rave-imaging/fs/surf/rh.pial')
   # IJK2RAS <- NULL
@@ -207,7 +235,10 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   }
 
   # Initialize the parameters
-  resolution <- 256L
+  resolution <- as.integer(resolution)
+  if (length(resolution) != 1L || is.na(resolution) || resolution < 16L) {
+    stop("`fill_surface`: `resolution` must be a single integer no less than 16")
+  }
   if (length(IJK2RAS) != 16L) {
     IJK2RAS <- matrix(
       nrow = 4, byrow = TRUE,
@@ -215,6 +246,24 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
         0, 0, 1, -resolution / 2,
         0, -1, 0, resolution / 2,
         0, 0, 0, 1))
+  }
+
+  # Voxel size ('pixdim') along each 'IJK' axis (in the units of `IJK2RAS`,
+  # typically millimeters): the magnitude of each column of the linear part of
+  # `IJK2RAS` is the physical distance spanned by one 'voxel' step along that
+  # axis. The default `IJK2RAS` above is an axis-permuted identity (isotropic,
+  # pixdim = c(1, 1, 1)); user-supplied transforms (e.g. from non-conformed
+  # volumes) may be anisotropic.
+  pixdim <- sqrt(colSums(IJK2RAS[1:3, 1:3, drop = FALSE] ^ 2))
+
+  # Convert an isotropic radius in physical ('RAS') space - expressed as a
+  # 'voxel' count along the finest (smallest-pixdim) axis - into a per-axis
+  # 'voxel' count, so `grow_volume`'s box structuring element ends up
+  # isotropic in physical space even when `pixdim` is anisotropic: an axis
+  # with larger 'voxels' needs proportionally fewer of them to span the same
+  # physical distance.
+  to_voxel_radius <- function(radius) {
+    as.integer(round(radius * min(pixdim) / pixdim))
   }
 
   # Make sure the surface is a `mesh3d` object
@@ -225,13 +274,40 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   surface <- surface_orig
   surface$vb <- solve(IJK2RAS) %*% surface$vb
 
-  # Get maximum voxel numbers that can be used to fill in
+  # Largest per-axis radius the dilated shell can use without reaching the
+  # volume boundary (the bucket-fill corner must remain outside the dilated
+  # shell)
   vertex_range <- apply(surface$vb, 1, range)
-  max_fill <- floor(min(c(
+  safe_radius_per_axis <- floor(pmin(
     vertex_range[1, 1:3],
-    resolution - vertex_range[2, 1:3],
-    17
-  )) - 2L)
+    resolution - vertex_range[2, 1:3]
+  ) - 2)
+  safe_radius <- min(safe_radius_per_axis)
+
+  if (length(close_radius)) {
+    close_radius <- as.numeric(close_radius)
+    if (length(close_radius) != 1L || is.na(close_radius) || close_radius < 0) {
+      stop("`fill_surface`: `close_radius` must be a single non-negative number")
+    }
+  } else {
+    # Previous default behavior: derive a radius from the surface geometry,
+    # capped at 15 'voxels' (along the finest axis)
+    close_radius <- min(safe_radius, 15)
+  }
+
+  close_radius_voxels <- to_voxel_radius(close_radius)
+  if (any(close_radius_voxels > safe_radius_per_axis)) {
+    close_radius_voxels <- pmin(close_radius_voxels, safe_radius_per_axis)
+    warning(sprintf(
+      paste("`fill_surface`: requested `close_radius` (%g) is too large for",
+            "this surface's position in the working %d^3 volume along at",
+            "least one axis and has been capped at c(%s) 'voxels' (per I/J/K",
+            "axis) to avoid the dilated shell reaching the volume boundary;",
+            "topological handles/tunnels wider than roughly twice this",
+            "radius (in physical space) may not be closed"),
+      close_radius, resolution, paste(close_radius_voxels, collapse = ", ")
+    ))
+  }
 
   # Creating a volume
   volume <- array(0L, dim = rep(resolution, 3))
@@ -242,17 +318,30 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
     surface_index[3, ] * (resolution^2) + 1
   volume[surface_index] <- 1L
 
-  # Grow the volume by ~15mm and shrink back (~12mm).
-  # This step connects the
-  # segmented voxels into a shell that is water-tight
-  volume_grew <- grow_volume(volume, max_fill)
+  # Morphological closing (dilate by `close_radius`, then erode back): connects
+  # the embedded surface points into a water-tight shell *and* bridges/closes
+  # any topological handles or tunnels no wider than ~2x `close_radius` (in
+  # physical space). The structuring element is `close_radius_voxels`, a
+  # per-axis 'voxel' count that compensates for anisotropic `pixdim`.
+  volume_grew <- grow_volume(
+    volume,
+    x = close_radius_voxels[[1]],
+    y = close_radius_voxels[[2]],
+    z = close_radius_voxels[[3]]
+  )
 
   # bucket-fill from the corner, bucketFillVolume is in-place
   volume_filled <- bucketFillVolume(volume_grew + 0L, x = 1, y = 1, z = 1, fill = 1L)
 
-  # Fill the voxels within the surface and shrink
-  shrink_amount <- max_fill - inflate
-  volume2 <- 1L - grow_volume(volume_filled - volume_grew, shrink_amount)
+  # Fill the voxels within the surface and shrink back by `close_radius`,
+  # leaving a net `inflate` (also pixdim-corrected) relative to the surface
+  shrink_amount_voxels <- close_radius_voxels - to_voxel_radius(inflate)
+  volume2 <- 1L - grow_volume(
+    volume_filled - volume_grew,
+    x = shrink_amount_voxels[[1]],
+    y = shrink_amount_voxels[[2]],
+    z = shrink_amount_voxels[[3]]
+  )
 
   # preview
   preview2D({
@@ -280,7 +369,11 @@ fill_surface <- function(surface, inflate = 0, IJK2RAS = NULL, preview = FALSE,
   return(list(
     volume = volume2,
     IJK2RAS = IJK2RAS,
-    fill = max_fill,
+    resolution = resolution,
+    fill = close_radius,
+    close_radius = close_radius,
+    close_radius_voxels = close_radius_voxels,
+    pixdim = pixdim,
     inflate = inflate
   ))
 

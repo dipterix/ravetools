@@ -7,7 +7,7 @@
 namespace {
 
 // Count boundary (multiplicity 1) and non-manifold (multiplicity > 2) edges
-// directly from the face/vertex-index structure -- robust regardless of
+// directly from the face/vertex-index structure, robust regardless of
 // whether VCG's FaceFace topology has been (re)built. Shared by routines
 // that need to detect or report mesh topology defects (e.g. vcgFixDefects,
 // vcgCountEdgeDefects).
@@ -1032,12 +1032,12 @@ double vcgAverageEdgeLength(SEXP vb_, SEXP it_) {
 
 // ---------------------------------------------------------------------------
 // Detect and repair common defects in triangular surface meshes so they
-// become closed, manifold, genus-0 surfaces -- a hard precondition for
-// algorithms such as vcgInflate (see checkClosedManifold in vcgInflate.cpp).
+// become closed, manifold, genus-0 surfaces, a hard precondition for
+// algorithms such as mris_inflate (see mrisCheckClosedManifold in mrisCommon.cpp).
 //
 // Typical source of these defects: isosurfaces extracted from volumes
 // (e.g. vcg_isosurface) via marching-cubes-style algorithms, which can leave
-// behind small "cracks" -- isolated boundary-edge loops bounding tiny holes
+// behind small "cracks", isolated boundary-edge loops bounding tiny holes
 // that are not caused by duplicated/coincident vertices (so simple vertex
 // welding does not close them) but are genuine small gaps in the tessellation.
 //
@@ -1097,7 +1097,7 @@ Rcpp::List vcgFixDefects(
         vcg::tri::Clean<ravetools::MyMesh>::RemoveDuplicateFace(m);
         if (verbose) Rprintf("vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=%d nf=%d\n", m.vn, m.fn);
 
-        // 2. Weld near-coincident vertices -- closes cracks that arise from
+        // 2. Weld near-coincident vertices, closes cracks that arise from
         //    duplicated vertices at (near-)identical positions.
         double tol = merge_tolerance;
         if (tol <= 0.0) {

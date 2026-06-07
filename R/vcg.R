@@ -448,8 +448,8 @@ vcg_mesh_volume <- function(mesh) {
 #' @title Count boundary and non-manifold edges of a triangular mesh
 #' @description
 #' Detects topology defects that prevent a mesh from being a closed,
-#' manifold, genus-0 surface -- a hard precondition of algorithms such as
-#' \code{\link{vcg_inflate}}.  An edge is a \emph{boundary} edge when it is
+#' manifold, genus-0 surface, a hard precondition of algorithms such as
+#' \code{\link{mris_inflate}}.  An edge is a \emph{boundary} edge when it is
 #' referenced by exactly one face (i.e. it bounds a hole), and
 #' \emph{non-manifold} when it is referenced by more than two faces.
 #' @param mesh triangular mesh of class \code{'mesh3d'}.
@@ -457,7 +457,7 @@ vcg_mesh_volume <- function(mesh) {
 #' boundary edges), \code{nonmanifold_edges} (number of non-manifold edges),
 #' and \code{is_closed_manifold} (\code{TRUE} when both counts are zero,
 #' i.e. the mesh is closed and manifold and ready for
-#' \code{\link{vcg_inflate}}).
+#' \code{\link{mris_inflate}}).
 #'
 #' @examples
 #' if (is_not_cran()) {
@@ -516,10 +516,10 @@ vcg_average_edge_length <- function(mesh) {
 #' @title Detect and repair defects in a triangular surface mesh
 #' @description
 #' Repairs common defects that prevent a mesh from being a closed, manifold,
-#' genus-0 surface -- a hard precondition of algorithms such as
-#' \code{\link{vcg_inflate}}.  Typical sources of such defects are isosurfaces
-#' extracted from volumes (e.g. \code{\link{vcg_isosurface}}), whose
-#' marching-cubes-style algorithms can leave behind small "cracks": isolated
+#' genus-0 surface - a hard precondition of algorithms such as
+#' \code{\link{mris_inflate}}.  Typical sources of such defects are surfaces
+#' extracted from volumes via marching-cubes-style algorithms (e.g.
+#' \code{\link{vcg_isosurface}}), which can leave behind small "cracks": isolated
 #' boundary-edge loops bounding tiny holes that are not closed by simple
 #' vertex-welding.
 #'
@@ -532,7 +532,7 @@ vcg_average_edge_length <- function(mesh) {
 #'     derived from the mesh's average edge length.
 #'   \item Triangulate ("ear-cut fill") any remaining small boundary loops --
 #'     i.e. \emph{isolated edges} / genuine small holes that welding alone
-#'     cannot close -- up to \code{max_hole_size} edges.
+#'     cannot close, up to \code{max_hole_size} edges.
 #'   \item Remove unreferenced vertices.
 #'   \item Re-orient all faces coherently (consistent winding order), and, if
 #'     the result is a single watertight component, flip normals to point
@@ -551,13 +551,13 @@ vcg_average_edge_length <- function(mesh) {
 #' default is \code{FALSE}.
 #'
 #' @returns A repaired triangular mesh of class \code{'mesh3d'}, with an
-#' additional attribute \code{"info"} -- a named list reporting what was
+#' additional attribute \code{"info"}, a named list reporting what was
 #' found and changed: \code{boundary_edges_before/after},
 #' \code{nonmanifold_edges_before/after}, \code{vertices_merged},
 #' \code{merge_tolerance}, \code{holes_filled}, \code{is_oriented},
 #' \code{is_orientable}, \code{normals_flipped_outward}, and
 #' \code{is_closed_manifold} (\code{TRUE} when the repaired mesh is closed
-#' and manifold, i.e. ready for \code{\link{vcg_inflate}}).
+#' and manifold, i.e. ready for \code{\link{mris_inflate}}).
 #'
 #' @examples
 #' if (is_not_cran()) {
@@ -569,7 +569,7 @@ vcg_average_edge_length <- function(mesh) {
 #'   attr(repaired, "info")$is_closed_manifold
 #'
 #'   # repaired mesh can now be inflated
-#'   inflated <- vcg_inflate(repaired, scale_brain = FALSE)
+#'   inflated <- mris_inflate(repaired, scale_brain = FALSE)
 #'
 #' }
 #'

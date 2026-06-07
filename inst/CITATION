@@ -15,6 +15,22 @@ bibentry(bibtype = "Article",
 )
 
 bibentry(bibtype = "Article",
+         title        = "Cortical surface-based analysis: II: inflation, flattening, and a surface-based coordinate system",
+         author       = c(as.person("Bruce Fischl"),
+                          as.person("Martin I. Sereno"),
+                          as.person("Anders M. Dale")),
+         journal      = "Neuroimage",
+         year         = "1999",
+         volume       = "9",
+         number       = "2",
+         pages        = "195-207",
+         doi          = "10.1006/nimg.1998.0396",
+         header       = "If you use the mris_*() functions for surface manipulation, please also cite:",
+         textVersion  = "Fischl B, Sereno MI, Dale AM (1999). Cortical surface-based analysis: II: inflation, flattening, and a surface-based coordinate system. Neuroimage, 9(2), 195-207. doi:10.1006/nimg.1998.0396."
+)
+
+
+bibentry(bibtype = "Article",
          title        = "{CARLA}: Adjusted common average referencing for cortico-cortical evoked potential data",
          author       = c(as.person("Harvey Huang"),
                           as.person("Gabriela Ojeda Valencia"),
