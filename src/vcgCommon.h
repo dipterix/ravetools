@@ -385,7 +385,7 @@ public:
         facePtr = &(*faceIt);
         if (facePtr && !facePtr->IsD()
               && facePtr->V(0) && facePtr->V(1) && facePtr->V(2)) {
-          // copy vertex indices (+1 for R’s 1-based)
+          // copy vertex indices (+1 for R's 1=based)
           for (int corner = 0; corner < 3; ++corner) {
             faceIdxMat(corner, validFaceCount) = vertIndexMap[facePtr->cV(corner)] + 1;
           }
@@ -459,7 +459,7 @@ public:
 
 // Additional definitions
 typedef typename vcg::tri::UpdateTopology<MyMesh>::PEdge MyPEdge;
-// Map from edge to new‐vertex
+// Map from edge to new vertex
 typedef std::pair<VertexPointer,VertexPointer> EdgePair;
 
 struct EdgeHash {

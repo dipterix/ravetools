@@ -445,6 +445,176 @@ vcg_mesh_volume <- function(mesh) {
   vcgVolume( meshintegrity(mesh) )
 }
 
+#' @title Count boundary and non-manifold edges of a triangular mesh
+#' @description
+#' Detects topology defects that prevent a mesh from being a closed,
+#' manifold, genus-0 surface -- a hard precondition of algorithms such as
+#' \code{\link{vcg_inflate}}.  An edge is a \emph{boundary} edge when it is
+#' referenced by exactly one face (i.e. it bounds a hole), and
+#' \emph{non-manifold} when it is referenced by more than two faces.
+#' @param mesh triangular mesh of class \code{'mesh3d'}.
+#' @returns A named list with elements \code{boundary_edges} (number of
+#' boundary edges), \code{nonmanifold_edges} (number of non-manifold edges),
+#' and \code{is_closed_manifold} (\code{TRUE} when both counts are zero,
+#' i.e. the mesh is closed and manifold and ready for
+#' \code{\link{vcg_inflate}}).
+#'
+#' @examples
+#' if (is_not_cran()) {
+#'
+#'   sphere <- vcg_sphere()
+#'   vcg_count_edge_defects(sphere)
+#'
+#'   defective <- vcg_isosurface(left_hippocampus_mask)
+#'   vcg_count_edge_defects(defective)
+#'
+#' }
+#'
+#' @export
+vcg_count_edge_defects <- function(mesh) {
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
+
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
+
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+
+  vcgCountEdgeDefects(vb_ = vb, it_ = it)
+}
+
+#' @title Compute the average edge length of a triangular mesh
+#' @description
+#' Computes the average length of all face edges (each edge is counted once
+#' per incident face, so edges shared by two faces are counted twice).  Useful
+#' as a scale-aware reference length, e.g. to derive a vertex-merge tolerance
+#' such as the one used internally by \code{\link{vcg_fix_defects}}.
+#' @param mesh triangular mesh of class \code{'mesh3d'}.
+#' @returns A single numeric value: the average edge length, in mesh units.
+#'
+#' @examples
+#' if (is_not_cran()) {
+#'
+#'   sphere <- vcg_sphere()
+#'   vcg_average_edge_length(sphere)
+#'
+#' }
+#'
+#' @export
+vcg_average_edge_length <- function(mesh) {
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
+
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
+
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+
+  vcgAverageEdgeLength(vb_ = vb, it_ = it)
+}
+
+#' @title Detect and repair defects in a triangular surface mesh
+#' @description
+#' Repairs common defects that prevent a mesh from being a closed, manifold,
+#' genus-0 surface -- a hard precondition of algorithms such as
+#' \code{\link{vcg_inflate}}.  Typical sources of such defects are isosurfaces
+#' extracted from volumes (e.g. \code{\link{vcg_isosurface}}), whose
+#' marching-cubes-style algorithms can leave behind small "cracks": isolated
+#' boundary-edge loops bounding tiny holes that are not closed by simple
+#' vertex-welding.
+#'
+#' @details
+#' The repair pipeline applies, in order:
+#' \enumerate{
+#'   \item Remove degenerate and duplicate faces.
+#'   \item Weld near-coincident vertices (closes cracks caused by duplicated
+#'     vertices), using \code{merge_tolerance} or, by default, a distance
+#'     derived from the mesh's average edge length.
+#'   \item Triangulate ("ear-cut fill") any remaining small boundary loops --
+#'     i.e. \emph{isolated edges} / genuine small holes that welding alone
+#'     cannot close -- up to \code{max_hole_size} edges.
+#'   \item Remove unreferenced vertices.
+#'   \item Re-orient all faces coherently (consistent winding order), and, if
+#'     the result is a single watertight component, flip normals to point
+#'     outward (this last step assumes the geometry is meant to be watertight).
+#' }
+#'
+#' @param mesh triangular mesh of class \code{'mesh3d'}.
+#' @param merge_tolerance distance (in mesh units) below which vertices are
+#' welded together; default is \code{NA}, in which case the tolerance is
+#' derived automatically as \code{1e-4} times the mesh's average edge length.
+#' @param max_hole_size maximum number of boundary edges of a hole that will
+#' be triangulated (ear-cutting fill); holes larger than this threshold are
+#' left untouched (and will be reported as remaining boundary edges in
+#' \code{attr(..., "info")}).  Default is \code{100}.
+#' @param verbose whether to print a short before/after diagnostic report;
+#' default is \code{FALSE}.
+#'
+#' @returns A repaired triangular mesh of class \code{'mesh3d'}, with an
+#' additional attribute \code{"info"} -- a named list reporting what was
+#' found and changed: \code{boundary_edges_before/after},
+#' \code{nonmanifold_edges_before/after}, \code{vertices_merged},
+#' \code{merge_tolerance}, \code{holes_filled}, \code{is_oriented},
+#' \code{is_orientable}, \code{normals_flipped_outward}, and
+#' \code{is_closed_manifold} (\code{TRUE} when the repaired mesh is closed
+#' and manifold, i.e. ready for \code{\link{vcg_inflate}}).
+#'
+#' @examples
+#' if (is_not_cran()) {
+#'
+#'   mesh <- vcg_isosurface(left_hippocampus_mask)
+#'
+#'   repaired <- vcg_fix_defects(mesh, verbose = TRUE)
+#'
+#'   attr(repaired, "info")$is_closed_manifold
+#'
+#'   # repaired mesh can now be inflated
+#'   inflated <- vcg_inflate(repaired, scale_brain = FALSE)
+#'
+#' }
+#'
+#' @export
+vcg_fix_defects <- function(
+    mesh,
+    merge_tolerance = NA,
+    max_hole_size   = 100L,
+    verbose         = FALSE
+) {
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
+
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
+
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+
+  merge_tolerance <- as.double(merge_tolerance)[[1L]]
+  if (is.na(merge_tolerance)) {
+    merge_tolerance <- -1.0
+  }
+
+  tmp <- vcgFixDefects(
+    vb_             = vb,
+    it_             = it,
+    merge_tolerance = merge_tolerance,
+    max_hole_size   = as.integer(max_hole_size)[[1L]],
+    verbose         = as.logical(verbose)[[1L]]
+  )
+
+  repaired <- structure(
+    list(
+      vb      = tmp$vb,
+      it      = tmp$it,
+      normals = tmp$normals
+    ),
+    class = "mesh3d"
+  )
+
+  attr(repaired, "info") <- tmp$info
+
+  repaired
+}
+
 #' Simple 3-dimensional sphere mesh
 #' @param sub_division density of vertex in the resulting mesh
 #' @param normals whether the normal vectors should be calculated
