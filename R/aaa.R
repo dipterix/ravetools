@@ -256,6 +256,37 @@ lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NU
 #' @returns A character vector of \code{'#RRGGBB'} (or \code{'#RRGGBBAA'})
 #' color strings, the same length as \code{values}.
 #'
+#' @examples
+#'
+#' x <- rnorm(100)
+#' col <- color_ramp_continuous(x)
+#'
+#' plot(x, col = col, pch = 16)
+#'
+#'
+#' # Change color palettes with vector of colors
+#' col <- color_ramp_continuous(
+#'   x, cmap = c("lightgreen", "white", "pink"))
+#' plot(x, col = col, pch = 16)
+#'
+#' # Using colorRamp
+#' col <- color_ramp_continuous(
+#'   x, cmap = colorRamp(c("black", "orangered", "orange")))
+#' plot(x, col = col, pch = 16)
+#'
+#' # Using color ramp palette `function(n) { ... }`
+#' col <- color_ramp_continuous(
+#'   x, cmap = hcl.colors, palette = "Blue-Red 3")
+#' plot(x, col = col, pch = 16)
+#'
+#' # Set range
+#' col <- color_ramp_continuous(
+#'   x, clim = c(0, 1),
+#'   cmap = c("black", "orangered", "orange"))
+#' plot(x, col = col, pch = 16)
+#'
+#'
+#'
 #' @export
 color_ramp_continuous <- function(values, clim = range(values, na.rm = TRUE),
                                   cmap = grDevices::hcl.colors(11), ...) {
@@ -273,9 +304,17 @@ color_ramp_continuous <- function(values, clim = range(values, na.rm = TRUE),
 
   # cmap is either a vector or a function returned by colorRamp
   if (!is.function(cmap)) {
-    cmap <- grDevices::colorRamp(colors = cmap, ...)
+    cmap <- grDevices::colorRamp(colors = cmap, ...)(values_01)
+  } else {
+    if (names(formals(cmap))[[1]] == "n") {
+      # colorRampPalette
+      cmap <- cmap(256, ...)
+      return(cmap[round(values_01 * 255) + 1])
+    } else {
+      cmap <- cmap(values_01, ...)
+    }
   }
-  cmap <- cmap(values_01)
+  # cmap <- cmap(values_01)
   if (ncol(cmap) >= 4) {
     col <- grDevices::rgb(
       red = cmap[, 1],
@@ -294,3 +333,6 @@ color_ramp_continuous <- function(values, clim = range(values, na.rm = TRUE),
   }
   col
 }
+
+
+# color_ramp_
