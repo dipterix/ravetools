@@ -381,6 +381,7 @@ SEXP vcgUniformResample(
       normals(2,i) = (*vi).N()[2];
       ++vi;
     }
+    Rcpp::checkUserInterrupt();
     ravetools::FaceIterator fi = offsetMesh.face.begin();
     for ( int i = 0; i < offsetMesh.fn ; i++, fi++ ) {
       itout(0, i) = indiceout[ fi->cV(0) ] + 1;
@@ -1094,8 +1095,15 @@ Rcpp::List vcgFixDefects(
 
         // 1. Remove degenerate / duplicate faces (zero-area, repeated triangles)
         vcg::tri::Clean<ravetools::MyMesh>::RemoveDegenerateFace(m);
+        Rcpp::checkUserInterrupt();
+
         vcg::tri::Clean<ravetools::MyMesh>::RemoveDuplicateFace(m);
-        if (verbose) Rprintf("vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=%d nf=%d\n", m.vn, m.fn);
+        Rcpp::checkUserInterrupt();
+
+        if (verbose) {
+            Rprintf("vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=%d nf=%d\n",
+                    m.vn, m.fn);
+        }
 
         // 2. Weld near-coincident vertices, closes cracks that arise from
         //    duplicated vertices at (near-)identical positions.
@@ -1110,36 +1118,57 @@ Rcpp::List vcgFixDefects(
             merged = vcg::tri::Clean<ravetools::MyMesh>::MergeCloseVertex(
                 m, (ravetools::ScalarType)tol);
         }
-        if (verbose) Rprintf("vcgFixDefects: [2] merged %d close vertices -> nv=%d nf=%d\n", merged, m.vn, m.fn);
+
+        Rcpp::checkUserInterrupt();
+        if (verbose) {
+            Rprintf("vcgFixDefects: [2] merged %d close vertices -> nv=%d nf=%d\n",
+                    merged, m.vn, m.fn);
+        }
 
         // 3. Ear-cut fill any remaining small boundary loops ("isolated
         //    edges" / small holes that are genuine gaps, not duplicate-vertex
         //    cracks, and therefore are not closed by welding).
         vcg::tri::Allocator<ravetools::MyMesh>::CompactEveryVector(m);
         vcg::tri::UpdateTopology<ravetools::MyMesh>::FaceFace(m);
+        Rcpp::checkUserInterrupt();
 
         // MinimumWeightEar inspects neighboring faces' and vertices' normals
         // (FFlip()->cN(), e0.v->N()) while picking the best ear to cut, so
         // both must be allocated *and* populated before EarCuttingFill runs.
         vcg::tri::UpdateNormal<ravetools::MyMesh>::PerFaceNormalized(m);
         vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexNormalized(m);
+        Rcpp::checkUserInterrupt();
 
-        if (verbose) Rprintf("vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=%d)\n", max_hole_size);
+        if (verbose) {
+          Rprintf("vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=%d)\n", max_hole_size);
+        }
         int holes_filled = vcg::tri::Hole<ravetools::MyMesh>::template EarCuttingFill<
             vcg::tri::MinimumWeightEar<ravetools::MyMesh> >(m, max_hole_size, false);
-        if (verbose) Rprintf("vcgFixDefects: [3b] filled %d hole(s) -> nv=%d nf=%d\n", holes_filled, m.vn, m.fn);
+        if (verbose) {
+          Rprintf("vcgFixDefects: [3b] filled %d hole(s) -> nv=%d nf=%d\n",
+                  holes_filled, m.vn, m.fn);
+        }
 
         // 4. Remove unreferenced vertices, compact containers
         vcg::tri::Clean<ravetools::MyMesh>::RemoveUnreferencedVertex(m);
         vcg::tri::Allocator<ravetools::MyMesh>::CompactEveryVector(m);
-        if (verbose) Rprintf("vcgFixDefects: [4] removed unreferenced vertices -> nv=%d nf=%d\n", m.vn, m.fn);
+        Rcpp::checkUserInterrupt();
+        if (verbose) {
+          Rprintf("vcgFixDefects: [4] removed unreferenced vertices -> nv=%d nf=%d\n", m.vn, m.fn);
+        }
 
         // 5. Fix face winding order: orient all faces coherently
         vcg::tri::UpdateTopology<ravetools::MyMesh>::FaceFace(m);
-        if (verbose) Rprintf("vcgFixDefects: [5a] topology rebuilt, orienting coherently\n");
+        if (verbose) {
+          Rprintf("vcgFixDefects: [5a] topology rebuilt, orienting coherently\n");
+        }
         bool is_oriented = false, is_orientable = false;
         vcg::tri::Clean<ravetools::MyMesh>::OrientCoherentlyMesh(m, is_oriented, is_orientable);
-        if (verbose) Rprintf("vcgFixDefects: [5b] oriented=%d orientable=%d\n", (int)is_oriented, (int)is_orientable);
+        Rcpp::checkUserInterrupt();
+        if (verbose) {
+          Rprintf("vcgFixDefects: [5b] oriented=%d orientable=%d\n",
+                  (int)is_oriented, (int)is_orientable);
+        }
 
         // If the mesh is now a single watertight, coherently-oriented
         // component, make sure normals point outward (assumes watertight,
@@ -1151,10 +1180,14 @@ Rcpp::List vcgFixDefects(
             vcg::tri::UpdateTopology<ravetools::MyMesh>::FaceFace(m);
             flipped = vcg::tri::Clean<ravetools::MyMesh>::FlipNormalOutside(m);
         }
+        Rcpp::checkUserInterrupt();
 
         // Recompute normals for output
         vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexNormalizedPerFace(m);
+        Rcpp::checkUserInterrupt();
+
         vcg::tri::UpdateNormal<ravetools::MyMesh>::NormalizePerVertex(m);
+        Rcpp::checkUserInterrupt();
 
         if (verbose) {
             Rprintf("vcgFixDefects: removed/merged %d vertices (tol=%.6g), filled %d hole(s)\n",

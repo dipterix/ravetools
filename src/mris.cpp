@@ -422,6 +422,8 @@ void deformTowardIntensityTarget(MrisMesh &m, const IntensityVolume &vol, float 
 
         if (verbose && ((n + 1) % 5 == 0)) {
             Rprintf("  %s surface: iter %3d/%d\n", label, n + 1, niterations);
+        } else {
+            Rcpp::checkUserInterrupt();
         }
     }
 }
@@ -596,7 +598,11 @@ Rcpp::List mrisSmooth(
 
     // mrisCheckClosedManifold(m, "mris_smooth");
 
-    if (verbose) Rprintf("mris_smooth: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    if (verbose) {
+        Rprintf("mris_smooth: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    } else {
+        Rcpp::checkUserInterrupt();
+    }
     mrisBuildAdjacency(m, /* two_ring = */ false);
 
     mrisComputeNormals(m);
@@ -606,8 +612,10 @@ Rcpp::List mrisSmooth(
     for (int pass = 0; pass < npasses; pass++) {
         Rcpp::checkUserInterrupt();
 
-        if (verbose) Rprintf("mris_smooth: pass %d/%d: averaging vertex positions over %d iterations\n",
-                             pass + 1, npasses, niterations);
+        if (verbose) {
+            Rprintf("mris_smooth: pass %d/%d: averaging vertex positions over %d iterations\n",
+                    pass + 1, npasses, niterations);
+        }
 
         // `niterations` rounds of include-self 1-ring averaging applied
         // directly to the vertex coordinates (the same operation mris_inflate
@@ -625,7 +633,9 @@ Rcpp::List mrisSmooth(
         }
     }
 
-    if (verbose) Rprintf("mris_smooth: done\n");
+    if (verbose) {
+        Rprintf("mris_smooth: done\n");
+    }
 
     return mrisPackMeshOutput(m);
 }
@@ -675,7 +685,9 @@ Rcpp::List mrisInflate(
 
     // --- Pre-processing ---
 
-    if (verbose) Rprintf("mris_inflate: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    if (verbose) {
+        Rprintf("mris_inflate: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    }
     mrisBuildAdjacency(m, /* two_ring = */ true);
 
     // Normals and area from the input mesh
@@ -694,7 +706,9 @@ Rcpp::List mrisInflate(
 
     // Reference distances from the scaled positions (these are what l_dist
     // tries to preserve).
-    if (verbose) Rprintf("mris_inflate: computing original distances\n");
+    if (verbose) {
+        Rprintf("mris_inflate: computing original distances\n");
+    }
     mrisStoreOriginalDistances(m);
 
     // --- Inflation loop ---
@@ -765,7 +779,9 @@ Rcpp::List mrisInflate(
         n_avg /= 2;
     }
 
-    if (verbose) Rprintf("mris_inflate: done (%d total iterations)\n", total_iters);
+    if (verbose) {
+        Rprintf("mris_inflate: done (%d total iterations)\n", total_iters);
+    }
 
     // --- Post-processing ---
 
@@ -871,7 +887,9 @@ Rcpp::List mrisSphere(
 
     // mrisCheckClosedManifold(m, "mris_sphere");
 
-    if (verbose) Rprintf("mris_sphere: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    if (verbose) {
+        Rprintf("mris_sphere: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    }
     mrisBuildAdjacency(m, /* two_ring = */ true);
 
     mrisComputeNormals(m);
@@ -891,7 +909,9 @@ Rcpp::List mrisSphere(
     if (radius <= 0.0f) radius = DEFAULT_RADIUS;
 
     // --- Faithful radial projection onto the target sphere ---
-    if (verbose) Rprintf("mris_sphere: projecting onto sphere of radius %.2f\n", radius);
+    if (verbose) {
+        Rprintf("mris_sphere: projecting onto sphere of radius %.2f\n", radius);
+    }
     mrisProjectOntoSphere(m, radius);
 
     mrisComputeNormals(m);
@@ -945,7 +965,9 @@ Rcpp::List mrisSphere(
         }
     }
 
-    if (verbose) Rprintf("mris_sphere: done (%d iterations)\n", niterations);
+    if (verbose) {
+        Rprintf("mris_sphere: done (%d iterations)\n", niterations);
+    }
 
     return mrisPackMeshOutput(m);
 }
@@ -1028,7 +1050,10 @@ Rcpp::List mrisMakeSurfaces(
     mrisLoadMesh(m, vb_, it_);
     // mrisCheckClosedManifold(m, "mris_make_surfaces");
 
-    if (verbose) Rprintf("mris_make_surfaces: building adjacency for %d vertices, %d faces\n", m.nv, m.nf);
+    if (verbose) {
+        Rprintf("mris_make_surfaces: building adjacency for %d vertices, %d faces\n",
+                m.nv, m.nf);
+    }
     mrisBuildAdjacency(m, /* two_ring = */ false);
     mrisComputeNormals(m);
 
@@ -1089,7 +1114,9 @@ Rcpp::List mrisMakeSurfaces(
                                 "pial", verbose);
     Rcpp::List pial_out = mrisPackMeshOutput(m);
 
-    if (verbose) Rprintf("mris_make_surfaces: done\n");
+    if (verbose) {
+        Rprintf("mris_make_surfaces: done\n");
+    }
 
     return Rcpp::List::create(
         Rcpp::Named("white") = white_out,
