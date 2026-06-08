@@ -64,7 +64,7 @@ plane_geometry <- function(width = 1, height = 1, shape = c(2, 2)) {
   indices <- matrix(as.vector(indices), nrow = 3L, byrow = FALSE)
 
   # return rgl-style surface
-  structure(list(vb = vertices, it = indices), class = "mesh3d")
+  structure(list(vb = vertices, it = indices), class = c("ravetools_mesh3d", "mesh3d"))
 }
 
 #' @title Project plane to a surface

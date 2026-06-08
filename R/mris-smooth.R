@@ -64,29 +64,29 @@ mris_smooth <- function(
     rescale     = FALSE,
     verbose     = FALSE
 ) {
-    mesh <- meshintegrity(mesh, facecheck = TRUE)
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
 
-    vb <- mesh$vb[1:3, , drop = FALSE]
-    storage.mode(vb) <- "double"
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
 
-    it <- mesh$it
-    storage.mode(it) <- "integer"
+  it <- mesh$it
+  storage.mode(it) <- "integer"
 
-    tmp <- mrisSmooth(
-        vb_         = vb,
-        it_         = it,
-        niterations = as.integer(niterations)[[1L]],
-        npasses     = as.integer(npasses)[[1L]],
-        rescale     = as.logical(rescale)[[1L]],
-        verbose     = as.logical(verbose)[[1L]]
-    )
+  tmp <- mrisSmooth(
+    vb_         = vb,
+    it_         = it,
+    niterations = as.integer(niterations)[[1L]],
+    npasses     = as.integer(npasses)[[1L]],
+    rescale     = as.logical(rescale)[[1L]],
+    verbose     = as.logical(verbose)[[1L]]
+  )
 
-    structure(
-        list(
-            vb      = rbind(tmp$vb, 1),
-            it      = it,
-            normals = rbind(tmp$normals, 1)
-        ),
-        class = "mesh3d"
-    )
+  structure(
+    list(
+      vb      = rbind(tmp$vb, 1),
+      it      = it,
+      normals = rbind(tmp$normals, 1)
+    ),
+    class = c("ravetools_mesh3d", "mesh3d")
+  )
 }

@@ -139,7 +139,7 @@ volume <- left_hippocampus_mask + runif(n = n_vox, 0, 1)
 vox2ras <- diag(1, 4)
 mesh <- vcg_isosurface(volume, threshold_lb = 0.99)
 
-plot_mesh_polygon(mesh)
+plot(mesh)
 
 # Fix defects
 mesh <- vcg_fix_defects(mesh, verbose = TRUE, merge_tolerance = 1.75)
@@ -153,7 +153,7 @@ res <- mris_make_surfaces(
   IJK2RAS = vox2ras
 )
 
-plot_mesh_polygon(res$pial)
+plot(res$pial)
 
 
 }

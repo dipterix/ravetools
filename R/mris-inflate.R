@@ -93,12 +93,12 @@
 #' oldpar <- par(mfrow = c(1, 2))
 #' on.exit({ par(oldpar) })
 #'
-#' plot_mesh_polygon(
+#' plot(
 #'   mesh, col = col,
 #'   eye = c(0, 100, 0),
 #'   up = c(1, 0, 0))
 #'
-#' plot_mesh_polygon(
+#' plot(
 #'   result$mesh, col = col,
 #'   eye = c(0, 100, 0),
 #'   up = c(1, 0, 0))
@@ -107,51 +107,44 @@
 #' }
 #'
 #' @export
-mris_inflate <- function(
-    mesh,
-    n_averages    = 16L,
-    niterations   = 10L,
-    l_spring_norm = 1.0,
-    l_dist        = 0.1,
-    momentum      = 0.9,
-    dt            = 0.9,
-    desired_rms   = 0.015,
-    scale_brain   = TRUE,
-    verbose       = FALSE
-) {
-    mesh <- meshintegrity(mesh, facecheck = TRUE)
+mris_inflate <- function(mesh,
+                         n_averages    = 16L,
+                         niterations   = 10L,
+                         l_spring_norm = 1.0,
+                         l_dist        = 0.1,
+                         momentum      = 0.9,
+                         dt            = 0.9,
+                         desired_rms   = 0.015,
+                         scale_brain   = TRUE,
+                         verbose       = FALSE) {
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
 
-    vb <- mesh$vb[1:3, , drop = FALSE]
-    storage.mode(vb) <- "double"
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
 
-    it <- mesh$it
-    storage.mode(it) <- "integer"
+  it <- mesh$it
+  storage.mode(it) <- "integer"
 
-    tmp <- mrisInflate(
-        vb_           = vb,
-        it_           = it,
-        n_averages    = as.integer(n_averages)[[1L]],
-        niterations   = as.integer(niterations)[[1L]],
-        l_spring_norm = as.double(l_spring_norm)[[1L]],
-        l_dist        = as.double(l_dist)[[1L]],
-        momentum      = as.double(momentum)[[1L]],
-        dt            = as.double(dt)[[1L]],
-        desired_rms   = as.double(desired_rms)[[1L]],
-        scale_brain   = as.logical(scale_brain)[[1L]],
-        verbose       = as.logical(verbose)[[1L]]
-    )
+  tmp <- mrisInflate(
+    vb_           = vb,
+    it_           = it,
+    n_averages    = as.integer(n_averages)[[1L]],
+    niterations   = as.integer(niterations)[[1L]],
+    l_spring_norm = as.double(l_spring_norm)[[1L]],
+    l_dist        = as.double(l_dist)[[1L]],
+    momentum      = as.double(momentum)[[1L]],
+    dt            = as.double(dt)[[1L]],
+    desired_rms   = as.double(desired_rms)[[1L]],
+    scale_brain   = as.logical(scale_brain)[[1L]],
+    verbose       = as.logical(verbose)[[1L]]
+  )
 
-    inflated <- structure(
-        list(
-            vb      = rbind(tmp$vb, 1),
-            it      = it,
-            normals = rbind(tmp$normals, 1)
-        ),
-        class = "mesh3d"
-    )
+  inflated <- structure(list(
+    vb      = rbind(tmp$vb, 1),
+    it      = it,
+    normals = rbind(tmp$normals, 1)
+  ),
+  class = c("ravetools_mesh3d", "mesh3d"))
 
-    list(
-        mesh = inflated,
-        sulc = as.numeric(tmp$sulc)
-    )
+  list(mesh = inflated, sulc = as.numeric(tmp$sulc))
 }

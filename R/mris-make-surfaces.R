@@ -106,7 +106,7 @@
 #' vox2ras <- diag(1, 4)
 #' mesh <- vcg_isosurface(volume, threshold_lb = 0.99)
 #'
-#' plot_mesh_polygon(mesh)
+#' plot(mesh)
 #'
 #' # Fix defects
 #' mesh <- vcg_fix_defects(mesh, verbose = TRUE, merge_tolerance = 1.75)
@@ -120,7 +120,7 @@
 #'   IJK2RAS = vox2ras
 #' )
 #'
-#' plot_mesh_polygon(res$pial)
+#' plot(res$pial)
 #'
 #'
 #' }
@@ -143,69 +143,69 @@ mris_make_surfaces <- function(
     dt            = 0.5,
     verbose       = FALSE
 ) {
-    mesh <- meshintegrity(mesh, facecheck = TRUE)
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
 
-    vb <- mesh$vb[1:3, , drop = FALSE]
-    storage.mode(vb) <- "double"
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
 
-    it <- mesh$it
-    storage.mode(it) <- "integer"
+  it <- mesh$it
+  storage.mode(it) <- "integer"
 
-    volume <- as.array(volume)
-    if (length(dim(volume)) != 3L) {
-        stop("`mris_make_surfaces`: `volume` must be a 3-dimensional array")
-    }
-    storage.mode(volume) <- "double"
+  volume <- as.array(volume)
+  if (length(dim(volume)) != 3L) {
+    stop("`mris_make_surfaces`: `volume` must be a 3-dimensional array")
+  }
+  storage.mode(volume) <- "double"
 
-    if (length(IJK2RAS) != 16L) {
-        # Conformed-volume ('LIA', 1mm isotropic, centered) default; the same
-        # convention `fill_surface` assumes when `IJK2RAS` is not supplied,
-        # generalized here from a fixed cube edge to `dim(volume)`.
-        vol_dim <- dim(volume)
-        IJK2RAS <- matrix(
-            nrow = 4, byrow = TRUE,
-            c(-1, 0, 0, vol_dim[[1]] / 2,
-              0, 0, 1, -vol_dim[[3]] / 2,
-              0, -1, 0, vol_dim[[2]] / 2,
-              0, 0, 0, 1))
-    } else {
-        IJK2RAS <- matrix(as.double(IJK2RAS), nrow = 4)
-    }
+  if (length(IJK2RAS) != 16L) {
+    # Conformed-volume ('LIA', 1mm isotropic, centered) default; the same
+    # convention `fill_surface` assumes when `IJK2RAS` is not supplied,
+    # generalized here from a fixed cube edge to `dim(volume)`.
+    vol_dim <- dim(volume)
+    IJK2RAS <- matrix(
+      nrow = 4, byrow = TRUE,
+      c(-1, 0, 0, vol_dim[[1]] / 2,
+        0, 0, 1, -vol_dim[[3]] / 2,
+        0, -1, 0, vol_dim[[2]] / 2,
+        0, 0, 0, 1))
+  } else {
+    IJK2RAS <- matrix(as.double(IJK2RAS), nrow = 4)
+  }
 
-    ras2ijk <- solve(IJK2RAS)
-    storage.mode(ras2ijk) <- "double"
+  ras2ijk <- solve(IJK2RAS)
+  storage.mode(ras2ijk) <- "double"
 
-    tmp <- mrisMakeSurfaces(
-        vb_             = vb,
-        it_             = it,
-        volume_         = volume,
-        ras2ijk_        = ras2ijk,
-        white_intensity = as.double(white_intensity)[[1L]],
-        pial_intensity  = as.double(pial_intensity)[[1L]],
-        max_thickness   = as.double(max_thickness)[[1L]],
-        step_size       = as.double(step_size)[[1L]],
-        n_averages      = as.integer(n_averages)[[1L]],
-        niterations     = as.integer(niterations)[[1L]],
-        l_intensity     = as.double(l_intensity)[[1L]],
-        l_spring        = as.double(l_spring)[[1L]],
-        momentum        = as.double(momentum)[[1L]],
-        dt              = as.double(dt)[[1L]],
-        verbose         = as.logical(verbose)[[1L]]
+  tmp <- mrisMakeSurfaces(
+    vb_             = vb,
+    it_             = it,
+    volume_         = volume,
+    ras2ijk_        = ras2ijk,
+    white_intensity = as.double(white_intensity)[[1L]],
+    pial_intensity  = as.double(pial_intensity)[[1L]],
+    max_thickness   = as.double(max_thickness)[[1L]],
+    step_size       = as.double(step_size)[[1L]],
+    n_averages      = as.integer(n_averages)[[1L]],
+    niterations     = as.integer(niterations)[[1L]],
+    l_intensity     = as.double(l_intensity)[[1L]],
+    l_spring        = as.double(l_spring)[[1L]],
+    momentum        = as.double(momentum)[[1L]],
+    dt              = as.double(dt)[[1L]],
+    verbose         = as.logical(verbose)[[1L]]
+  )
+
+  pack <- function(part) {
+    structure(
+      list(
+        vb      = rbind(part$vb, 1),
+        it      = it,
+        normals = rbind(part$normals, 1)
+      ),
+      class = c("ravetools_mesh3d", "mesh3d")
     )
+  }
 
-    pack <- function(part) {
-        structure(
-            list(
-                vb      = rbind(part$vb, 1),
-                it      = it,
-                normals = rbind(part$normals, 1)
-            ),
-            class = "mesh3d"
-        )
-    }
-
-    list(
-        white = pack(tmp$white),
-        pial  = pack(tmp$pial)
-    )
+  list(
+    white = pack(tmp$white),
+    pial  = pack(tmp$pial)
+  )
 }

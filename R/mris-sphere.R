@@ -95,33 +95,33 @@ mris_sphere <- function(
     dt            = 0.05,
     verbose       = FALSE
 ) {
-    mesh <- meshintegrity(mesh, facecheck = TRUE)
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
 
-    vb <- mesh$vb[1:3, , drop = FALSE]
-    storage.mode(vb) <- "double"
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
 
-    it <- mesh$it
-    storage.mode(it) <- "integer"
+  it <- mesh$it
+  storage.mode(it) <- "integer"
 
-    tmp <- mrisSphere(
-        vb_           = vb,
-        it_           = it,
-        target_radius = as.double(target_radius)[[1L]],
-        n_averages    = as.integer(n_averages)[[1L]],
-        niterations   = as.integer(niterations)[[1L]],
-        l_dist        = as.double(l_dist)[[1L]],
-        l_area        = as.double(l_area)[[1L]],
-        momentum      = as.double(momentum)[[1L]],
-        dt            = as.double(dt)[[1L]],
-        verbose       = as.logical(verbose)[[1L]]
-    )
+  tmp <- mrisSphere(
+    vb_           = vb,
+    it_           = it,
+    target_radius = as.double(target_radius)[[1L]],
+    n_averages    = as.integer(n_averages)[[1L]],
+    niterations   = as.integer(niterations)[[1L]],
+    l_dist        = as.double(l_dist)[[1L]],
+    l_area        = as.double(l_area)[[1L]],
+    momentum      = as.double(momentum)[[1L]],
+    dt            = as.double(dt)[[1L]],
+    verbose       = as.logical(verbose)[[1L]]
+  )
 
-    structure(
-        list(
-            vb      = rbind(tmp$vb, 1),
-            it      = it,
-            normals = rbind(tmp$normals, 1)
-        ),
-        class = "mesh3d"
-    )
+  structure(
+    list(
+      vb      = rbind(tmp$vb, 1),
+      it      = it,
+      normals = rbind(tmp$normals, 1)
+    ),
+    class = c("ravetools_mesh3d", "mesh3d")
+  )
 }

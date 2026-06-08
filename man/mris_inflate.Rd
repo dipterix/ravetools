@@ -118,12 +118,12 @@ col <- pal[pmax(pmin(round(result$sulc * 10 + 64), 128), 1)]
 oldpar <- par(mfrow = c(1, 2))
 on.exit({ par(oldpar) })
 
-plot_mesh_polygon(
+plot(
   mesh, col = col,
   eye = c(0, 100, 0),
   up = c(1, 0, 0))
 
-plot_mesh_polygon(
+plot(
   result$mesh, col = col,
   eye = c(0, 100, 0),
   up = c(1, 0, 0))

@@ -158,7 +158,7 @@ ensure_mesh3d <- function(surface) {
     }
     surface <- structure(list(
       vb = rbind(t(surface$vertices), 1),
-      it = face), class = "mesh3d")
+      it = face), class = c("ravetools_mesh3d", "mesh3d"))
   } else if (inherits(surface, "ieegio_surface")) {
     if (!inherits(surface, "ieegio_surface_contains_geometry")) {
       stop("Surface object has no geometry")
@@ -188,10 +188,10 @@ ensure_mesh3d <- function(surface) {
 
       surface <- structure(list(
         vb = vertices,
-        it = face), class = "mesh3d")
+        it = face), class = c("ravetools_mesh3d", "mesh3d"))
     } else {
       surface <- structure(list(
-        vb = vertices), class = "mesh3d")
+        vb = vertices), class = c("ravetools_mesh3d", "mesh3d"))
     }
   }
   if (!inherits(surface, "mesh3d")) {
@@ -202,7 +202,7 @@ ensure_mesh3d <- function(surface) {
       is.matrix(surface$vb) &&
       nrow(surface$vb) %in% c(3L, 4L)
     ) {
-      surface <- structure(surface, class = "mesh3d")
+      surface <- structure(surface, class = c("ravetools_mesh3d", "mesh3d"))
     } else {
       stop("ravetools:::ensure_mesh3d: `surface` must be a mesh3d object (package rgl) or a fs.surface object (package freesurferformats)")
     }

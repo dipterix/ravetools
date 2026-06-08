@@ -168,7 +168,7 @@ vcg_update_normals <- function(
     tmp <- list()
     tmp$vb <- rbind(t(mesh), 1)
     mesh <- tmp
-    class(mesh) <- "mesh3d"
+    class(mesh) <- c("ravetools_mesh3d", "mesh3d")
   }
   mesh <- meshintegrity(mesh)
   vb <- mesh$vb[1:3, , drop = FALSE]
@@ -209,7 +209,7 @@ vcg_barycentric_subdivision <- function(mesh) {
   mesh$it[3, ] <- vb_faces
 
   structure(
-    class = "mesh3d",
+    class = c("ravetools_mesh3d", "mesh3d"),
     list(
       vb = cbind(mesh$vb[1:3, , drop = FALSE], vb, deparse.level = 0),
       it = cbind(mesh$it[1:3, , drop = FALSE], f1, f2, deparse.level = 0)
@@ -607,7 +607,7 @@ vcg_fix_defects <- function(
       it      = tmp$it,
       normals = tmp$normals
     ),
-    class = "mesh3d"
+    class = c("ravetools_mesh3d", "mesh3d")
   )
 
   attr(repaired, "info") <- tmp$info
@@ -687,7 +687,7 @@ vcg_isosurface <- function(
     sel <- sel & volume < threshold_ub
   }
 
-  mesh <- structure(vcgIsoSurface( sel, 0.5 ), class = "mesh3d")
+  mesh <- structure(vcgIsoSurface( sel, 0.5 ), class = c("ravetools_mesh3d", "mesh3d"))
 
   # voxel (0-indexed) to RAS
   mesh$vb <- (vox_to_ras %*% rbind(mesh$vb, 1))[seq_len(3), ]
@@ -754,7 +754,7 @@ vcg_uniform_remesh <- function(
   out <- structure(
     vcgUniformResample( vb, it, voxel_size, offset, discretize,
                         multi_sample, absolute_distance, merge_clost, !verbose ),
-    class = "mesh3d"
+    class = c("ravetools_mesh3d", "mesh3d")
   )
   return(meshintegrity(out))
 }

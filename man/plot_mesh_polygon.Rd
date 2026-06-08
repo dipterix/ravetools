@@ -217,7 +217,7 @@ before calling \pkg{ravetools} mesh functions.
 mesh <- vcg_isosurface(left_hippocampus_mask)
 
 # Surface alone
-plot_mesh_polygon(
+plot(
   mesh,
   eye    = c(150, 30, 0),
   lookat = c(0, 0, 0),

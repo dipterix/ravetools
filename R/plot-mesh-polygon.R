@@ -134,7 +134,7 @@
 #' mesh <- vcg_isosurface(left_hippocampus_mask)
 #'
 #' # Surface alone
-#' plot_mesh_polygon(
+#' plot(
 #'   mesh,
 #'   eye    = c(150, 30, 0),
 #'   lookat = c(0, 0, 0),
@@ -501,4 +501,34 @@ plot_mesh_polygon <- function(
                     col = col_shaded, border = border_col)
 
   invisible(list(xlim = xlim, ylim = ylim))
+}
+
+#' @export
+plot.ravetools_mesh3d <- function(x, method = c("polygon", "dotcloud", "rgl"), ...) {
+  method <- match.arg(method)
+  switch(
+    method,
+    "polygon" = {
+      plot_mesh_polygon(mesh = x, ...)
+    },
+    "dotcloud" = {
+      plot_mesh_dotcloud(mesh = x, ...)
+    },
+    {
+      # rgl
+      rgl_view({
+        rgl_call("shade3d", x, ...)
+      })
+    }
+  )
+}
+
+#' @export
+print.ravetools_mesh3d <- function(x, prefix = "", ...) {
+  cat(prefix, " mesh3d object with ", ncol(x$vb), " vertices, ",
+      paste(c(if (length(x$ip)) paste(length(x$ip), "points"),
+              if (length(x$is)) paste(ncol(x$is), "segments"),
+              if (length(x$it)) paste(ncol(x$it), "triangles"),
+              if (length(x$ib)) paste(ncol(x$ib), "quads")), collapse = ", "),
+      ".\n", sep = "")
 }
