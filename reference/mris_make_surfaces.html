@@ -17,7 +17,7 @@ boundaries, producing a white and a pial surface."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -219,7 +219,7 @@ reconstruction. <em>NeuroImage</em>, 9(2), 179-194 (1999).</p>
 <span class="r-in"><span><span class="va">vox2ras</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="fu"><a href="vcg_isosurface.html">vcg_isosurface</a></span><span class="op">(</span><span class="va">volume</span>, threshold_lb <span class="op">=</span> <span class="fl">0.99</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="plot_mesh_polygon.html">plot_mesh_polygon</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fix defects</span></span></span>
 <span class="r-in"><span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="fu"><a href="vcg_fix_defects.html">vcg_fix_defects</a></span><span class="op">(</span><span class="va">mesh</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, merge_tolerance <span class="op">=</span> <span class="fl">1.75</span><span class="op">)</span></span></span>
@@ -233,7 +233,7 @@ reconstruction. <em>NeuroImage</em>, 9(2), 179-194 (1999).</p>
 <span class="r-in"><span>  IJK2RAS <span class="op">=</span> <span class="va">vox2ras</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="plot_mesh_polygon.html">plot_mesh_polygon</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pial</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>

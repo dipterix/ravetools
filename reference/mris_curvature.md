@@ -96,7 +96,7 @@ if (is_not_cran()) {
 data("left_hippocampus_mask")
 mesh <- vcg_isosurface(left_hippocampus_mask)
 
-plot_mesh_polygon(mesh)
+plot(mesh)
 
 # Fix defects
 mesh <- vcg_fix_defects(mesh, verbose = TRUE)
@@ -112,8 +112,8 @@ col <- color_ramp_continuous(
   res$k1, clim = c(-1, 1), alpha = TRUE,
   cmap = c("black", "gray", "red"))
 
-plot_mesh_polygon(smoothed, col = list(col),
-                  eye = c(-100, 100, 0), up = c(0, 0, 1))
+plot(smoothed, col = list(col),
+     eye = c(-100, 100, 0), up = c(0, 0, 1))
 
 }
 
