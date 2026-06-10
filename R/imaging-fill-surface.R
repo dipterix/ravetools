@@ -207,6 +207,9 @@ ensure_mesh3d <- function(surface) {
       stop("ravetools:::ensure_mesh3d: `surface` must be a mesh3d object (package rgl) or a fs.surface object (package freesurferformats)")
     }
   }
+  if (!inherits(surface, "ravetools_mesh3d")) {
+    class(surface) <- c("ravetools_mesh3d", class(surface))
+  }
   return(surface)
 }
 
