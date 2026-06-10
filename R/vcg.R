@@ -513,6 +513,86 @@ vcg_average_edge_length <- function(mesh) {
   vcgAverageEdgeLength(vb_ = vb, it_ = it)
 }
 
+#' @title Maximum edge length of a triangular mesh
+#' @description Returns the length of the longest edge in the mesh.
+#' @param mesh triangular mesh of class \code{'mesh3d'}.
+#' @returns A single numeric value: the maximum edge length, in mesh units.
+#' @seealso \code{\link{vcg_average_edge_length}},
+#'   \code{\link{vcg_subdivide_max_edge_length}}
+#'
+#' @examples
+#' if (is_not_cran()) {
+#'
+#'   sphere <- vcg_sphere()
+#'   vcg_max_edge_length(sphere)
+#'
+#' }
+#'
+#' @export
+vcg_max_edge_length <- function(mesh) {
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+  vcgMaxEdgeLength(vb_ = vb, it_ = it)
+}
+
+#' @title Selectively subdivide mesh edges that exceed a length threshold
+#' @description
+#' Up-sample a triangular mesh by iteratively splitting only edges longer than
+#' \code{max_edge_len}. Each long edge is split at its midpoint; the new vertex
+#' is connected to the opposite corner of every adjacent face. Iteration stops
+#' when no edge exceeds the threshold or \code{max_iter} passes are exhausted.
+#'
+#' This is far cheaper than \code{\link{vcg_subdivision}} when most edges are
+#' already short and only a small fraction need splitting.
+#'
+#' @param mesh triangular mesh of class \code{'mesh3d'}.
+#' @param max_edge_len maximum allowed edge length (same units as mesh
+#'   coordinates).
+#' @param max_iter maximum number of refinement passes. When \code{NULL}
+#'   (default), derived automatically from the current maximum edge length:
+#'   \code{ceiling(log2(current_max / max_edge_len)) + 1L}, the minimum number
+#'   of bisections needed in the worst case. The loop also terminates early once
+#'   no edge exceeds the threshold.
+#' @returns An object of class \code{"mesh3d"} with all edges at most
+#'   \code{max_edge_len} long (provided \code{max_iter} was sufficient).
+#' @note The mesh must be manifold. Run \code{\link{vcg_fix_defects}} first if
+#'   the mesh has boundary edges or non-manifold vertices.
+#' @seealso \code{\link{vcg_max_edge_length}}, \code{\link{vcg_subdivision}}
+#'
+#' @inheritSection ensure_mesh3d Coercing Surface Inputs
+#'
+#' @examples
+#' if (is_not_cran()) {
+#'
+#'   sphere <- vcg_sphere()
+#'   cur_max <- vcg_max_edge_length(sphere)
+#'   sphere2 <- vcg_subdivide_max_edge_length(sphere, max_edge_len = cur_max * 0.4)
+#'   vcg_max_edge_length(sphere2)  # should be <= cur_max * 0.4
+#'
+#' }
+#'
+#' @export
+vcg_subdivide_max_edge_length <- function(mesh, max_edge_len, max_iter = NULL) {
+  mesh <- meshintegrity(mesh = mesh, facecheck = TRUE)
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  storage.mode(vb) <- "double"
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+  max_edge_len <- as.double(max_edge_len)
+  if (is.null(max_iter)) {
+    cur_max <- vcgMaxEdgeLength(vb_ = vb, it_ = it)
+    if (cur_max <= max_edge_len) {
+      return(mesh)
+    }
+    max_iter <- ceiling(log2(cur_max / max_edge_len)) + 1L
+  }
+  max_iter <- as.integer(max_iter)
+  vcgEdgeLengthSubdivision(vb, it, max_edge_len, max_iter)
+}
+
 #' @title Detect and repair defects in a triangular surface mesh
 #' @description
 #' Repairs common defects that prevent a mesh from being a closed, manifold,

@@ -408,7 +408,7 @@ public:
         out["normals"] = normalMatSub;
       }
 
-      out.attr("class") = "mesh3d";
+      out.attr("class") = Rcpp::CharacterVector::create("ravetools_mesh3d", "mesh3d");
       return out;
 
     } catch (std::exception& e) {

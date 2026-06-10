@@ -2,6 +2,7 @@
 #include "vcgCommon.h"
 #include <vcg/complex/algorithms/hole.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <cstdint>
 
 namespace {
@@ -55,6 +56,19 @@ double averageEdgeLength(ravetools::MyMesh &m)
     }
   }
   return (cnt > 0) ? (sum / cnt) : 0.0;
+}
+
+double maxEdgeLength(ravetools::MyMesh &m)
+{
+  double maxLen = 0.0;
+  for (ravetools::MyMesh::FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi) {
+    if (fi->IsD()) continue;
+    for (int j = 0; j < 3; j++) {
+      double len = vcg::Distance(fi->V(j)->P(), fi->V((j + 1) % 3)->P());
+      if (len > maxLen) maxLen = len;
+    }
+  }
+  return maxLen;
 }
 
 } // namespace
@@ -547,6 +561,41 @@ SEXP vcgEdgeSubdivision(SEXP vb_, SEXP it_)
 }
 
 // [[Rcpp::export]]
+SEXP vcgEdgeLengthSubdivision(SEXP vb_, SEXP it_, double maxEdgeLen, int maxIter)
+{
+  try {
+    ravetools::MyMesh m;
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m, vb_, it_);
+
+    m.face.EnableFFAdjacency();
+
+    vcg::tri::MidPoint<ravetools::MyMesh> midFunctor(&m);
+    vcg::tri::EdgeLen<ravetools::MyMesh, ravetools::ScalarType> edgePred(
+        static_cast<ravetools::ScalarType>(maxEdgeLen));
+
+    for (int iter = 0; iter < maxIter; iter++) {
+      vcg::tri::UpdateTopology<ravetools::MyMesh>::FaceFace(m);
+      bool refined = vcg::tri::RefineE<
+          ravetools::MyMesh,
+          vcg::tri::MidPoint<ravetools::MyMesh>,
+          vcg::tri::EdgeLen<ravetools::MyMesh, ravetools::ScalarType>>(
+          m, midFunctor, edgePred);
+      if (!refined) break;
+    }
+
+    vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexAngleWeighted(m);
+    vcg::tri::UpdateNormal<ravetools::MyMesh>::NormalizePerVertex(m);
+    return ravetools::IOMesh<ravetools::MyMesh>::vcgToR(m, false);
+
+  } catch (std::exception& e) {
+    Rcpp::stop(e.what());
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return R_NilValue; // -Wall
+}
+
+// [[Rcpp::export]]
 SEXP vcgVolume( SEXP mesh_ )
 {
   try {
@@ -1029,6 +1078,121 @@ double vcgAverageEdgeLength(SEXP vb_, SEXP it_) {
     Rcpp::stop("unknown exception");
   }
   return NA_REAL; // -Wall
+}
+
+// [[Rcpp::export]]
+double vcgMaxEdgeLength(SEXP vb_, SEXP it_) {
+  try {
+    ravetools::MyMesh m;
+    int check = ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m, vb_, it_);
+    if (check < 0) {
+      Rcpp::stop("vcgMaxEdgeLength: mesh has no faces and/or no vertices");
+    }
+    return maxEdgeLength(m);
+  } catch (std::exception& e) {
+    Rcpp::stop(e.what());
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return NA_REAL; // -Wall
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector vcgMeshPatchFaces(SEXP vb_, SEXP it_,
+                                       Rcpp::IntegerVector boundary_seq,
+                                       int seed_face)
+{
+  try {
+    ravetools::MyMesh m;
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m, vb_, it_);
+    int nv = (int)m.VN();
+    int nf = (int)m.FN();
+
+    m.face.EnableFFAdjacency();
+    vcg::tri::UpdateTopology<ravetools::MyMesh>::FaceFace(m);
+
+    // Build boundary edge set (canonical key: min*nv + max)
+    std::unordered_set<int64_t> cut_edges;
+    cut_edges.reserve(boundary_seq.size());
+    int nb = (int)boundary_seq.size();
+    for (int k = 0; k < nb; k++) {
+      int a = boundary_seq[k], b = boundary_seq[(k + 1) % nb];
+      cut_edges.insert((int64_t)std::min(a, b) * nv + std::max(a, b));
+    }
+
+    // BFS: returns 1-based face indices reachable from seed_fi
+    auto bfs = [&](int seed_fi) -> std::vector<int> {
+      std::vector<bool> vis(nf, false);
+      std::vector<int>  q(nf);
+      int head = 0, tail = 0;
+      vis[seed_fi] = true;
+      q[tail++] = seed_fi;
+      while (head < tail) {
+        int fi = q[head++];
+        ravetools::FacePointer fp = &m.face[fi];
+        for (int e = 0; e < 3; e++) {
+          if (fp->FFp(e) == fp) continue; // mesh boundary edge
+          int va  = (int)vcg::tri::Index(m, fp->V(e));
+          int vbi = (int)vcg::tri::Index(m, fp->V((e + 1) % 3));
+          if (cut_edges.count((int64_t)std::min(va, vbi) * nv + std::max(va, vbi)))
+            continue; // cut edge
+          int nb_fi = (int)vcg::tri::Index(m, fp->FFp(e));
+          if (!vis[nb_fi]) { vis[nb_fi] = true; q[tail++] = nb_fi; }
+        }
+      }
+      std::vector<int> result;
+      result.reserve(tail);
+      for (int i = 0; i < nf; i++)
+        if (vis[i] && !m.face[i].IsD()) result.push_back(i + 1); // 1-based
+      return result;
+    };
+
+    // Determine seed face
+    int seed_fi  = seed_face;
+    int other_fi = -1;
+
+    if (seed_face < 0) {
+      // Find two faces adjacent to first boundary edge
+      int v0 = boundary_seq[0], v1 = boundary_seq[1];
+      int64_t key = (int64_t)std::min(v0, v1) * nv + std::max(v0, v1);
+      for (auto fi = m.face.begin(); fi != m.face.end() && seed_fi < 0; ++fi) {
+        if (fi->IsD()) continue;
+        for (int e = 0; e < 3; e++) {
+          int va  = (int)vcg::tri::Index(m, fi->V(e));
+          int vbi = (int)vcg::tri::Index(m, fi->V((e + 1) % 3));
+          if ((int64_t)std::min(va, vbi) * nv + std::max(va, vbi) == key) {
+            seed_fi = (int)vcg::tri::Index(m, &*fi);
+            ravetools::FacePointer nbfp = fi->FFp(e);
+            if (nbfp != &*fi)
+              other_fi = (int)vcg::tri::Index(m, nbfp);
+            break;
+          }
+        }
+      }
+      if (seed_fi < 0)
+        Rcpp::stop("vcgMeshPatchFaces: could not find a face adjacent to the first boundary edge.");
+      if (other_fi < 0)
+        Rcpp::stop("vcgMeshPatchFaces: first boundary edge is on the mesh boundary; please specify seed_vertex explicitly.");
+    }
+
+    std::vector<int> patch = bfs(seed_fi);
+
+    // Non-dividing: loop does not partition the mesh — return all faces
+    if ((int)patch.size() == nf) return Rcpp::wrap(patch);
+
+    // Auto-select smaller side
+    if (seed_face < 0 && (int)patch.size() > nf / 2) {
+      patch = bfs(other_fi);
+    }
+
+    return Rcpp::wrap(patch);
+
+  } catch (std::exception& e) {
+    Rcpp::stop(e.what());
+  } catch (...) {
+    Rcpp::stop("unknown exception");
+  }
+  return Rcpp::IntegerVector(); // -Wall
 }
 
 // ---------------------------------------------------------------------------
