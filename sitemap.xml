@@ -45,6 +45,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/mris_curvature.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_inflate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_make_surfaces.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/mris_remesh.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_smooth.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_sphere.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/multitaper.html</loc></url>
@@ -77,10 +78,13 @@
 <url><loc>https://dipterix.org/ravetools/reference/vcg_fix_defects.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_kdtree_nearest.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_max_edge_length.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_mesh_patch.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_mesh_volume.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_raycaster.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_smooth.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_sphere.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_subdivide_max_edge_length.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_subdivision.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_subset_vertex.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_uniform_remesh.html</loc></url>

@@ -369,6 +369,9 @@ implementation is released under GPL license).
 
   Localize white-matter and `pial` surfaces from an intensity volume
 
+- [`mris_remesh()`](https://dipterix.org/ravetools/reference/mris_remesh.md)
+  : Isotropic re-triangulation of a surface mesh
+
 - [`mris_smooth()`](https://dipterix.org/ravetools/reference/mris_smooth.md)
   : Smooth a surface mesh
 
@@ -503,6 +506,12 @@ implementation is released under GPL license).
 
   Find nearest `k` points
 
+- [`vcg_max_edge_length()`](https://dipterix.org/ravetools/reference/vcg_max_edge_length.md)
+  : Maximum edge length of a triangular mesh
+
+- [`vcg_mesh_patch()`](https://dipterix.org/ravetools/reference/vcg_mesh_patch.md)
+  : Split a mesh into two patches along a geodesic boundary
+
 - [`vcg_mesh_volume()`](https://dipterix.org/ravetools/reference/vcg_mesh_volume.md)
   : Compute volume for manifold meshes
 
@@ -515,6 +524,9 @@ implementation is released under GPL license).
 
 - [`vcg_sphere()`](https://dipterix.org/ravetools/reference/vcg_sphere.md)
   : Simple 3-dimensional sphere mesh
+
+- [`vcg_subdivide_max_edge_length()`](https://dipterix.org/ravetools/reference/vcg_subdivide_max_edge_length.md)
+  : Selectively subdivide mesh edges that exceed a length threshold
 
 - [`vcg_subdivision()`](https://dipterix.org/ravetools/reference/vcg_subdivision.md)
   : Sub-divide (up-sample) a triangular mesh
