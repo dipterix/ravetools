@@ -3499,6 +3499,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mrisRemesh
+Rcpp::List mrisRemesh(SEXP vb_, SEXP it_, float target_edge_len, int niterations, int n_smooth, float damping, bool verbose);
+RcppExport SEXP _ravetools_mrisRemesh(SEXP vb_SEXP, SEXP it_SEXP, SEXP target_edge_lenSEXP, SEXP niterationsSEXP, SEXP n_smoothSEXP, SEXP dampingSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< float >::type target_edge_len(target_edge_lenSEXP);
+    Rcpp::traits::input_parameter< int >::type niterations(niterationsSEXP);
+    Rcpp::traits::input_parameter< int >::type n_smooth(n_smoothSEXP);
+    Rcpp::traits::input_parameter< float >::type damping(dampingSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrisRemesh(vb_, it_, target_edge_len, niterations, n_smooth, damping, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rawToUInt8
 SEXP rawToUInt8(SEXP x);
 RcppExport SEXP _ravetools_rawToUInt8(SEXP xSEXP) {
@@ -3731,6 +3748,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgEdgeLengthSubdivision
+SEXP vcgEdgeLengthSubdivision(SEXP vb_, SEXP it_, double maxEdgeLen, int maxIter);
+RcppExport SEXP _ravetools_vcgEdgeLengthSubdivision(SEXP vb_SEXP, SEXP it_SEXP, SEXP maxEdgeLenSEXP, SEXP maxIterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< double >::type maxEdgeLen(maxEdgeLenSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgEdgeLengthSubdivision(vb_, it_, maxEdgeLen, maxIter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // vcgVolume
 SEXP vcgVolume(SEXP mesh_);
 RcppExport SEXP _ravetools_vcgVolume(SEXP mesh_SEXP) {
@@ -3834,6 +3865,32 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
     Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
     rcpp_result_gen = Rcpp::wrap(vcgAverageEdgeLength(vb_, it_));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgMaxEdgeLength
+double vcgMaxEdgeLength(SEXP vb_, SEXP it_);
+RcppExport SEXP _ravetools_vcgMaxEdgeLength(SEXP vb_SEXP, SEXP it_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgMaxEdgeLength(vb_, it_));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgMeshPatchFaces
+Rcpp::IntegerVector vcgMeshPatchFaces(SEXP vb_, SEXP it_, Rcpp::IntegerVector boundary_seq, int seed_face);
+RcppExport SEXP _ravetools_vcgMeshPatchFaces(SEXP vb_SEXP, SEXP it_SEXP, SEXP boundary_seqSEXP, SEXP seed_faceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type boundary_seq(boundary_seqSEXP);
+    Rcpp::traits::input_parameter< int >::type seed_face(seed_faceSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgMeshPatchFaces(vb_, it_, boundary_seq, seed_face));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -4164,6 +4221,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_mrisSphere", (DL_FUNC) &_ravetools_mrisSphere, 10},
     {"_ravetools_mrisMakeSurfaces", (DL_FUNC) &_ravetools_mrisMakeSurfaces, 15},
     {"_ravetools_mrisCurvature", (DL_FUNC) &_ravetools_mrisCurvature, 3},
+    {"_ravetools_mrisRemesh", (DL_FUNC) &_ravetools_mrisRemesh, 7},
     {"_ravetools_rawToUInt8", (DL_FUNC) &_ravetools_rawToUInt8, 1},
     {"_ravetools_rawToInt8", (DL_FUNC) &_ravetools_rawToInt8, 1},
     {"_ravetools_rawToUInt16", (DL_FUNC) &_ravetools_rawToUInt16, 1},
@@ -4182,6 +4240,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgUniformResample", (DL_FUNC) &_ravetools_vcgUniformResample, 9},
     {"_ravetools_vcgUpdateNormals", (DL_FUNC) &_ravetools_vcgUpdateNormals, 5},
     {"_ravetools_vcgEdgeSubdivision", (DL_FUNC) &_ravetools_vcgEdgeSubdivision, 2},
+    {"_ravetools_vcgEdgeLengthSubdivision", (DL_FUNC) &_ravetools_vcgEdgeLengthSubdivision, 4},
     {"_ravetools_vcgVolume", (DL_FUNC) &_ravetools_vcgVolume, 1},
     {"_ravetools_vcgSphere", (DL_FUNC) &_ravetools_vcgSphere, 2},
     {"_ravetools_vcgDijkstra", (DL_FUNC) &_ravetools_vcgDijkstra, 4},
@@ -4190,6 +4249,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgSubset", (DL_FUNC) &_ravetools_vcgSubset, 3},
     {"_ravetools_vcgCountEdgeDefects", (DL_FUNC) &_ravetools_vcgCountEdgeDefects, 2},
     {"_ravetools_vcgAverageEdgeLength", (DL_FUNC) &_ravetools_vcgAverageEdgeLength, 2},
+    {"_ravetools_vcgMaxEdgeLength", (DL_FUNC) &_ravetools_vcgMaxEdgeLength, 2},
+    {"_ravetools_vcgMeshPatchFaces", (DL_FUNC) &_ravetools_vcgMeshPatchFaces, 4},
     {"_ravetools_vcgFixDefects", (DL_FUNC) &_ravetools_vcgFixDefects, 5},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}

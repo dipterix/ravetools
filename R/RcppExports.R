@@ -561,6 +561,10 @@ mrisCurvature <- function(vb_, it_, verbose = FALSE) {
     .Call(`_ravetools_mrisCurvature`, vb_, it_, verbose)
 }
 
+mrisRemesh <- function(vb_, it_, target_edge_len, niterations = 5L, n_smooth = 2L, damping = 0.99, verbose = FALSE) {
+    .Call(`_ravetools_mrisRemesh`, vb_, it_, target_edge_len, niterations, n_smooth, damping, verbose)
+}
+
 rawToUInt8 <- function(x) {
     .Call(`_ravetools_rawToUInt8`, x)
 }
@@ -633,6 +637,10 @@ vcgEdgeSubdivision <- function(vb_, it_) {
     .Call(`_ravetools_vcgEdgeSubdivision`, vb_, it_)
 }
 
+vcgEdgeLengthSubdivision <- function(vb_, it_, maxEdgeLen, maxIter) {
+    .Call(`_ravetools_vcgEdgeLengthSubdivision`, vb_, it_, maxEdgeLen, maxIter)
+}
+
 vcgVolume <- function(mesh_) {
     .Call(`_ravetools_vcgVolume`, mesh_)
 }
@@ -663,6 +671,14 @@ vcgCountEdgeDefects <- function(vb_, it_) {
 
 vcgAverageEdgeLength <- function(vb_, it_) {
     .Call(`_ravetools_vcgAverageEdgeLength`, vb_, it_)
+}
+
+vcgMaxEdgeLength <- function(vb_, it_) {
+    .Call(`_ravetools_vcgMaxEdgeLength`, vb_, it_)
+}
+
+vcgMeshPatchFaces <- function(vb_, it_, boundary_seq, seed_face) {
+    .Call(`_ravetools_vcgMeshPatchFaces`, vb_, it_, boundary_seq, seed_face)
 }
 
 vcgFixDefects <- function(vb_, it_, merge_tolerance = -1.0, max_hole_size = 100L, verbose = FALSE) {
