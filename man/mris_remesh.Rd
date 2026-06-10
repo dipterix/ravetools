@@ -71,11 +71,7 @@ Unlike \code{\link{vcg_uniform_remesh}}, which uses volumetric resampling
 and may change topology, this function operates entirely on the mesh
 surface and preserves the input genus and manifold structure.
 }
-\references{
-A \verb{remeshing} approach to \verb{multiresolution} modeling.
-\emph{Proceedings of Shape \verb{Modelling} International}, 49-58 (2003).
-
-
+\examples{
 
 sphere <- vcg_sphere()
 sphere
@@ -89,4 +85,11 @@ remeshed <- mris_remesh(
 )
 
 plot(remeshed)
+
+
+
+}
+\references{
+A \verb{remeshing} approach to \verb{multiresolution} modeling.
+\emph{Proceedings of Shape \verb{Modelling} International}, 49-58 (2003).
 }

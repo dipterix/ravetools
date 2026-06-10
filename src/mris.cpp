@@ -749,7 +749,7 @@ void mrisRemeshCollapseEdges(MrisMesh &m, float min_len)
         for (int fi : v2f[b]) {
             if (face_del[fi]) continue;
             int v0 = m.f0[fi], v1 = m.f1[fi], v2 = m.f2[fi];
-            // Skip faces that share edge (a,b) — they will be deleted
+            // Skip faces that share edge (a,b): they will be deleted
             if ((v0==a||v1==a||v2==a) && (v0==b||v1==b||v2==b)) continue;
             // Skip degenerate
             if (v0==v1 || v1==v2 || v0==v2) continue;

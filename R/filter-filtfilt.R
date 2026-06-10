@@ -93,20 +93,20 @@ filtfilt_naive2 <- function(b, a, y, z, nfact) {
 }
 
 #' @title Forward and reverse filter a one-dimensional signal
-#' 
+#'
 #' @description The result has been tested against 'Matlab' \code{filtfilt}
 #'    function. Currently this function only supports one filter at a time.
-#' 
+#'
 #' @param b one-dimensional real numerical vector, the moving-average
 #'    coefficients of an \code{ARMA} filter; alternatively, a \code{Sos}
 #'    (second-order sections) object from \code{gsignal}, in which case
 #'    \code{a} is ignored and \code{gsignal::filtfilt} is used internally
-#' 
+#'
 #' @param a the auto-regressive (recursive) coefficients of an \code{ARMA}
 #'    filter; ignored when \code{b} is a \code{Sos} object
-#' 
+#'
 #' @param x numerical vector or matrix input (real value)
-#' 
+#'
 #' @returns The filtered signal, normally the same length as the input signal
 #'    \code{x}.
 #' @examples
@@ -142,7 +142,9 @@ filtfilt <- function(b, a = 1, x) {
   if (inherits(b, "Sos")) {
     if (is.matrix(x)) {
       dn <- dimnames(x)
-      out <- apply(x, 2L, function(col) gsignal::filtfilt(b, x = col))
+      out <- apply(x, 2L, function(col) {
+        gsignal::filtfilt(b, x = col)
+      })
       dimnames(out) <- dn
       return(out)
     }

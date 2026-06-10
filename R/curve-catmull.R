@@ -249,8 +249,9 @@ catmull_rom_3d <- function(
     hi    <- min(1.0, ts_c[[best_i]] + dt)
 
     # Fine pass: scalar optimization within the bracket
-    res   <- stats::optimize(function(t) sum((get_point(t) - query)^2),
-                             interval = c(lo, hi))
+    res   <- stats::optimize(function(t) {
+      sum((get_point(t) - query)^2)
+    }, interval = c(lo, hi))
     t_opt <- res$minimum
     pt    <- get_point(t_opt)
     list(t = t_opt, point = pt, distance = sqrt(res$objective))

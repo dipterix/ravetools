@@ -54,7 +54,7 @@
 #' A \verb{remeshing} approach to \verb{multiresolution} modeling.
 #' \emph{Proceedings of Shape \verb{Modelling} International}, 49-58 (2003).
 #'
-#'
+#' @examples
 #'
 #' sphere <- vcg_sphere()
 #' sphere

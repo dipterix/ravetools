@@ -55,6 +55,23 @@ All \verb{waypoints} must lie on the same connected component of the mesh.
   The mesh should be manifold; run \code{\link{vcg_fix_defects}} first
   if needed.
 }
+\examples{
+
+mesh <- vcg_sphere()
+mesh <- vcg_uniform_remesh(mesh)
+
+waypoints <- diag(1, 3)
+patches <- vcg_mesh_patch(mesh, waypoints)
+
+plot_mesh_polygon(
+  patches,
+  col = list("red", 'gray'),
+  alpha = list(1, 0.5),
+  eye = c(10, 10, 10)
+)
+
+
+}
 \seealso{
 \code{\link{dijkstras_surface_distance}}, \code{\link{surface_path}},
   \code{\link{vcg_fix_defects}}

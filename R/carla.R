@@ -277,13 +277,19 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # evoked responses (e.g. alternating-polarity stimulation, biphasic
   # CCEPs) where signed covariances can cancel.
   cov_summary <- if (isTRUE(absolute_rank)) {
-    function(v) mean(abs(v), na.rm = TRUE)
+    function(v) {
+      mean(abs(v), na.rm = TRUE)
+    }
   } else {
-    function(v) mean(v, na.rm = TRUE)
+    function(v) {
+      mean(v, na.rm = TRUE)
+    }
   }
   rank_fn <- function(signal) {
     if (n_tr == 1L) {
-      apply(signal, 1L, function(row) stats::var(as.numeric(row)))
+      apply(signal, 1L, function(row) {
+        stats::var(as.numeric(row))
+      })
     } else {
       vapply(seq_len(n_ch), function(ii) {
         slice <- matrix(signal[ii, , ], nrow = n_t, ncol = n_tr)  # time x trials

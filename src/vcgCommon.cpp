@@ -1177,7 +1177,7 @@ Rcpp::IntegerVector vcgMeshPatchFaces(SEXP vb_, SEXP it_,
 
     std::vector<int> patch = bfs(seed_fi);
 
-    // Non-dividing: loop does not partition the mesh — return all faces
+    // Non-dividing: loop does not partition the mesh, return all faces
     if ((int)patch.size() == nf) return Rcpp::wrap(patch);
 
     // Auto-select smaller side

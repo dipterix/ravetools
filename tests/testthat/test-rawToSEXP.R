@@ -18,13 +18,19 @@ test_that("check conversion values are correct", {
 
   num_16_ <- eval(parse(text = paste("c(", paste(sprintf("0x%s", local({
     dim(bytes) <- c(2, length(bytes) / 2)
-    apply(bytes, 2, function(x) { paste(rev2(x), sep = "", collapse = "") })
+    apply(bytes, 2, function(x) {
+      paste(rev2(x), sep = "", collapse = "")
+    })
   })), collapse = ", "), ")")))
 
-  num_32_ <- eval(parse(text = paste("c(", paste(sprintf("0x%s", local({
-    dim(bytes) <- c(4, length(bytes) / 4)
-    apply(bytes, 2, function(x) { paste(rev2(x), sep = "", collapse = "") })
-  })), collapse = ", "), ")")))
+  num_32_ <- eval(parse(text = paste("c(", paste(
+    sprintf("0x%s", local({
+      dim(bytes) <- c(4, length(bytes) / 4)
+      apply(bytes, 2, function(x) {
+        paste(rev2(x), sep = "", collapse = "")
+      })
+    })), collapse = ", "
+  ), ")")))
 
   num_64_ <- local({
     dim(x_) <-  c(8, length(x_) / 8)

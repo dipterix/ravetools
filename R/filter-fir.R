@@ -309,7 +309,7 @@ firls <- function(N, freq, A, W = NULL, ftype = "", legacy = FALSE) {
       } else {
         # G is symmetric positive (semi-)definite; Cholesky is ~3x faster than QR.
         # Fall back to QR if G is numerically singular.
-        R <- tryCatch(chol(G), error = function(e) NULL)
+        R <- tryCatch(chol(G), error = function(e) { NULL })
         if (is.null(R)) {
           a <- qr.solve(G, b, tol = 1e-30)
         } else {

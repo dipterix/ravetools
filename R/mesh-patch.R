@@ -1,8 +1,8 @@
 # Internal helper: build a sub-mesh from a set of face indices of orig_mesh.
 # Vertex indices are remapped; orig_vertex stores the original column indices.
 build_patch_mesh <- function(orig_mesh, face_indices) {
-  vb <- orig_mesh$vb           # 4×nv (homogeneous)
-  it <- orig_mesh$it           # 3×nf, 1-based
+  vb <- orig_mesh$vb           # 4 x nv (homogeneous)
+  it <- orig_mesh$it           # 3 x nf, 1-based
   patch_faces <- it[, face_indices, drop = FALSE]
   orig_v_idx  <- sort(unique(as.integer(patch_faces)))
 
@@ -66,6 +66,22 @@ build_patch_mesh <- function(orig_mesh, face_indices) {
 #' @seealso \code{\link{dijkstras_surface_distance}}, \code{\link{surface_path}},
 #'   \code{\link{vcg_fix_defects}}
 #'
+#' @examples
+#'
+#' mesh <- vcg_sphere()
+#' mesh <- vcg_uniform_remesh(mesh)
+#'
+#' waypoints <- diag(1, 3)
+#' patches <- vcg_mesh_patch(mesh, waypoints)
+#'
+#' plot_mesh_polygon(
+#'   patches,
+#'   col = list("red", 'gray'),
+#'   alpha = list(1, 0.5),
+#'   eye = c(10, 10, 10)
+#' )
+#'
+#'
 #' @export
 vcg_mesh_patch <- function(mesh, waypoints, seed_vertex = NULL,
                             max_edge_length = NA) {
@@ -86,18 +102,18 @@ vcg_mesh_patch <- function(mesh, waypoints, seed_vertex = NULL,
   }
 
   vb <- mesh$vb[1:3, , drop = FALSE]
-  it <- mesh$it          # 3×nf, 1-based
+  it <- mesh$it          # 3 x nf, 1-based
 
   # ---- snap waypoint coordinates to nearest vertices (after subdivision) ----
-  vb3 <- vb  # 3×nv
+  vb3 <- vb  # 3 x nv
   waypoint_verts <- apply(waypoints, 1L, function(coord) {
     which.min(colSums((vb3 - coord)^2))
   })
   if (anyDuplicated(waypoint_verts))
     warning("vcg_mesh_patch: two or more waypoints snapped to the same vertex; boundary may be degenerate")
 
-  # dijkstras_surface_distance expects positions as N×3 (rows = vertices)
-  # and faces as M×3 (rows = faces), 1-indexed
+  # dijkstras_surface_distance expects positions as N x 3 (rows = vertices)
+  # and faces as M x 3 (rows = faces), 1-indexed
   positions <- t(vb)
   faces     <- t(it)
 
@@ -165,12 +181,18 @@ vcg_mesh_patch <- function(mesh, waypoints, seed_vertex = NULL,
   p2 <- if (length(fi2) > 0L) build_patch_mesh(mesh, fi2) else NULL
 
   # ---- order: patch closest to mean waypoint coordinate comes first ----
-  mean_wp  <- colMeans(waypoints)   # 3-vector from the n×3 input matrix
-  centroid <- function(m3d) rowMeans(m3d$vb[1:3, , drop = FALSE])
+  mean_wp  <- colMeans(waypoints)   # 3-vector from the n x 3 input matrix
+  centroid <- function(m3d) {
+    rowMeans(m3d$vb[1:3, , drop = FALSE])
+  }
   d1 <- sqrt(sum((centroid(p1) - mean_wp)^2))
   if (!is.null(p2)) {
     d2 <- sqrt(sum((centroid(p2) - mean_wp)^2))
-    if (d2 < d1) { tmp <- p1; p1 <- p2; p2 <- tmp }
+    if (d2 < d1) {
+      tmp <- p1
+      p1 <- p2
+      p2 <- tmp
+    }
   }
 
   list(p1, p2)

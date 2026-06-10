@@ -518,7 +518,7 @@ plot.ravetools_crp <- function(x, ...) {
     } else {
       tt <- tryCatch(
         stats::t.test(a, b),
-        error = function(e) NULL
+        error = function(e) { NULL }
       )
       p[q] <- if (is.null(tt)) NA_real_ else tt$p.value
     }
