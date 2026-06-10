@@ -14,6 +14,8 @@
 
 #include "mrisCommon.h"
 #include <algorithm>
+#include <unordered_map>
+#include <cstdint>
 
 using namespace ravetools;
 
@@ -560,6 +562,297 @@ void computeVertexCurvatures(const MrisMesh &m,
         gauss_curv[vi] = (float)Kv;
         k1[vi]         = (float)(Hv + sq);
         k2[vi]         = (float)(Hv - sq);
+    }
+}
+
+// ===========================================================================
+// mris_remesh helpers (Botsch & Kobbelt 2004 isotropic remeshing)
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Canonical 64-bit key for an undirected edge (a, b), with a < b.
+// Same encoding as mrisCheckClosedManifold's edge_count map.
+// ---------------------------------------------------------------------------
+inline int64_t remeshEdgeKey(int a, int b)
+{
+    if (a > b) { int t = a; a = b; b = t; }
+    return (int64_t)a << 32 | (int64_t)(uint32_t)b;
+}
+
+// ---------------------------------------------------------------------------
+// Edge split: for every edge longer than `max_len`, insert a midpoint vertex
+// and replace the face(s) sharing that edge with two sub-triangles each.
+//
+// 1-edge split (one long edge per face):  1 face -> 2
+// 2-edge split (two long edges):           1 face -> 3
+// 3-edge split (all three long edges):     1 face -> 4  (standard 1-to-4)
+//
+// Per-vertex ancillary arrays (nx,ny,nz,dx,dy,dz,odx,ody,odz) are zero-
+// initialised for new midpoint vertices; mrisComputeNormals resets them
+// immediately after this call.
+// ---------------------------------------------------------------------------
+void mrisRemeshSplitEdges(MrisMesh &m, float max_len)
+{
+    const float max_len2 = max_len * max_len;
+
+    // Map edge -> new midpoint vertex index
+    std::unordered_map<int64_t, int> midVert;
+    midVert.reserve((size_t)m.nf * 3 / 2);
+
+    // Pass 1: find long edges, allocate midpoint vertices
+    auto edgeMid = [&](int a, int b) -> int {
+        int64_t key = remeshEdgeKey(a, b);
+        auto it = midVert.find(key);
+        if (it != midVert.end()) return it->second;
+
+        float dx = m.x[b]-m.x[a], dy = m.y[b]-m.y[a], dz = m.z[b]-m.z[a];
+        if (dx*dx + dy*dy + dz*dz <= max_len2) return -1;
+
+        int nv = (int)m.x.size();
+        m.x.push_back(0.5f*(m.x[a]+m.x[b]));
+        m.y.push_back(0.5f*(m.y[a]+m.y[b]));
+        m.z.push_back(0.5f*(m.z[a]+m.z[b]));
+        m.nx.push_back(0.0f); m.ny.push_back(0.0f); m.nz.push_back(0.0f);
+        m.dx.push_back(0.0f); m.dy.push_back(0.0f); m.dz.push_back(0.0f);
+        m.odx.push_back(0.0f); m.ody.push_back(0.0f); m.odz.push_back(0.0f);
+        midVert[key] = nv;
+        return nv;
+    };
+
+    int orig_nf = m.nf;
+    for (int fi = 0; fi < orig_nf; fi++) {
+        edgeMid(m.f0[fi], m.f1[fi]);
+        edgeMid(m.f1[fi], m.f2[fi]);
+        edgeMid(m.f2[fi], m.f0[fi]);
+    }
+
+    // Pass 2: split faces
+    // Reserve extra space (worst case 4x faces)
+    m.f0.reserve(m.f0.size() * 4);
+    m.f1.reserve(m.f1.size() * 4);
+    m.f2.reserve(m.f2.size() * 4);
+
+    for (int fi = 0; fi < orig_nf; fi++) {
+        int A = m.f0[fi], B = m.f1[fi], C = m.f2[fi];
+        int mAB = midVert.count(remeshEdgeKey(A,B)) ? midVert[remeshEdgeKey(A,B)] : -1;
+        int mBC = midVert.count(remeshEdgeKey(B,C)) ? midVert[remeshEdgeKey(B,C)] : -1;
+        int mCA = midVert.count(remeshEdgeKey(C,A)) ? midVert[remeshEdgeKey(C,A)] : -1;
+
+        bool sAB = (mAB >= 0), sBC = (mBC >= 0), sCA = (mCA >= 0);
+        int n_split = (int)sAB + (int)sBC + (int)sCA;
+
+        if (n_split == 0) continue;
+
+        if (n_split == 3) {
+            // Standard 1-to-4 split
+            m.f0[fi] = A;   m.f1[fi] = mAB; m.f2[fi] = mCA;
+            m.f0.push_back(mAB); m.f1.push_back(B);   m.f2.push_back(mBC);
+            m.f0.push_back(mCA); m.f1.push_back(mBC); m.f2.push_back(C);
+            m.f0.push_back(mAB); m.f1.push_back(mBC); m.f2.push_back(mCA);
+        } else if (n_split == 1) {
+            if (sAB) {
+                m.f0[fi] = A;   m.f1[fi] = mAB; m.f2[fi] = C;
+                m.f0.push_back(mAB); m.f1.push_back(B); m.f2.push_back(C);
+            } else if (sBC) {
+                m.f0[fi] = B;   m.f1[fi] = mBC; m.f2[fi] = A;
+                m.f0.push_back(mBC); m.f1.push_back(C); m.f2.push_back(A);
+            } else {
+                m.f0[fi] = C;   m.f1[fi] = mCA; m.f2[fi] = B;
+                m.f0.push_back(mCA); m.f1.push_back(A); m.f2.push_back(B);
+            }
+        } else {
+            // n_split == 2: split the two cut edges; the third is the longest sub-edge
+            // Arrange so the single un-split edge is CA when we enter the logic:
+            //   rotate ABC so the un-split edge is always between C and A.
+            int vA = A, vB = B, vC = C;
+            int vmAB = mAB, vmBC = mBC;
+            if (!sAB) {
+                // un-split: AB -> rotate: A=B, B=C, C=A
+                vA = B; vB = C; vC = A; vmAB = mBC; vmBC = mCA;
+            } else if (!sBC) {
+                // un-split: BC -> rotate: A=C, B=A, C=B
+                vA = C; vB = A; vC = B; vmAB = mCA; vmBC = mAB;
+            }
+            // Now vA-vB and vB-vC are split, vC-vA is not.
+            // Split into 3 triangles:
+            //   (vA, vmAB, vC), (vmAB, vmBC, vC), (vmAB, vB, vmBC)
+            m.f0[fi] = vA;   m.f1[fi] = vmAB; m.f2[fi] = vC;
+            m.f0.push_back(vmAB); m.f1.push_back(vmBC); m.f2.push_back(vC);
+            m.f0.push_back(vmAB); m.f1.push_back(vB);   m.f2.push_back(vmBC);
+        }
+    }
+
+    m.nv = (int)m.x.size();
+    m.nf = (int)m.f0.size();
+}
+
+// ---------------------------------------------------------------------------
+// Edge collapse: for every edge shorter than `min_len`, if collapsing it
+// (moving vertex a to vertex b's position, then removing a) would not flip
+// any surrounding face normal, do the collapse. After all collapses in a
+// single pass, compact the vertex and face arrays.
+// ---------------------------------------------------------------------------
+void mrisRemeshCollapseEdges(MrisMesh &m, float min_len)
+{
+    const float min_len2 = min_len * min_len;
+
+    // Collect vertex-to-face adjacency (1-ring faces per vertex)
+    std::vector<std::vector<int>> v2f(m.nv);
+    for (int fi = 0; fi < m.nf; fi++) {
+        v2f[m.f0[fi]].push_back(fi);
+        v2f[m.f1[fi]].push_back(fi);
+        v2f[m.f2[fi]].push_back(fi);
+    }
+
+    std::vector<bool> collapsed(m.nv, false);
+    std::vector<bool> face_del(m.nf, false);
+
+    // Helper: cross product z-component sign of triangle (p0,p1,p2) projected
+    // onto the plane with normal n; returns true if the winding is consistent
+    // with n (dot(cross, n) > 0).
+    auto normalOk = [&](int v0, int v1, int v2, int ref_normal_v) -> bool {
+        float ax = m.x[v1]-m.x[v0], ay = m.y[v1]-m.y[v0], az = m.z[v1]-m.z[v0];
+        float bx = m.x[v2]-m.x[v0], by = m.y[v2]-m.y[v0], bz = m.z[v2]-m.z[v0];
+        float cx = ay*bz - az*by, cy = az*bx - ax*bz, cz = ax*by - ay*bx;
+        return cx*m.nx[ref_normal_v] + cy*m.ny[ref_normal_v] + cz*m.nz[ref_normal_v] > 0.0f;
+    };
+
+    // Enumerate unique edges (short ones)
+    std::unordered_map<int64_t, std::pair<int,int>> edges;
+    edges.reserve((size_t)m.nf * 3 / 2);
+    for (int fi = 0; fi < m.nf; fi++) {
+        int vs[3] = { m.f0[fi], m.f1[fi], m.f2[fi] };
+        for (int e = 0; e < 3; e++) {
+            int a = vs[e], b = vs[(e+1)%3];
+            int64_t key = remeshEdgeKey(a, b);
+            edges.emplace(key, std::make_pair(a, b));
+        }
+    }
+
+    for (auto &kv : edges) {
+        int a = kv.second.first, b = kv.second.second;
+        if (collapsed[a] || collapsed[b]) continue;
+
+        float ddx = m.x[b]-m.x[a], ddy = m.y[b]-m.y[a], ddz = m.z[b]-m.z[a];
+        if (ddx*ddx + ddy*ddy + ddz*ddz > min_len2) continue;
+
+        // Target position: midpoint
+        float mx = 0.5f*(m.x[a]+m.x[b]);
+        float my = 0.5f*(m.y[a]+m.y[b]);
+        float mz = 0.5f*(m.z[a]+m.z[b]);
+
+        // Tentatively move b to midpoint; check no face flips around a or b
+        float old_bx = m.x[b], old_by = m.y[b], old_bz = m.z[b];
+        m.x[b] = mx; m.y[b] = my; m.z[b] = mz;
+
+        bool valid = true;
+        for (int fi : v2f[b]) {
+            if (face_del[fi]) continue;
+            int v0 = m.f0[fi], v1 = m.f1[fi], v2 = m.f2[fi];
+            // Skip faces that share edge (a,b) — they will be deleted
+            if ((v0==a||v1==a||v2==a) && (v0==b||v1==b||v2==b)) continue;
+            // Skip degenerate
+            if (v0==v1 || v1==v2 || v0==v2) continue;
+            if (!normalOk(v0, v1, v2, b)) { valid = false; break; }
+        }
+        if (valid) {
+            for (int fi : v2f[a]) {
+                if (face_del[fi]) continue;
+                int v0 = m.f0[fi], v1 = m.f1[fi], v2 = m.f2[fi];
+                if ((v0==a||v1==a||v2==a) && (v0==b||v1==b||v2==b)) continue;
+                if (v0==v1 || v1==v2 || v0==v2) continue;
+                // Temporarily remap a->b in this face for the normal check
+                int r0 = (v0==a)?b:v0, r1 = (v1==a)?b:v1, r2 = (v2==a)?b:v2;
+                if (r0==r1 || r1==r2 || r0==r2) continue;
+                if (!normalOk(r0, r1, r2, b)) { valid = false; break; }
+            }
+        }
+
+        if (!valid) {
+            m.x[b] = old_bx; m.y[b] = old_by; m.z[b] = old_bz;
+            continue;
+        }
+
+        // Commit collapse: a is removed, b takes the midpoint position
+        collapsed[a] = true;
+        for (int fi : v2f[a]) {
+            if (face_del[fi]) continue;
+            int &r0 = m.f0[fi], &r1 = m.f1[fi], &r2 = m.f2[fi];
+            if (r0==a) r0 = b;
+            if (r1==a) r1 = b;
+            if (r2==a) r2 = b;
+            if (r0==r1 || r1==r2 || r0==r2) face_del[fi] = true;
+            else v2f[b].push_back(fi);
+        }
+        // Mark faces that were already on edge (a,b) as deleted
+        for (int fi : v2f[b]) {
+            if (!face_del[fi]) {
+                int v0=m.f0[fi], v1=m.f1[fi], v2=m.f2[fi];
+                if (v0==v1 || v1==v2 || v0==v2) face_del[fi] = true;
+            }
+        }
+    }
+
+    // Compact: build alive vertex set and remap
+    std::vector<int> remap(m.nv, -1);
+    int new_nv = 0;
+    for (int vi = 0; vi < m.nv; vi++) {
+        if (!collapsed[vi]) remap[vi] = new_nv++;
+    }
+
+    std::vector<float> nx(new_nv), ny(new_nv), nz(new_nv);
+    std::vector<float> xx(new_nv), xy(new_nv), xz(new_nv);
+    std::vector<float> ddx(new_nv,0), ddy(new_nv,0), ddz(new_nv,0);
+    std::vector<float> odx(new_nv,0), ody(new_nv,0), odz(new_nv,0);
+    for (int vi = 0; vi < m.nv; vi++) {
+        int ri = remap[vi]; if (ri < 0) continue;
+        xx[ri]=m.x[vi]; xy[ri]=m.y[vi]; xz[ri]=m.z[vi];
+        nx[ri]=m.nx[vi]; ny[ri]=m.ny[vi]; nz[ri]=m.nz[vi];
+    }
+    m.x=xx; m.y=xy; m.z=xz;
+    m.nx=nx; m.ny=ny; m.nz=nz;
+    m.dx=ddx; m.dy=ddy; m.dz=ddz;
+    m.odx=odx; m.ody=ody; m.odz=odz;
+    m.nv = new_nv;
+
+    std::vector<int> nf0, nf1, nf2;
+    nf0.reserve(m.nf); nf1.reserve(m.nf); nf2.reserve(m.nf);
+    for (int fi = 0; fi < m.nf; fi++) {
+        if (face_del[fi]) continue;
+        int r0 = remap[m.f0[fi]], r1 = remap[m.f1[fi]], r2 = remap[m.f2[fi]];
+        if (r0<0||r1<0||r2<0) continue;
+        nf0.push_back(r0); nf1.push_back(r1); nf2.push_back(r2);
+    }
+    m.f0=nf0; m.f1=nf1; m.f2=nf2;
+    m.nf = (int)m.f0.size();
+}
+
+// ---------------------------------------------------------------------------
+// Tangential smooth: `n_iters` passes of uniform-weight 1-ring Laplacian,
+// with each displacement projected onto the vertex tangent plane before
+// application (preserves surface shape). Requires m.nbrs1 populated.
+// ---------------------------------------------------------------------------
+void mrisRemeshTangentialSmooth(MrisMesh &m, int n_iters, float damping)
+{
+    for (int iter = 0; iter < n_iters; iter++) {
+        for (int vi = 0; vi < m.nv; vi++) {
+            const auto &nb = m.nbrs1[vi];
+            int nn = (int)nb.size();
+            if (nn == 0) continue;
+
+            float cx = 0, cy = 0, cz = 0;
+            for (int nj : nb) { cx += m.x[nj]; cy += m.y[nj]; cz += m.z[nj]; }
+            cx /= nn; cy /= nn; cz /= nn;
+
+            float dispx = cx - m.x[vi], dispy = cy - m.y[vi], dispz = cz - m.z[vi];
+            // Remove normal component (project onto tangent plane)
+            float nc = dispx*m.nx[vi] + dispy*m.ny[vi] + dispz*m.nz[vi];
+            dispx -= nc*m.nx[vi]; dispy -= nc*m.ny[vi]; dispz -= nc*m.nz[vi];
+
+            m.x[vi] += damping * dispx;
+            m.y[vi] += damping * dispy;
+            m.z[vi] += damping * dispz;
+        }
     }
 }
 
@@ -1169,5 +1462,77 @@ Rcpp::List mrisCurvature(
         Rcpp::Named("gaussian") = Rcpp::wrap(gauss_curv),
         Rcpp::Named("k1")       = Rcpp::wrap(k1),
         Rcpp::Named("k2")       = Rcpp::wrap(k2)
+    );
+}
+
+// ===========================================================================
+// mris_remesh
+// ===========================================================================
+//
+// Isotropic remeshing following the Botsch & Kobbelt 2004 algorithm: each
+// iteration applies edge splitting (for edges > 4/3 * target), edge collapse
+// (for edges < 4/5 * target), and tangential smoothing (uniform-weight
+// Laplacian projected onto the tangent plane, preserving surface shape).
+//
+// Unlike vcg_uniform_remesh (volumetric resampling), this operates purely on
+// the mesh surface and preserves the input topology class.
+// ---------------------------------------------------------------------------
+// [[Rcpp::export]]
+Rcpp::List mrisRemesh(
+    SEXP  vb_,
+    SEXP  it_,
+    float target_edge_len,
+    int   niterations = 5,
+    int   n_smooth    = 2,
+    float damping     = 0.99,
+    bool  verbose     = false
+) {
+    MrisMesh m;
+    mrisLoadMesh(m, vb_, it_);
+    mrisCheckClosedManifold(m, "mris_remesh");
+
+    mrisComputeNormals(m);
+
+    const float max_len = (4.0f / 3.0f) * target_edge_len;
+    const float min_len = (4.0f / 5.0f) * target_edge_len;
+
+    if (verbose) {
+        Rprintf("mris_remesh: target=%.4f  split>%.4f  collapse<%.4f\n",
+                target_edge_len, max_len, min_len);
+    }
+
+    for (int iter = 0; iter < niterations; iter++) {
+        mrisRemeshSplitEdges(m, max_len);
+        mrisBuildAdjacency(m, /* two_ring = */ false);
+        mrisComputeNormals(m);
+
+        mrisRemeshCollapseEdges(m, min_len);
+        mrisBuildAdjacency(m, /* two_ring = */ false);
+        mrisComputeNormals(m);
+
+        mrisRemeshTangentialSmooth(m, n_smooth, damping);
+        mrisComputeNormals(m);
+
+        if (verbose) {
+            Rprintf("  iter %d: nv=%d  nf=%d\n", iter + 1, m.nv, m.nf);
+        }
+        Rcpp::checkUserInterrupt();
+    }
+
+    // Pack positions and normals
+    Rcpp::List mesh_out = mrisPackMeshOutput(m);
+
+    // Pack face indices (1-based for R's mesh3d convention)
+    Rcpp::IntegerMatrix out_it(3, m.nf);
+    for (int fi = 0; fi < m.nf; fi++) {
+        out_it(0, fi) = m.f0[fi] + 1;
+        out_it(1, fi) = m.f1[fi] + 1;
+        out_it(2, fi) = m.f2[fi] + 1;
+    }
+
+    return Rcpp::List::create(
+        Rcpp::Named("vb")      = mesh_out["vb"],
+        Rcpp::Named("normals") = mesh_out["normals"],
+        Rcpp::Named("it")      = out_it
     );
 }
