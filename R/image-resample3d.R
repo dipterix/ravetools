@@ -1,7 +1,7 @@
 #' @title Sample '3D' volume in the world (anatomical \code{'RAS'}) space
 #' @description
-#' Low-level implementation to sample a '3D' volume into given orientation and
-#' shape via a nearest-neighbor sampler.
+#' Low-level implementation to sample a '3D' volume into a given orientation and
+#' shape using nearest-neighbor, trilinear, or cubic B-spline interpolation.
 #' @param x image (volume) to be sampled: \code{dim(x)} must have length of 3
 #' @param new_dim target dimension, integers of length 3
 #' @param vox2ras_old from volume index (column-row-slice) to \code{'RAS'}
@@ -10,6 +10,10 @@
 #' @param vox2ras_new the targeting transform from volume index to \code{'RAS'}
 #' @param na_fill default numbers to fill if a pixel is out of bound; default is
 #' \code{NA} or \code{as.raw(0)} if input \code{x} is raw type
+#' @param interpolation interpolation method: \code{"nearest"} (default),
+#' \code{"trilinear"}, or \code{"bspline"} (cubic Catmull-Rom). Trilinear and
+#' B-spline are only applied when \code{x} is a \code{double} volume; other
+#' storage types silently fall back to nearest-neighbor.
 #' @returns A newly sampled volume that aligns with \code{x} in the anatomical
 #' \code{'RAS'} coordinate system. The underlying storage mode is the same as
 #' \code{x}
@@ -48,7 +52,8 @@
 #'
 #'
 #' @export
-resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_old, na_fill = NA) {
+resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_old, na_fill = NA,
+                               interpolation = c("nearest", "trilinear", "bspline")) {
   verify_dim <- function(dm, name) {
     if (length(dm) < 3) {
       stop(sprintf("`resample_3d_volume`: %s must be a 3-dimensional volume.", name))
@@ -81,6 +86,9 @@ resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_ol
     )
   }
 
+  interpolation <- match.arg(interpolation)
+  interp_code <- switch(interpolation, trilinear = 1L, bspline = 2L, 0L)
+
   if (storage.mode(x) == "raw" ) {
     if (is.na(na_fill)) {
       na_fill <- as.raw(0)
@@ -96,7 +104,8 @@ resample_3d_volume <- function(x, new_dim, vox2ras_old, vox2ras_new = vox2ras_ol
     fromArray = x,
     newVoxToWorldTransposed = t(vox2ras_new),
     oldVoxToWorldTransposed = t(vox2ras_old),
-    na = na_fill
+    na = na_fill,
+    interpolation = interp_code
   )
   resampled <- re[[1]]
 

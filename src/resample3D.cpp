@@ -1,6 +1,7 @@
 #include <cmath>
 #include "utils.h"
 #include "TinyParallel.h"
+#include "reg_interp.h"   // ravereg::trilinearSample
 
 using namespace Rcpp;
 
@@ -100,6 +101,18 @@ struct Resampler3D : public TinyParallel::Worker
   // temporary, used to store cumprod of c(nd1, 2, 3)
   R_xlen_t cnd2, cnd3;
 
+  // 0=nearest-neighbor (default), 1=trilinear, 2=cubic B-spline (Catmull-Rom).
+  // Modes 1 and 2 are only activated for T=double (REALSXP dispatch).
+  int mode;
+  int od1i, od2i, od3i;   // int copies of od1/od2/od3 for interpolation helpers
+
+  // Interpolation write for modes 1 and 2. Generic fallback: unreachable for
+  // non-double T (mode is always 0 in those cases). Explicit specialization for
+  // double is defined below the struct and calls trilinearSample / bsplineSample.
+  inline void do_interp(R_xlen_t ii, double vi_f, double vj_f, double vk_f) {
+    *(re_ptr + ii) = na_fill;   // unreachable fallback
+  }
+
   Resampler3D(
     T* &x_ptr,
     T* &re_ptr,
@@ -108,61 +121,75 @@ struct Resampler3D : public TinyParallel::Worker
     const R_xlen_t& od1, const R_xlen_t& od2, const R_xlen_t& od3,
     const double& a11, const double& a12, const double& a13, const double& a14,
     const double& a21, const double& a22, const double& a23, const double& a24,
-    const double& a31, const double& a32, const double& a33, const double& a34
+    const double& a31, const double& a32, const double& a33, const double& a34,
+    int mode_ = 0
   ):  nd1(nd1), nd2(nd2), nd3(nd3), od1(od1), od2(od2), od3(od3),
       a11 (a11), a12 (a12), a13 (a13), a14 (a14),
       a21 (a21), a22 (a22), a23 (a23), a24 (a24),
       a31 (a31), a32 (a32), a33 (a33), a34 (a34),
-      na_fill(na_fill), re_ptr (re_ptr), x_ptr (x_ptr)
+      na_fill(na_fill), re_ptr (re_ptr), x_ptr (x_ptr), mode(mode_)
   {
     this->cnd2 = nd1;
     this->cnd3 = nd1 * nd2;
+    this->od1i = (int) od1;
+    this->od2i = (int) od2;
+    this->od3i = (int) od3;
   }
 
   void operator()(std::size_t begin, std::size_t end) {
     R_xlen_t begin_ = (R_xlen_t) begin;
     R_xlen_t end_ = (R_xlen_t) end;
 
-    // for transforming indices
     R_xlen_t vi_int, vj_int, vk_int;
     double vi_f, vj_f, vk_f;
 
     for( R_xlen_t ii = begin_; ii < end_; ii++ ) {
-      // get IJK for the new array
+      // Decompose flat index into new-array (I,J,K)
       vk_int = ii / this->cnd3;
       vi_int = ii - vk_int * this->cnd3;
       vj_int = vi_int / this->cnd2;
       vi_int -= vj_int * this->cnd2;
 
-      // Rcout << ii << " " << vi_int << " " << vj_int << " " << vk_int << "-----\n";
+      // Continuous source voxel coordinates
+      vi_f = this->a11 * vi_int + this->a12 * vj_int + this->a13 * vk_int + this->a14;
+      vj_f = this->a21 * vi_int + this->a22 * vj_int + this->a23 * vk_int + this->a24;
+      vk_f = this->a31 * vi_int + this->a32 * vj_int + this->a33 * vk_int + this->a34;
 
-      // get voxel index in old array
-      vi_f = std::nearbyint( this->a11 * vi_int + this->a12 * vj_int + this->a13 * vk_int + this->a14 );
-      vj_f = std::nearbyint( this->a21 * vi_int + this->a22 * vj_int + this->a23 * vk_int + this->a24 );
-      vk_f = std::nearbyint( this->a31 * vi_int + this->a32 * vj_int + this->a33 * vk_int + this->a34 );
-
-      vi_int = (R_xlen_t) vi_f;
-      vj_int = (R_xlen_t) vj_f;
-      vk_int = (R_xlen_t) vk_f;
-
-      // Rcout << ii << " " << vi_int << " " << vj_int << " " << vk_int << " " << (vi_int + od1 * ( vj_int + od2 * vk_int )) << "\n";
-
-      if( vi_int < 0 || vi_int >= this->od1 || vj_int < 0 || vj_int >= this->od2 || vk_int < 0 || vk_int >= this->od3 ) {
-        // outofbound, use NA values
-        *(this->re_ptr + ii) = this->na_fill;
+      if (this->mode >= 1) {
+        this->do_interp(ii, vi_f, vj_f, vk_f);
       } else {
-        // Rcout << ii << " " << vi_int << "\n";
-        *(this->re_ptr + ii) = *(this->x_ptr + (vi_int + this->od1 * ( vj_int + this->od2 * vk_int )));
+        // Nearest-neighbor (mode 0)
+        vi_int = (R_xlen_t) std::nearbyint(vi_f);
+        vj_int = (R_xlen_t) std::nearbyint(vj_f);
+        vk_int = (R_xlen_t) std::nearbyint(vk_f);
+        if( vi_int < 0 || vi_int >= this->od1 || vj_int < 0 || vj_int >= this->od2 || vk_int < 0 || vk_int >= this->od3 ) {
+          *(this->re_ptr + ii) = this->na_fill;
+        } else {
+          *(this->re_ptr + ii) = *(this->x_ptr + (vi_int + this->od1 * ( vj_int + this->od2 * vk_int )));
+        }
       }
-      // if( vi_int == 0 && vj_int == 0 ) {
-      //   Rcpp::checkUserInterrupt();
-      // }
     }
 
   }
 };
 
 
+
+
+
+
+// Explicit specialization: trilinear (mode=1) and cubic B-spline (mode=2) for double.
+// Only this specialization calls trilinearSample / bsplineSample, so those
+// templates are never instantiated for non-double T.
+template<>
+inline void Resampler3D<double>::do_interp(R_xlen_t ii,
+                                           double vi_f, double vj_f, double vk_f) {
+  double v;
+  bool ok = (mode == 2)
+    ? ravereg::bsplineSample(x_ptr, od1i, od2i, od3i, vi_f, vj_f, vk_f, v)
+    : ravereg::trilinearSample(x_ptr, od1i, od2i, od3i, vi_f, vj_f, vk_f, v);
+  *(re_ptr + ii) = ok ? v : na_fill;
+}
 
 
 /**
@@ -181,7 +208,8 @@ SEXP resample3D(const SEXP& arrayDim,
                 const SEXP& fromArray,
                 const SEXP& newVoxToWorldTransposed,
                 const SEXP& oldVoxToWorldTransposed,
-                const SEXP& na) {
+                const SEXP& na,
+                const int interpolation = 0) {
 
   if( XLENGTH(arrayDim) < 3 ) {
     Rcpp::stop("C++ `resample3D`: the dimension of new array must be 3D.");
@@ -379,7 +407,8 @@ SEXP resample3D(const SEXP& arrayDim,
       Resampler3D<double> sampler(
           x_ptr, re_ptr, na_,
           nd1, nd2, nd3, od1, od2, od3,
-          a11, a12, a13, a14, a21, a22, a23, a24, a31, a32, a33, a34);
+          a11, a12, a13, a14, a21, a22, a23, a24, a31, a32, a33, a34,
+          interpolation);
       parallelFor(0, retLen, sampler);
       break;
     }

@@ -9,7 +9,8 @@ resample_3d_volume(
   new_dim,
   vox2ras_old,
   vox2ras_new = vox2ras_old,
-  na_fill = NA
+  na_fill = NA,
+  interpolation = c("nearest", "trilinear", "bspline")
 )
 }
 \arguments{
@@ -25,6 +26,11 @@ instead of 1 (R-style) to comply with \code{'NIfTI'} transform.}
 
 \item{na_fill}{default numbers to fill if a pixel is out of bound; default is
 \code{NA} or \code{as.raw(0)} if input \code{x} is raw type}
+
+\item{interpolation}{interpolation method: \code{"nearest"} (default),
+\code{"trilinear"}, or \code{"bspline"} (cubic Catmull-Rom). Trilinear and
+B-spline are only applied when \code{x} is a \code{double} volume; other
+storage types silently fall back to nearest-neighbor.}
 }
 \value{
 A newly sampled volume that aligns with \code{x} in the anatomical
@@ -32,8 +38,8 @@ A newly sampled volume that aligns with \code{x} in the anatomical
 \code{x}
 }
 \description{
-Low-level implementation to sample a '3D' volume into given orientation and
-shape via a nearest-neighbor sampler.
+Low-level implementation to sample a '3D' volume into a given orientation and
+shape using nearest-neighbor, trilinear, or cubic B-spline interpolation.
 }
 \examples{
 
