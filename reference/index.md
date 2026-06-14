@@ -2,6 +2,11 @@
 
 ## All functions
 
+- [`apply_transform3d()`](https://dipterix.org/ravetools/reference/apply_transform3d.md)
+  :
+
+  Apply a linear `RAS` transform to resample a 3D volume
+
 - [`band_pass1()`](https://dipterix.org/ravetools/reference/band_pass.md)
   [`band_pass2()`](https://dipterix.org/ravetools/reference/band_pass.md)
   : Band-pass signals
@@ -252,6 +257,11 @@
   :
 
   Imaging registration using `'NiftyReg'`
+
+- [`register_volume3d()`](https://dipterix.org/ravetools/reference/register_volume3d.md)
+  :
+
+  Native 3D volume registration (`'rigid'`, `'affine'`, or `'SyN'`)
 
 - [`resample_3d_volume()`](https://dipterix.org/ravetools/reference/resample_3d_volume.md)
   :

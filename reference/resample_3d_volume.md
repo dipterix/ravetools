@@ -1,7 +1,8 @@
 # Sample '3D' volume in the world (anatomical `'RAS'`) space
 
-Low-level implementation to sample a '3D' volume into given orientation
-and shape via a nearest-neighbor sampler.
+Low-level implementation to sample a '3D' volume into a given
+orientation and shape using nearest-neighbor, `trilinear`, or cubic
+B-spline interpolation.
 
 ## Usage
 
@@ -11,7 +12,8 @@ resample_3d_volume(
   new_dim,
   vox2ras_old,
   vox2ras_new = vox2ras_old,
-  na_fill = NA
+  na_fill = NA,
+  interpolation = c("nearest", "trilinear", "bspline")
 )
 ```
 
@@ -39,6 +41,13 @@ resample_3d_volume(
 
   default numbers to fill if a pixel is out of bound; default is `NA` or
   `as.raw(0)` if input `x` is raw type
+
+- interpolation:
+
+  interpolation method: `'nearest'` (default), `'trilinear'`, or
+  `'bspline'` (cubic `Catmull-Rom`). `Trilinear` and B-spline are only
+  applied when `x` is a `double` volume; other storage types silently
+  fall back to nearest-neighbor.
 
 ## Value
 
