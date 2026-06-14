@@ -25,10 +25,11 @@ Rcomplex* get_sexp_pointer<Rcomplex>(const SEXP& x){
 }
 
 SEXP make_error(const char* message){
-  SEXP error;
+  SEXP error, klass;
   PROTECT(error = Rf_mkString(message));
-  Rf_classgets(error, Rf_mkString("ravetools_error"));
-  UNPROTECT(1);
+  PROTECT(klass = Rf_mkString("ravetools_error"));
+  Rf_classgets(error, klass);
+  UNPROTECT(2);
   return error;
 }
 
