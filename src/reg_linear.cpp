@@ -52,8 +52,8 @@ Rcpp::NumericMatrix asRMatrix(const Matrix4d& M) {
 // RegularStepGradientDescentOptimizerv4: each iteration takes a fixed *physical*
 // step down the scale-normalized gradient, and the step is relaxed (halved) only
 // when the gradient direction reverses (an overshoot). Stepping is
-// unconditional -- a momentary uphill move is allowed and self-corrects on the
-// next iteration -- so the optimizer rides through shallow bumps that the old
+// unconditional, a momentary uphill move is allowed and self-corrects on the
+// next iteration, so the optimizer rides through shallow bumps that the old
 // strict reject-and-halve rule would stall on. The best-seen transform is
 // tracked and returned, so a level never yields a worse transform than its
 // start. The fixed step length (alpha = step / |g|_scaled) bounds each move

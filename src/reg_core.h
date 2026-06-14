@@ -138,7 +138,7 @@ struct RegImage3 {
 // Separable Gaussian smoothing (sigma in voxels). Borders are clamped.
 //
 // gaussianSmoothInto writes the result into caller-provided `dst`, using
-// `scratch` (both size nx*ny*nz) as the ping-pong buffer -- no allocation, so
+// `scratch` (both size nx*ny*nz) as the ping-pong buffer, no allocation, so
 // hot per-iteration callers (the SyN field smoothing) can reuse buffers. The
 // three separable passes match the allocating wrapper exactly, so the output is
 // bit-identical. `src == dst` is allowed (src is read only into scratch first).
@@ -198,7 +198,7 @@ inline std::vector<reg_real> gaussianSmooth(const T* data,
 //
 // Holds a shrunk + smoothed copy of the fixed volume, with its own vox2ras so
 // that each coarse voxel maps to the correct RAS location. Coarse index j maps
-// to fine index (shrink * j + (shrink - 1) / 2) -- cell-centered, matching the
+// to fine index (shrink * j + (shrink - 1) / 2), cell-centered, matching the
 // behavior of ITK's ShrinkImageFilter.
 // ---------------------------------------------------------------------------
 struct FixedLevel {

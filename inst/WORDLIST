@@ -8,10 +8,12 @@ IIR
 IJK
 Morlet
 NFFT
+NeuroImage
 Nyquist
 Welch
 biphasic
 cortico
+deformable
 doi
 iEEG
 multitaper
@@ -21,4 +23,3 @@ rgl
 spectrogram
 unbiases
 unreferenced
-NeuroImage

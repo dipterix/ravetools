@@ -605,8 +605,8 @@ register_linear_cpp <- function(fixed, fixedDim, fixedVox2Ras, moving, movingDim
     .Call(`_ravetools_register_linear_cpp`, fixed, fixedDim, fixedVox2Ras, moving, movingDim, movingVox2Ras, type, metric, shrinkFactors, smoothingSigmas, iterations, samplingRate, learningRate, numberOfBins, seed, initTransform, fixedMask, movingMask, verbose)
 }
 
-register_syn_cpp <- function(fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, verbose = FALSE) {
-    .Call(`_ravetools_register_syn_cpp`, fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, verbose)
+register_syn_cpp <- function(fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, fixedPoints, movingPoints, pointsWeight, verbose = FALSE) {
+    .Call(`_ravetools_register_syn_cpp`, fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, fixedPoints, movingPoints, pointsWeight, verbose)
 }
 
 resample3D <- function(arrayDim, fromArray, newVoxToWorldTransposed, oldVoxToWorldTransposed, na, interpolation = 0L) {

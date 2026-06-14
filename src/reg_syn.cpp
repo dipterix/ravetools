@@ -4,10 +4,10 @@
 // grid captures the residual nonlinear deformation. Each iteration:
 //   1. warp the moving image to the fixed grid through affine o (id + disp);
 //   2. form a similarity force (local normalized CC, or mean squares);
-//   3. Gaussian-smooth the update (flow_sigma) -- the fluid-like regularizer;
+//   3. Gaussian-smooth the update (flow_sigma), the fluid-like regularizer;
 //   4. take a capped step (grad_step), updating the forward field and, with the
 //      opposite update, the inverse field (symmetric);
-//   5. optionally Gaussian-smooth the total field (total_sigma) -- elastic.
+//   5. optionally Gaussian-smooth the total field (total_sigma), elastic.
 //
 // Everything is in RAS. This is the functional-equivalence counterpart to ANTs
 // SyN; it is diffeomorphic for smooth/moderate deformations rather than a full
@@ -26,7 +26,7 @@
 // force, the step-cap reduction, the field update), mirroring the parallel
 // sampling in the linear stage (reg_metric.h MovingSampler) and the separable
 // Gaussian (reg_core.h SepConvWorker). The deformable stage processes every
-// voxel each iteration (no metric subsampling -- a dense force field and the CC
+// voxel each iteration (no metric subsampling, a dense force field and the CC
 // box-sums need the full warped image), so parallelism is the main lever. The
 // per-voxel force `factor` has no cross-voxel dependence, so the displacement
 // field is bit-identical regardless of thread count; only the scalar cost trace
@@ -123,7 +123,7 @@ struct BoxSum1D : public TinyParallel::Worker {
 };
 
 // Box-sum writing into caller-provided `out` (size N), using `scratch` (size N)
-// as the intermediate buffer -- no allocation, so the per-iteration CC sums
+// as the intermediate buffer, no allocation, so the per-iteration CC sums
 // reuse hoisted buffers. Result lands in `out`.
 template <typename T>
 void boxSumInto(const T* in, int nx, int ny, int nz, int r,
@@ -449,7 +449,7 @@ struct MaxNormReducer : public TinyParallel::Worker {
   void operator()(std::size_t begin, std::size_t end) override {
     for (std::size_t i = begin; i < end; ++i) {
       // accumulate in reg_real (as the serial code did, force being reg_real)
-      // so the step-cap norm -- hence the field update -- is bit-identical
+      // so the step-cap norm, hence the field update, is bit-identical
       const reg_real ax = fx[i], ay = fy[i], az = fz[i];
       const double n2 = ax * ax + ay * ay + az * az;
       if (n2 > maxn2) maxn2 = n2;
@@ -474,7 +474,7 @@ struct FieldUpdateWorker : public TinyParallel::Worker {
 
 // Sample a moving image at a RAS point with the requested output interpolation:
 // 0 = nearest (label-preserving), 1 = trilinear, 2 = cubic B-spline. Used only
-// for the final warped output -- the optimizer's metric sampling stays trilinear
+// for the final warped output, the optimizer's metric sampling stays trilinear
 // so every channel produces smooth gradients regardless of this choice.
 inline double sampleWithCode(const RegImage3& img, const Vector3d& qras, int code) {
   Vector4d ph(qras[0], qras[1], qras[2], 1.0);
@@ -521,6 +521,36 @@ struct OutputWarpWorker : public TinyParallel::Worker {
   }
 };
 
+// Trilinear "splat" (scatter): the adjoint of trilinearSample's gather. Adds
+// w * vec into the field at continuous level-voxel coords (cx,cy,cz), spread to
+// the 8 surrounding voxels with the same clamped indices/weights the gather
+// uses. Out-of-bounds coords contribute nothing (matching a false gather). Used
+// by the cortical-landmark force, which is sparse, so this runs serially.
+inline void splatTrilinear(Field& f, double cx, double cy, double cz,
+                           double w, const Vector3d& vec) {
+  if (cx < 0.0 || cy < 0.0 || cz < 0.0 ||
+      cx > (double)(f.nx - 1) || cy > (double)(f.ny - 1) || cz > (double)(f.nz - 1))
+    return;
+  const int x0 = (int)std::floor(cx), y0 = (int)std::floor(cy), z0 = (int)std::floor(cz);
+  const int x1 = (x0 < f.nx - 1) ? x0 + 1 : x0;
+  const int y1 = (y0 < f.ny - 1) ? y0 + 1 : y0;
+  const int z1 = (z0 < f.nz - 1) ? z0 + 1 : z0;
+  const double fx = cx - x0, fy = cy - y0, fz = cz - z0;
+  const std::size_t sy = (std::size_t)f.nx, sz = (std::size_t)f.nx * f.ny;
+  const int xs[2] = {x0, x1}, ys[2] = {y0, y1}, zs[2] = {z0, z1};
+  const double wxw[2] = {1.0 - fx, fx}, wyw[2] = {1.0 - fy, fy}, wzw[2] = {1.0 - fz, fz};
+  for (int a = 0; a < 2; ++a)
+    for (int b = 0; b < 2; ++b)
+      for (int c = 0; c < 2; ++c) {
+        const double cw = w * wxw[a] * wyw[b] * wzw[c];
+        if (cw == 0.0) continue;     // skips the duplicated clamped corner
+        const std::size_t o = (std::size_t)xs[a] + sy * ys[b] + sz * zs[c];
+        f.x[o] += (reg_real)(cw * vec[0]);
+        f.y[o] += (reg_real)(cw * vec[1]);
+        f.z[o] += (reg_real)(cw * vec[2]);
+      }
+}
+
 } // anonymous namespace
 
 // [[Rcpp::export]]
@@ -543,6 +573,9 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
                             const Rcpp::IntegerVector& interpCodes,
                             const Rcpp::Nullable<Rcpp::NumericVector>& fixedMask,
                             const Rcpp::Nullable<Rcpp::NumericVector>& movingMask,
+                            const Rcpp::NumericMatrix& fixedPoints,
+                            const Rcpp::NumericMatrix& movingPoints,
+                            const double pointsWeight,
                             const bool verbose = false) {
   const int fnx = fixedDim[0], fny = fixedDim[1], fnz = fixedDim[2];
   const int mnx = movingDim[0], mny = movingDim[1], mnz = movingDim[2];
@@ -584,6 +617,20 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
     Rcpp::NumericVector fm(fixedMask);
     fixedMaskFull.assign(fm.begin(), fm.end());
     fixedMaskData = fixedMaskFull.data();
+  }
+
+  // Optional cortical landmark correspondences (N x 3 RAS each; N=0 => none).
+  // fixedPoints are target/fixed-RAS anchors; movingPoints the corresponding
+  // source/moving-RAS targets (row i = the same cortical vertex). They add a
+  // weighted force pulling warp(fixedPoints[i]) toward movingPoints[i].
+  const int nP = fixedPoints.nrow();
+  std::vector<Vector3d> fixPts, movPts;
+  if (nP > 0 && pointsWeight > 0.0) {
+    fixPts.reserve(nP); movPts.reserve(nP);
+    for (int p = 0; p < nP; ++p) {
+      fixPts.emplace_back(fixedPoints(p, 0), fixedPoints(p, 1), fixedPoints(p, 2));
+      movPts.emplace_back(movingPoints(p, 0), movingPoints(p, 1), movingPoints(p, 2));
+    }
   }
 
   const int nLevels = shrinkFactors.size();
@@ -746,6 +793,35 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
             metricVal += wk * (ms.sse / N);
           }
         } // channels
+
+        // ---- cortical landmark force (surface-guided), splatted onto force ----
+        // For each correspondence, pull warp(fixed anchor) toward its moving
+        // target: gather the current displacement at the anchor, form the
+        // residual error, convert to displacement-space force (affR^T e), and
+        // scatter it onto the field. The fluid smoothing below then turns these
+        // sparse pulls into a smooth deformation, exactly like the image force.
+        if (!fixPts.empty()) {
+          const Matrix4d s2v = levelV2R.inverse();
+          double surfCost = 0.0;
+          for (int p = 0; p < nP; ++p) {
+            const Vector3d& xf = fixPts[p];
+            Vector4d vh = s2v * Vector4d(xf[0], xf[1], xf[2], 1.0);
+            const double cx = vh[0], cy = vh[1], cz = vh[2];
+            double dx, dy, dz;
+            const bool ok =
+              trilinearSample(cur.x.data(), lnx, lny, lnz, cx, cy, cz, dx) &&
+              trilinearSample(cur.y.data(), lnx, lny, lnz, cx, cy, cz, dy) &&
+              trilinearSample(cur.z.data(), lnx, lny, lnz, cx, cy, cz, dz);
+            if (!ok) continue;                       // anchor outside this grid
+            Vector4d xdh(xf[0] + dx, xf[1] + dy, xf[2] + dz, 1.0);
+            Vector3d q = (aff * xdh).head<3>();
+            Vector3d e = movPts[p] - q;
+            surfCost += 0.5 * e.squaredNorm();
+            Vector3d fvec = affRT * e;               // -d(1/2|e|^2)/d disp
+            splatTrilinear(force, cx, cy, cz, pointsWeight, fvec);
+          }
+          metricVal += pointsWeight * (surfCost / (double)nP);
+        }
 
         // ---- regularize update (fluid) ----
         smoothFieldInto(force, flowSigmaLev, gscratch.data());

@@ -2,7 +2,7 @@
 % Please edit documentation in R/imaging-registration-native.R
 \name{register_volume3d}
 \alias{register_volume3d}
-\title{Native 3D volume registration (rigid, affine, or 'SyN')}
+\title{Native 3D volume registration (\code{'rigid'}, \code{'affine'}, or \code{'SyN'})}
 \usage{
 register_volume3d(
   source,
@@ -11,6 +11,9 @@ register_volume3d(
   target_vox2ras = NULL,
   source_mask = NULL,
   target_mask = NULL,
+  source_points = NULL,
+  target_points = NULL,
+  points_weight = 0.5,
   weights = NULL,
   type = c("rigid", "affine", "syn", "syn_only"),
   metric = "mattes",
@@ -40,7 +43,7 @@ a \code{'MRI'}), or a \code{list} of co-registered arrays matching
 
 \item{source_vox2ras, target_vox2ras}{4x4 (or 3x4) matrices mapping the
 0-indexed voxel coordinate (column-row-slice, \code{'C'}-style starting from
-0, complying with \code{'NIfTI'}) to the \code{'RAS'} coordinate system; if
+0, complying with \code{'NIfTI'}) to the \verb{RAS} coordinate system; if
 \code{NULL}, the function looks for a \code{"vox2ras"} attribute on the array}
 
 \item{source_mask, target_mask}{optional 3D mask arrays restricting where the
@@ -53,17 +56,40 @@ of interest, masks speed things up by skipping background: the linear stage
 samples only inside the mask, and the deformable stage skips warping voxels
 outside the (dilated) mask. One mask per grid, shared across channels}
 
+\item{source_points, target_points}{optional \code{N x 3} matrices of
+corresponding landmark coordinates that add a surface/landmark term to the
+\strong{deformable} (\code{"syn"}/\code{"syn_only"}) stage; default
+\code{NULL} (no term). Row \code{i} of \code{target_points} (in the
+target/fixed \verb{RAS}) and row \code{i} of \code{source_points} (in the
+source/moving \verb{RAS}) must be the \emph{same} anatomical location, for
+example corresponding cortical-surface vertices from a \code{'FreeSurfer'}
+spherical registration. The term pulls the warp of each target point onto its
+source correspondent, recovering cortical folding (\verb{gyrification})
+that the intensity metric blurs over, while the image metric still drives
+deep-brain \verb{subcortical} structures. Must be supplied together with
+equal row counts. \strong{Points must be in the same \verb{RAS} frame as
+\code{source_vox2ras}/\code{target_vox2ras}} (note \code{'FreeSurfer'}
+surfaces use \verb{surface/tkr} \verb{RAS}, which differs from scanner
+\verb{RAS} by \code{c_ras})}
+
+\item{points_weight}{relative weight of the landmark term against the image
+metric in the deformable stage; default \code{0.5}. Larger values follow the
+landmarks more closely. The sparse landmark force is attenuated by
+\code{syn_sigma} smoothing, so this typically needs tuning for a given point
+count and spacing}
+
 \item{weights}{optional numeric weights, one per source/target pair,
 controlling each channel's contribution to the deformable cost; default is
 equal weighting. Weights are normalized internally to sum to 1. Only the
 deformable (\code{"syn"}/\code{"syn_only"}) stage is multivariate; the linear
 stage always uses the first (primary) pair}
 
-\item{type}{type of transform to estimate; one of \code{"rigid"} (6 degrees
-of freedom), \code{"affine"} (12), \code{"syn"} (affine followed by a
-symmetric diffeomorphic deformation), or \code{"syn_only"} (deformable stage
-only — no affine is estimated; \code{init_transform} is used directly as the
-starting affine, useful when you already have a good linear alignment)}
+\item{type}{type of transform to estimate; one of \code{'rigid'} (6 degrees
+of freedom), \code{'affine'} (12), \code{"syn"} (\verb{affine} followed
+by a \verb{SDR} - symmetric \verb{diffeomorphic} deformation), or
+\code{'syn_only'} (\verb{deformable} stage only — no \verb{affine} is
+estimated; \code{init_transform} is used directly as the starting
+\verb{affine}, useful when you already have a good linear alignment)}
 
 \item{metric}{similarity metric: \code{"mattes"} (Mattes mutual information,
 the default, best for cross-modal such as \code{'CT'}-\code{'MRI'}),
@@ -84,20 +110,21 @@ same length as \code{shrink_factors}; default \code{c(2, 1, 0)}}
 \item{sampling_rate}{fraction of fixed voxels sampled to evaluate the metric
 (speeds up large volumes); default \code{0.2}}
 
-\item{interpolation}{output interpolation used when warping each modality onto
-the target grid: \code{"trilinear"} (default), \code{"nearest"} (keeps label /
-segmentation values intact), or \code{"bspline"} (cubic Catmull-Rom, higher
-quality, slower). Like \code{metric}, supply a single value (applied to every
-channel) or one per source/target pair. This affects only the returned warped
-images, never the optimizer's internal sampling (always trilinear, so every
-channel still produces smooth gradients)}
+\item{interpolation}{output interpolation used when warping each modality
+onto the target grid: \code{'trilinear'} (default), \code{'nearest'} (keeps
+label or segmentation values intact), or \code{"bspline"} (cubic
+\verb{Catmull-Rom}, higher quality, slower). Like \code{metric}, supply a
+single value (applied to every channel) or one per source/target pair. This
+affects only the returned warped images, never the optimization's internal
+sampling (always \code{'trilinear'}, so every channel still produces
+smooth gradients)}
 
 \item{number_of_bins}{number of histogram bins for the \code{"mattes"}
 metric; default \code{32}}
 
 \item{seed}{random seed for the voxel sampler, for reproducibility}
 
-\item{init_transform}{optional 4x4 initial \code{'RAS'}-to-\code{'RAS'}
+\item{init_transform}{optional 4x4 initial \verb{RAS}-to-\verb{RAS}
 transform (fixed to moving) to start from}
 
 \item{syn_iterations, syn_sigma}{deformable stage controls (only used when
@@ -115,7 +142,7 @@ displacement (deformable); useful to monitor convergence on large volumes}
 \value{
 A list with:
 \describe{
-\item{\code{transform}}{the estimated 4x4 \code{'RAS'}-to-\code{'RAS'} linear
+\item{\code{transform}}{the estimated 4x4 \verb{RAS}-to-\verb{RAS} linear
 transform mapping \code{target} (fixed) coordinates to \code{source} (moving)
 coordinates}
 \item{\code{image}}{the (primary) \code{source} resampled onto the
@@ -130,14 +157,14 @@ deformation fields}
 }
 }
 \description{
-Self-contained image registration for 3D volumes, implemented natively in
-\code{C++} (no external registration library). It mirrors the core behavior
-of \code{'ANTs'} \code{antsRegistration}: a multi-resolution, physical-shift
-scaled gradient-descent optimizer driving a similarity metric, working
-entirely in the anatomical \code{'RAS'} (right-anterior-superior) space. Each
-volume carries its own \code{vox2ras} (0-indexed voxel to \code{'RAS'}) 4x4
-transform, so volumes with different sampling, orientation, or field of view
-are aligned correctly.
+Self-contained image registration for 3D volumes, implemented purely in
+\pkg{RcppEigen} (no other external registration library). It mirrors the
+core behavior of \pkg{'ANTs'} \code{antsRegistration}: a multi-resolution,
+physical-shift scaled gradient-descent optimizer driving a similarity metric,
+working entirely in the anatomical \verb{RAS} (right-anterior-superior)
+space. Each volume carries its own \code{vox2ras} (0-indexed voxel index to
+anatomical \verb{RAS}) \eqn{4\times 4} transform, so volumes with
+different sampling, orientation, or field of view are aligned correctly.
 }
 \examples{
 \donttest{

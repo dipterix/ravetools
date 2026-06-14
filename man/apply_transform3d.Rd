@@ -2,7 +2,7 @@
 % Please edit documentation in R/imaging-registration-native.R
 \name{apply_transform3d}
 \alias{apply_transform3d}
-\title{Apply a linear \code{'RAS'} transform to resample a 3D volume}
+\title{Apply a linear \verb{RAS} transform to resample a 3D volume}
 \usage{
 apply_transform3d(
   volume,
@@ -17,30 +17,30 @@ apply_transform3d(
 \arguments{
 \item{volume}{moving 3D array to resample}
 
-\item{vox2ras}{the moving volume's voxel-to-\code{'RAS'} 4x4 transform}
+\item{vox2ras}{the moving volume's voxel-to-\verb{RAS} 4x4 transform}
 
-\item{transform}{4x4 \code{'RAS'}-to-\code{'RAS'} transform (fixed to moving)}
+\item{transform}{4x4 \verb{RAS}-to-\verb{RAS} transform (fixed to moving)}
 
 \item{reference_dim}{output dimension (the fixed grid); defaults to
 \code{dim(volume)}}
 
-\item{reference_vox2ras}{the fixed grid's voxel-to-\code{'RAS'} transform;
+\item{reference_vox2ras}{the fixed grid's voxel-to-\verb{RAS} transform;
 defaults to \code{vox2ras}}
 
-\item{interpolation}{\code{"trilinear"} (default), \code{"nearest"}, or
-\code{"bspline"} (cubic Catmull-Rom)}
+\item{interpolation}{\code{'trilinear'} (default), \code{'nearest'}, or
+\code{'bspline'} (cubic \verb{Catmull-Rom})}
 
 \item{na_fill}{value for out-of-bounds voxels; default \code{0}}
 }
 \value{
-The resampled volume on the reference grid, with a \code{"vox2ras"}
+The resampled volume on the reference grid, with a \code{'vox2ras'}
 attribute equal to \code{reference_vox2ras}.
 }
 \description{
 Warps a moving volume onto a reference grid given a 4x4
-\code{'RAS'}-to-\code{'RAS'} transform (such as the \code{transform} returned
+\verb{RAS}-to-\verb{RAS} transform (such as the \code{transform} returned
 by \code{\link{register_volume3d}}). The transform maps reference (fixed)
-\code{'RAS'} coordinates to moving \code{'RAS'} coordinates.
+\verb{RAS} coordinates to moving \verb{RAS} coordinates.
 }
 \seealso{
 \code{\link{register_volume3d}}

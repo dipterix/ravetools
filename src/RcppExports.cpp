@@ -3645,8 +3645,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // register_syn_cpp
-Rcpp::List register_syn_cpp(const Rcpp::List& fixedList, const Rcpp::IntegerVector& fixedDim, const Rcpp::NumericMatrix& fixedVox2Ras, const Rcpp::List& movingList, const Rcpp::IntegerVector& movingDim, const Rcpp::NumericMatrix& movingVox2Ras, const Rcpp::NumericMatrix& affineTransform, const Rcpp::CharacterVector& metricNames, const Rcpp::NumericVector& weights, const Rcpp::IntegerVector& shrinkFactors, const Rcpp::NumericVector& smoothingSigmas, const Rcpp::IntegerVector& iterations, const double gradStep, const Rcpp::NumericVector& flowSigma, const double totalSigma, const int ccRadius, const Rcpp::IntegerVector& interpCodes, const Rcpp::Nullable<Rcpp::NumericVector>& fixedMask, const Rcpp::Nullable<Rcpp::NumericVector>& movingMask, const bool verbose);
-RcppExport SEXP _ravetools_register_syn_cpp(SEXP fixedListSEXP, SEXP fixedDimSEXP, SEXP fixedVox2RasSEXP, SEXP movingListSEXP, SEXP movingDimSEXP, SEXP movingVox2RasSEXP, SEXP affineTransformSEXP, SEXP metricNamesSEXP, SEXP weightsSEXP, SEXP shrinkFactorsSEXP, SEXP smoothingSigmasSEXP, SEXP iterationsSEXP, SEXP gradStepSEXP, SEXP flowSigmaSEXP, SEXP totalSigmaSEXP, SEXP ccRadiusSEXP, SEXP interpCodesSEXP, SEXP fixedMaskSEXP, SEXP movingMaskSEXP, SEXP verboseSEXP) {
+Rcpp::List register_syn_cpp(const Rcpp::List& fixedList, const Rcpp::IntegerVector& fixedDim, const Rcpp::NumericMatrix& fixedVox2Ras, const Rcpp::List& movingList, const Rcpp::IntegerVector& movingDim, const Rcpp::NumericMatrix& movingVox2Ras, const Rcpp::NumericMatrix& affineTransform, const Rcpp::CharacterVector& metricNames, const Rcpp::NumericVector& weights, const Rcpp::IntegerVector& shrinkFactors, const Rcpp::NumericVector& smoothingSigmas, const Rcpp::IntegerVector& iterations, const double gradStep, const Rcpp::NumericVector& flowSigma, const double totalSigma, const int ccRadius, const Rcpp::IntegerVector& interpCodes, const Rcpp::Nullable<Rcpp::NumericVector>& fixedMask, const Rcpp::Nullable<Rcpp::NumericVector>& movingMask, const Rcpp::NumericMatrix& fixedPoints, const Rcpp::NumericMatrix& movingPoints, const double pointsWeight, const bool verbose);
+RcppExport SEXP _ravetools_register_syn_cpp(SEXP fixedListSEXP, SEXP fixedDimSEXP, SEXP fixedVox2RasSEXP, SEXP movingListSEXP, SEXP movingDimSEXP, SEXP movingVox2RasSEXP, SEXP affineTransformSEXP, SEXP metricNamesSEXP, SEXP weightsSEXP, SEXP shrinkFactorsSEXP, SEXP smoothingSigmasSEXP, SEXP iterationsSEXP, SEXP gradStepSEXP, SEXP flowSigmaSEXP, SEXP totalSigmaSEXP, SEXP ccRadiusSEXP, SEXP interpCodesSEXP, SEXP fixedMaskSEXP, SEXP movingMaskSEXP, SEXP fixedPointsSEXP, SEXP movingPointsSEXP, SEXP pointsWeightSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -3669,8 +3669,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type interpCodes(interpCodesSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::NumericVector>& >::type fixedMask(fixedMaskSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::NumericVector>& >::type movingMask(movingMaskSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type fixedPoints(fixedPointsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type movingPoints(movingPointsSEXP);
+    Rcpp::traits::input_parameter< const double >::type pointsWeight(pointsWeightSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(register_syn_cpp(fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, verbose));
+    rcpp_result_gen = Rcpp::wrap(register_syn_cpp(fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, fixedPoints, movingPoints, pointsWeight, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -4292,7 +4295,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_rawToFloat", (DL_FUNC) &_ravetools_rawToFloat, 1},
     {"_ravetools_rawToString", (DL_FUNC) &_ravetools_rawToString, 1},
     {"_ravetools_register_linear_cpp", (DL_FUNC) &_ravetools_register_linear_cpp, 19},
-    {"_ravetools_register_syn_cpp", (DL_FUNC) &_ravetools_register_syn_cpp, 20},
+    {"_ravetools_register_syn_cpp", (DL_FUNC) &_ravetools_register_syn_cpp, 23},
     {"_ravetools_resample3D", (DL_FUNC) &_ravetools_resample3D, 6},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
     {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},

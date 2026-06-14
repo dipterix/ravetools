@@ -1,13 +1,13 @@
-#' @title Native 3D volume registration (rigid, affine, or 'SyN')
+#' @title Native 3D volume registration (\code{'rigid'}, \code{'affine'}, or \code{'SyN'})
 #' @description
-#' Self-contained image registration for 3D volumes, implemented natively in
-#' \code{C++} (no external registration library). It mirrors the core behavior
-#' of \code{'ANTs'} \code{antsRegistration}: a multi-resolution, physical-shift
-#' scaled gradient-descent optimizer driving a similarity metric, working
-#' entirely in the anatomical \code{'RAS'} (right-anterior-superior) space. Each
-#' volume carries its own \code{vox2ras} (0-indexed voxel to \code{'RAS'}) 4x4
-#' transform, so volumes with different sampling, orientation, or field of view
-#' are aligned correctly.
+#' Self-contained image registration for 3D volumes, implemented purely in
+#' \pkg{RcppEigen} (no other external registration library). It mirrors the
+#' core behavior of \pkg{'ANTs'} \code{antsRegistration}: a multi-resolution,
+#' physical-shift scaled gradient-descent optimizer driving a similarity metric,
+#' working entirely in the anatomical \verb{RAS} (right-anterior-superior)
+#' space. Each volume carries its own \code{vox2ras} (0-indexed voxel index to
+#' anatomical \verb{RAS}) \eqn{4\times 4} transform, so volumes with
+#' different sampling, orientation, or field of view are aligned correctly.
 #'
 #' @param source the moving volume to be aligned, a 3D array (for example a
 #' \code{'CT'}); the result transform maps \code{target} into this image's space.
@@ -24,7 +24,7 @@
 #' stage always uses the first (primary) pair
 #' @param source_vox2ras,target_vox2ras 4x4 (or 3x4) matrices mapping the
 #' 0-indexed voxel coordinate (column-row-slice, \code{'C'}-style starting from
-#' 0, complying with \code{'NIfTI'}) to the \code{'RAS'} coordinate system; if
+#' 0, complying with \code{'NIfTI'}) to the \verb{RAS} coordinate system; if
 #' \code{NULL}, the function looks for a \code{"vox2ras"} attribute on the array
 #' @param source_mask,target_mask optional 3D mask arrays restricting where the
 #' metric is evaluated; default \code{NULL} (no mask, evaluate everywhere). A
@@ -35,11 +35,32 @@
 #' of interest, masks speed things up by skipping background: the linear stage
 #' samples only inside the mask, and the deformable stage skips warping voxels
 #' outside the (dilated) mask. One mask per grid, shared across channels
-#' @param type type of transform to estimate; one of \code{"rigid"} (6 degrees
-#' of freedom), \code{"affine"} (12), \code{"syn"} (affine followed by a
-#' symmetric diffeomorphic deformation), or \code{"syn_only"} (deformable stage
-#' only — no affine is estimated; \code{init_transform} is used directly as the
-#' starting affine, useful when you already have a good linear alignment)
+#' @param source_points,target_points optional \code{N x 3} matrices of
+#' corresponding landmark coordinates that add a surface/landmark term to the
+#' \strong{deformable} (\code{"syn"}/\code{"syn_only"}) stage; default
+#' \code{NULL} (no term). Row \code{i} of \code{target_points} (in the
+#' target/fixed \verb{RAS}) and row \code{i} of \code{source_points} (in the
+#' source/moving \verb{RAS}) must be the \emph{same} anatomical location, for
+#' example corresponding cortical-surface vertices from a \code{'FreeSurfer'}
+#' spherical registration. The term pulls the warp of each target point onto its
+#' source correspondent, recovering cortical folding (\verb{gyrification})
+#' that the intensity metric blurs over, while the image metric still drives
+#' deep-brain \verb{subcortical} structures. Must be supplied together with
+#' equal row counts. \strong{Points must be in the same \verb{RAS} frame as
+#' \code{source_vox2ras}/\code{target_vox2ras}} (note \code{'FreeSurfer'}
+#' surfaces use \verb{surface/tkr} \verb{RAS}, which differs from scanner
+#' \verb{RAS} by \code{c_ras})
+#' @param points_weight relative weight of the landmark term against the image
+#' metric in the deformable stage; default \code{0.5}. Larger values follow the
+#' landmarks more closely. The sparse landmark force is attenuated by
+#' \code{syn_sigma} smoothing, so this typically needs tuning for a given point
+#' count and spacing
+#' @param type type of transform to estimate; one of \code{'rigid'} (6 degrees
+#' of freedom), \code{'affine'} (12), \code{"syn"} (\verb{affine} followed
+#' by a \verb{SDR} - symmetric \verb{diffeomorphic} deformation), or
+#' \code{'syn_only'} (\verb{deformable} stage only — no \verb{affine} is
+#' estimated; \code{init_transform} is used directly as the starting
+#' \verb{affine}, useful when you already have a good linear alignment)
 #' @param metric similarity metric: \code{"mattes"} (Mattes mutual information,
 #' the default, best for cross-modal such as \code{'CT'}-\code{'MRI'}),
 #' \code{"cc"} (normalized cross-correlation, for same-modality), or
@@ -54,17 +75,18 @@
 #' \code{c(1000, 500, 250)}
 #' @param sampling_rate fraction of fixed voxels sampled to evaluate the metric
 #' (speeds up large volumes); default \code{0.2}
-#' @param interpolation output interpolation used when warping each modality onto
-#' the target grid: \code{"trilinear"} (default), \code{"nearest"} (keeps label /
-#' segmentation values intact), or \code{"bspline"} (cubic Catmull-Rom, higher
-#' quality, slower). Like \code{metric}, supply a single value (applied to every
-#' channel) or one per source/target pair. This affects only the returned warped
-#' images, never the optimizer's internal sampling (always trilinear, so every
-#' channel still produces smooth gradients)
+#' @param interpolation output interpolation used when warping each modality
+#' onto the target grid: \code{'trilinear'} (default), \code{'nearest'} (keeps
+#' label or segmentation values intact), or \code{"bspline"} (cubic
+#' \verb{Catmull-Rom}, higher quality, slower). Like \code{metric}, supply a
+#' single value (applied to every channel) or one per source/target pair. This
+#' affects only the returned warped images, never the optimization's internal
+#' sampling (always \code{'trilinear'}, so every channel still produces
+#' smooth gradients)
 #' @param number_of_bins number of histogram bins for the \code{"mattes"}
 #' metric; default \code{32}
 #' @param seed random seed for the voxel sampler, for reproducibility
-#' @param init_transform optional 4x4 initial \code{'RAS'}-to-\code{'RAS'}
+#' @param init_transform optional 4x4 initial \verb{RAS}-to-\verb{RAS}
 #' transform (fixed to moving) to start from
 #' @param syn_iterations,syn_sigma deformable stage controls (only used when
 #' \code{type = "syn"} or \code{"syn_only"}): per-level iteration counts and the
@@ -78,7 +100,7 @@
 #' displacement (deformable); useful to monitor convergence on large volumes
 #' @returns A list with:
 #' \describe{
-#' \item{\code{transform}}{the estimated 4x4 \code{'RAS'}-to-\code{'RAS'} linear
+#' \item{\code{transform}}{the estimated 4x4 \verb{RAS}-to-\verb{RAS} linear
 #' transform mapping \code{target} (fixed) coordinates to \code{source} (moving)
 #' coordinates}
 #' \item{\code{image}}{the (primary) \code{source} resampled onto the
@@ -139,6 +161,7 @@ register_volume3d <- function(
     source, target,
     source_vox2ras = NULL, target_vox2ras = NULL,
     source_mask = NULL, target_mask = NULL,
+    source_points = NULL, target_points = NULL, points_weight = 0.5,
     weights = NULL,
     type = c("rigid", "affine", "syn", "syn_only"),
     metric = "mattes",
@@ -166,7 +189,7 @@ register_volume3d <- function(
 
   # Per-channel metric. A single metric (the default "mattes") is recycled to
   # every channel; otherwise supply one metric per pair. Each entry is validated
-  # against the available options -- so three channels left at the default all
+  # against the available options, so three channels left at the default all
   # use "mattes" rather than being silently read as c("mattes","cc","meansquares").
   metric_choices <- c("mattes", "cc", "meansquares")
   metric <- as.character(metric)
@@ -180,7 +203,7 @@ register_volume3d <- function(
   }
 
   # Per-channel output interpolation, validated like `metric`. Controls how each
-  # warped modality is resampled onto the target grid -- e.g. "nearest" to keep a
+  # warped modality is resampled onto the target grid, e.g. "nearest" to keep a
   # segmentation's label values intact. The optimizer's internal metric sampling
   # is always trilinear, so this does not change what drives the registration.
   interp_choices <- c("trilinear", "nearest", "bspline")
@@ -230,6 +253,23 @@ register_volume3d <- function(
   # One mask per grid (shared across channels, which are co-registered).
   target_mask <- validate_mask(target_mask, tgt_dim, "target_mask")
   source_mask <- validate_mask(source_mask, src_dim, "source_mask")
+
+  # Optional cortical landmark correspondences (only used by the deformable
+  # stage). `target_points` (fixed/target RAS) and `source_points` (moving/source
+  # RAS) are N x 3 matrices whose row i is the SAME cortical vertex in each space
+  # (e.g. corresponding vertices from FreeSurfer spherical registration). They
+  # add a weighted term that pulls the warp of each target point onto its source
+  # correspondent, recovering gyrification the intensity metric blurs over.
+  # IMPORTANT: points must be in the same RAS frame as the vox2ras matrices.
+  source_points <- validate_points(source_points, "source_points")
+  target_points <- validate_points(target_points, "target_points")
+  if (is.null(source_points) != is.null(target_points)) {
+    stop("`register_volume3d`: `source_points` and `target_points` must be supplied together.")
+  }
+  if (!is.null(source_points) && nrow(source_points) != nrow(target_points)) {
+    stop("`register_volume3d`: `source_points` and `target_points` must have the same number of rows (corresponding vertices).")
+  }
+  points_weight <- as.double(points_weight)[[1L]]
 
   # The linear (rigid/affine) stage is driven by the primary pair only; extra
   # channels contribute only to the deformable stage (ANTs convention).
@@ -284,6 +324,8 @@ register_volume3d <- function(
       iterations = syn_iters, interp_codes = interp_codes,
       field_sigma = syn_sigma, seed = as.integer(seed),
       fixed_mask = target_mask, moving_mask = source_mask,
+      fixed_points = target_points, moving_points = source_points,
+      points_weight = points_weight,
       verbose = isTRUE(verbose))
     return(list(
       transform = transform,
@@ -327,6 +369,8 @@ register_volume3d <- function(
       iterations = syn_iters, interp_codes = interp_codes,
       field_sigma = syn_sigma, seed = as.integer(seed),
       fixed_mask = target_mask, moving_mask = source_mask,
+      fixed_points = target_points, moving_points = source_points,
+      points_weight = points_weight,
       verbose = isTRUE(verbose))
     result$forward_field <- syn$forward_field
     result$inverse_field <- syn$inverse_field
@@ -351,23 +395,23 @@ register_volume3d <- function(
 }
 
 
-#' @title Apply a linear \code{'RAS'} transform to resample a 3D volume
+#' @title Apply a linear \verb{RAS} transform to resample a 3D volume
 #' @description
 #' Warps a moving volume onto a reference grid given a 4x4
-#' \code{'RAS'}-to-\code{'RAS'} transform (such as the \code{transform} returned
+#' \verb{RAS}-to-\verb{RAS} transform (such as the \code{transform} returned
 #' by \code{\link{register_volume3d}}). The transform maps reference (fixed)
-#' \code{'RAS'} coordinates to moving \code{'RAS'} coordinates.
+#' \verb{RAS} coordinates to moving \verb{RAS} coordinates.
 #' @param volume moving 3D array to resample
-#' @param vox2ras the moving volume's voxel-to-\code{'RAS'} 4x4 transform
-#' @param transform 4x4 \code{'RAS'}-to-\code{'RAS'} transform (fixed to moving)
+#' @param vox2ras the moving volume's voxel-to-\verb{RAS} 4x4 transform
+#' @param transform 4x4 \verb{RAS}-to-\verb{RAS} transform (fixed to moving)
 #' @param reference_dim output dimension (the fixed grid); defaults to
 #' \code{dim(volume)}
-#' @param reference_vox2ras the fixed grid's voxel-to-\code{'RAS'} transform;
+#' @param reference_vox2ras the fixed grid's voxel-to-\verb{RAS} transform;
 #' defaults to \code{vox2ras}
-#' @param interpolation \code{"trilinear"} (default), \code{"nearest"}, or
-#' \code{"bspline"} (cubic Catmull-Rom)
+#' @param interpolation \code{'trilinear'} (default), \code{'nearest'}, or
+#' \code{'bspline'} (cubic \verb{Catmull-Rom})
 #' @param na_fill value for out-of-bounds voxels; default \code{0}
-#' @returns The resampled volume on the reference grid, with a \code{"vox2ras"}
+#' @returns The resampled volume on the reference grid, with a \code{'vox2ras'}
 #' attribute equal to \code{reference_vox2ras}.
 #' @seealso \code{\link{register_volume3d}}
 #' @export
@@ -445,6 +489,18 @@ validate_mask <- function(m, ref_dim, name) {
   as.double(m)
 }
 
+# Validate an optional landmark point set (NULL passes through) and return it as
+# an N x 3 double matrix of RAS coordinates.
+validate_points <- function(p, name) {
+  if (is.null(p)) return(NULL)
+  p <- as.matrix(p)
+  storage.mode(p) <- "double"
+  if (ncol(p) != 3L) {
+    stop(sprintf("`register_volume3d`: `%s` must be an N x 3 matrix of RAS coordinates.", name))
+  }
+  p
+}
+
 recycle <- function(v, n) {
   if (length(v) == n) return(v)
   if (length(v) == 1L) return(rep(v, n))
@@ -486,13 +542,17 @@ register_syn <- function(fixed_list, fixed_dim, fixed_vox2ras,
                           shrink_factors, smoothing_sigmas, iterations,
                           interp_codes, field_sigma, seed,
                           fixed_mask = NULL, moving_mask = NULL,
+                          fixed_points = NULL, moving_points = NULL, points_weight = 0.5,
                           grad_step = 0.2, total_sigma = 0, cc_radius = 2L,
                           verbose = FALSE) {
   # Mattes drives the linear stage; the deformable refinement uses local CC
-  # (ANTs SyN's metric) unless mean squares was requested -- applied per channel.
+  # (ANTs SyN's metric) unless mean squares was requested, applied per channel.
   deform_metric <- ifelse(metrics == "meansquares", "meansquares", "cc")
   fixed_dbl <- lapply(fixed_list, as.double)
   moving_dbl <- lapply(moving_list, as.double)
+  # NULL point sets become 0 x 3 matrices (the C++ side treats N = 0 as "none").
+  fixed_points_mat <- if (is.null(fixed_points)) matrix(numeric(0), 0L, 3L) else as.matrix(fixed_points)
+  moving_points_mat <- if (is.null(moving_points)) matrix(numeric(0), 0L, 3L) else as.matrix(moving_points)
   register_syn_cpp(
     fixedList = fixed_dbl, fixedDim = fixed_dim, fixedVox2Ras = fixed_vox2ras,
     movingList = moving_dbl, movingDim = moving_dim, movingVox2Ras = moving_vox2ras,
@@ -505,5 +565,7 @@ register_syn <- function(fixed_list, fixed_dim, fixed_vox2ras,
     ccRadius = as.integer(cc_radius),
     interpCodes = as.integer(interp_codes),
     fixedMask = fixed_mask, movingMask = moving_mask,
+    fixedPoints = fixed_points_mat, movingPoints = moving_points_mat,
+    pointsWeight = as.double(points_weight),
     verbose = isTRUE(verbose))
 }
