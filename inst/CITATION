@@ -9,9 +9,26 @@ bibentry(bibtype = "Article",
          volume       = "223",
          pages        = "117341",
          doi          = "10.1016/j.neuroimage.2020.117341",
-         header       = "To cite ravetools in publications use, please cite the RAVE paper from Beauchamp's lab.",
+         header       = "This package is part of RAVE. To cite this package in publications use, please check the following Neuroimage paper from Beauchamp's lab.",
          footer       = "Please check https://rave.wiki for more information.",
          textVersion  = "Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE: comprehensive open-source software for reproducible analysis and visualization of intracranial EEG data. NeuroImage, 223, p.117341."
+)
+
+
+bibentry(bibtype = "Article",
+         title        = "Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain",
+         author       = c(as.person("Brian B. Avants"),
+                          as.person("Charles L. Epstein"),
+                          as.person("Murray Grossman"),
+                          as.person("James C. Gee")),
+         journal      = "Medical image analysis",
+         year         = "2008",
+         volume       = "12",
+         pages        = "26-41",
+         number       = "1",
+         doi          = "10.1016/j.media.2007.06.004",
+         header       = "If you use `register_volume3d` for imaging registration, please cite the following paper.",
+         textVersion  = "Avants BB, Epstein CL, Grossman M, Gee JC (2008). Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain. Medical image analysis, 12(1), 26-41."
 )
 
 bibentry(bibtype = "Article",

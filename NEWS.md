@@ -1,3 +1,25 @@
+# ravetools 0.2.7
+
+* Added `color_ramp_continuous` helper to create a vectorized color-mapping function from a palette and a numeric domain
+* Fixed `make_error` to properly protect the error class string from garbage collection, preventing class names from being silently lost in nested error calls
+* Guarded `design_filter` against `bandstop` configurations where automatically derived transition bandwidths overlap each other, producing unordered frequency breakpoints
+* Added `mris_curvature` to estimate per-vertex mean, Gaussian, and principal curvatures by fitting an osculating quadratic surface to each vertex's two-ring neighborhood
+* Added `mris_smooth` to smooth a triangular surface mesh via iterative `Laplacian` or `Taubin` smoothing
+* Added `mris_inflate` to inflate a cortical surface mesh by iteratively smoothing and expanding toward a sphere while preserving total surface area
+* Added `mris_sphere` to project an inflated cortical surface onto a sphere and relax metric distortion via area-preserving gradient descent
+* Added `mris_remesh` to re-mesh a triangular surface to uniform edge length using the `Botsch` and `Kobbelt` (2004) isotropic re-meshing algorithm
+* Added `mris_make_surfaces` to localize white-matter and `pial` surfaces from an intensity volume
+* Added `vcg_average_edge_length` and `vcg_max_edge_length` to query edge-length statistics of a mesh
+* Added `vcg_count_edge_defects` to count non-manifold edge defects in a mesh
+* Added `vcg_fix_defects` to repair mesh topology defects via `VCG`
+* Added `vcg_subdivide_max_edge_length` to subdivide only edges that exceed a specified length, avoiding global super-sampling and improving `Dijkstra` path quality
+* Added `vcg_mesh_patch` to extract a geodesic patch of a mesh bounded by a closed curve of user-supplied `waypoint` vertices
+* All `mesh3d` objects returned by `ravetools` now carry the `ravetools_mesh3d` class, enabling a `plot()` generic that dispatches automatically to `plot_mesh_polygon` or `plot_mesh_dotcloud`
+* `register_volume3d` (`SyN` mode) re-implemented from the `ANTs` paper in pure `Rcpp`/`RcppEigen`; no longer depends on `RNiftyReg` or any external registration library
+* `register_volume3d` gains a `points` argument to additionally warp a matrix of anatomical coordinates (e.g. cortical surface vertices) through the estimated transform, enabling direct cortical mapping without a separate resampling step
+* Exported `apply_transform3d` to apply a previously estimated rigid, `affine`, or `SyN` transform to a new 3D volume
+
+
 # ravetools 0.2.6
 
 * Added `plot_mesh_dotcloud` for rendering one or more `mesh3d` objects as an orthographic rim-lit dot cloud in base R (no `rgl` dependency); supports per-vertex colors, depth-gradient palettes, per-mesh alpha, `side` filtering, and painter's-algorithm depth sorting across multiple meshes
