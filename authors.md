@@ -50,6 +50,22 @@ intracranial EEG data. NeuroImage, 223, p.117341.
       doi = {10.1016/j.neuroimage.2020.117341},
     }
 
+Avants BB, Epstein CL, Grossman M, Gee JC (2008). Symmetric
+diffeomorphic image registration with cross-correlation: evaluating
+automated labeling of elderly and neurodegenerative brain. Medical image
+analysis, 12(1), 26-41.
+
+    @Article{,
+      title = {Symmetric diffeomorphic image registration with cross-correlation: evaluating automated labeling of elderly and neurodegenerative brain},
+      author = {Brian B. Avants and Charles L. Epstein and Murray Grossman and James C. Gee},
+      journal = {Medical image analysis},
+      year = {2008},
+      volume = {12},
+      pages = {26-41},
+      number = {1},
+      doi = {10.1016/j.media.2007.06.004},
+    }
+
 Fischl B, Sereno MI, Dale AM (1999). Cortical surface-based analysis:
 II: inflation, flattening, and a surface-based coordinate system.
 Neuroimage, 9(2), 195-207. doi:10.1006/nimg.1998.0396.

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,31 @@
       <small>Source: <a href="https://github.com/dipterix/ravetools/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.7" id="ravetools-027">ravetools 0.2.7<a class="anchor" aria-label="anchor" href="#ravetools-027"></a></h2>
+<ul><li>Added <code>color_ramp_continuous</code> helper to create a vectorized color-mapping function from a palette and a numeric domain</li>
+<li>Fixed <code>make_error</code> to properly protect the error class string from garbage collection, preventing class names from being silently lost in nested error calls</li>
+<li>Guarded <code>design_filter</code> against <code>bandstop</code> configurations where automatically derived transition bandwidths overlap each other, producing unordered frequency breakpoints</li>
+<li>Added <code>mris_curvature</code> to estimate per-vertex mean, Gaussian, and principal curvatures by fitting an osculating quadratic surface to each vertex’s two-ring neighborhood</li>
+<li>Added <code>mris_smooth</code> to smooth a triangular surface mesh via iterative <code>Laplacian</code> or <code>Taubin</code> smoothing</li>
+<li>Added <code>mris_inflate</code> to inflate a cortical surface mesh by iteratively smoothing and expanding toward a sphere while preserving total surface area</li>
+<li>Added <code>mris_sphere</code> to project an inflated cortical surface onto a sphere and relax metric distortion via area-preserving gradient descent</li>
+<li>Added <code>mris_remesh</code> to re-mesh a triangular surface to uniform edge length using the <code>Botsch</code> and <code>Kobbelt</code> (2004) isotropic re-meshing algorithm</li>
+<li>Added <code>mris_make_surfaces</code> to localize white-matter and <code>pial</code> surfaces from an intensity volume</li>
+<li>Added <code>vcg_average_edge_length</code> and <code>vcg_max_edge_length</code> to query edge-length statistics of a mesh</li>
+<li>Added <code>vcg_count_edge_defects</code> to count non-manifold edge defects in a mesh</li>
+<li>Added <code>vcg_fix_defects</code> to repair mesh topology defects via <code>VCG</code>
+</li>
+<li>Added <code>vcg_subdivide_max_edge_length</code> to subdivide only edges that exceed a specified length, avoiding global super-sampling and improving <code>Dijkstra</code> path quality</li>
+<li>Added <code>vcg_mesh_patch</code> to extract a geodesic patch of a mesh bounded by a closed curve of user-supplied <code>waypoint</code> vertices</li>
+<li>All <code>mesh3d</code> objects returned by <code>ravetools</code> now carry the <code>ravetools_mesh3d</code> class, enabling a <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> generic that dispatches automatically to <code>plot_mesh_polygon</code> or <code>plot_mesh_dotcloud</code>
+</li>
+<li>
+<code>register_volume3d</code> (<code>SyN</code> mode) re-implemented from the <code>ANTs</code> paper in pure <code>Rcpp</code>/<code>RcppEigen</code>; no longer depends on <code>RNiftyReg</code> or any external registration library</li>
+<li>
+<code>register_volume3d</code> gains a <code>points</code> argument to additionally warp a matrix of anatomical coordinates (e.g. cortical surface vertices) through the estimated transform, enabling direct cortical mapping without a separate resampling step</li>
+<li>Exported <code>apply_transform3d</code> to apply a previously estimated rigid, <code>affine</code>, or <code>SyN</code> transform to a new 3D volume</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.6" id="ravetools-026">ravetools 0.2.6<a class="anchor" aria-label="anchor" href="#ravetools-026"></a></h2><p class="text-muted">CRAN release: 2026-05-31</p>
 <ul><li>Added <code>plot_mesh_dotcloud</code> for rendering one or more <code>mesh3d</code> objects as an orthographic rim-lit dot cloud in base R (no <code>rgl</code> dependency); supports per-vertex colors, depth-gradient palettes, per-mesh alpha, <code>side</code> filtering, and painter’s-algorithm depth sorting across multiple meshes</li>
