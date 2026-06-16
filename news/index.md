@@ -50,6 +50,23 @@
   without a separate resampling step
 - Exported `apply_transform3d` to apply a previously estimated rigid,
   `affine`, or `SyN` transform to a new 3D volume
+- `register_volume3d` now returns an object of class
+  `ravetools_register_volume3d` (carrying the grid geometry and a
+  `vox2ras` attribute on each deformation field) with a `print` method
+- Added `write_ants_transform`/`read_ants_transform` to read and write
+  the linear transform as an `ITK` `affine` `.mat` file (a `MATLAB`
+  level-4 binary in `LPS` convention) compatible with
+  `antsApplyTransforms`; implemented in base R with no new dependency
+- Added `write_ants_warp`/`read_ants_warp` to read and write the
+  deformation field as an `ANTs` 5-D warp `NIfTI` (`LPS` displacement
+  vectors, vector intent code) via the suggested `freesurferformats`
+  package; the `RAS` `affine` can optionally be hidden in the header
+  text fields for single-file recovery
+- Added `ras_lps_conjugate` to convert a 4x4 transform between the `RAS`
+  and `LPS` conventions
+- Added `save_registration`/`load_registration` to write a registration
+  result to (or read it from) `ANTs`-style files plus a dependency-free
+  manifest
 
 ## ravetools 0.2.6
 

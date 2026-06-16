@@ -72,6 +72,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/register_volume3d.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/resample_3d_volume.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/rgl-call.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/save_registration.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/shift_array.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimpulse_interpolate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimulation_signal.html</loc></url>
@@ -92,5 +93,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/vcg_uniform_remesh.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_update_normals.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/wavelet.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/write_ants_transform.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/write_ants_warp.html</loc></url>
 </urlset>
 

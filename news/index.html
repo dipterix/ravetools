@@ -56,6 +56,12 @@
 <li>
 <code>register_volume3d</code> gains a <code>points</code> argument to additionally warp a matrix of anatomical coordinates (e.g. cortical surface vertices) through the estimated transform, enabling direct cortical mapping without a separate resampling step</li>
 <li>Exported <code>apply_transform3d</code> to apply a previously estimated rigid, <code>affine</code>, or <code>SyN</code> transform to a new 3D volume</li>
+<li>
+<code>register_volume3d</code> now returns an object of class <code>ravetools_register_volume3d</code> (carrying the grid geometry and a <code>vox2ras</code> attribute on each deformation field) with a <code>print</code> method</li>
+<li>Added <code>write_ants_transform</code>/<code>read_ants_transform</code> to read and write the linear transform as an <code>ITK</code> <code>affine</code> <code>.mat</code> file (a <code>MATLAB</code> level-4 binary in <code>LPS</code> convention) compatible with <code>antsApplyTransforms</code>; implemented in base R with no new dependency</li>
+<li>Added <code>write_ants_warp</code>/<code>read_ants_warp</code> to read and write the deformation field as an <code>ANTs</code> 5-D warp <code>NIfTI</code> (<code>LPS</code> displacement vectors, vector intent code) via the suggested <code>freesurferformats</code> package; the <code>RAS</code> <code>affine</code> can optionally be hidden in the header text fields for single-file recovery</li>
+<li>Added <code>ras_lps_conjugate</code> to convert a 4x4 transform between the <code>RAS</code> and <code>LPS</code> conventions</li>
+<li>Added <code>save_registration</code>/<code>load_registration</code> to write a registration result to (or read it from) <code>ANTs</code>-style files plus a dependency-free manifest</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.6" id="ravetools-026">ravetools 0.2.6<a class="anchor" aria-label="anchor" href="#ravetools-026"></a></h2><p class="text-muted">CRAN release: 2026-05-31</p>

@@ -275,6 +275,12 @@
 
   Safe ways to call package `'rgl'` without requiring `'x11'`
 
+- [`save_registration()`](https://dipterix.org/ravetools/reference/save_registration.md)
+  [`load_registration()`](https://dipterix.org/ravetools/reference/save_registration.md)
+  :
+
+  Save or load a registration result in `'ANTs'`-compatible files
+
 - [`shift_array()`](https://dipterix.org/ravetools/reference/shift_array.md)
   : Shift array by index
 
@@ -342,3 +348,15 @@
   [`morlet_wavelet()`](https://dipterix.org/ravetools/reference/wavelet.md)
   [`wavelet_cycles_suggest()`](https://dipterix.org/ravetools/reference/wavelet.md)
   : 'Morlet' wavelet transform (Discrete)
+
+- [`write_ants_transform()`](https://dipterix.org/ravetools/reference/write_ants_transform.md)
+  [`read_ants_transform()`](https://dipterix.org/ravetools/reference/write_ants_transform.md)
+  :
+
+  Read and write an `'ITK'`/`'ANTs'` `affine` transform
+
+- [`write_ants_warp()`](https://dipterix.org/ravetools/reference/write_ants_warp.md)
+  [`read_ants_warp()`](https://dipterix.org/ravetools/reference/write_ants_warp.md)
+  :
+
+  Read and write an `'ANTs'` deformation (warp) field
