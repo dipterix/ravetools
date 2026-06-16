@@ -327,7 +327,7 @@ register_volume3d <- function(
       fixed_points = target_points, moving_points = source_points,
       points_weight = points_weight,
       verbose = isTRUE(verbose))
-    return(list(
+    return(finalize_registration(list(
       transform = transform,
       forward_field = syn$forward_field,
       inverse_field = syn$inverse_field,
@@ -336,7 +336,7 @@ register_volume3d <- function(
       metric_trace = syn$metric_trace,
       type = type,
       metric = metric
-    ))
+    ), source_vox2ras, target_vox2ras, tgt_dim))
   }
 
   # Staged initialization (ANTs-style): rigid -> affine -> deformable
@@ -377,7 +377,7 @@ register_volume3d <- function(
     result$metric_trace <- c(trace, syn$metric_trace)
     result$image <- syn$image
     result$images <- syn$images
-    return(result)
+    return(finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim))
   }
 
   # resample each moving channel onto the fixed grid using the linear transform,
@@ -391,6 +391,25 @@ register_volume3d <- function(
   result$image <- images[[1]]
   result$images <- images
 
+  finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim)
+}
+
+# Tag a registration result with its class, attach the fixed-grid vox2ras to the
+# deformation fields (so they are self-describing for save_registration), and
+# record the grid geometry needed to re-apply or export the transform.
+finalize_registration <- function(result, source_vox2ras, target_vox2ras, target_dim) {
+  if (!is.null(result$forward_field)) {
+    attr(result$forward_field, "vox2ras") <- target_vox2ras
+  }
+  if (!is.null(result$inverse_field)) {
+    attr(result$inverse_field, "vox2ras") <- target_vox2ras
+  }
+  result$geometry <- list(
+    source_vox2ras = source_vox2ras,
+    target_vox2ras = target_vox2ras,
+    target_dim = target_dim
+  )
+  class(result) <- "ravetools_register_volume3d"
   result
 }
 

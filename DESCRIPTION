@@ -62,12 +62,13 @@ Imports:
 LinkingTo: 
     Rcpp,
     RcppEigen
-Suggests: 
+Suggests:
     fftwtools,
     bit64,
     grDevices,
     microbenchmark,
     freesurferformats,
+    rpyANTs,
     testthat,
     vctrs
 LazyData: true

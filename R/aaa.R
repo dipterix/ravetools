@@ -26,6 +26,14 @@ NULL
   }
 }
 
+`%||%` <- function(a, b) {
+  if (is.null(a)) {
+    b
+  } else {
+    a
+  }
+}
+
 deparse1 <- function(expr, collapse = " ") {
   paste(deparse(expr), collapse = collapse)
 }
