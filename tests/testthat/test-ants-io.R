@@ -17,8 +17,12 @@ call_rpyANTs <- function(.f, ...) {
   if (system.file(package = "rpyANTs") == "") {
     stop("`rpyANTs` is not installed")
   }
-  rpyANTs <- asNamespace("rpyANTs")
-  f <- rpyANTs[[.f]]
+  if (.f == "py_to_r") {
+    ns <- asNamespace("reticulate")
+  } else {
+    ns <- asNamespace("rpyANTs")
+  }
+  f <- ns[[.f]]
   f(...)
 }
 
@@ -223,12 +227,13 @@ test_that("our warp NIfTI is read correctly by ANTs", {
   write_ants_warp(field, f, vox2ras = v2r)
 
   img <- ants$image_read(f)
-  expect_equal(as.integer(reticulate::py_to_r(img$components)), 3L)
-  expect_equal(unlist(reticulate::py_to_r(img$shape)), nd, tolerance = 1e-6)
-  expect_equal(unlist(reticulate::py_to_r(img$spacing)), c(0.9, 1.1, 1.2), tolerance = 1e-5)
+
+  expect_equal(as.integer(call_rpyANTs("py_to_r", img$components)), 3L)
+  expect_equal(unlist(call_rpyANTs("py_to_r", img$shape)), nd, tolerance = 1e-6)
+  expect_equal(unlist(call_rpyANTs("py_to_r", img$spacing)), c(0.9, 1.1, 1.2), tolerance = 1e-5)
 
   # ANTs stores vectors in LPS: x,y components negated relative to our RAS field
-  arr <- reticulate::py_to_r(img$numpy())
+  arr <- call_rpyANTs("py_to_r", img$numpy())
   expect_equal(dim(arr), c(nd, 3L))
   lps <- field
   lps[, , , 1] <- -lps[, , , 1]

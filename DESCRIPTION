@@ -68,7 +68,6 @@ Suggests:
     grDevices,
     microbenchmark,
     freesurferformats,
-    rpyANTs,
     testthat,
     vctrs
 LazyData: true
