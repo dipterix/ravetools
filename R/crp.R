@@ -322,7 +322,7 @@ crp <- function(
       t_start = t_start,
       t_end = t_end,
       sample_rate = srate,
-      .data = list(V = V, time = t_win)
+      .data = list(V = V, time = t_win, time_range = range(t_win, na.rm = TRUE))
     )
   )
 }
@@ -351,18 +351,29 @@ plot.ravetools_crp <- function(x, ...) {
   proj  <- x$projections
   V  <- x$.data$V
   tt <- x$.data$time
+  tt_range <- x$.data$time_range
+  avg_trace <- proj$avg_trace_input # rowMeans(V)
 
   op <- graphics::par(mfrow = c(1, 3))
   on.exit(graphics::par(op), add = TRUE)
 
   # ---- Panel 1: all trials (full window) + mean + C(t) overlay ----------
-  graphics::matplot(tt, V, type = "l", lty = 1, las = 1,
-                    col = "#80808060", xlab = "Time (s)",
-                    ylab = expression(mu * V),
-                    main = expression("Canonical shape " * C(t)))
-
   # C(t) is drawn only up to tau_R; scale amplitude to match mean trace
-  C_scaled <- parms$C * max(abs(rowMeans(V))) / max(abs(parms$C))
+  C_scaled <- parms$C * max(abs(avg_trace)) / max(abs(parms$C))
+
+  if (is.matrix(V) && length(V) > 0) {
+    # We might trim V and S_all to save space, hence V might not be available
+    graphics::matplot(tt, V, type = "l", lty = 1, las = 1,
+                      col = "#80808060", xlab = "Time (s)",
+                      ylab = expression(mu * V),
+                      main = expression("Canonical shape " * C(t)))
+  } else {
+    plot(tt_range, range(c(C_scaled, avg_trace), na.rm = TRUE), type = "n", las = 1,
+         col = "#80808060", xlab = "Time (s)",
+         ylab = expression(mu * V),
+         main = expression("Canonical shape " * C(t)))
+  }
+
 
   graphics::abline(v = x$tau_R, col = "red", lwd = 1)
   graphics::text(
@@ -372,7 +383,7 @@ plot.ravetools_crp <- function(x, ...) {
   )
 
   graphics::lines(parms$params_times, C_scaled, col = "#FFFF0080", lwd = 3)
-  graphics::lines(tt, rowMeans(V), col = "black", lwd = 1)
+  graphics::lines(tt, avg_trace, col = "black", lwd = 1)
   graphics::legend("topright", c("mean", "C(t) scaled"),
                    col = c("black", "#FFFF00"), lty = c(1, 2), lwd = 3,
                    bty = "n", cex = 0.8)
