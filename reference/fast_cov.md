@@ -83,9 +83,9 @@ microbenchmark::microbenchmark(
   unit = 'ms', times = 10
 )
 #> Unit: milliseconds
-#>      expr    min       lq     mean   median       uq      max neval
-#>  fast_cov 1.3729 1.373843 1.623453 1.411363 1.458430 2.824818    10
-#>       cov 5.3780 5.403327 5.428003 5.429386 5.441358 5.493094    10
+#>      expr      min       lq     mean   median       uq      max neval
+#>  fast_cov 1.524156 1.532268 1.749720 1.564229 1.604526 3.428278    10
+#>       cov 6.549368 6.586683 6.608847 6.614094 6.627945 6.658200    10
 
 # }
 
