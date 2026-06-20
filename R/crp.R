@@ -260,7 +260,7 @@ crp <- function(
   }
 
   # ---- subset to analysis window ------------------------------------------
-  tpts <- which(time > t_start & time <= t_end)
+  tpts <- which(time >= t_start & time <= t_end)
   if (length(tpts) < 11L) {
     stop("Analysis window contains too few samples (need >= 11).")
   }
