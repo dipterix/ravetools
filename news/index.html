@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,7 +85,7 @@
 <code>project_plane</code> gains an <code>n_iters</code> argument to control the number of projection iterations (default is <code>5</code>)</li>
 <li>Applied lint fixes and improved code style consistency across all source files</li>
 <li>Added <code>carla</code> implementing the Common Average Re-referencing by Least Anti-Correlation (<code>CARLA</code>) algorithm (see <code>CITATION</code>) for selecting an optimal subset of channels as the common average reference in <code>CCEP</code> data</li>
-<li>Added <code>crp</code> implementing the Canonical Response Parameterization (<code>CRP</code>) method for characterizing single-trial evoked responses (e.g. <code>CCEP</code>s): estimates response duration, extracts the canonical response shape, and reports per-trial weights, <code>SNR</code>, and explained variance</li>
+<li>Added <code>crp</code> implementing the Canonical Response Parameterization (<code>CRP</code>) method for characterizing single-trial evoked responses (e.g. <code>CCEP</code>s): estimates response duration, extracts the canonical response shape, and reports per-trial weights, <code>SNR</code>, and explained variance; additionally reports a canonical shape (<code>C_full</code>) spanning the entire loaded time range (including the baseline period), and gains an optional reverse-scan response-onset estimator (<code>detect_onset</code>, with an <code>onset_search_start</code> floor) that locates the response start time for delayed responses - even before the analysis window - while keeping the per-trial weights unchanged; non-finite time points are dropped automatically and the analysis window is clamped into the available time range</li>
 <li>Exposed low-level <code>FFTW3</code> wrappers (<code>fftw_r2c</code>, <code>fftw_c2r</code>, <code>fftw_c2c</code>, <code>mvfftw_r2c</code>, <code>mvfftw_c2c</code>, <code>mvfftw_c2r</code>, and their <code>2D</code>/<code>3D</code> variants) with memory bugs fixed; these are thin bindings for advanced users requiring maximum throughput</li>
 <li>Fixed <code>design_filter_fir</code> band-pass scaling reference frequency to use the average of the transition-band midpoints (matching <code>MATLAB</code> <code>fir1</code>/<code>scale_filter</code>), and fixed band-stop scaling to always normalize at <code>DC</code>; previously both could produce incorrect gain for asymmetric transition bands</li>
 <li>

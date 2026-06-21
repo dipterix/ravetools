@@ -27,7 +27,9 @@ crp(
   artifact_interval = c("full", "tR"),
   artifact_p_threshold = 1e-05,
   threshold_quantile = 0.98,
-  time_step = 5L
+  time_step = 5L,
+  detect_onset = FALSE,
+  onset_search_start = NULL
 )
 ```
 
@@ -83,6 +85,23 @@ crp(
   response duration; defaults to `5L`, matching the MATLAB `t_step`.
   Larger values are faster but smooth the projection profile.
 
+- detect_onset:
+
+  logical; if `TRUE`, estimate the response *onset* \\\tau\_{onset}\\
+  via a reverse cumulative-projection scan (see ‘Details’). The forward
+  canonical shape and per-trial weights are left unchanged; only the
+  *reported* canonical shape `C` is restricted to the active response
+  support \\\[\tau\_{onset}, \tau_R\]\\. The onset may fall before
+  `t_start` (down to `onset_search_start`). Defaults to `FALSE`.
+
+- onset_search_start:
+
+  numeric scalar or `NULL`; the earliest time (in seconds) the onset
+  scan may reach when `detect_onset = TRUE`. `NULL` (the default) uses
+  the first loaded time point, so the scan can look across the entire
+  signal before \\\tau_R\\. Raise it to keep the scan away from an early
+  stimulation artifact. Clamped into `[min(time), t_end]`.
+
 ## Value
 
 A named list with the following elements:
@@ -93,10 +112,33 @@ A named list with the following elements:
 
   `C`
 
-  :   Numeric vector of length \\T_R\\ (timepoints up to \\\tau_R\\),
-      the canonical response shape \\C(t)\\: the first eigenvector of
-      the linear kernel PCA on `V_tR`, unit-normalized (\\\\C\\ = 1\\).
-      The matching time axis is in `params_times`.
+  :   Numeric vector, the reported canonical response shape \\C(t)\\,
+      taken as the slice of `C_full` over its active support (so it
+      shares identical values with `C_full`). By default this is
+      \\\[t\_{start}, \tau_R\]\\, where it equals the first eigenvector
+      of the linear kernel PCA on `V_tR` (oriented to the mean trace,
+      unit-norm, length \\T_R\\). When `detect_onset = TRUE` it is
+      restricted to \\\[\tau\_{onset}, \tau_R\]\\ (so its norm is then
+      \\\le 1\\). The matching time axis is `params_times`.
+
+  `C_full`
+
+  :   Numeric vector spanning the *entire* loaded time range (every row
+      of `time`, including any baseline at \\t \< 0\\). Obtained by
+      applying the trial-space `loading` to the full retained data, so
+      `C_full` coincides exactly with the untrimmed forward `C` on
+      \\\[t\_{start}, \tau_R\]\\ and extrapolates the shape everywhere
+      else. Time axis is `params_times_full`. Outside \\\[t\_{start},
+      \tau_R\]\\ cross-trial consistency is not optimized, so those
+      portions are more variable.
+
+  `loading`
+
+  :   Numeric vector of length \\K\\ (retained trials), the trial-space
+      loading \\g = V\_{tR}^\top C = s_1 v_1\\ recovered from the
+      forward decomposition. Applying it to a time \\\times\\ trials
+      matrix and dividing by \\\\g\\^2\\ reconstructs the canonical
+      shape over that time range; this is how `C_full` is formed.
 
   `al`
 
@@ -118,7 +160,11 @@ A named list with the following elements:
 
   :   Numeric matrix of shape \\T_R \times K\\, the per-trial residual
       \\\epsilon_k(t) = V_k(t) - \alpha_k C(t)\\ after the shared
-      component is removed. Access trial \\k\\ via `ep[, k]`.
+      component is removed, computed over the forward window
+      \\\[t\_{start}, \tau_R\]\\ against the untrimmed forward canonical
+      shape. Access trial \\k\\ via `ep[, k]`. (When
+      `detect_onset = TRUE` the reported `C` may be shorter than
+      \\T_R\\; `ep` always stays on the full forward window.)
 
   `epep_root`
 
@@ -146,13 +192,21 @@ A named list with the following elements:
 
   `params_times`
 
-  :   Numeric vector of length \\T_R\\, time axis for `C`, `V_tR`, `ep`,
-      and `avg_trace_tR`.
+  :   Numeric vector, time axis for the reported `C`; length matches `C`
+      (\\T_R\\, or the onset-trimmed support when
+      `detect_onset = TRUE`).
+
+  `params_times_full`
+
+  :   Numeric vector, time axis for `C_full`; equals the full loaded
+      `time` (every row, including the baseline at \\t \< 0\\).
 
   `V_tR`
 
   :   Numeric matrix \\T_R \times K\\, trial matrix truncated to
-      \\\tau_R\\ - the data actually decomposed.
+      \\\tau_R\\ - the data actually decomposed. Together with `ep` and
+      `avg_trace_tR` it always spans the full forward window
+      \\\[t\_{start}, \tau_R\]\\, independently of `detect_onset`.
 
   `avg_trace_tR`
 
@@ -188,6 +242,12 @@ A named list with the following elements:
 
   :   Integer, column index into `S_all` and `proj_tpts` corresponding
       to \\\tau_R\\.
+
+  `tR_sample`
+
+  :   Integer, row (sample) index of \\\tau_R\\ within the windowed
+      data; `V[seq_len(tR_sample), ]` is the truncated trial matrix
+      `V_tR`.
 
   `avg_trace_input`
 
@@ -227,6 +287,19 @@ A named list with the following elements:
   bracketing \\\tau_R\\ at the `threshold_quantile` fraction of the peak
   mean projection magnitude.
 
+- `tau_onset`, `tau_onset_lower`, `tau_onset_upper`:
+
+  Numeric scalars, the estimated response onset time (seconds) and its
+  lower/upper threshold-crossing bounds, from the reverse projection
+  scan; all `NA` unless `detect_onset = TRUE`.
+
+- `onset`:
+
+  List with the reverse-scan profile (`onset_tpts` and
+  `mean_proj_profile`, mapped onto original time); `NULL` unless
+  `detect_onset = TRUE` (also `NULL` when the search window had too few
+  samples).
+
 - `t_start`, `t_end`:
 
   The analysis window used.
@@ -262,6 +335,23 @@ projections it participates in against all other off-diagonal
 projections. Trials with `p < artifact_p_threshold` *and* mean
 projection below the cohort mean are dropped, and `CRP` is re-run.
 
+When `detect_onset = TRUE`, a complementary reverse pass estimates the
+response *onset*. The retained trials between `onset_search_start` and
+\\\tau_R\\ are time-reversed, and the same cumulative cross-projection
+profile is computed growing backward from \\\tau_R\\. The backward
+duration that maximizes cross-trial consistency marks \\\tau\_{onset}\\,
+the time at which trials begin to share structure - useful when the
+response is delayed by an unknown latency. Because the scan can extend
+before `t_start`, the onset may be earlier than the analysis window.
+This pass only locates a time: it re-uses the forward loading, so the
+canonical shape and per-trial weights are unchanged (the reported `C` is
+merely sliced to \\\[\tau\_{onset}, \tau_R\]\\).
+
+Time points whose data are not finite (any `NA`, `NaN` or `Inf` across
+trials) are dropped before analysis. `t_start`, `t_end` and
+`onset_search_start` are clamped into the available time range rather
+than triggering an error.
+
 ## References
 
 The `CRP` algorithm is described in
@@ -278,7 +368,7 @@ set.seed(42)
 # Synthetic CCEP-like data: shared canonical shape with per-trial scaling
 n_time   <- 500L
 n_trials <- 20L
-tt <- seq(-0.05, 1, length.out = n_time)
+tt <- seq(-0.5, 1, length.out = n_time)
 canonical <- exp(-((tt - 0.10) / 0.05)^2) -
              0.5 * exp(-((tt - 0.30) / 0.10)^2)
 V <- (outer(canonical, runif(n_trials, 0.5, 1.5)) +
@@ -332,4 +422,10 @@ legend("topright",
 
 
 par(op)
+
+# ---- Onset detection (reverse scan) on the same data -------------------
+res_onset <- crp(V, tt, detect_onset = TRUE)
+c(tau_onset = res_onset$tau_onset, tau_R = res_onset$tau_R)
+#>  tau_onset      tau_R 
+#> 0.03206413 0.37474950 
 ```

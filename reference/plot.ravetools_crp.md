@@ -4,14 +4,17 @@ S3 plot method for objects of class `ravetools_crp` returned by
 [`crp`](https://dipterix.org/ravetools/reference/crp.md). Produces a
 three-panel figure:
 
-1.  Single-trial traces over the full analysis window with the mean and
-    the scaled canonical shape \\C(t)\\ overlaid (the shape is drawn
-    only up to \\\tau_R\\, so the cut-off is itself informative).
+1.  Single-trial traces over the entire loaded time range with the mean,
+    the canonical shape \\C(t)\\ on its active support (solid) and the
+    full-range extension \\C\_{full}(t)\\ (dashed) overlaid; the
+    analysis window edges and, when present, \\\tau\_{onset}\\ are
+    marked.
 
 2.  Per-trial \\\alpha'\\ weights sorted in ascending order.
 
 3.  Mean cross-trial projection profile with vertical lines marking
-    \\\tau\_{lb}\\, \\\tau_R\\ and \\\tau\_{ub}\\.
+    \\\tau\_{lb}\\, \\\tau_R\\ and \\\tau\_{ub}\\, plus the reverse
+    onset profile and \\\tau\_{onset}\\ when `detect_onset` was used.
 
 ## Usage
 

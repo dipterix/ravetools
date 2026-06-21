@@ -126,7 +126,14 @@ CRAN release: 2026-05-23
   (`CRP`) method for characterizing single-trial evoked responses
   (e.g. `CCEP`s): estimates response duration, extracts the canonical
   response shape, and reports per-trial weights, `SNR`, and explained
-  variance
+  variance; additionally reports a canonical shape (`C_full`) spanning
+  the entire loaded time range (including the baseline period), and
+  gains an optional reverse-scan response-onset estimator
+  (`detect_onset`, with an `onset_search_start` floor) that locates the
+  response start time for delayed responses - even before the analysis
+  window - while keeping the per-trial weights unchanged; non-finite
+  time points are dropped automatically and the analysis window is
+  clamped into the available time range
 - Exposed low-level `FFTW3` wrappers (`fftw_r2c`, `fftw_c2r`,
   `fftw_c2c`, `mvfftw_r2c`, `mvfftw_c2c`, `mvfftw_c2r`, and their
   `2D`/`3D` variants) with memory bugs fixed; these are thin bindings

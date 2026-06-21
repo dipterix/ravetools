@@ -33,7 +33,7 @@ implementation; see &amp;#8216;References&amp;#8217;."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,9 @@ implementation; see ‘References’.</p>
 <span>  artifact_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"full"</span>, <span class="st">"tR"</span><span class="op">)</span>,</span>
 <span>  artifact_p_threshold <span class="op">=</span> <span class="fl">1e-05</span>,</span>
 <span>  threshold_quantile <span class="op">=</span> <span class="fl">0.98</span>,</span>
-<span>  time_step <span class="op">=</span> <span class="fl">5L</span></span>
+<span>  time_step <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  detect_onset <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  onset_search_start <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -147,16 +149,57 @@ candidate response duration; defaults to <code>5L</code>, matching the
 MATLAB <code>t_step</code>. Larger values are faster but smooth the
 projection profile.</p></dd>
 
+
+<dt id="arg-detect-onset">detect_onset<a class="anchor" aria-label="anchor" href="#arg-detect-onset"></a></dt>
+<dd><p>logical; if <code>TRUE</code>, estimate the response
+<em>onset</em> \(\tau_{onset}\) via a reverse cumulative-projection scan
+(see ‘Details’). The forward canonical shape and per-trial weights
+are left unchanged; only the <em>reported</em> canonical shape <code>C</code> is
+restricted to the active response support \([\tau_{onset}, \tau_R]\).
+The onset may fall before <code>t_start</code> (down to <code>onset_search_start</code>).
+Defaults to <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-onset-search-start">onset_search_start<a class="anchor" aria-label="anchor" href="#arg-onset-search-start"></a></dt>
+<dd><p>numeric scalar or <code>NULL</code>; the earliest time
+(in seconds) the onset scan may reach when <code>detect_onset = TRUE</code>.
+<code>NULL</code> (the default) uses the first loaded time point, so the scan can
+look across the entire signal before \(\tau_R\). Raise it to keep the scan
+away from an early stimulation artifact. Clamped into
+<code>[min(time), t_end]</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named list with the following elements:</p><dl><dt><code>parameters</code></dt>
 <dd><p>A list of single-trial parameterizations
 (<code>crp_parms</code> in MATLAB):</p><dl><dt><code>C</code></dt>
-<dd><p>Numeric vector of length \(T_R\) (timepoints up to
-    \(\tau_R\)), the canonical response shape \(C(t)\): the first
-    eigenvector of the linear kernel PCA on <code>V_tR</code>, unit-normalized
-    (\(\|C\| = 1\)). The matching time axis is in <code>params_times</code>.</p></dd>
+<dd><p>Numeric vector, the reported canonical response shape
+    \(C(t)\), taken as the slice of <code>C_full</code> over its active support
+    (so it shares identical values with <code>C_full</code>). By default this is
+    \([t_{start}, \tau_R]\), where it equals the first eigenvector of the
+    linear kernel PCA on <code>V_tR</code> (oriented to the mean trace, unit-norm,
+    length \(T_R\)). When <code>detect_onset = TRUE</code> it is restricted to
+    \([\tau_{onset}, \tau_R]\) (so its norm is then \(\le 1\)). The
+    matching time axis is <code>params_times</code>.</p></dd>
+
+  <dt><code>C_full</code></dt>
+<dd><p>Numeric vector spanning the <em>entire</em> loaded
+    time range (every row of <code>time</code>, including any baseline at
+    \(t &lt; 0\)). Obtained by applying the trial-space <code>loading</code> to the
+    full retained data, so <code>C_full</code> coincides exactly with the
+    untrimmed forward <code>C</code> on \([t_{start}, \tau_R]\) and extrapolates
+    the shape everywhere else. Time axis is <code>params_times_full</code>.
+    Outside \([t_{start}, \tau_R]\) cross-trial consistency is not
+    optimized, so those portions are more variable.</p></dd>
+
+  <dt><code>loading</code></dt>
+<dd><p>Numeric vector of length \(K\) (retained
+    trials), the trial-space loading \(g = V_{tR}^\top C = s_1 v_1\)
+    recovered from the forward decomposition. Applying it to a
+    time \(\times\) trials matrix and dividing by \(\|g\|^2\)
+    reconstructs the canonical shape over that time range; this is how
+    <code>C_full</code> is formed.</p></dd>
 
   <dt><code>al</code></dt>
 <dd><p>Numeric vector of length \(K\) (number of trials),
@@ -175,8 +218,11 @@ projection profile.</p></dd>
   <dt><code>ep</code></dt>
 <dd><p>Numeric matrix of shape \(T_R \times K\), the
     per-trial residual \(\epsilon_k(t) = V_k(t) - \alpha_k C(t)\)
-    after the shared component is removed. Access trial \(k\) via
-    <code>ep[, k]</code>.</p></dd>
+    after the shared component is removed, computed over the forward window
+    \([t_{start}, \tau_R]\) against the untrimmed forward canonical shape.
+    Access trial \(k\) via <code>ep[, k]</code>. (When
+    <code>detect_onset = TRUE</code> the reported <code>C</code> may be shorter than
+    \(T_R\); <code>ep</code> always stays on the full forward window.)</p></dd>
 
   <dt><code>epep_root</code></dt>
 <dd><p>Numeric vector of length \(K\),
@@ -201,13 +247,21 @@ projection profile.</p></dd>
     maximized.</p></dd>
 
   <dt><code>params_times</code></dt>
-<dd><p>Numeric vector of length \(T_R\), time
-    axis for <code>C</code>, <code>V_tR</code>, <code>ep</code>, and
-    <code>avg_trace_tR</code>.</p></dd>
+<dd><p>Numeric vector, time axis for the reported
+    <code>C</code>; length matches <code>C</code> (\(T_R\), or the onset-trimmed
+    support when <code>detect_onset = TRUE</code>).</p></dd>
+
+  <dt><code>params_times_full</code></dt>
+<dd><p>Numeric vector, time axis for
+    <code>C_full</code>; equals the full loaded <code>time</code> (every row,
+    including the baseline at \(t &lt; 0\)).</p></dd>
 
   <dt><code>V_tR</code></dt>
 <dd><p>Numeric matrix \(T_R \times K\), trial matrix
-    truncated to \(\tau_R\) - the data actually decomposed.</p></dd>
+    truncated to \(\tau_R\) - the data actually decomposed. Together
+    with <code>ep</code> and <code>avg_trace_tR</code> it always spans the full
+    forward window \([t_{start}, \tau_R]\), independently of
+    <code>detect_onset</code>.</p></dd>
 
   <dt><code>avg_trace_tR</code></dt>
 <dd><p>Numeric vector of length \(T_R\), simple
@@ -239,6 +293,11 @@ projection profile.</p></dd>
   <dt><code>tR_index</code></dt>
 <dd><p>Integer, column index into <code>S_all</code> and
     <code>proj_tpts</code> corresponding to \(\tau_R\).</p></dd>
+
+  <dt><code>tR_sample</code></dt>
+<dd><p>Integer, row (sample) index of \(\tau_R\)
+    within the windowed data; <code>V[seq_len(tR_sample), ]</code> is the
+    truncated trial matrix <code>V_tR</code>.</p></dd>
 
   <dt><code>avg_trace_input</code></dt>
 <dd><p>Numeric vector, simple trial average
@@ -276,6 +335,18 @@ and upper threshold-crossing times (seconds) bracketing \(\tau_R\)
 at the <code>threshold_quantile</code> fraction of the peak mean projection
 magnitude.</p></dd>
 
+<dt><code>tau_onset</code>, <code>tau_onset_lower</code>,
+<code>tau_onset_upper</code></dt>
+<dd><p>Numeric scalars, the estimated response onset
+time (seconds) and its lower/upper threshold-crossing bounds, from the
+reverse projection scan; all <code>NA</code> unless <code>detect_onset = TRUE</code>.</p></dd>
+
+<dt><code>onset</code></dt>
+<dd><p>List with the reverse-scan profile (<code>onset_tpts</code>
+and <code>mean_proj_profile</code>, mapped onto original time); <code>NULL</code>
+unless <code>detect_onset = TRUE</code> (also <code>NULL</code> when the search window
+had too few samples).</p></dd>
+
 <dt><code>t_start</code>, <code>t_end</code></dt>
 <dd><p>The analysis window used.</p></dd>
 
@@ -305,6 +376,21 @@ subset of comparison pairs to avoid double-counting.</p>
 projections it participates in against all other off-diagonal
 projections. Trials with <code>p &lt; artifact_p_threshold</code> <em>and</em>
 mean projection below the cohort mean are dropped, and <code>CRP</code> is re-run.</p>
+<p>When <code>detect_onset = TRUE</code>, a complementary reverse pass estimates the
+response <em>onset</em>. The retained trials between <code>onset_search_start</code>
+and \(\tau_R\) are time-reversed, and the same cumulative cross-projection
+profile is computed growing backward from \(\tau_R\). The backward
+duration that maximizes cross-trial consistency marks \(\tau_{onset}\),
+the time at which trials begin to share structure - useful when the response
+is delayed by an unknown latency. Because the scan can extend before
+<code>t_start</code>, the onset may be earlier than the analysis window. This pass
+only locates a time: it re-uses the forward loading, so the canonical shape
+and per-trial weights are unchanged (the reported <code>C</code> is merely sliced
+to \([\tau_{onset}, \tau_R]\)).</p>
+<p>Time points whose data are not finite (any <code>NA</code>, <code>NaN</code> or
+<code>Inf</code> across trials) are dropped before analysis. <code>t_start</code>,
+<code>t_end</code> and <code>onset_search_start</code> are clamped into the available
+time range rather than triggering an error.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -322,7 +408,7 @@ with a reference MATLAB implementation at
 <span class="r-in"><span><span class="co"># Synthetic CCEP-like data: shared canonical shape with per-trial scaling</span></span></span>
 <span class="r-in"><span><span class="va">n_time</span>   <span class="op">&lt;-</span> <span class="fl">500L</span></span></span>
 <span class="r-in"><span><span class="va">n_trials</span> <span class="op">&lt;-</span> <span class="fl">20L</span></span></span>
-<span class="r-in"><span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">n_time</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">n_time</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">canonical</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="fl">0.10</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span></span></span>
 <span class="r-in"><span>             <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="op">(</span><span class="va">tt</span> <span class="op">-</span> <span class="fl">0.30</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">V</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">canonical</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_trials</span>, <span class="fl">0.5</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
@@ -376,6 +462,12 @@ with a reference MATLAB implementation at
 <span class="r-plt img"><img src="crp-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ---- Onset detection (reverse scan) on the same data -------------------</span></span></span>
+<span class="r-in"><span><span class="va">res_onset</span> <span class="op">&lt;-</span> <span class="fu">crp</span><span class="op">(</span><span class="va">V</span>, <span class="va">tt</span>, detect_onset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>tau_onset <span class="op">=</span> <span class="va">res_onset</span><span class="op">$</span><span class="va">tau_onset</span>, tau_R <span class="op">=</span> <span class="va">res_onset</span><span class="op">$</span><span class="va">tau_R</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  tau_onset      tau_R </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.03206413 0.37474950 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
