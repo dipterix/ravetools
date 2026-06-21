@@ -13,7 +13,9 @@ crp(
   artifact_interval = c("full", "tR"),
   artifact_p_threshold = 1e-05,
   threshold_quantile = 0.98,
-  time_step = 5L
+  time_step = 5L,
+  detect_onset = FALSE,
+  onset_search_start = NULL
 )
 }
 \arguments{
@@ -53,6 +55,21 @@ bounds \code{tau_R_lower} and \code{tau_R_upper}. Defaults to
 candidate response duration; defaults to \code{5L}, matching the
 MATLAB \code{t_step}. Larger values are faster but smooth the
 projection profile.}
+
+\item{detect_onset}{logical; if \code{TRUE}, estimate the response
+\emph{onset} \eqn{\tau_{onset}} via a reverse cumulative-projection scan
+(see \sQuote{Details}). The forward canonical shape and per-trial weights
+are left unchanged; only the \emph{reported} canonical shape \code{C} is
+restricted to the active response support \eqn{[\tau_{onset}, \tau_R]}.
+The onset may fall before \code{t_start} (down to \code{onset_search_start}).
+Defaults to \code{FALSE}.}
+
+\item{onset_search_start}{numeric scalar or \code{NULL}; the earliest time
+(in seconds) the onset scan may reach when \code{detect_onset = TRUE}.
+\code{NULL} (the default) uses the first loaded time point, so the scan can
+look across the entire signal before \eqn{\tau_R}. Raise it to keep the scan
+away from an early stimulation artifact. Clamped into
+\code{[min(time), t_end]}.}
 }
 \value{
 A named list with the following elements:
@@ -60,10 +77,28 @@ A named list with the following elements:
 \item{\code{parameters}}{A list of single-trial parameterizations
 (\code{crp_parms} in MATLAB):
 \describe{
-  \item{\code{C}}{Numeric vector of length \eqn{T_R} (timepoints up to
-    \eqn{\tau_R}), the canonical response shape \eqn{C(t)}: the first
-    eigenvector of the linear kernel PCA on \code{V_tR}, unit-normalized
-    (\eqn{\|C\| = 1}). The matching time axis is in \code{params_times}.}
+  \item{\code{C}}{Numeric vector, the reported canonical response shape
+    \eqn{C(t)}, taken as the slice of \code{C_full} over its active support
+    (so it shares identical values with \code{C_full}). By default this is
+    \eqn{[t_{start}, \tau_R]}, where it equals the first eigenvector of the
+    linear kernel PCA on \code{V_tR} (oriented to the mean trace, unit-norm,
+    length \eqn{T_R}). When \code{detect_onset = TRUE} it is restricted to
+    \eqn{[\tau_{onset}, \tau_R]} (so its norm is then \eqn{\le 1}). The
+    matching time axis is \code{params_times}.}
+  \item{\code{C_full}}{Numeric vector spanning the \emph{entire} loaded
+    time range (every row of \code{time}, including any baseline at
+    \eqn{t < 0}). Obtained by applying the trial-space \code{loading} to the
+    full retained data, so \code{C_full} coincides exactly with the
+    untrimmed forward \code{C} on \eqn{[t_{start}, \tau_R]} and extrapolates
+    the shape everywhere else. Time axis is \code{params_times_full}.
+    Outside \eqn{[t_{start}, \tau_R]} cross-trial consistency is not
+    optimized, so those portions are more variable.}
+  \item{\code{loading}}{Numeric vector of length \eqn{K} (retained
+    trials), the trial-space loading \eqn{g = V_{tR}^\top C = s_1 v_1}
+    recovered from the forward decomposition. Applying it to a
+    time \eqn{\times} trials matrix and dividing by \eqn{\|g\|^2}
+    reconstructs the canonical shape over that time range; this is how
+    \code{C_full} is formed.}
   \item{\code{al}}{Numeric vector of length \eqn{K} (number of trials),
     the per-trial alpha coefficient \eqn{\alpha_k = C^\top V_k}: scalar
     projection of trial \eqn{k} onto \eqn{C(t)}. Larger magnitude means
@@ -76,8 +111,11 @@ A named list with the following elements:
     conditions with different \eqn{\tau_R}.}
   \item{\code{ep}}{Numeric matrix of shape \eqn{T_R \times K}, the
     per-trial residual \eqn{\epsilon_k(t) = V_k(t) - \alpha_k C(t)}
-    after the shared component is removed. Access trial \eqn{k} via
-    \code{ep[, k]}.}
+    after the shared component is removed, computed over the forward window
+    \eqn{[t_{start}, \tau_R]} against the untrimmed forward canonical shape.
+    Access trial \eqn{k} via \code{ep[, k]}. (When
+    \code{detect_onset = TRUE} the reported \code{C} may be shorter than
+    \eqn{T_R}; \code{ep} always stays on the full forward window.)}
   \item{\code{epep_root}}{Numeric vector of length \eqn{K},
     \eqn{\|\epsilon_k\| = \sqrt{\epsilon_k^\top \epsilon_k}}: L2 norm
     of the residual per trial. Smaller values indicate the canonical
@@ -92,11 +130,17 @@ A named list with the following elements:
   \item{\code{tR}}{Numeric scalar, response duration \eqn{\tau_R} in
     seconds: the time at which mean cross-trial projection magnitude is
     maximized.}
-  \item{\code{params_times}}{Numeric vector of length \eqn{T_R}, time
-    axis for \code{C}, \code{V_tR}, \code{ep}, and
-    \code{avg_trace_tR}.}
+  \item{\code{params_times}}{Numeric vector, time axis for the reported
+    \code{C}; length matches \code{C} (\eqn{T_R}, or the onset-trimmed
+    support when \code{detect_onset = TRUE}).}
+  \item{\code{params_times_full}}{Numeric vector, time axis for
+    \code{C_full}; equals the full loaded \code{time} (every row,
+    including the baseline at \eqn{t < 0}).}
   \item{\code{V_tR}}{Numeric matrix \eqn{T_R \times K}, trial matrix
-    truncated to \eqn{\tau_R} - the data actually decomposed.}
+    truncated to \eqn{\tau_R} - the data actually decomposed. Together
+    with \code{ep} and \code{avg_trace_tR} it always spans the full
+    forward window \eqn{[t_{start}, \tau_R]}, independently of
+    \code{detect_onset}.}
   \item{\code{avg_trace_tR}}{Numeric vector of length \eqn{T_R}, simple
     trial average truncated to \eqn{\tau_R}.}
 }}
@@ -115,6 +159,9 @@ A named list with the following elements:
     \code{S_all} across trial pairs at each candidate duration.}
   \item{\code{tR_index}}{Integer, column index into \code{S_all} and
     \code{proj_tpts} corresponding to \eqn{\tau_R}.}
+  \item{\code{tR_sample}}{Integer, row (sample) index of \eqn{\tau_R}
+    within the windowed data; \code{V[seq_len(tR_sample), ]} is the
+    truncated trial matrix \code{V_tR}.}
   \item{\code{avg_trace_input}}{Numeric vector, simple trial average
     over the full analysis window (not truncated to \eqn{\tau_R}).}
   \item{\code{stat_indices}}{Integer vector, row indices of \code{S_all}
@@ -135,6 +182,14 @@ when none removed or when \code{remove_artifacts = FALSE}.}
 and upper threshold-crossing times (seconds) bracketing \eqn{\tau_R}
 at the \code{threshold_quantile} fraction of the peak mean projection
 magnitude.}
+\item{\code{tau_onset}, \code{tau_onset_lower},
+\code{tau_onset_upper}}{Numeric scalars, the estimated response onset
+time (seconds) and its lower/upper threshold-crossing bounds, from the
+reverse projection scan; all \code{NA} unless \code{detect_onset = TRUE}.}
+\item{\code{onset}}{List with the reverse-scan profile (\code{onset_tpts}
+and \code{mean_proj_profile}, mapped onto original time); \code{NULL}
+unless \code{detect_onset = TRUE} (also \code{NULL} when the search window
+had too few samples).}
 \item{\code{t_start}, \code{t_end}}{The analysis window used.}
 \item{\code{sample_rate}}{Numeric, sampling rate inferred from
 \code{time}.}
@@ -180,6 +235,23 @@ When \code{remove_artifacts = TRUE}, the function performs an initial
 projections it participates in against all other off-diagonal
 projections. Trials with \code{p < artifact_p_threshold} \emph{and}
 mean projection below the cohort mean are dropped, and \verb{CRP} is re-run.
+
+When \code{detect_onset = TRUE}, a complementary reverse pass estimates the
+response \emph{onset}. The retained trials between \code{onset_search_start}
+and \eqn{\tau_R} are time-reversed, and the same cumulative cross-projection
+profile is computed growing backward from \eqn{\tau_R}. The backward
+duration that maximizes cross-trial consistency marks \eqn{\tau_{onset}},
+the time at which trials begin to share structure - useful when the response
+is delayed by an unknown latency. Because the scan can extend before
+\code{t_start}, the onset may be earlier than the analysis window. This pass
+only locates a time: it re-uses the forward loading, so the canonical shape
+and per-trial weights are unchanged (the reported \code{C} is merely sliced
+to \eqn{[\tau_{onset}, \tau_R]}).
+
+Time points whose data are not finite (any \code{NA}, \code{NaN} or
+\code{Inf} across trials) are dropped before analysis. \code{t_start},
+\code{t_end} and \code{onset_search_start} are clamped into the available
+time range rather than triggering an error.
 }
 \examples{
 set.seed(42)
@@ -187,7 +259,7 @@ set.seed(42)
 # Synthetic CCEP-like data: shared canonical shape with per-trial scaling
 n_time   <- 500L
 n_trials <- 20L
-tt <- seq(-0.05, 1, length.out = n_time)
+tt <- seq(-0.5, 1, length.out = n_time)
 canonical <- exp(-((tt - 0.10) / 0.05)^2) -
              0.5 * exp(-((tt - 0.30) / 0.10)^2)
 V <- (outer(canonical, runif(n_trials, 0.5, 1.5)) +
@@ -238,6 +310,10 @@ legend("topright",
        lty = c(2, 1, 2), lwd = 2, bty = "n")
 
 par(op)
+
+# ---- Onset detection (reverse scan) on the same data -------------------
+res_onset <- crp(V, tt, detect_onset = TRUE)
+c(tau_onset = res_onset$tau_onset, tau_R = res_onset$tau_R)
 
 }
 \references{

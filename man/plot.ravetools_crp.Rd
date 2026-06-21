@@ -21,11 +21,13 @@ Invisibly returns \code{x}.
 S3 plot method for objects of class \code{ravetools_crp} returned by
 \code{\link{crp}}.  Produces a three-panel figure:
 \enumerate{
-\item Single-trial traces over the full analysis window with the mean
-  and the scaled canonical shape \eqn{C(t)} overlaid (the shape is
-  drawn only up to \eqn{\tau_R}, so the cut-off is itself informative).
+\item Single-trial traces over the entire loaded time range with the mean,
+  the canonical shape \eqn{C(t)} on its active support (solid) and the
+  full-range extension \eqn{C_{full}(t)} (dashed) overlaid; the analysis
+  window edges and, when present, \eqn{\tau_{onset}} are marked.
 \item Per-trial \eqn{\alpha'} weights sorted in ascending order.
 \item Mean cross-trial projection profile with vertical lines marking
-  \eqn{\tau_{lb}}, \eqn{\tau_R} and \eqn{\tau_{ub}}.
+  \eqn{\tau_{lb}}, \eqn{\tau_R} and \eqn{\tau_{ub}}, plus the reverse
+  onset profile and \eqn{\tau_{onset}} when \code{detect_onset} was used.
 }
 }
