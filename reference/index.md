@@ -14,6 +14,10 @@
 - [`baseline_array()`](https://dipterix.org/ravetools/reference/baseline_array.md)
   : Calculate Contrasts of Arrays in Different Methods
 
+- [`bpc()`](https://dipterix.org/ravetools/reference/bpc.md) :
+
+  Basis Profile Curve (`BPC`) identification
+
 - [`butter_max_order()`](https://dipterix.org/ravetools/reference/butter_max_order.md)
   : 'Butterworth' filter with maximum order
 
@@ -44,6 +48,11 @@
 - [`crp()`](https://dipterix.org/ravetools/reference/crp.md) :
 
   Canonical Response Parameterization (`CRP`)
+
+- [`crp_cluster()`](https://dipterix.org/ravetools/reference/crp_cluster.md)
+  :
+
+  Cluster electrodes by their canonical `CRP` response shape
 
 - [`decimate()`](https://dipterix.org/ravetools/reference/decimate.md) :
   Decimate with 'FIR' or 'IIR' filter
@@ -206,10 +215,16 @@
 - [`plane_geometry()`](https://dipterix.org/ravetools/reference/plane_geometry.md)
   : Create a two-dimensional plane in three dimensional space
 
+- [`plot(`*`<ravetools_bpc>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_bpc.md)
+  : Plot Basis Profile Curve results
+
 - [`plot(`*`<ravetools_crp>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_crp.md)
   :
 
   Plot `CRP` results
+
+- [`plot(`*`<ravetools_crp_cluster>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_crp_cluster.md)
+  : Plot electrode clustering results
 
 - [`plot(`*`<ravetools_curve>`*`)`](https://dipterix.org/ravetools/reference/plot.ravetools_curve.md)
   :

@@ -7,6 +7,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/apply_transform3d.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/band_pass.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/baseline_array.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/bpc.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/butter_max_order.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/carla.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/catmull_rom_3d.html</loc></url>
@@ -15,6 +16,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/color_ramp_continuous.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/convolve.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/crp.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/crp_cluster.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/decimate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/design_filter.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/design_filter_fir.html</loc></url>
@@ -57,7 +59,9 @@
 <url><loc>https://dipterix.org/ravetools/reference/notch_filter.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/parallel-options.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plane_geometry.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/plot.ravetools_bpc.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plot.ravetools_crp.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/plot.ravetools_crp_cluster.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plot.ravetools_curve.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plot_mesh_dotcloud.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/plot_mesh_polygon.html</loc></url>
