@@ -178,7 +178,7 @@ The `BPC` method is described in
 # Four response shapes; shapes 3 and 4 differ only in amplitude, so they
 # cluster together once shapes are amplitude-normalized.
 # \donttest{
-set.seed(1)
+
 n_time <- 300L
 tt <- seq(-0.2, 1, length.out = n_time)
 shapes <- list(
@@ -200,13 +200,13 @@ for (g in seq_along(shapes)) {
 }
 
 res <- crp_cluster(crp_list, verbose = TRUE)
-#> rank 10: HH^T off-diagonal sum = 13.514 > 1.00, reducing
-#> rank 9: HH^T off-diagonal sum = 10.329 > 1.00, reducing
-#> rank 8: HH^T off-diagonal sum = 7.901 > 1.00, reducing
-#> rank 7: HH^T off-diagonal sum = 4.859 > 1.00, reducing
-#> rank 6: HH^T off-diagonal sum = 2.991 > 1.00, reducing
-#> rank 5: HH^T off-diagonal sum = 2.725 > 1.00, reducing
-#> selected rank 4 (HH^T off-diagonal sum = 0.674)
+#> rank 10: HH^T off-diagonal sum = 13.222 > 1.00, reducing
+#> rank 9: HH^T off-diagonal sum = 11.592 > 1.00, reducing
+#> rank 8: HH^T off-diagonal sum = 8.009 > 1.00, reducing
+#> rank 7: HH^T off-diagonal sum = 5.804 > 1.00, reducing
+#> rank 6: HH^T off-diagonal sum = 3.280 > 1.00, reducing
+#> rank 5: HH^T off-diagonal sum = 2.428 > 1.00, reducing
+#> selected rank 4 (HH^T off-diagonal sum = 0.569)
 res$n_clusters
 #> [1] 4
 table(res$clusters)
@@ -214,6 +214,7 @@ table(res$clusters)
 #> 1 2 3 4 
 #> 4 4 4 4 
 plot(res)
+
 
 # }
 ```
