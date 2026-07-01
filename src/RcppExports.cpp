@@ -47,6 +47,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// carla_zmin_boot
+SEXP carla_zmin_boot(SEXP sub, SEXP ind);
+RcppExport SEXP _ravetools_carla_zmin_boot(SEXP subSEXP, SEXP indSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sub(subSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ind(indSEXP);
+    rcpp_result_gen = Rcpp::wrap(carla_zmin_boot(sub, ind));
+    return rcpp_result_gen;
+END_RCPP
+}
 // collapser_cplx
 SEXP collapser_cplx(SEXP x, SEXP keep, const int method, const int average);
 static SEXP _ravetools_collapser_cplx_try(SEXP xSEXP, SEXP keepSEXP, SEXP methodSEXP, SEXP averageSEXP) {
@@ -4146,6 +4157,7 @@ RcppExport SEXP _ravetools_RcppExport_registerCCallable() {
 static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_baselineArray", (DL_FUNC) &_ravetools_baselineArray, 8},
     {"_ravetools_bucketFillVolume", (DL_FUNC) &_ravetools_bucketFillVolume, 5},
+    {"_ravetools_carla_zmin_boot", (DL_FUNC) &_ravetools_carla_zmin_boot, 2},
     {"_ravetools_collapser_cplx", (DL_FUNC) &_ravetools_collapser_cplx, 4},
     {"_ravetools_collapser_real", (DL_FUNC) &_ravetools_collapser_real, 4},
     {"_ravetools_columnQuantile", (DL_FUNC) &_ravetools_columnQuantile, 3},

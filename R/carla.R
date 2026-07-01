@@ -239,6 +239,13 @@
 carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
                   absolute_rank = FALSE, virtual_reference = FALSE) {
 
+  # DIPSAUS DEBUG START
+  # dm <- c(136, 2001,  105)
+  # x <- array(rnorm(prod(dm)), dm)
+  # list2env(list(nboot = 100L, sensitive = TRUE, min_size = NULL,
+  #               absolute_rank = TRUE, virtual_reference = TRUE), .GlobalEnv)
+
+
   stopifnot(is.numeric(x))
   if (is.matrix(x)) {
     dim(x) <- c(dim(x), 1L)
@@ -413,24 +420,23 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # full `n_ch x nboot_eff` slab and averaging later) avoids allocating a
   # `n_ch x nboot_eff x (n_ch - 1)` array we never read.
   zmin_per_ii <- vapply(seq.int(2L, n_good), function(ii) {
+
     # evaluate as if the referencing channels are the first ii least important channels
     sel <- ord[seq_len(ii)]
 
     sub <- x_work[sel, , , drop = FALSE]           # ii x n_t x n_tr
-    car_sub <- colMeans(sub)                       # n_t x n_tr (drops dim 1)
-
-    if (n_tr == 1L) {
-      dim(car_sub) <- c(n_t, 1L)
-    }
-
-    # Compute the reference based on these ii channels
-    sub_reref <- sweep(sub, c(2L, 3L), car_sub, "-")
 
     if (nboot_eff == 1L) {
       # Single-pass: either a single trial was supplied, or the user asked
       # for `nboot = 1` with multiple trials. In either case there is no
       # bootstrap; we just collapse trials by simple mean (a no-op when
       # n_tr == 1) and run one correlation pass.
+      # Compute the reference based on these ii channels
+      car_sub <- colMeans(sub)                     # n_t x n_tr (drops dim 1)
+      if (n_tr == 1L) {
+        dim(car_sub) <- c(n_t, 1L)
+      }
+      sub_reref <- sweep(sub, c(2L, 3L), car_sub, "-")
       Useg_m <- rowMeans(sub,       dims = 2L)     # ii x n_t
       Uref_m <- rowMeans(sub_reref, dims = 2L)
       r <- stats::cor(t(Useg_m), t(Uref_m))
@@ -442,93 +448,30 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
       mean(z[kk, ], na.rm = TRUE)
     } else {
 
-      # Repeat nboot times: ii x nboot_eff
-      sub_zmin <- replicate(nboot_eff, {
-
-        # Bootstrap trials
-        inds <- sample.int(n_tr, n_tr, replace = TRUE)
-
-        # Resample trials
-        Useg_m <- rowMeans(sub[, , inds, drop = FALSE],       dims = 2L)  # ii x n_t
-        Uref_m <- rowMeans(sub_reref[, , inds, drop = FALSE], dims = 2L)
-
-        # Compute the correlation between raw vs referenced signals
-        # Signal model (denote i: channel, j: trial, t: time):
-        #   signal_ij(t) =
-        #       r_i(t)        <- evoked response, shared across trials of channel i
-        #                        (zero or near-zero on non-responsive channels)
-        #     + a(t)          <- global artifact / common-mode signal we want to
-        #                        remove via re-referencing (line noise, stim leak,
-        #                        ground/ref drift); shared across channels
-        #     + e_ij(t)       <- zero-mean noise, independent across trials and
-        #                        (approximately) across channels
-        #
-        # Bootstrap-averaging across `n_tr` trials suppresses e_ij, so the
-        # rows of `Useg_m` and `Uref_m` are approximately
-        #   Useg_m[k, t] ~= r_{sel[k]}(t) + a(t)
-        #   Uref_m[k, t] ~= r_{sel[k]}(t) - mean_{m in sel} r_m(t)
-        #                   (the shared a(t) cancels in the re-reference)
-        #
-        # Then `stats::cor(t(Useg_m), t(Uref_m))` ~=
-        #   r[k, l] = Cor_t( r_{sel[k]} + a,
-        #                    r_{sel[l]} - mean_{m in sel} r_m )
-        # an `ii x ii` matrix whose row k summarizes how much the unreferenced
-        # channel `sel[k]` co-varies (or anti-co-varies) with every other
-        # re-referenced channel in the candidate subset.
-        #
-        # Interpretation of off-diagonal entry r[k, l]  (k != l):
-        #   - Large POSITIVE: channel `sel[k]` shares a strong waveform with
-        #     channel `sel[l]` AFTER `sel[l]` has been re-referenced. Because
-        #     a(t) has been removed from `Uref_m`, the only structure left to
-        #     drive a positive correlation is the evoked response r_{sel[l]}
-        #     (or, more precisely, r_{sel[l]} minus the subset's mean response),
-        #     which means `sel[k]` itself carries a similar response. This is
-        #     the signature of two responsive channels being mistakenly placed
-        #     into the CAR subset.
-        #   - Large NEGATIVE: channel `sel[k]` looks like the negative of the
-        #     re-referenced waveform of `sel[l]`. This happens when the CAR
-        #     constructed from the subset already contains a sizeable copy of
-        #     r_{sel[k]}: subtracting that CAR from `sel[l]` flips a piece of
-        #     `sel[k]`'s response into `sel[l]`'s residual with the opposite
-        #     sign, so the unreferenced `sel[k]` and the re-referenced `sel[l]`
-        #     are anticorrelated. Anticorrelation is therefore the diagnostic
-        #     that some channel in the subset is leaking response structure
-        #     into the common average.
-        #   - Near ZERO: the two channels share neither a residual response
-        #     nor a CAR-mediated cross-talk; this is the desired regime for
-        #     channels that legitimately belong in the reference (their only
-        #     shared content was a(t), which has been cancelled).
-        #
-        # Within each row k, taking `mean_l r[k, l]` (excluding the diagonal)
-        # collapses these l-wise relationships into a single anticorrelation
-        # score for channel `sel[k]`; `kk` is then the channel with the most
-        # negative such score, i.e. the worst contaminator under the current
-        # candidate subset.
-        #
-        # The self-self diagonal
-        # is dropped (set to NA) because it is dominated by the trivial
-        # contribution of `sel[k]` to its own re-reference and would bias the
-        # row mean toward zero.
-        #
-        # Fisher z-transform stabilizes the variance of the correlation
-        # estimator before averaging. The row with the most negative mean
-        # (`kk`) identifies the channel whose presence in the subset induces
-        # the strongest global anticorrelation in the rest of the subset --
-        # i.e. the channel whose responses are most contaminating the
-        # candidate reference. Recording z[kk, ] in `zmin` lets the outer
-        # loop track, as `ii` grows, when the next added channel starts
-        # injecting evoked-response structure into the CAR; that transition
-        # is what `n_optimum` ultimately picks up on.
-
-        r <- stats::cor(t(Useg_m), t(Uref_m))
-        diag(r) <- NA_real_
-        z <- atanh(r)
-        kk <- which.min(rowMeans(z, na.rm = TRUE))
-        z[kk, ]
-      })
-      # length nboot_eff: mean over target channels (sel rows) of the
-      # worst-contaminator z-row, per bootstrap.
-      colMeans(sub_zmin, na.rm = TRUE)
+      # Bootstrap inner loop, fully in C++ (see `src/carla.cpp`). For each
+      # bootstrap b, `carla_zmin_boot()`:
+      #   1. trial-averages the resampled channels   -> Useg_m (ii x n_t)
+      #   2. re-references by the channel mean (the bootstrapped common
+      #      average)                                 -> Uref_m = Useg_m - cb
+      #   3. correlates each unreferenced channel against every re-referenced
+      #      channel over time, Fisher z-transforms, drops the self diagonal,
+      #      and returns the mean z of the most globally anti-correlated
+      #      channel (`min_j mean_{l != j} atanh(cor[j, l])`).
+      #
+      # The anti-correlation score is the CARLA diagnostic: as `ii` grows, a
+      # newly added responsive channel leaks its evoked response into the CAR,
+      # which flips part of that response into the residual of the other
+      # subset channels with the opposite sign, driving the score negative.
+      # Tracking when that happens is what `n_optimum` ultimately picks up on.
+      #
+      # The random resampling indices are drawn here in R (so the RNG stays
+      # reproducible and thread-safe) and handed to C++; the C++ core then
+      # parallelizes over bootstraps via TinyParallel (`ravetools_threads()`).
+      # Column-major fill of a single `sample.int` draw matches independent
+      # per-bootstrap sampling of `n_tr` trials with replacement.
+      ind <- matrix(sample.int(n_tr, n_tr * nboot_eff, replace = TRUE),
+                    nrow = n_tr, ncol = nboot_eff)
+      carla_zmin_boot(sub, ind)                      # length nboot_eff
     }
   }, FUN.VALUE = numeric(nboot_eff))
 

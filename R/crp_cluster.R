@@ -93,7 +93,7 @@
 #' # Four response shapes; shapes 3 and 4 differ only in amplitude, so they
 #' # cluster together once shapes are amplitude-normalized.
 #' \donttest{
-#' set.seed(1)
+#'
 #' n_time <- 300L
 #' tt <- seq(-0.2, 1, length.out = n_time)
 #' shapes <- list(
@@ -118,6 +118,7 @@
 #' res$n_clusters
 #' table(res$clusters)
 #' plot(res)
+#'
 #' }
 #'
 #' @export

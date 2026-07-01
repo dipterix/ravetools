@@ -9,6 +9,10 @@ bucketFillVolume <- function(volume, x, y, z, fill) {
     .Call(`_ravetools_bucketFillVolume`, volume, x, y, z, fill)
 }
 
+carla_zmin_boot <- function(sub, ind) {
+    .Call(`_ravetools_carla_zmin_boot`, sub, ind)
+}
+
 collapser_cplx <- function(x, keep, method = 1L, average = 0L) {
     .Call(`_ravetools_collapser_cplx`, x, keep, method, average)
 }
