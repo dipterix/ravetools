@@ -1,124 +1,153 @@
-// CARLA bootstrap inner loop (see R/carla.R).
+// CARLA bootstrap evaluation (see R/carla.R).
 //
-// For one candidate subset size `ii`, `carla_zmin_boot` evaluates every
-// bootstrap resampling entirely in C++: it trial-averages the resampled
-// channels, re-references them by their own channel mean (the bootstrapped
-// common average), correlates each unreferenced channel against every
-// re-referenced channel over time, Fisher z-transforms, and returns - per
-// bootstrap - the mean Fisher-z of the most globally anti-correlated channel.
+// `carla_zmin_all` evaluates the CARLA anti-correlation diagnostic for every
+// candidate subset size ii = 2..n_good against ONE shared set of bootstrap
+// trial-resamples. The work is split into two phases:
 //
-// This replaces the R `M %*% W` resampling and the per-bootstrap `stats::cor`
-// reduction, both of which dominated the runtime on large arrays. Bootstraps
-// are independent and run in parallel via TinyParallel (honours
-// `ravetools_threads()`); the random resampling indices are drawn in R and
+//   Phase A (parallel over channels): trial-average every channel for every
+//     bootstrap at once via a single GEMM per channel, `Sc * W`, where `W` is
+//     the n_tr x nboot bootstrap-weight matrix. This reads the (large) input
+//     `x_ord` exactly once, instead of once per bootstrap, so the bandwidth-
+//     bound averaging is paid a single time.
+//
+//   Phase B (parallel over bootstraps): for each bootstrap, center the channel
+//     averages over time, form the channel x channel Gram matrix G = Ac^T Ac
+//     once, and read every subset size out of G in O(ii^2) scalar work -- so
+//     the cross-products are paid once per bootstrap rather than once per
+//     subset size (the old per-subset-size loop re-trial-averaged everything).
+//
+// Bootstraps / channels are independent and run in parallel via TinyParallel
+// (honours `ravetools_threads()`); the resampling indices are drawn in R and
 // passed in as `ind` so the RNG stays reproducible and thread-safe.
+//
+// Math. With Ac_c = time-centered trial-average of channel c, G = Ac^T Ac,
+// and running sums p[j] = sum_{c<=ii} G[j,c], Q = sum_{j,l<=ii} G[j,l]:
+//   cross(j,l) = G[j,l] - p[j]/ii            (= <Ac_j, Ac_l - c0>, c0 = mean CAR)
+//   ||B_l||^2  = G[l,l] - 2 p[l]/ii + Q/ii^2 (= ||Ac_l - c0||^2, a true norm)
+//   r(j,l) = cross / (||Ac_j|| * ||B_l||); z = atanh(r); drop l==j and any
+//   zero-variance / non-finite entry (matches R `na.rm = TRUE`);
+//   zmin[ii] = min_j mean_{l != j} z(j,l).
+// p and Q update incrementally as ii grows, so each subset size costs O(ii^2).
 
 #include <RcppEigen.h>
 #include <cmath>
+#include <vector>
 #include "utils.h"
 #include "TinyParallel.h"
 
 namespace {
 
-struct CarlaZminWorker : public TinyParallel::Worker {
-  const double* M;        // (ii*n_t) x n_tr, column-major (= `sub`)
-  const int*    ind;      // n_resample x nboot, column-major, 1-based
-  double*       out;      // nboot
-  const int ii;
+// ---- Phase A: batched trial-averaging, one GEMM per channel ---------------
+struct TrialAvgWorker : public TinyParallel::Worker {
+  const double* M;        // n_t x n_tr x n_good, column-major (= `x_ord`)
+  const double* W;        // n_tr x nboot, column-major (bootstrap weights)
+  double*       U;        // n_t x nboot x n_good, column-major (output)
   const int n_t;
   const int n_tr;
-  const int n_resample;
+  const int nboot;
 
-  CarlaZminWorker(const double* M, const int* ind, double* out,
-                  int ii, int n_t, int n_tr, int n_resample)
-    : M(M), ind(ind), out(out), ii(ii), n_t(n_t), n_tr(n_tr),
-      n_resample(n_resample) {}
+  TrialAvgWorker(const double* M, const double* W, double* U,
+                 int n_t, int n_tr, int nboot)
+    : M(M), W(W), U(U), n_t(n_t), n_tr(n_tr), nboot(nboot) {}
 
   void operator()(std::size_t begin, std::size_t end) {
-    const Eigen::Index block = static_cast<Eigen::Index>(ii) *
-      static_cast<Eigen::Index>(n_t);
-    Eigen::Map<const Eigen::MatrixXd> Mmap(M, block, n_tr);
-    const double inv = 1.0 / static_cast<double>(n_resample);
-    const std::size_t chunk = end - begin;
-    if (chunk == 0) return;
-
-    // ---- 1. bootstrap weights for every column of `ind` in this chunk -----
-    // Wc(j, c) = (number of times trial j is resampled in bootstrap begin+c)
-    //            / n_resample. Then `M * Wc` trial-averages all bootstraps in
-    // this chunk at once.
-    Eigen::MatrixXd Wc =
-      Eigen::MatrixXd::Zero(n_tr, static_cast<Eigen::Index>(chunk));
-    for (std::size_t c = 0; c < chunk; c++) {
-      const int* ind_b = ind + (begin + c) * static_cast<std::size_t>(n_resample);
-      for (int k = 0; k < n_resample; k++) {
-        const int j = ind_b[k];                  // 1-based trial index
-        if (j >= 1 && j <= n_tr) {
-          Wc(j - 1, static_cast<Eigen::Index>(c)) += inv;
-        }
-      }
+    Eigen::Map<const Eigen::MatrixXd> Wm(W, n_tr, nboot);
+    for (std::size_t c = begin; c < end; c++) {
+      Eigen::Map<const Eigen::MatrixXd> Sc(
+          M + static_cast<std::size_t>(n_t) * n_tr * c, n_t, n_tr);
+      Eigen::Map<Eigen::MatrixXd> Uc(
+          U + static_cast<std::size_t>(n_t) * nboot * c, n_t, nboot);
+      Uc.noalias() = Sc * Wm;                     // n_t x nboot trial-averages
     }
+  }
+};
 
-    // ---- 2. trial-averaged (resampled) means for the whole chunk ----------
-    // One GEMM per thread reads the big `sub` matrix `M` only once (instead of
-    // once per bootstrap), which is what lets this scale past memory bandwidth.
-    // Column c is `Useg_m` (ii x n_t, column-major) for bootstrap begin+c.
-    Eigen::MatrixXd Useg_chunk = Mmap * Wc;       // (ii*n_t) x chunk
+// ---- Phase B: Gram matrix + subset-size sweep, per bootstrap --------------
+struct CarlaZminWorker : public TinyParallel::Worker {
+  const double* U;        // n_t x nboot x n_good, column-major (from Phase A)
+  double*       out;      // n_good x nboot, column-major
+  const int n_good;
+  const int n_t;
+  const int nboot;
 
-    // Per-boot scratch, reused across the chunk to avoid reallocation.
-    Eigen::MatrixXd    Ac(ii, n_t), B(ii, n_t), cross(ii, ii);
-    Eigen::RowVectorXd cb(n_t);
-    Eigen::VectorXd    am(ii), bm(ii), nrmA(ii), nrmB(ii);
+  CarlaZminWorker(const double* U, double* out, int n_good, int n_t, int nboot)
+    : U(U), out(out), n_good(n_good), n_t(n_t), nboot(nboot) {}
 
-    for (std::size_t c = 0; c < chunk; c++) {
-      Eigen::Map<Eigen::MatrixXd> A(
-          Useg_chunk.col(static_cast<Eigen::Index>(c)).data(), ii, n_t);
+  void operator()(std::size_t begin, std::size_t end) {
+    // Per-thread scratch, reused across every bootstrap in this range.
+    Eigen::MatrixXd Ac(n_t, n_good);
+    Eigen::MatrixXd G(n_good, n_good);
+    Eigen::VectorXd diagG(n_good), normA(n_good), normB(n_good), p(n_good);
 
-      // ---- 3. re-reference by channel mean (= bootstrapped CAR) -----------
-      cb = A.colwise().mean();                    // length n_t
-      B  = A;
-      B.rowwise() -= cb;                          // Uref_m = Useg_m - cb
+    for (std::size_t b = begin; b < end; b++) {
 
-      // ---- 4. row-center over time + row norms ----------------------------
-      Ac = A;
-      am = Ac.rowwise().mean();
-      Ac.colwise() -= am;
-      bm = B.rowwise().mean();
-      B.colwise()  -= bm;
+      // ---- 1. gather this bootstrap's channel averages, center over time --
+      for (int c = 0; c < n_good; c++) {
+        Eigen::Map<const Eigen::VectorXd> uc(
+            U + static_cast<std::size_t>(n_t) * b +
+                static_cast<std::size_t>(n_t) * nboot * c, n_t);
+        Ac.col(c) = uc.array() - uc.mean();
+      }
 
-      nrmA = Ac.rowwise().norm();                 // length ii
-      nrmB = B.rowwise().norm();
+      // ---- 2. Gram matrix of the centered channel averages ----------------
+      G.noalias() = Ac.transpose() * Ac;          // n_good x n_good, symmetric
+      for (int c = 0; c < n_good; c++) {
+        diagG[c] = G(c, c);
+        normA[c] = diagG[c] > 0.0 ? std::sqrt(diagG[c]) : 0.0;
+      }
 
-      // ---- 5. cross products -> Pearson correlations over time ------------
-      cross.noalias() = Ac * B.transpose();       // ii x ii ; sum_t Ac(j,t)B(l,t)
+      // ---- 3. sweep subset sizes ii = 2..n_good straight from the Gram ----
+      double* out_b = out + static_cast<std::size_t>(n_good) * b;
+      out_b[0] = NA_REAL;                          // subset size 1 is unused
 
-      // ---- 6. min over rows of the mean off-diagonal Fisher-z -------------
-      // Mirrors R: z = atanh(cor); diag(z) <- NA; min over j of
-      // rowMeans(z, na.rm = TRUE). Self (l == j), zero-variance rows / columns
-      // and non-finite z are skipped (matches `na.rm = TRUE`).
-      double best = R_PosInf;
-      bool found = false;
-      for (int j = 0; j < ii; j++) {
-        if (!(nrmA[j] > 0.0)) continue;
-        const double denomA = nrmA[j];
-        double sum = 0.0;
-        int cnt = 0;
-        for (int l = 0; l < ii; l++) {
-          if (l == j || !(nrmB[l] > 0.0)) continue;
-          const double rr = cross(j, l) / (denomA * nrmB[l]);
-          const double zz = std::atanh(rr);
-          if (ISNAN(zz)) continue;
-          sum += zz;
-          cnt++;
+      // Running p / Q for the currently-included channel prefix. Seed with
+      // channel 0 (subset size 1, not evaluated).
+      p.setZero();
+      double Q = G(0, 0);
+      for (int j = 0; j < n_good; j++) p[j] += G(j, 0);
+
+      for (int m = 2; m <= n_good; m++) {
+        const int mi = m - 1;                      // 0-based channel just added
+        // Extend the prefix to include channel mi (uses p[mi] pre-update).
+        Q += 2.0 * p[mi] + G(mi, mi);
+        for (int j = 0; j < n_good; j++) p[j] += G(j, mi);
+
+        const double invm  = 1.0 / static_cast<double>(m);
+        const double invm2 = invm * invm;
+        for (int l = 0; l < m; l++) {
+          const double nb2 = diagG[l] - 2.0 * p[l] * invm + Q * invm2;
+          normB[l] = nb2 > 0.0 ? std::sqrt(nb2) : 0.0;
         }
-        if (cnt > 0) {
-          const double m = sum / static_cast<double>(cnt);
-          if (m < best) {
-            best = m;
-            found = true;
+
+        double best = R_PosInf;
+        bool found = false;
+        for (int j = 0; j < m; j++) {
+          if (!(normA[j] > 0.0)) continue;
+          const double denomA = normA[j];
+          const double pj = p[j] * invm;
+          double sum = 0.0;
+          int cnt = 0;
+          for (int l = 0; l < m; l++) {
+            if (l == j || !(normB[l] > 0.0)) continue;
+            double rr = (G(j, l) - pj) / (denomA * normB[l]);
+            // Clamp for FP safety: Gram cancellation can push |r| just past 1.
+            if (rr >  1.0 - 1e-12) rr =  1.0 - 1e-12;
+            if (rr < -1.0 + 1e-12) rr = -1.0 + 1e-12;
+            const double zz = std::atanh(rr);
+            if (ISNAN(zz)) continue;
+            sum += zz;
+            cnt++;
+          }
+          if (cnt > 0) {
+            const double mmean = sum / static_cast<double>(cnt);
+            if (mmean < best) {
+              best = mmean;
+              found = true;
+            }
           }
         }
+        out_b[m - 1] = found ? best : NA_REAL;
       }
-      out[begin + c] = found ? best : NA_REAL;
     }
   }
 };
@@ -126,30 +155,30 @@ struct CarlaZminWorker : public TinyParallel::Worker {
 } // anonymous namespace
 
 // [[Rcpp::export(rng = false)]]
-SEXP carla_zmin_boot(SEXP sub, SEXP ind) {
+SEXP carla_zmin_all(SEXP x_ord, SEXP ind) {
 
-  // ---- dims of `sub` (ii x n_t x n_tr) -----------------------------------
-  SEXP subDim = PROTECT(Rf_getAttrib(sub, R_DimSymbol));
+  // ---- dims of `x_ord` (n_t x n_tr x n_good) -----------------------------
+  SEXP subDim = PROTECT(Rf_getAttrib(x_ord, R_DimSymbol));
   if (subDim == R_NilValue || Rf_length(subDim) != 3) {
     UNPROTECT(1);
-    return make_error("C++ `carla_zmin_boot`: `sub` must be a 3-D array "
-                      "(channels x time x trials).");
+    return make_error("C++ `carla_zmin_all`: `x_ord` must be a 3-D array "
+                      "(time x trials x channels).");
   }
-  int ii, n_t, n_tr;
+  int n_good, n_t, n_tr;
   if (TYPEOF(subDim) == REALSXP) {
-    ii   = static_cast<int>(REAL(subDim)[0]);
-    n_t  = static_cast<int>(REAL(subDim)[1]);
-    n_tr = static_cast<int>(REAL(subDim)[2]);
+    n_t    = static_cast<int>(REAL(subDim)[0]);
+    n_tr   = static_cast<int>(REAL(subDim)[1]);
+    n_good = static_cast<int>(REAL(subDim)[2]);
   } else {
-    ii   = INTEGER(subDim)[0];
-    n_t  = INTEGER(subDim)[1];
-    n_tr = INTEGER(subDim)[2];
+    n_t    = INTEGER(subDim)[0];
+    n_tr   = INTEGER(subDim)[1];
+    n_good = INTEGER(subDim)[2];
   }
   UNPROTECT(1); // subDim
 
   // ---- coerce inputs to the expected storage types ------------------------
-  SEXP sub_ = PROTECT(TYPEOF(sub) == REALSXP ? sub : Rf_coerceVector(sub, REALSXP));
-  SEXP ind_ = PROTECT(TYPEOF(ind) == INTSXP  ? ind : Rf_coerceVector(ind, INTSXP));
+  SEXP x_   = PROTECT(TYPEOF(x_ord) == REALSXP ? x_ord : Rf_coerceVector(x_ord, REALSXP));
+  SEXP ind_ = PROTECT(TYPEOF(ind)   == INTSXP  ? ind   : Rf_coerceVector(ind, INTSXP));
 
   // ---- dims of `ind` (n_resample x nboot) --------------------------------
   int n_resample, nboot;
@@ -163,12 +192,30 @@ SEXP carla_zmin_boot(SEXP sub, SEXP ind) {
   }
   UNPROTECT(1); // indDim
 
-  SEXP re = PROTECT(Rf_allocVector(REALSXP, nboot));
+  // ---- bootstrap-weight matrix W (n_tr x nboot) --------------------------
+  // W(j, b) = (number of times trial j is resampled in bootstrap b) / n_resample.
+  const int* ind_p = INTEGER(ind_);
+  const double inv = 1.0 / static_cast<double>(n_resample);
+  std::vector<double> W(static_cast<std::size_t>(n_tr) * nboot, 0.0);
+  for (int b = 0; b < nboot; b++) {
+    const int* ind_b = ind_p + static_cast<std::size_t>(b) * n_resample;
+    double* Wb = W.data() + static_cast<std::size_t>(b) * n_tr;
+    for (int k = 0; k < n_resample; k++) {
+      const int j = ind_b[k];                      // 1-based trial index
+      if (j >= 1 && j <= n_tr) Wb[j - 1] += inv;
+    }
+  }
 
-  CarlaZminWorker worker(REAL(sub_), INTEGER(ind_), REAL(re),
-                         ii, n_t, n_tr, n_resample);
+  // ---- Phase A: batched trial-averages, U (n_t x nboot x n_good) ----------
+  std::vector<double> U(static_cast<std::size_t>(n_t) * nboot * n_good);
+  TrialAvgWorker avg(REAL(x_), W.data(), U.data(), n_t, n_tr, nboot);
+  TinyParallel::parallelFor(0, static_cast<std::size_t>(n_good), avg);
+
+  // ---- Phase B: Gram + subset sweep, out (n_good x nboot) ----------------
+  SEXP re = PROTECT(Rf_allocMatrix(REALSXP, n_good, nboot));
+  CarlaZminWorker worker(U.data(), REAL(re), n_good, n_t, nboot);
   TinyParallel::parallelFor(0, static_cast<std::size_t>(nboot), worker);
 
-  UNPROTECT(3); // sub_, ind_, re
+  UNPROTECT(3); // x_, ind_, re
   return re;
 }

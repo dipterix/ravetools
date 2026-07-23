@@ -14,10 +14,12 @@ carla(
 )
 }
 \arguments{
-\item{x}{numeric array of shape \code{channels x time x trials}; if a
-matrix is provided, it is treated as \code{channels x time} (single trial).
-The signal must already be cropped to the responsive time window
-(typically \code{0.01 s} to \code{0.3 s} post-stimulus).}
+\item{x}{numeric array of shape \code{time x trials x channels}; if a
+matrix is provided, it is treated as \code{time x channels} (single trial).
+A \code{filearray} (class \code{FileArray}) is also accepted, allowing very
+large inputs to stay on disk instead of in memory. The signal must already
+be cropped to the responsive time window (typically \code{0.01 s} to
+\code{0.3 s} post-stimulus).}
 
 \item{nboot}{integer, number of bootstrapped trial resamplings used to
 estimate the optimization statistic; defaults to \code{100}. Ignored when
@@ -66,11 +68,9 @@ ranking so genuinely responsive channels rise to the top. Default
 A list with the following elements:
 \describe{
 \item{\code{channels}}{integer vector, sorted indices (1-based) of the
-channels chosen to construct the common average reference.}
-\item{\code{car}}{numeric matrix of shape \code{time x trials} (or numeric
-vector when only one trial is supplied) holding the common average signal
-computed from \code{channels}. Subtract this from each channel of the
-original signal to obtain the re-referenced data.}
+channels chosen to construct the common average reference. Compute the
+reference yourself as the channel-wise mean (or median) over these channels
+and subtract it from the original signal to obtain the re-referenced data.}
 \item{\code{order}}{integer vector, indices of the \strong{good}
 channels sorted in increasing order of the ranking statistic. Bad
 channels (zero variance / all-\code{NA}; see Details) are excluded.}
@@ -152,24 +152,24 @@ ep <- ifelse(tt >= 0,
              80 * exp(-tt / 0.05) * sin(2 * pi * 12 * tt),
              0)
 
-# channels x time x trials
-x_full <- array(rnorm(nchan * length(tt) * ntrial, sd = 5),
-                dim = c(nchan, length(tt), ntrial))
+# time x trials x channels
+x_full <- array(rnorm(length(tt) * ntrial * nchan, sd = 5),
+                dim = c(length(tt), ntrial, nchan))
 for (ch in resp_ch) {
   for (k in seq_len(ntrial)) {
-    x_full[ch, , k] <- x_full[ch, , k] + ep * runif(1, -0.8, 1.2)
+    x_full[, k, ch] <- x_full[, k, ch] + ep * runif(1, -0.8, 1.2)
   }
 }
 for (ch in noise_ch) {
   for (k in seq_len(ntrial)) {
-    tmp <- x_full[ch, , k]
-    x_full[ch, , k] <- tmp + sign(ch \%\% 2 - 0.5) * 5 *
+    tmp <- x_full[, k, ch]
+    x_full[, k, ch] <- tmp + sign(ch \%\% 2 - 0.5) * 5 *
       runif(length(tmp), 0.8, 1.2)
   }
 }
 # Add artifacts common to all channels and trials
 artifacts <- 6 * sin(2 * pi * 60 * tt) + 7 * sin(2 * pi * 24 * tt)
-x_full <- sweep(x_full, 2L, artifacts, "+")
+x_full <- sweep(x_full, 1L, artifacts, "+")
 
 # ---- 1. Notch filter line noise (per channel, per trial) ---------------
 # The CARLA paper notch-filters before ranking; the re-reference itself
@@ -177,8 +177,8 @@ x_full <- sweep(x_full, 2L, artifacts, "+")
 x_clean <- x_full
 for (ch in seq_len(nchan)) {
   for (k in seq_len(ntrial)) {
-    x_clean[ch, , k] <- notch_filter(
-      x_full[ch, , k], sample_rate = srate,
+    x_clean[, k, ch] <- notch_filter(
+      x_full[, k, ch], sample_rate = srate,
       lb = c(59, 119, 179), ub = c(61, 121, 181)
     )
   }
@@ -186,7 +186,7 @@ for (ch in seq_len(nchan)) {
 
 # ---- 2. Crop to the responsive window (0.01 s to 0.3 s post-stim) ------
 resp_idx <- which(tt > 0.0 & tt <= 0.3)
-x_resp <- x_clean[, resp_idx, , drop = FALSE]
+x_resp <- x_clean[resp_idx, , , drop = FALSE]
 
 # ---- 3. Run CARLA to pick reference channels ---------------------------
 fit <- carla(x_resp, sensitive = TRUE, absolute_rank = TRUE,
@@ -195,53 +195,55 @@ fit$channels        # selected reference channels (should exclude 1:4)
 fit$n_optimum       # number of channels in the optimal CAR
 
 # ---- 4. Re-reference the ORIGINAL (unfiltered) signal ------------------
-# mean or median, your choice!
-car_full <- apply(x_full[fit$channels, , , drop = FALSE], c(2, 3), mean)
+# mean or median, your choice! (time x trials)
+car_full <- apply(x_full[, , fit$channels, drop = FALSE], c(1, 2), mean)
 
 # old-style: using all channels for CAR
-car_old <- apply(x_full, c(2, 3), mean)
+car_old <- apply(x_full, c(1, 2), mean)
 
-x_reref <- sweep(x_full, c(2, 3), car_full, "-")
-x_compare <- sweep(x_full, c(2, 3), car_old, "-")
+x_reref <- sweep(x_full, c(1, 2), car_full, "-")
+x_compare <- sweep(x_full, c(1, 2), car_old, "-")
 
 # ---- 5. Inspect: evoked potential is preserved on responsive channels --
+# `plot_signals` expects channels x time, so transpose each trial-1 slice.
 op <- graphics::par(mfrow = c(2, 4), mar = c(4, 4, 2, 1))
 ravetools::plot_signals(
-  signals = x_full[, , 1],
+  signals = t(x_full[, 1, ]),
   sample_rate = srate,
   main = "Trial 1 - (raw)")
 
 ravetools::plot_signals(
-  signals = x_clean[, , 1],
+  signals = t(x_clean[, 1, ]),
   sample_rate = srate,
   main = "Notch-filtered")
 
 ravetools::plot_signals(
-  signals = x_reref[, , 1],
+  signals = t(x_reref[, 1, ]),
   sample_rate = srate,
   main = sprintf("CARLA-ref (n=\%d)", length(fit$channels)))
 
 ravetools::plot_signals(
-  signals = x_compare[, , 1],
+  signals = t(x_compare[, 1, ]),
   sample_rate = srate,
   main = "Conventional CAR for comparison")
 
 col <- adjustcolor(seq_len(nchan))
 col[resp_ch] <- adjustcolor(col[resp_ch], alpha.f = 0.2)
 
-graphics::matplot(tt, t(rowMeans(x_full, dims = 2L)),
+# Trial-average -> time x channels, ready for `matplot(tt, .)`
+graphics::matplot(tt, apply(x_full, c(1, 3), mean),
                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
-                  main = "Trial-averaged (raw", col = col)
+                  main = "Trial-averaged (raw)", col = col)
 
-graphics::matplot(tt, t(rowMeans(x_clean, dims = 2L)),
+graphics::matplot(tt, apply(x_clean, c(1, 3), mean),
                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
                   main = "Notch-filtered", col = col)
 
-graphics::matplot(tt, t(rowMeans(x_reref, dims = 2L)),
+graphics::matplot(tt, apply(x_reref, c(1, 3), mean),
                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
                   main = "CARLA-referenced", col = col)
 
-graphics::matplot(tt, t(rowMeans(x_compare, dims = 2L)),
+graphics::matplot(tt, apply(x_compare, c(1, 3), mean),
                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
                   main = "conventional CAR-referenced", col = col)
 

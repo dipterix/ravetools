@@ -8,10 +8,12 @@
 #' yields the least anti-correlation between the candidate reference and the
 #' remaining unreferenced channels is selected as optimal.
 #'
-#' @param x numeric array of shape \code{channels x time x trials}; if a
-#' matrix is provided, it is treated as \code{channels x time} (single trial).
-#' The signal must already be cropped to the responsive time window
-#' (typically \code{0.01 s} to \code{0.3 s} post-stimulus).
+#' @param x numeric array of shape \code{time x trials x channels}; if a
+#' matrix is provided, it is treated as \code{time x channels} (single trial).
+#' A \code{filearray} (class \code{FileArray}) is also accepted, allowing very
+#' large inputs to stay on disk instead of in memory. The signal must already
+#' be cropped to the responsive time window (typically \code{0.01 s} to
+#' \code{0.3 s} post-stimulus).
 #' @param nboot integer, number of bootstrapped trial resamplings used to
 #' estimate the optimization statistic; defaults to \code{100}. Ignored when
 #' a single trial is supplied.
@@ -54,11 +56,9 @@
 #' @returns A list with the following elements:
 #' \describe{
 #' \item{\code{channels}}{integer vector, sorted indices (1-based) of the
-#' channels chosen to construct the common average reference.}
-#' \item{\code{car}}{numeric matrix of shape \code{time x trials} (or numeric
-#' vector when only one trial is supplied) holding the common average signal
-#' computed from \code{channels}. Subtract this from each channel of the
-#' original signal to obtain the re-referenced data.}
+#' channels chosen to construct the common average reference. Compute the
+#' reference yourself as the channel-wise mean (or median) over these channels
+#' and subtract it from the original signal to obtain the re-referenced data.}
 #' \item{\code{order}}{integer vector, indices of the \strong{good}
 #' channels sorted in increasing order of the ranking statistic. Bad
 #' channels (zero variance / all-\code{NA}; see Details) are excluded.}
@@ -140,24 +140,24 @@
 #'              80 * exp(-tt / 0.05) * sin(2 * pi * 12 * tt),
 #'              0)
 #'
-#' # channels x time x trials
-#' x_full <- array(rnorm(nchan * length(tt) * ntrial, sd = 5),
-#'                 dim = c(nchan, length(tt), ntrial))
+#' # time x trials x channels
+#' x_full <- array(rnorm(length(tt) * ntrial * nchan, sd = 5),
+#'                 dim = c(length(tt), ntrial, nchan))
 #' for (ch in resp_ch) {
 #'   for (k in seq_len(ntrial)) {
-#'     x_full[ch, , k] <- x_full[ch, , k] + ep * runif(1, -0.8, 1.2)
+#'     x_full[, k, ch] <- x_full[, k, ch] + ep * runif(1, -0.8, 1.2)
 #'   }
 #' }
 #' for (ch in noise_ch) {
 #'   for (k in seq_len(ntrial)) {
-#'     tmp <- x_full[ch, , k]
-#'     x_full[ch, , k] <- tmp + sign(ch %% 2 - 0.5) * 5 *
+#'     tmp <- x_full[, k, ch]
+#'     x_full[, k, ch] <- tmp + sign(ch %% 2 - 0.5) * 5 *
 #'       runif(length(tmp), 0.8, 1.2)
 #'   }
 #' }
 #' # Add artifacts common to all channels and trials
 #' artifacts <- 6 * sin(2 * pi * 60 * tt) + 7 * sin(2 * pi * 24 * tt)
-#' x_full <- sweep(x_full, 2L, artifacts, "+")
+#' x_full <- sweep(x_full, 1L, artifacts, "+")
 #'
 #' # ---- 1. Notch filter line noise (per channel, per trial) ---------------
 #' # The CARLA paper notch-filters before ranking; the re-reference itself
@@ -165,8 +165,8 @@
 #' x_clean <- x_full
 #' for (ch in seq_len(nchan)) {
 #'   for (k in seq_len(ntrial)) {
-#'     x_clean[ch, , k] <- notch_filter(
-#'       x_full[ch, , k], sample_rate = srate,
+#'     x_clean[, k, ch] <- notch_filter(
+#'       x_full[, k, ch], sample_rate = srate,
 #'       lb = c(59, 119, 179), ub = c(61, 121, 181)
 #'     )
 #'   }
@@ -174,7 +174,7 @@
 #'
 #' # ---- 2. Crop to the responsive window (0.01 s to 0.3 s post-stim) ------
 #' resp_idx <- which(tt > 0.0 & tt <= 0.3)
-#' x_resp <- x_clean[, resp_idx, , drop = FALSE]
+#' x_resp <- x_clean[resp_idx, , , drop = FALSE]
 #'
 #' # ---- 3. Run CARLA to pick reference channels ---------------------------
 #' fit <- carla(x_resp, sensitive = TRUE, absolute_rank = TRUE,
@@ -183,53 +183,55 @@
 #' fit$n_optimum       # number of channels in the optimal CAR
 #'
 #' # ---- 4. Re-reference the ORIGINAL (unfiltered) signal ------------------
-#' # mean or median, your choice!
-#' car_full <- apply(x_full[fit$channels, , , drop = FALSE], c(2, 3), mean)
+#' # mean or median, your choice! (time x trials)
+#' car_full <- apply(x_full[, , fit$channels, drop = FALSE], c(1, 2), mean)
 #'
 #' # old-style: using all channels for CAR
-#' car_old <- apply(x_full, c(2, 3), mean)
+#' car_old <- apply(x_full, c(1, 2), mean)
 #'
-#' x_reref <- sweep(x_full, c(2, 3), car_full, "-")
-#' x_compare <- sweep(x_full, c(2, 3), car_old, "-")
+#' x_reref <- sweep(x_full, c(1, 2), car_full, "-")
+#' x_compare <- sweep(x_full, c(1, 2), car_old, "-")
 #'
 #' # ---- 5. Inspect: evoked potential is preserved on responsive channels --
+#' # `plot_signals` expects channels x time, so transpose each trial-1 slice.
 #' op <- graphics::par(mfrow = c(2, 4), mar = c(4, 4, 2, 1))
 #' ravetools::plot_signals(
-#'   signals = x_full[, , 1],
+#'   signals = t(x_full[, 1, ]),
 #'   sample_rate = srate,
 #'   main = "Trial 1 - (raw)")
 #'
 #' ravetools::plot_signals(
-#'   signals = x_clean[, , 1],
+#'   signals = t(x_clean[, 1, ]),
 #'   sample_rate = srate,
 #'   main = "Notch-filtered")
 #'
 #' ravetools::plot_signals(
-#'   signals = x_reref[, , 1],
+#'   signals = t(x_reref[, 1, ]),
 #'   sample_rate = srate,
 #'   main = sprintf("CARLA-ref (n=%d)", length(fit$channels)))
 #'
 #' ravetools::plot_signals(
-#'   signals = x_compare[, , 1],
+#'   signals = t(x_compare[, 1, ]),
 #'   sample_rate = srate,
 #'   main = "Conventional CAR for comparison")
 #'
 #' col <- adjustcolor(seq_len(nchan))
 #' col[resp_ch] <- adjustcolor(col[resp_ch], alpha.f = 0.2)
 #'
-#' graphics::matplot(tt, t(rowMeans(x_full, dims = 2L)),
+#' # Trial-average -> time x channels, ready for `matplot(tt, .)`
+#' graphics::matplot(tt, apply(x_full, c(1, 3), mean),
 #'                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
-#'                   main = "Trial-averaged (raw", col = col)
+#'                   main = "Trial-averaged (raw)", col = col)
 #'
-#' graphics::matplot(tt, t(rowMeans(x_clean, dims = 2L)),
+#' graphics::matplot(tt, apply(x_clean, c(1, 3), mean),
 #'                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
 #'                   main = "Notch-filtered", col = col)
 #'
-#' graphics::matplot(tt, t(rowMeans(x_reref, dims = 2L)),
+#' graphics::matplot(tt, apply(x_reref, c(1, 3), mean),
 #'                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
 #'                   main = "CARLA-referenced", col = col)
 #'
-#' graphics::matplot(tt, t(rowMeans(x_compare, dims = 2L)),
+#' graphics::matplot(tt, apply(x_compare, c(1, 3), mean),
 #'                   type = "l", lty = 1, xlab = "Time (s)", ylab = "uV",
 #'                   main = "conventional CAR-referenced", col = col)
 #'
@@ -245,19 +247,44 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   # list2env(list(nboot = 100L, sensitive = TRUE, min_size = NULL,
   #               absolute_rank = TRUE, virtual_reference = TRUE), .GlobalEnv)
 
+  # DIPSAUS DEBUG START
+  # repository <- ravecore::prepare_subject_raw_voltage_with_epochs(
+  # subject = "demo@bids:ds005953/01",
+  # electrodes = 1:118,
+  # epoch_name = "default",
+  #   time_windows = c(0.1, 1)
+  # )
+  # container <- repository$get_container()
+  # epoch_voltage <- lapply(container$data_list, function(x) {
+  #   x[dimnames = FALSE, drop = FALSE]
+  # })
+  # epoch_voltage <- simplify2array(epoch_voltage)
+  # # Time x trial x channel
+  # dim(epoch_voltage) <- dim(epoch_voltage)[c(1, 2, 4)]
+  # x <- filearray::as_filearray(epoch_voltage)
+  # nboot = 100L;
+  # absolute_rank = TRUE
+  # virtual_reference = TRUE
 
-  stopifnot(is.numeric(x))
-  if (is.matrix(x)) {
-    dim(x) <- c(dim(x), 1L)
-  }
+
+  stopifnot(is.numeric(x) || inherits(x, "FileArray"))
+
+  # Time x trial x channel
   d <- dim(x)
-  if (length(d) != 3L) {
-    stop("`x` must be a numeric matrix (channels x time) or 3-D array ",
-         "(channels x time x trials).")
+  if (length(d) == 2) {
+    d <- c(d[[1]], 1L, d[[2]])
+    if (inherits(x, "FileArray")) {
+      x <- x[drop = FALSE, dimnames = NULL]
+    }
+    dim(x) <- d
   }
-  n_ch <- d[[1L]] # Number of channels
-  n_t  <- d[[2L]] # Number of time points
-  n_tr <- d[[3L]] # Number of trials
+  if (length(d) != 3L) {
+    stop("`x` must be a numeric matrix (time x channels) or 3-D array ",
+         "(time x trials x channels).")
+  }
+  n_t  <- d[[1L]] # Number of time points
+  n_tr <- d[[2L]] # Number of trials
+  n_ch <- d[[3L]] # Number of channels
   if (n_ch < 2L) {
     stop("`x` must have at least 2 channels.")
   }
@@ -292,17 +319,49 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
       mean(v, na.rm = TRUE)
     }
   }
-  rank_fn <- function(signal) {
-    if (n_tr == 1L) {
-      apply(signal, 1L, function(row) {
-        stats::var(as.numeric(row))
-      })
-    } else {
-      vapply(seq_len(n_ch), function(ii) {
-        slice <- matrix(signal[ii, , ], nrow = n_t, ncol = n_tr)  # time x trials
-        cv <- stats::cov(slice)                                   # trials x trials
-        cov_summary(cv[upper.tri(cv)])
-      }, numeric(1L))
+  if (n_tr == 1L) {
+    rank_fn <- function(signal) {
+      if (inherits(signal, "FileArray")) {
+        filearray::fmap2(
+          list(signal),
+          .buffer_count = n_ch,
+          .simplify = TRUE,
+          fun = function(input) {
+            stats::var(as.numeric(input[[1]]))
+          }
+        )
+      } else {
+        apply(signal, 3L, function(row) {
+          stats::var(as.numeric(row))
+        })
+      }
+    }
+  } else {
+    rank_fn <- function(signal) {
+
+      if (inherits(signal, "FileArray")) {
+        # 11.948s
+        filearray::fmap2(
+          list(signal),
+          .buffer_count = n_ch,
+          .simplify = TRUE,
+          fun = function(input) {
+            slice <- array(input[[1]], c(n_t, n_tr))
+            cv <- fast_cov(slice)
+            cov_summary(cv[upper.tri(cv)])
+          }
+        )
+      } else {
+
+        # system.time({
+          vapply(seq_len(n_ch), function(ii) {
+            slice <- matrix(signal[,, ii], nrow = n_t, ncol = n_tr)  # time x trials
+            cv <- fast_cov(slice)                                   # trials x trials
+            cov_summary(cv[upper.tri(cv)])
+          }, numeric(1L))
+        # })
+      }
+
     }
   }
 
@@ -350,8 +409,23 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
     virtual_channel <- order(vars1)[as.integer(floor(n_ch / 2 + 0.5))]
     # Force n_t x n_tr matrix even when n_tr == 1 (drop=TRUE would
     # collapse to a length-n_t vector and break sweep over c(2, 3)).
-    vref <- matrix(x[virtual_channel, , ], nrow = n_t, ncol = n_tr)
-    x_work <- sweep(x, c(2L, 3L), vref, "-")
+    vref <- matrix(x[, , virtual_channel], nrow = n_t, ncol = n_tr)
+    dimnames(vref) <- NULL
+
+    if (inherits(x, "FileArray")) {
+      x_work <- filearray::fmap(
+        x = x,
+        .buffer_count = n_ch,
+        fun = function(slice) {
+          slice[[1]] - vref
+        }
+      )
+      on.exit({
+        x_work$delete(force = TRUE)
+      }, add = TRUE)
+    } else {
+      x_work <- sweep(x, c(1L, 2L), vref, "-")
+    }
     # The virtual channel is now identically zero in `x_work`, so the
     # bad-channel mask below will (correctly) drop it from `ord`. There is
     # no need for the explicit `c(ord[ord != vc], vc)` reordering trick.
@@ -379,113 +453,45 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
   }
 
   # ---- 2. Iterative subset evaluation ----------------------------------------
-  # zmin <- array(NA_real_, dim = c(n_ch, n_ch, nboot_eff))
+  # For each candidate subset size ii = 2..n_good the candidate CAR is the mean
+  # of the ii lowest-ranked channels; every one of those channels is then
+  # correlated (over time) in its unreferenced form against every re-referenced
+  # channel, Fisher z-transformed, and the mean z of the most globally anti-
+  # correlated channel is recorded. The anti-correlation score is the CARLA
+  # diagnostic: as ii grows, a newly added responsive channel leaks its evoked
+  # response into the CAR, which flips part of that response into the residual
+  # of the other subset channels with the opposite sign, driving the score
+  # negative. Tracking when that happens is what `n_optimum` picks up on.
   #
-  # for (ii in seq.int(2L, n_ch)) {
-  #   sel <- ord[seq_len(ii)]
-  #   sub <- x[sel, , , drop = FALSE]                # ii x n_t x n_tr
-  #   car_sub <- colMeans(sub)                       # n_t x n_tr (drops dim 1)
-  #   if (n_tr == 1L) {
-  #     dim(car_sub) <- c(n_t, 1L)
-  #   }
-  #   sub_reref <- sweep(sub, c(2L, 3L), car_sub, "-")
+  # All subset sizes are evaluated in C++ (`carla_zmin_all`, see src/carla.cpp)
+  # against ONE shared set of bootstrap trial-resamples: the per-channel trial-
+  # average and the channel x channel Gram matrix are computed once per boot-
+  # strap and each subset size is read out of the Gram in O(ii^2) work, instead
+  # of re-trial-averaging every subset size. The resampling indices are drawn
+  # here in R (so the RNG stays reproducible and thread-safe) and handed to
+  # C++, which parallelizes over bootstraps via TinyParallel
+  # (`ravetools_threads()`).
   #
-  #   if (n_tr == 1L) {
-  #     Useg   <- t(matrix(sub[, , 1L],       nrow = ii, ncol = n_t))
-  #     Useg_r <- t(matrix(sub_reref[, , 1L], nrow = ii, ncol = n_t))
-  #     r <- stats::cor(Useg, Useg_r)
-  #     diag(r) <- NA_real_
-  #     z <- atanh(r)
-  #     kk <- which.min(rowMeans(z, na.rm = TRUE))
-  #     zmin[sel, ii, 1L] <- z[kk, ]
-  #     next
-  #   }
-  #
-  #   for (b in seq_len(nboot_eff)) {
-  #     inds <- sample.int(n_tr, n_tr, replace = TRUE)
-  #     Useg_m <- rowMeans(sub[, , inds, drop = FALSE],       dims = 2L)  # ii x n_t
-  #     Uref_m <- rowMeans(sub_reref[, , inds, drop = FALSE], dims = 2L)
-  #     r <- stats::cor(t(Useg_m), t(Uref_m))
-  #     diag(r) <- NA_real_
-  #     z <- atanh(r)
-  #     kk <- which.min(rowMeans(z, na.rm = TRUE))
-  #     zmin[sel, ii, b] <- z[kk, ]
-  #   }
-  # }
-
-  # Per-`ii` callback returns the length-`nboot_eff` vector of bootstrap
-  # zmin_mean values for that subset size: i.e. for each bootstrap b, the
-  # mean over target channels of `z[kk, ]` for the worst-contaminator row
-  # `kk`. Collapsing the target-channel dim here (rather than keeping a
-  # full `n_ch x nboot_eff` slab and averaging later) avoids allocating a
-  # `n_ch x nboot_eff x (n_ch - 1)` array we never read.
-  zmin_per_ii <- vapply(seq.int(2L, n_good), function(ii) {
-
-    # evaluate as if the referencing channels are the first ii least important channels
-    sel <- ord[seq_len(ii)]
-
-    sub <- x_work[sel, , , drop = FALSE]           # ii x n_t x n_tr
-
-    if (nboot_eff == 1L) {
-      # Single-pass: either a single trial was supplied, or the user asked
-      # for `nboot = 1` with multiple trials. In either case there is no
-      # bootstrap; we just collapse trials by simple mean (a no-op when
-      # n_tr == 1) and run one correlation pass.
-      # Compute the reference based on these ii channels
-      car_sub <- colMeans(sub)                     # n_t x n_tr (drops dim 1)
-      if (n_tr == 1L) {
-        dim(car_sub) <- c(n_t, 1L)
-      }
-      sub_reref <- sweep(sub, c(2L, 3L), car_sub, "-")
-      Useg_m <- rowMeans(sub,       dims = 2L)     # ii x n_t
-      Uref_m <- rowMeans(sub_reref, dims = 2L)
-      r <- stats::cor(t(Useg_m), t(Uref_m))
-      diag(r) <- NA_real_
-      z <- atanh(r)
-      kk <- which.min(rowMeans(z, na.rm = TRUE))
-
-      # length nboot_eff (= 1)
-      mean(z[kk, ], na.rm = TRUE)
-    } else {
-
-      # Bootstrap inner loop, fully in C++ (see `src/carla.cpp`). For each
-      # bootstrap b, `carla_zmin_boot()`:
-      #   1. trial-averages the resampled channels   -> Useg_m (ii x n_t)
-      #   2. re-references by the channel mean (the bootstrapped common
-      #      average)                                 -> Uref_m = Useg_m - cb
-      #   3. correlates each unreferenced channel against every re-referenced
-      #      channel over time, Fisher z-transforms, drops the self diagonal,
-      #      and returns the mean z of the most globally anti-correlated
-      #      channel (`min_j mean_{l != j} atanh(cor[j, l])`).
-      #
-      # The anti-correlation score is the CARLA diagnostic: as `ii` grows, a
-      # newly added responsive channel leaks its evoked response into the CAR,
-      # which flips part of that response into the residual of the other
-      # subset channels with the opposite sign, driving the score negative.
-      # Tracking when that happens is what `n_optimum` ultimately picks up on.
-      #
-      # The random resampling indices are drawn here in R (so the RNG stays
-      # reproducible and thread-safe) and handed to C++; the C++ core then
-      # parallelizes over bootstraps via TinyParallel (`ravetools_threads()`).
-      # Column-major fill of a single `sample.int` draw matches independent
-      # per-bootstrap sampling of `n_tr` trials with replacement.
-      ind <- matrix(sample.int(n_tr, n_tr * nboot_eff, replace = TRUE),
-                    nrow = n_tr, ncol = nboot_eff)
-      carla_zmin_boot(sub, ind)                      # length nboot_eff
-    }
-  }, FUN.VALUE = numeric(nboot_eff))
-
-  # `vapply` with a numeric(nboot_eff) FUN.VALUE returns shape
-  #   (boot, ii_index)   where ii_index runs 1..(n_ch - 1)
-  # corresponding to subset sizes 2..n_ch. Transpose to the (ii, boot)
-  # layout used downstream and prepend an all-NA row so the ii axis spans
-  # 1..n_ch (size 1 is meaningless and never selected by `which.max`).
+  # When there is no bootstrap (a single trial, or `nboot = 1`) the "resample"
+  # is the uniform mean over all trials -- `ind = seq_len(n_tr)` -- so the same
+  # code path covers the single-pass case.
   if (nboot_eff == 1L) {
-    # vapply drops to a length-(n_ch - 1) vector when FUN.VALUE has length 1
-    zmin_mean <- matrix(c(NA_real_, zmin_per_ii), ncol = 1L)
+    ind <- matrix(seq_len(n_tr), nrow = n_tr, ncol = 1L)
   } else {
-    zmin_mean <- rbind(NA_real_, t(zmin_per_ii), deparse.level = 0L)
+    # Column-major fill of a single `sample.int` draw = independent per-boot
+    # sampling of `n_tr` trials with replacement.
+    ind <- matrix(sample.int(n_tr, n_tr * nboot_eff, replace = TRUE),
+                  nrow = n_tr, ncol = nboot_eff)
   }
+
+  # Materialise the good channels in ranking order so subset size ii is exactly
+  # the first ii columns (this also pulls a `filearray` into memory once).
+  x_ord <- x_work[, , ord, drop = FALSE]           # n_t x n_tr x n_good
+
+  # `carla_zmin_all` returns an n_good x nboot_eff matrix already in the (ii,
+  # boot) layout used downstream; row 1 is all-NA (subset size 1 is never
+  # evaluated and never selected by `which.max`).
+  zmin_mean <- carla_zmin_all(x_ord, ind)
 
   # ---- 3. Pick the optimum subset size ---------------------------------------
   if (sensitive && nboot_eff > 1L) {
