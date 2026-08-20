@@ -1,0 +1,19 @@
+# Autoconf inputs and shell scripts must keep LF line endings on every platform.
+#
+# `R CMD check` reads configure, configure.in, configure.ac and cleanup byte by
+# byte and fails them on any CR:
+#
+#   Found the following shell script(s) with CR or CRLF line endings:
+#         configure.ac
+#   Non-Windows OSes require LF line endings.
+#
+# The files are LF in this repository, but a checkout on a Windows runner (where
+# git sets core.autocrlf=true system-wide) converts them on the way out of git,
+# so the tarball built there carries CRLF. Pinning eol=lf keeps the checkout LF
+# regardless of the platform's core.autocrlf setting.
+configure       text eol=lf
+configure.ac    text eol=lf
+configure.in    text eol=lf
+configure.win   text eol=lf
+cleanup         text eol=lf
+*.sh            text eol=lf
