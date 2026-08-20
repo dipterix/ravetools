@@ -45,42 +45,62 @@ fastcov <- function(x1, x2, col1 = NULL, col2 = NULL, df = -1.0) {
     .Call(`_ravetools_fastcov`, x1, x2, col1, col2, df)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_r2c <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_r2c`, data, HermConj, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_c2c <- function(data, inverse = 0L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_c2c`, data, inverse, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_c2r <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_c2r`, data, HermConj, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 mvfftw_r2c <- function(data, fftwplanopt = 0L, HermConj = 0L, ret = NULL) {
     .Call(`_ravetools_mvfftw_r2c`, data, fftwplanopt, HermConj, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 mvfftw_c2c <- function(data, inverse = 0L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_mvfftw_c2c`, data, inverse, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 mvfftw_c2r <- function(data, fftwplanopt = 0L, retrows = 0L, ret = NULL) {
     .Call(`_ravetools_mvfftw_c2r`, data, fftwplanopt, retrows, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_r2c_2d <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_r2c_2d`, data, HermConj, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_c2c_2d <- function(data, inverse = 0L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_c2c_2d`, data, inverse, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_r2c_3d <- function(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_r2c_3d`, data, HermConj, fftwplanopt, ret)
 }
 
+#' @rdname fftw-internal
+#' @export
 fftw_c2c_3d <- function(data, inverse = 0L, fftwplanopt = 0L, ret = NULL) {
     .Call(`_ravetools_fftw_c2c_3d`, data, inverse, fftwplanopt, ret)
 }

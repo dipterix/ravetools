@@ -1,4 +1,4 @@
-# ravetools 0.2.7
+# ravetools 0.3.0
 
 * Added `vcg_detect_collision` to detect exact collisions and proximity within a distance tolerance between two geometries, where each side may be a point cloud, a chain of connected line segments (such as diffusion streamlines, delimited by `NA` rows), or a triangular mesh; optionally counts geometry enclosed by a closed surface
 * Added `color_ramp_continuous` helper to create a vectorized color-mapping function from a palette and a numeric domain

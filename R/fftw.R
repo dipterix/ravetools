@@ -1,12 +1,13 @@
-# Documentation-only file. The functions below are defined in
-# R/RcppExports.R (auto-generated). This file adds roxygen documentation
-# and `@export` tags so the wrappers appear in the package NAMESPACE.
+# Documentation-only file. The functions themselves are defined in
+# src/fftw-wrapper.cpp and exposed through R/RcppExports.R (auto-generated);
+# their `@rdname fftw-internal` / `@export` tags live next to the
+# `Rcpp::export` attributes so roxygen2 derives \usage from the real
+# signatures. This file holds the shared title, description, parameters,
+# and examples for that topic.
 
 #' Low-level \pkg{FFTW3} wrappers
 #'
 #' @name fftw-internal
-#' @aliases fftw_r2c fftw_c2r fftw_c2c mvfftw_r2c mvfftw_c2c mvfftw_c2r
-#' @aliases fftw_r2c_2d fftw_c2c_2d fftw_r2c_3d fftw_c2c_3d
 #'
 #' @description
 #' Thin R bindings around the \pkg{FFTW3} library. These are
@@ -41,7 +42,7 @@
 #' @param ret Optional reusable output buffer of the correct type and
 #'   length; pass \code{NULL} (default) to let the function allocate one.
 #'   This input is for advanced users; leave \code{NULL} if you do not know
-#'   what you are d
+#'   what you are doing.
 #'
 #' @return A complex (or real, for \code{*_c2r}) vector / matrix / array
 #'   matching the corresponding base R transform up to floating-point error.
@@ -67,8 +68,10 @@
 #'
 #' ## --- 1D complex-to-complex ----------------------------------------------
 #' z <- complex(real = rnorm(16), imaginary = rnorm(16))
-#' all.equal(ravetools::fftw_c2c(z, inverse = 0), stats::fft(z))
-#' all.equal(ravetools::fftw_c2c(z, inverse = 1), stats::fft(z, inverse = TRUE))
+#' all.equal(ravetools::fftw_c2c(z, inverse = 0),
+#'           stats::fft(z))
+#' all.equal(ravetools::fftw_c2c(z, inverse = 1),
+#'           stats::fft(z, inverse = TRUE))
 #'
 #' ## --- 1D complex-to-real (inverse of fftw_r2c) ---------------------------
 #' # Using the full Hermitian spectrum:
@@ -110,14 +113,4 @@
 #' all.equal(ravetools::fftw_c2c_3d(Z3, inverse = 1),
 #'           stats::fft(Z3, inverse = TRUE))
 #'
-#' @export fftw_r2c
-#' @export fftw_c2r
-#' @export fftw_c2c
-#' @export mvfftw_r2c
-#' @export mvfftw_c2c
-#' @export mvfftw_c2r
-#' @export fftw_r2c_2d
-#' @export fftw_c2c_2d
-#' @export fftw_r2c_3d
-#' @export fftw_c2c_3d
 NULL

@@ -10,6 +10,8 @@ using namespace Rcpp;
  * TODO: fftw_c2c,
  */
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_r2c(SEXP data, int HermConj = 1,
               int fftwplanopt = 0,
@@ -58,6 +60,8 @@ SEXP fftw_r2c(SEXP data, int HermConj = 1,
 }
 
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_c2c(SEXP data, int inverse = 0,
               int fftwplanopt = 0,
@@ -101,6 +105,8 @@ SEXP fftw_c2c(SEXP data, int inverse = 0,
   return ret;
 }
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_c2r(SEXP data, int HermConj = 1,
               int fftwplanopt = 0,
@@ -148,6 +154,8 @@ SEXP fftw_c2r(SEXP data, int HermConj = 1,
 }
 
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP mvfftw_r2c(SEXP data,
                 int fftwplanopt = 0,
@@ -221,6 +229,8 @@ SEXP mvfftw_r2c(SEXP data,
   return(ret);
 }
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP mvfftw_c2c(SEXP data,
                 int inverse = 0,
@@ -272,6 +282,8 @@ SEXP mvfftw_c2c(SEXP data,
   return(ret);
 }
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP mvfftw_c2r(SEXP data,
                 int fftwplanopt = 0,
@@ -331,6 +343,8 @@ SEXP mvfftw_c2r(SEXP data,
 }
 
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_r2c_2d(SEXP data, int HermConj = 1,
                  int fftwplanopt = 0,
@@ -446,6 +460,8 @@ SEXP fftw_r2c_2d(SEXP data, int HermConj = 1,
 
 }
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_c2c_2d(SEXP data, int inverse = 0, int fftwplanopt = 0,
                  SEXP ret = R_NilValue) {
@@ -502,6 +518,8 @@ SEXP fftw_c2c_2d(SEXP data, int inverse = 0, int fftwplanopt = 0,
 
 }
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_r2c_3d(SEXP data, int HermConj = 1, int fftwplanopt = 0,
                  SEXP ret = R_NilValue) {
@@ -623,6 +641,8 @@ SEXP fftw_r2c_3d(SEXP data, int HermConj = 1, int fftwplanopt = 0,
 }
 
 
+//' @rdname fftw-internal
+//' @export
 // [[Rcpp::export]]
 SEXP fftw_c2c_3d(SEXP data, int inverse = 0, int fftwplanopt = 0,
                  SEXP ret = R_NilValue) {
