@@ -51,78 +51,98 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of <code>ravetools</code> is to provide memory-efficient signal &amp; image processing toolbox for <code>intracranial Electroencephalography</code>. Highlighted features include:</p>
+<p><code>ravetools</code> is the signal- and image-processing toolbox behind <code>RAVE</code>, a software suite for analyzing <code>intracranial Electroencephalography</code> (<code>iEEG</code>) data.</p>
+<p>It is deliberately a mathematical toolbox rather than an analysis pipeline. It supplies the fast, memory-efficient primitives - filters, spectral decomposition, image registration, surface geometry - and leaves the user-facing pipelines to the other <code>RAVE</code> packages built on top of it. Every routine is a plain function operating on plain R objects.</p>
+<p>Highlights:</p>
 <ul>
+<li>Memory-efficient <code>Notch</code> filter, <code>Welch</code> periodogram, and <code>Morlet</code> wavelet that scale to hours of high-resolution recording</li>
+<li>Single-pulse electrical stimulation analysis: <code>CARLA</code> re-referencing, canonical response parameterization, and basis profile curves</li>
 <li>
-<a href="#"><code>Notch filter</code></a> (remove electrical line frequencies)</li>
-<li>
-<a href="#"><code>Welch Periodogram</code></a> (averaged power over frequencies)</li>
-<li>
-<a href="#"><code>Wavelet</code></a> (frequency-time decomposition)</li>
-<li>2D, 3D image convolution via <code>FFT</code>
+<code>FIR</code> and <code>IIR</code> filter design driven by a specification instead of a filter order, with stability diagnostics</li>
+<li>Self-contained 3D image registration (<code>rigid</code>, <code>affine</code>, and <code>SyN</code>) that depends on no external registration library</li>
+<li>Surface reconstruction, re-meshing, inflation, curvature, and collision detection</li>
+<li>3D mesh rendering in base R, with no <code>rgl</code> dependency</li>
+<li>Parallel <code>C++</code> array primitives and direct access to <code>FFTW3</code>
 </li>
-<li>
-<code>CT/MRI</code> to <code>MRI</code> image alignment</li>
 </ul>
+<div class="section level2">
+<h2 id="what-is-inside">What is inside<a class="anchor" aria-label="anchor" href="#what-is-inside"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th align="left">Part</th>
+<th align="left">Contents</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left"><a href="#id_1-signal-processing">1. Signal processing</a></td>
+<td align="left">Channel diagnosis and time-frequency decomposition; brain stimulation tools; filter design</td>
+</tr>
+<tr>
+<td align="left"><a href="#id_2-image-processing">2. Image processing</a></td>
+<td align="left">3D volume registration and resampling; surface reconstruction and rendering; low-level geometry</td>
+</tr>
+<tr>
+<td align="left"><a href="#id_3-utilities-and-helpers">3. Utilities and helpers</a></td>
+<td align="left">
+<code>FFTW3</code> bindings, parallel array operations, geometry classes, binary readers</td>
+</tr>
+</tbody>
+</table>
+<p>The complete function reference lives at <a href="https://dipterix.org/ravetools/reference/"><code>dipterix.org/ravetools</code></a>.</p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The package is available on <code>CRAN</code>. To install the compiled version, simply run:</p>
+<p>The package is on <code>CRAN</code>. To install the compiled version, simply run:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ravetools"</span><span class="op">)</span></span></code></pre></div>
-<p>Installing the package from source requires installation of proper compilers and some <code>C</code> libraries; see <a href="https://github.com/dipterix/ravetools/blob/master/installation.md" class="external-link">this document</a> for details.</p>
+<p>Development builds are on <code>r-universe</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ravetools"</span>, repos <span class="op">=</span> <span class="st">"https://dipterix.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
+<p>Installing from source needs a <code>C++</code> compiler, the <a href="https://www.fftw.org/" class="external-link"><code>FFTW3</code></a> library, and <code>pkg-config</code> - nothing else. See <a href="https://github.com/dipterix/ravetools/blob/master/installation.md" class="external-link">this document</a> for platform-by-platform instructions.</p>
+<hr>
 </div>
 <div class="section level2">
-<h2 id="ieeg-preprocess-pipeline">
-<code>iEEG</code> preprocess pipeline<a class="anchor" aria-label="anchor" href="#ieeg-preprocess-pipeline"></a>
+<h2 id="id_1-signal-processing">1. Signal processing<a class="anchor" aria-label="anchor" href="#id_1-signal-processing"></a>
 </h2>
-<p>This is a basic example which shows you how to preprocess an <code>iEEG</code> signal. The goal here is to:</p>
-<ul>
-<li>Plot diagnostic graphs to inspect channels</li>
-<li>Apply Notch filters to remove electrical line noise</li>
-<li>Frequency-time decomposition and show the power densities</li>
-</ul>
-<p><small>* Channel referencing is not included</small></p>
 <div class="section level3">
-<h3 id="id_1-generate-toy-examples">1. Generate toy examples:<a class="anchor" aria-label="anchor" href="#id_1-generate-toy-examples"></a>
+<h3 id="id_11-data-analysis-and-diagnosis">1.1 Data analysis and diagnosis<a class="anchor" aria-label="anchor" href="#id_11-data-analysis-and-diagnosis"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>The starting point for a channel is usually to look at it, clean the line noise, and decompose it in time and frequency.</p>
+<p>Generate a toy channel and inspect it. <code>diagnose_channel</code> combines the trace, the <code>Welch</code> periodogram, and the histogram into one figure:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rave.wiki" class="external-link">ravetools</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2023</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate 20 second data at 2000 Hz</span></span>
 <span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2000</span><span class="op">)</span></span>
-<span><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> </span>
+<span><span class="va">signal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">10</span><span class="op">*</span><span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, srate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/toy-data-1.png?raw=true" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="id_2-apply-notch-filters-and-inspect-periodograms">2. Apply <code>Notch</code> filters and inspect <code>Periodograms</code>
-<a class="anchor" aria-label="anchor" href="#id_2-apply-notch-filters-and-inspect-periodograms"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p><code>notch_filter</code> removes the electrical line frequency and its harmonics. Passing two signals to <code>diagnose_channel</code> compares them side by side:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## ------- Notch filter --------</span></span>
 <span><span class="va">signal2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/notch_filter.html">notch_filter</a></span><span class="op">(</span><span class="va">signal</span>, sample_rate <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/diagnose_channel.html">diagnose_channel</a></span><span class="op">(</span><span class="va">signal</span>, <span class="va">signal2</span>, srate <span class="op">=</span> <span class="fl">2000</span>,</span>
 <span>                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Filtered"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/notch-filter-1.png?raw=true" width="100%"></p>
-</div>
-<div class="section level3">
-<h3 id="id_3-frequency-time-decomposition">3. Frequency-time decomposition<a class="anchor" aria-label="anchor" href="#id_3-frequency-time-decomposition"></a>
-</h3>
-<p>Current version of <code>ravetools</code> provides two approaches: <code>Wavelet</code> and <code>Multi-taper</code>. <code>Wavelet</code> uses the <a href="https://en.wikipedia.org/wiki/Morlet_wavelet" class="external-link"><code>Morlet wavelet</code></a> and obtains both amplitude and phase data, while <code>Multi-taper</code> does not generate phase data. However, the amplitude obtained from <code>Multi-taper</code> is smoother than <code>Wavelet</code>.</p>
-<div class="section level4">
-<h4 id="using-wavelet">Using <code>Wavelet</code>:<a class="anchor" aria-label="anchor" href="#using-wavelet"></a>
-</h4>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>There are two ways to obtain a time-frequency decomposition. <code>morlet_wavelet</code> uses the <a href="https://en.wikipedia.org/wiki/Morlet_wavelet" class="external-link"><code>Morlet wavelet</code></a> and returns both amplitude and phase; <code>multitaper</code> returns no phase, but its amplitude is smoother.</p>
+<p>Using <code>morlet_wavelet</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## ---------- Wavelet -----------</span></span>
 <span><span class="va">coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/wavelet.html">morlet_wavelet</a></span><span class="op">(</span></span>
-<span>  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, </span>
+<span>  <span class="va">signal2</span>, freqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  srate <span class="op">=</span> <span class="fl">2000</span>, wave_num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="fl">20</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">coef</span><span class="op">[</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -138,25 +158,20 @@
 <span>  xlab <span class="op">=</span> <span class="st">"Time (s)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Frequency (Hz)"</span>,</span>
 <span>  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span>,</span>
-<span>  sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>, </span>
+<span>  sub <span class="op">=</span> <span class="st">"Wavelet at 2000 Hz, then down-sampled to 100 Hz"</span>,</span>
 <span>  col <span class="op">=</span> <span class="fu"><a href="reference/matlab_palette.html">matlab_palette</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/wavelet-1.png?raw=true" width="100%"></p>
-</div>
-<div class="section level4">
-<h4 id="multi-taper">
-<code>Multi-taper</code><a class="anchor" aria-label="anchor" href="#multi-taper"></a>
-</h4>
-<p>Alternatively you can use <code>Multi-tapers</code> to obtain amplitude data. The algorithm is modified from source code <a href="https://github.com/preraulab/multitaper_toolbox" class="external-link">here</a>. Please credit them as well if you adopt this approach.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>For very long recordings, <code>morlet_wavelet(segment_length = ...)</code> processes the signal in overlapping segments, cutting peak memory and <code>FFT</code> cost without changing the result on the signal interior.</p>
+<p>Using <code>multitaper</code>. The algorithm is modified from source code <a href="https://github.com/preraulab/multitaper_toolbox" class="external-link">here</a>; please credit them as well if you adopt this approach.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## ---------- Multitaper -----------</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/multitaper.html">multitaper</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">signal2</span>,</span>
 <span>  fs <span class="op">=</span> <span class="fl">2000</span>,</span>
 <span>  frequency_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span>,</span>
-<span>  time_bandwidth <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.01</span><span class="op">)</span>,</span>
-<span>  nfft <span class="op">=</span> <span class="fl">100</span></span>
+<span>  time_bandwidth <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  window_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -170,65 +185,348 @@
 <span>  main <span class="op">=</span> <span class="st">"Amplitude (dB)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/multitaper-1.png?raw=true" width="100%"></p>
+<p>Also in this group: <code>pwelch</code> and <code>mv_pwelch</code> for power spectral density, <code>plot_signals</code> for drawing many traces on one canvas, <code>baseline_array</code> for baseline correction across array margins (seven methods, including decibel and z-score), plus <code>decimate</code>, <code>detrend</code>, <code>find_peaks</code>, <code>gammatone_fast</code>, <code>wavelet_kernels</code>, and <code>wavelet_cycles_suggest</code>.</p>
 </div>
-<div class="section level4">
-<h4 id="image-alignment">Image alignment<a class="anchor" aria-label="anchor" href="#image-alignment"></a>
-</h4>
-<p><code>ravetools</code> provides imaging co-registration via <code>NiftyReg</code> (<code>doi.org/10.1117/1.JMI.1.2.024003</code>). You can align <code>CT</code> to <code>MRI</code>, or <code>MRI</code> (T2) to <code>MRI</code> (T1). The method can be body <code>rigid</code>, <code>affine</code>, or <code>non-linear</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"epi_t2.nii.gz"</span>, package<span class="op">=</span><span class="st">"RNiftyReg"</span><span class="op">)</span></span>
-<span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"flash_t1.nii.gz"</span>, package<span class="op">=</span><span class="st">"RNiftyReg"</span><span class="op">)</span></span>
-<span><span class="va">aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/register_volume.html">register_volume</a></span><span class="op">(</span><span class="va">source</span>, <span class="va">target</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<div class="section level3">
+<h3 id="id_12-brain-stimulation-tools">1.2 Brain stimulation tools<a class="anchor" aria-label="anchor" href="#id_12-brain-stimulation-tools"></a>
+</h3>
+<p>Single-pulse electrical stimulation produces cortico-cortical evoked potentials (<code>CCEPs</code>). <code>ravetools</code> implements three published methods for analyzing them. Each is a faithful re-implementation, so please cite the original work if you use it.</p>
+<p><strong><code>carla</code></strong> selects the subset of channels that makes the cleanest common average reference, by choosing the subset size with the least anti-correlation against the remaining channels. From Huang and colleagues (2024), <a href="https://doi.org/10.1016/j.jneumeth.2024.110153" class="external-link"><code>doi:10.1016/j.jneumeth.2024.110153</code></a>; the <code>virtual_reference = TRUE</code> variant follows Huang and colleagues (2025), <a href="https://doi.org/10.1016/j.jneumeth.2025.110461" class="external-link"><code>doi:10.1016/j.jneumeth.2025.110461</code></a>.</p>
+<p><strong><code>crp</code></strong> parameterizes single-trial evoked responses: it estimates the response duration, extracts the canonical response shape, and reports per-trial weights, signal-to-noise, and explained variance. From Miller and colleagues (2023), <a href="https://doi.org/10.1371/journal.pcbi.1011105" class="external-link"><code>doi:10.1371/journal.pcbi.1011105</code></a>.</p>
+<p><strong><code>bpc</code></strong> identifies a small set of basis profile curves shared across stimulation sites, then assigns each site to the curve that best explains its trials. From Miller and colleagues (2021), <a href="https://doi.org/10.1371/journal.pcbi.1008710" class="external-link"><code>doi:10.1371/journal.pcbi.1008710</code></a>.</p>
+<p>A basic run through the first two:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">source_img</span> <span class="op">&lt;-</span> <span class="va">aligned</span><span class="op">$</span><span class="va">source</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="va">target_img</span> <span class="op">&lt;-</span> <span class="va">aligned</span><span class="op">$</span><span class="va">target</span></span>
-<span><span class="va">aligned_img</span> <span class="op">&lt;-</span> <span class="va">aligned</span><span class="op">$</span><span class="va">image</span></span>
+<span><span class="co"># A toy CCEP epoch: 16 channels x 30 trials, only channels 1-4 respond</span></span>
+<span><span class="va">sample_rate</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.4</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">sample_rate</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">sample_rate</span><span class="op">)</span></span>
+<span><span class="va">nchan</span> <span class="op">&lt;-</span> <span class="fl">16</span></span>
+<span><span class="va">ntrial</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
+<span><span class="va">evoked</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">time</span> <span class="op">&gt;=</span> <span class="fl">0</span>, <span class="fl">80</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">time</span> <span class="op">/</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="fl">12</span> <span class="op">*</span> <span class="va">time</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">3.1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span> <span class="op">*</span> <span class="va">ntrial</span> <span class="op">*</span> <span class="va">nchan</span>, sd <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>           dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>, <span class="va">ntrial</span>, <span class="va">nchan</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">ch</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">ntrial</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">x</span><span class="op">[</span>, <span class="va">k</span>, <span class="va">ch</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[</span>, <span class="va">k</span>, <span class="va">ch</span><span class="op">]</span> <span class="op">+</span> <span class="va">evoked</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.6</span>, <span class="fl">1.4</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/gray.colors.html" class="external-link">grey.colors</a></span><span class="op">(</span><span class="fl">256</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">source_img</span><span class="op">[</span>,,<span class="fl">30</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Source image"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">target_img</span><span class="op">[</span>,,<span class="fl">64</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Target image"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">aligned_img</span><span class="op">[</span>,,<span class="fl">64</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Aligned image"</span><span class="op">)</span></span>
+<span><span class="co"># 1. Which channels make the cleanest common average reference?</span></span>
+<span><span class="co">#    `x` is time x trials x channels, cropped to the responsive window.</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/carla.html">carla</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="va">time</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">time</span> <span class="op">&lt;=</span> <span class="fl">0.3</span>, , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">n_optimum</span>   <span class="co">#&gt; 12</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">channels</span>    <span class="co">#&gt; 5 6 7 8 9 10 11 12 13 14 15 16   (channels 1-4 excluded)</span></span>
 <span></span>
-<span><span class="co"># bucket fill and calculate differences</span></span>
-<span><span class="va">aligned_img</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.nan</a></span><span class="op">(</span><span class="va">aligned_img</span><span class="op">)</span> <span class="op">|</span> <span class="va">aligned_img</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">target_img</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.nan</a></span><span class="op">(</span><span class="va">target_img</span><span class="op">)</span> <span class="op">|</span> <span class="va">aligned_img</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">aligned_img</span> <span class="op">/</span> <span class="va">target_img</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">diff</span><span class="op">[</span>,,<span class="fl">64</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>      col <span class="op">=</span> <span class="va">pal</span>, main <span class="op">=</span> <span class="st">"Percentage Difference"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/coregistration-1.png?raw=true" width="80%"></p>
+<span><span class="co"># 2. Re-reference against that subset</span></span>
+<span><span class="va">reference</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span>, , <span class="va">fit</span><span class="op">$</span><span class="va">channels</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span></span>
+<span><span class="va">x_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sweep.html" class="external-link">sweep</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">reference</span>, <span class="st">"-"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 3. Parameterize the evoked response on a responsive channel</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/crp.html">crp</a></span><span class="op">(</span><span class="va">x_ref</span><span class="op">[</span>, , <span class="fl">1</span><span class="op">]</span>, time <span class="op">=</span> <span class="va">time</span>, t_start <span class="op">=</span> <span class="fl">0.015</span>, t_end <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">$</span><span class="va">tau_R</span>       <span class="co">#&gt; 0.119   (response duration, in seconds)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/ccep-1.png?raw=true" width="100%"></p>
+<p><code>carla</code> also accepts a <code>filearray</code> in place of an in-memory array, so large datasets can stay on disk.</p>
+<p>For continuous stimulation rather than single pulses, <code>stimpulse_find</code>, <code>stimpulse_align</code>, <code>stimpulse_extract</code>, and <code>stimpulse_interpolate</code> locate the pulse train, align the pulses, and interpolate the artifact away. The bundled <code>stimulation_signal</code> dataset is a one-second recording at 30 kHz to try them on.</p>
+</div>
+<div class="section level3">
+<h3 id="id_13-low-level-filters-and-designs">1.3 Low-level filters and designs<a class="anchor" aria-label="anchor" href="#id_13-low-level-filters-and-designs"></a>
+</h3>
+<p>Most filtering work starts from a specification - a pass band of 8 to 12 Hz, fully attenuated beyond 6 and 14 Hz - rather than from a filter order. <code>design_filter</code> takes that specification and, given <code>data</code>, designs and applies the filter in a single call:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">filtered</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/design_filter.html">design_filter</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">signal</span>, sample_rate <span class="op">=</span> <span class="fl">2000</span>,</span>
+<span>  high_pass_freq <span class="op">=</span> <span class="fl">8</span>, low_pass_freq <span class="op">=</span> <span class="fl">12</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><code>design_filter_fir</code> and <code>design_filter_iir</code> return the filter itself, so it can be inspected before being committed to. <code>diagnose_filter</code> draws the pass band, the stop band, the phase response, and the effect on a sample signal in one figure:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">sample_rate</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">sample_rate</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># A mixture of 2 Hz, 10 Hz, and 60 Hz</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">20</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">time</span> <span class="op">*</span> <span class="fl">120</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Design an alpha-band filter from the specification rather than from an order</span></span>
+<span><span class="va">filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/design_filter_fir.html">design_filter_fir</a></span><span class="op">(</span></span>
+<span>  sample_rate <span class="op">=</span> <span class="va">sample_rate</span>,</span>
+<span>  high_pass_freq <span class="op">=</span> <span class="fl">8</span>, high_pass_trans_freq <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  low_pass_freq <span class="op">=</span> <span class="fl">12</span>, low_pass_trans_freq <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">filter</span>          <span class="co">#&gt; &lt;FIR filter&gt;   Method: kaiser   Order: 223</span></span>
+<span></span>
+<span><span class="co"># Inspect the filter against the signal it will be applied to</span></span>
+<span><span class="fu"><a href="reference/diagnose_filter.html">diagnose_filter</a></span><span class="op">(</span><span class="va">filter</span><span class="op">$</span><span class="va">b</span>, <span class="va">filter</span><span class="op">$</span><span class="va">a</span>, fs <span class="op">=</span> <span class="va">sample_rate</span>, sample <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/filter-design-1.png?raw=true" width="100%"></p>
+<p><code>IIR</code> filters can be numerically unstable at high orders, so <code>design_filter</code> checks the order it derives against <code>rcond_filter_ar</code>, the reciprocal condition number of the autoregressive coefficients, and <code>check_filter</code> reports the achieved magnitude at any frequency. The filter printed above carries both.</p>
+<p>Also in this group: <code>filter_signal</code> and <code>filtfilt</code> for applying filters (<code>filtfilt</code> accepts a <code>gsignal</code> second-order-section object), <code>freqz2</code> for the frequency response, <code>band_pass1</code> and <code>band_pass2</code>, the <code>fir1</code> and <code>firls</code> designers, and the window functions <code>hamming</code>, <code>hanning</code>, <code>blackman</code>, <code>blackmanharris</code>, <code>blackmannuttall</code>, <code>bohmanwin</code>, and <code>flattopwin</code>.</p>
+<p>The classical analog prototype designers - <code>butter</code>, <code>cheby1</code>, <code>cheby2</code>, <code>ellip</code>, and their order-selection companions - are re-exported from <code>gsignal</code> for convenience. They belong to that package, not to this one.</p>
+<hr>
 </div>
 </div>
+<div class="section level2">
+<h2 id="id_2-image-processing">2. Image processing<a class="anchor" aria-label="anchor" href="#id_2-image-processing"></a>
+</h2>
+<div class="section level3">
+<h3 id="id_21-3d-volume-processing-and-visualization">2.1 3D volume processing and visualization<a class="anchor" aria-label="anchor" href="#id_21-3d-volume-processing-and-visualization"></a>
+</h3>
+<p><code>register_volume3d</code> aligns two 3D volumes: <code>CT</code> to <code>MRI</code>, <code>MRI</code> to <code>MRI</code>, or a subject to a template. It is implemented from scratch in <code>RcppEigen</code> and mirrors the behavior of <code>ANTs</code> <code>antsRegistration</code> - a multi-resolution, physical-shift-scaled gradient-descent optimizer driving a similarity metric, working entirely in anatomical <code>RAS</code> space. It depends on no external registration library.</p>
+<p>Each volume carries its own <code>vox2ras</code> matrix, so volumes differing in sampling, orientation, or field of view are handled correctly. The transform can be <code>rigid</code> (6 degrees of freedom), <code>affine</code> (12), or <code>syn</code> (an <code>affine</code> followed by a symmetric <code>diffeomorphic</code> deformation).</p>
+<p>The example below is self-contained: it displaces a known volume by a known transform, then recovers it.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"left_hippocampus_mask"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Blur the binary mask into a smooth intensity volume, and place it in RAS</span></span>
+<span><span class="va">gauss3</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span> <span class="op">=</span> <span class="fl">5</span>, <span class="va">sigma</span> <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">g</span><span class="op">)</span>, <span class="va">g</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">n</span>, <span class="va">n</span>, <span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">^</span><span class="fl">3</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/convolve.html">convolve_volume</a></span><span class="op">(</span><span class="va">left_hippocampus_mask</span>, <span class="fu">gauss3</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">vox2ras</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">vox2ras</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">target</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span></span>
+<span><span class="co"># A known displacement: 8 degrees about the z axis, plus a translation</span></span>
+<span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">8</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">/</span> <span class="fl">180</span></span>
+<span><span class="va">known</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">known</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">known</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="op">-</span><span class="fl">3</span>, <span class="fl">1.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Resample the target through the inverse to obtain a misaligned source</span></span>
+<span><span class="va">source</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/apply_transform3d.html">apply_transform3d</a></span><span class="op">(</span><span class="va">target</span>, <span class="va">vox2ras</span>, <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">known</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Recover the displacement</span></span>
+<span><span class="va">aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/register_volume3d.html">register_volume3d</a></span><span class="op">(</span></span>
+<span>  <span class="va">source</span>, <span class="va">target</span>,</span>
+<span>  source_vox2ras <span class="op">=</span> <span class="va">vox2ras</span>, target_vox2ras <span class="op">=</span> <span class="va">vox2ras</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"syn"</span>, metric <span class="op">=</span> <span class="st">"cc"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">aligned</span><span class="op">$</span><span class="va">transform</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>   <span class="co">#&gt; 2.51 -3.04 1.49   (known: 2.5 -3 1.5)</span></span>
+<span></span>
+<span><span class="va">slice</span> <span class="op">&lt;-</span> <span class="fl">22</span></span>
+<span><span class="va">zlim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">target</span><span class="op">)</span></span>
+<span><span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/gray.colors.html" class="external-link">grey.colors</a></span><span class="op">(</span><span class="fl">256</span>, start <span class="op">=</span> <span class="fl">0</span>, end <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">2.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">target</span><span class="op">[</span>, , <span class="va">slice</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, col <span class="op">=</span> <span class="va">pal</span>, zlim <span class="op">=</span> <span class="va">zlim</span>,</span>
+<span>      main <span class="op">=</span> <span class="st">"Target (fixed)"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">source</span><span class="op">[</span>, , <span class="va">slice</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, col <span class="op">=</span> <span class="va">pal</span>, zlim <span class="op">=</span> <span class="va">zlim</span>,</span>
+<span>      main <span class="op">=</span> <span class="st">"Source (moving)"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="va">aligned</span><span class="op">$</span><span class="va">image</span><span class="op">[</span>, , <span class="va">slice</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, col <span class="op">=</span> <span class="va">pal</span>, zlim <span class="op">=</span> <span class="va">zlim</span>,</span>
+<span>      main <span class="op">=</span> <span class="st">"Aligned"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/image.html" class="external-link">image</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">aligned</span><span class="op">$</span><span class="va">image</span> <span class="op">-</span> <span class="va">target</span><span class="op">)</span><span class="op">[</span>, , <span class="va">slice</span><span class="op">]</span>, asp <span class="op">=</span> <span class="fl">1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, col <span class="op">=</span> <span class="va">pal</span>,</span>
+<span>      zlim <span class="op">=</span> <span class="va">zlim</span>, main <span class="op">=</span> <span class="st">"Absolute difference"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">oldpar</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/registration-1.png?raw=true" width="100%"></p>
+<p>The result carries the 4x4 <code>RAS</code>-to-<code>RAS</code> <code>transform</code>, the warped <code>image</code>, and, for <code>syn</code>, the <code>forward_field</code> and <code>inverse_field</code> deformations. <code>apply_transform3d</code> replays any of them onto a new volume.</p>
+<p><code>register_volume3d</code> accepts more than one modality: pass a <code>list</code> of co-registered volumes with per-channel <code>weights</code> and <code>metric</code> to let a <code>T1</code>, a <code>T2</code>, and an atlas jointly drive the deformable stage. Masks (<code>source_mask</code>, <code>target_mask</code>) restrict where the metric is evaluated, and corresponding landmarks (<code>source_points</code>, <code>target_points</code>) add a surface term that recovers the cortical folding an intensity metric would otherwise blur over.</p>
+<p>Results are compatible with <code>ANTs</code>: <code>write_ants_transform</code> writes the linear part as an <code>ITK</code> <code>affine</code> <code>.mat</code> file and <code>write_ants_warp</code> writes the deformation as an <code>ANTs</code> 5-D warp <code>NIfTI</code>, both readable by <code>antsApplyTransforms</code>. <code>save_registration</code> and <code>load_registration</code> round-trip an entire result. No <code>HDF5</code> is involved anywhere along this path.</p>
+<p>A note on history: <code>register_volume</code> predates all of the above and wraps <code>NiftyReg</code> (<code>Modat</code> and colleagues, 2014). It still works and is kept for existing code, but <code>register_volume3d</code> is the recommended path going forward.</p>
+<p>Also in this group: <code>resample_3d_volume</code> for re-sampling onto a new grid, <code>convolve_volume</code> and <code>convolve_image</code> for <code>FFT</code>-based 2D and 3D convolution, <code>grow_volume</code> for dilating a mask, and <code>fill_surface</code> for filling a volume from a surface envelope.</p>
+</div>
+<div class="section level3">
+<h3 id="id_22-surface-processing-and-visualization">2.2 Surface processing and visualization<a class="anchor" aria-label="anchor" href="#id_22-surface-processing-and-visualization"></a>
+</h3>
+<p>A volume becomes a surface through <code>vcg_isosurface</code> or <code>mesh_from_volume</code>. From there the mesh can be repaired, smoothed, re-meshed, inflated, and measured. Every mesh object returned by <code>ravetools</code> carries the <code>ravetools_mesh3d</code> class, so <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> renders it directly - in base R graphics, with no <code>rgl</code> dependency.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"left_hippocampus_mask"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Volume -&gt; mesh, repaired and smoothed</span></span>
+<span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcg_isosurface.html">vcg_isosurface</a></span><span class="op">(</span><span class="va">left_hippocampus_mask</span><span class="op">)</span></span>
+<span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcg_fix_defects.html">vcg_fix_defects</a></span><span class="op">(</span><span class="va">mesh</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">mesh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mris_smooth.html">mris_smooth</a></span><span class="op">(</span><span class="va">mesh</span>, niterations <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
+<span><span class="va">mesh</span><span class="op">$</span><span class="va">vb</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mesh</span><span class="op">$</span><span class="va">vb</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">$</span><span class="va">vb</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Per-vertex curvature, mapped onto a diverging color ramp centered at zero</span></span>
+<span><span class="va">curv</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mris_curvature.html">mris_curvature</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">)</span></span>
+<span><span class="va">lim</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">curv</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span>, <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="va">col</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/color_ramp_continuous.html">color_ramp_continuous</a></span><span class="op">(</span></span>
+<span>  <span class="va">curv</span><span class="op">$</span><span class="va">mean</span>, clim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="va">lim</span>, <span class="va">lim</span><span class="op">)</span>,</span>
+<span>  cmap <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2c5f8a"</span>, <span class="st">"#f2f2f2"</span>, <span class="st">"#a33a3a"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Inflate the surface while preserving total surface area</span></span>
+<span><span class="va">inflated</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mris_inflate.html">mris_inflate</a></span><span class="op">(</span><span class="va">mesh</span>, n_averages <span class="op">=</span> <span class="fl">4L</span>, niterations <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>                         scale_brain <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">2.1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mesh</span>, col <span class="op">=</span> <span class="va">col</span>, eye <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span>, <span class="fl">30</span><span class="op">)</span>, up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Mean curvature"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inflated</span><span class="op">$</span><span class="va">mesh</span>, col <span class="op">=</span> <span class="va">col</span>, eye <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span>, <span class="fl">30</span><span class="op">)</span>, up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"The same, inflated"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">oldpar</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/surface-1.png?raw=true" width="100%"></p>
+<p><code>plot_mesh_polygon</code> draws flat-shaded <code>Lambert</code>-lit triangles and <code>plot_mesh_dotcloud</code> draws an orthographic rim-lit dot cloud. Both support per-vertex colors, per-mesh alpha, camera-facing clipping, and arbitrary clipping planes; <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> dispatches to whichever suits the mesh. If <code>rgl</code> is available, <code>rgl_view</code>, <code>rgl_call</code>, and <code>rgl_plot_normals</code> drive it instead.</p>
+<p>Two further surface operations are worth naming: <code>dijkstras_surface_distance</code> and <code>surface_path</code> find geodesic shortest paths across a mesh, and <code>vcg_detect_collision</code> reports exact collisions and proximity within a tolerance between any two of a point cloud, a chain of connected line segments (diffusion streamlines, for instance), and a triangular mesh.</p>
+<p><code>ensure_mesh3d</code> coerces the common surface formats - <code>mesh3d</code>, <code>ieegio_surface</code>, <code>fs.surface</code>, and <code>surf.asc</code> - into a canonical mesh, so surfaces from <code>FreeSurfer</code> and friends drop straight into any of the above.</p>
+</div>
+<div class="section level3">
+<h3 id="id_23-high-performance-low-level-geometry">2.3 High-performance low-level geometry<a class="anchor" aria-label="anchor" href="#id_23-high-performance-low-level-geometry"></a>
+</h3>
+<p>The <code>vcg_*</code> and <code>mris_*</code> families are the building blocks the two sections above are assembled from. They are usable directly:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th align="left">Group</th>
+<th align="left">Functions</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left">Construct</td>
+<td align="left">
+<code>vcg_isosurface</code>, <code>vcg_sphere</code>, <code>plane_geometry</code>, <code>mesh_from_volume</code>
+</td>
+</tr>
+<tr>
+<td align="left">Repair and re-mesh</td>
+<td align="left">
+<code>vcg_fix_defects</code>, <code>vcg_count_edge_defects</code>, <code>vcg_uniform_remesh</code>, <code>vcg_subdivision</code>, <code>vcg_subdivide_max_edge_length</code>, <code>mris_remesh</code>
+</td>
+</tr>
+<tr>
+<td align="left">Smooth and deform</td>
+<td align="left">
+<code>vcg_smooth_explicit</code>, <code>vcg_smooth_implicit</code>, <code>mris_smooth</code>, <code>mris_inflate</code>, <code>mris_sphere</code>
+</td>
+</tr>
+<tr>
+<td align="left">Measure</td>
+<td align="left">
+<code>vcg_mesh_volume</code>, <code>vcg_average_edge_length</code>, <code>vcg_max_edge_length</code>, <code>mris_curvature</code>
+</td>
+</tr>
+<tr>
+<td align="left">Query</td>
+<td align="left">
+<code>vcg_kdtree_nearest</code>, <code>vcg_raycaster</code>, <code>vcg_detect_collision</code>
+</td>
+</tr>
+<tr>
+<td align="left">Subset and extract</td>
+<td align="left">
+<code>vcg_subset_vertex</code>, <code>vcg_mesh_patch</code>, <code>mris_make_surfaces</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>vcg_*</code> functions are built on <a href="https://github.com/cnr-isti-vclab/vcglib" class="external-link"><code>vcglib</code></a> from the Visual Computing Lab, <code>ISTI</code>. <code>mris_remesh</code> implements the isotropic re-meshing algorithm of <code>Botsch</code> and <code>Kobbelt</code> (2003), and the <code>mris_inflate</code> and <code>mris_sphere</code> pair follows the cortical inflation and spherical mapping of <code>Fischl</code> and colleagues (1999).</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="id_3-utilities-and-helpers">3. Utilities and helpers<a class="anchor" aria-label="anchor" href="#id_3-utilities-and-helpers"></a>
+</h2>
+<p>Below the two domains sit the primitives everything else is built from. They are exported because they are useful on their own.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th align="left">Group</th>
+<th align="left">Functions</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left"><code>FFTW3</code></td>
+<td align="left">
+<code>fftw_r2c</code>, <code>fftw_c2r</code>, <code>fftw_c2c</code> and their <code>2D</code>/<code>3D</code> variants; the batched <code>mvfftw_r2c</code>, <code>mvfftw_c2r</code>, <code>mvfftw_c2c</code>; <code>convolve_signal</code>, <code>convolve_image</code>, <code>convolve_volume</code>
+</td>
+</tr>
+<tr>
+<td align="left">Parallel array operations</td>
+<td align="left">
+<code>collapse</code>, <code>shift_array</code>, <code>baseline_array</code>, <code>fast_cov</code>, <code>fast_median</code>, <code>fast_quantile</code>, <code>fast_mvmedian</code>, <code>fast_mvquantile</code>
+</td>
+</tr>
+<tr>
+<td align="left">Threading</td>
+<td align="left">
+<code>ravetools_threads</code>, <code>detect_threads</code>
+</td>
+</tr>
+<tr>
+<td align="left">Geometry and math</td>
+<td align="left">
+<code>new_vector3</code>, <code>new_matrix4</code>, <code>new_quaternion</code> (in-place classes), <code>apply_transform3d</code>, <code>catmull_rom_3d</code>, <code>project_plane</code>, <code>naive_nmf</code>
+</td>
+</tr>
+<tr>
+<td align="left">Binary and color</td>
+<td align="left">
+<code>raw_to_int8</code> through <code>raw_to_int64</code>, <code>raw_to_float</code>, <code>raw_to_string</code>, <code>matlab_palette</code>, <code>color_ramp_continuous</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The heavy loops are <code>C++</code> parallelized with <code>TinyThread</code>. <code>detect_threads</code> reports how many threads are available and <code>ravetools_threads</code> sets how many are used:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/parallel-options.html">detect_threads</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/parallel-options.html">ravetools_threads</a></span><span class="op">(</span>n_threads <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<p>Where a computation would not fit in memory, the entry points accept on-disk <code>filearray</code> inputs instead - <code>carla</code> is one - and <code>morlet_wavelet(segment_length = ...)</code> streams long recordings segment by segment.</p>
+<p>The <code>fftw_*</code> wrappers are thin bindings over <code>FFTW3</code> for callers who need maximum throughput and are willing to manage the layout themselves. The <code>C++</code> headers are exposed in <code>inst/include</code>, so other packages can link against them directly.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p><code>ravetools</code> is part of <code>RAVE</code>. To cite it in publications, please cite the <code>RAVE</code> paper from <code>Beauchamp's lab</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
+<p>Several functions re-implement published methods. If you use one of them, please cite the original work as well; <code>citation("ravetools")</code> lists them all.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div class="section level4">
-<h4 id="to-cite-ravetools-in-publications-use-please-cite-the-rave-paper-from-beauchamps-lab">To cite ravetools in publications use, please cite the <code>RAVE</code> paper from <code>Beauchamp's lab</code>
-<a class="anchor" aria-label="anchor" href="#to-cite-ravetools-in-publications-use-please-cite-the-rave-paper-from-beauchamps-lab"></a>
-</h4>
-<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
-<p>The <code>multitaper</code> function (MIT License) uses the script derived from <code>Prerau's lab</code>. The <code>TinyParallel</code> script is derived from <code>RcppParallel</code> package (GPL License) with <code>TBB</code> features removed (only use <code>tinythreads</code>). The <code>register_volume</code> function uses <code>NiftyReg</code> (BSD License) developed by <code>CMIC</code> at University College London, UK (its R implementation is released under GPL license).</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>[<span class="dv">2</span>] Prerau, Michael J, and Brown, Ritchie E, and Bianchi, Matt T, and</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    Ellenbogen, Jeffrey M, and Purdon, Patrick L. Sleep Neurophysiological</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    Dynamics Through the Lens of Multitaper Spectral Analysis. Physiology,</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>[<span class="dv">3</span>] Modat, M., Cash, D.M., Daga, P., Winston, G.P., Duncan, J.S. and </span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    Ourselin, S., <span class="fl">2014.</span> Global image registration using a symmetric </span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    block<span class="sc">-</span>matching approach. Journal of medical imaging, <span class="dv">1</span>(<span class="dv">2</span>), pp<span class="fl">.024003-024003.</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>[<span class="dv">4</span>] JJ Allaire, Romain Francois, Kevin Ushey, Gregory Vandenbrouck, Marcus</span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>    Geelnard and <span class="fu">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="sc">:</span> Parallel Programming Tools <span class="cf">for</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>RcppParallel</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, <span class="fu">MS</span> (<span class="dv">2020</span>). RAVE<span class="sc">:</span> comprehensive</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>    open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>[<span class="dv">2</span>] Prerau, MJ, and Brown, RE, and Bianchi, MT, and Ellenbogen, JM, and</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>    Purdon, <span class="fu">PL</span> (<span class="dv">2016</span>). Sleep Neurophysiological Dynamics Through the Lens of</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>    Multitaper Spectral Analysis. Physiology, December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>[<span class="dv">3</span>] Avants, BB, and Epstein, CL, and Grossman, M, and Gee, <span class="fu">JC</span> (<span class="dv">2008</span>).</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>    Symmetric diffeomorphic image registration with cross<span class="sc">-</span>correlation<span class="sc">:</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>    evaluating automated labeling of elderly and neurodegenerative brain.</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>    Medical Image Analysis, <span class="dv">12</span>(<span class="dv">1</span>), <span class="dv">26</span><span class="fl">-41.</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>[<span class="dv">4</span>] Fischl, B, and Sereno, MI, and Dale, <span class="fu">AM</span> (<span class="dv">1999</span>). Cortical surface<span class="sc">-</span>based</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>    analysis II<span class="sc">:</span> inflation, flattening, and a surface<span class="sc">-</span>based coordinate</span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>    system. NeuroImage, <span class="dv">9</span>(<span class="dv">2</span>), <span class="dv">195</span><span class="fl">-207.</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>[<span class="dv">5</span>] Huang, H, and Ojeda Valencia, G, and Gregg, NM, and Osman, GM, and</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>    Montoya, MN, and Worrell, GA, and Miller, KJ, and Hermes, <span class="fu">D</span> (<span class="dv">2024</span>).</span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>    CARLA<span class="sc">:</span> Adjusted common average referencing <span class="cf">for</span> cortico<span class="sc">-</span>cortical evoked</span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>    potential data. Journal of Neuroscience Methods, <span class="dv">407</span>, <span class="fl">110153.</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a>[<span class="dv">6</span>] Huang, H, and Adkinson, JA, and Jensen, MA, and Hasen, M, and Danstrom,</span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a>    IA, and Bijanki, KR, and Gregg, NM, and Miller, KJ, and Sheth, SA, and</span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a>    Hermes, D, and Bartoli, <span class="fu">E</span> (<span class="dv">2025</span>). Proper reference selection and</span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a>    re<span class="sc">-</span>referencing to mitigate bias <span class="cf">in</span> single pulse electrical stimulation</span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a>    data. Journal of Neuroscience Methods, <span class="dv">419</span>, <span class="fl">110461.</span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a>[<span class="dv">7</span>] Miller, KJ, and Mueller, K<span class="sc">-</span>R, and Ojeda Valencia, G, and Huang, H, and</span>
+<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a>    Gregg, NM, and Worrell, GA, and Hermes, <span class="fu">D</span> (<span class="dv">2023</span>). Canonical response</span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a>    parameterization<span class="sc">:</span> Quantifying the structure of responses to single<span class="sc">-</span>pulse</span>
+<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a>    intracranial electrical brain stimulation. PLOS Computational Biology,</span>
+<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a>    <span class="dv">19</span>(<span class="dv">5</span>), e1011105.</span>
+<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a>[<span class="dv">8</span>] Miller, KJ, and Mueller, K<span class="sc">-</span>R, and Hermes, <span class="fu">D</span> (<span class="dv">2021</span>). Basis profile curve</span>
+<span id="cb14-29"><a href="#cb14-29" tabindex="-1"></a>    identification to understand electrical stimulation effects <span class="cf">in</span> human</span>
+<span id="cb14-30"><a href="#cb14-30" tabindex="-1"></a>    brain networks. PLOS Computational Biology, <span class="dv">17</span>(<span class="dv">9</span>), e1008710.</span>
+<span id="cb14-31"><a href="#cb14-31" tabindex="-1"></a>[<span class="dv">9</span>] Botsch, M, and Kobbelt, <span class="fu">L</span> (<span class="dv">2003</span>). A remeshing approach to multiresolution</span>
+<span id="cb14-32"><a href="#cb14-32" tabindex="-1"></a>    modeling. Proceedings of Shape Modelling International, <span class="dv">49</span><span class="fl">-58.</span></span>
+<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a>[<span class="dv">10</span>] Modat, M, and Cash, DM, and Daga, P, and Winston, GP, and Duncan, JS,</span>
+<span id="cb14-34"><a href="#cb14-34" tabindex="-1"></a>    and Ourselin, <span class="fu">S</span> (<span class="dv">2014</span>). Global image registration using a symmetric</span>
+<span id="cb14-35"><a href="#cb14-35" tabindex="-1"></a>    block<span class="sc">-</span>matching approach. Journal of Medical Imaging, <span class="dv">1</span>(<span class="dv">2</span>), <span class="fl">024003.</span></span>
+<span id="cb14-36"><a href="#cb14-36" tabindex="-1"></a>[<span class="dv">11</span>] Allaire, JJ, and Francois, R, and Ushey, K, and Vandenbrouck, G, and</span>
+<span id="cb14-37"><a href="#cb14-37" tabindex="-1"></a>    Geelnard, M, and <span class="fu">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="sc">:</span> Parallel Programming Tools</span>
+<span id="cb14-38"><a href="#cb14-38" tabindex="-1"></a>    <span class="cf">for</span> <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
+<span id="cb14-39"><a href="#cb14-39" tabindex="-1"></a>    https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>RcppParallel</span></code></pre></div>
+<div class="section level3">
+<h3 id="attributions">Attributions<a class="anchor" aria-label="anchor" href="#attributions"></a>
+</h3>
+<p>The <code>multitaper</code> function (<code>MIT</code> license) derives from a script by <code>Prerau's lab</code>. The <code>TinyParallel</code> code derives from the <code>RcppParallel</code> package (<code>GPL</code> license) with the <code>TBB</code> features removed, using only <code>tinythreads</code>. The <code>vcg_*</code> functions build on <code>vcglib</code>, copyright the Visual Computing Lab, <code>ISTI</code>, with the R interface layer derived from work by <code>Stefan Schlager</code>. <code>register_volume</code> wraps <code>NiftyReg</code>, developed by <code>CMIC</code> at University College London.</p>
 </div>
 </div>
 </div>
@@ -259,7 +557,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Zhengjia Wang <br><small class="roles"> Author, maintainer </small>   </li>
+<li>Zhengjia Wang <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-5629-1116" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>John Magnotti <br><small class="roles"> Author </small>   </li>
 <li>Michael Beauchamp <br><small class="roles"> Author </small>   </li>
 <li><a href="authors.html">More about authors...</a></li>
@@ -269,7 +567,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/dipterix/ravetools/actions" class="external-link"><img src="https://github.com/dipterix/ravetools/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/dipterix/ravetools/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dipterix/ravetools/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://CRAN.R-project.org/package=ravetools" class="external-link"><img src="https://www.r-pkg.org/badges/version/ravetools" alt="CRAN status"></a></li>
 <li><a href="https://dipterix.r-universe.dev/" class="external-link"><img src="https://dipterix.r-universe.dev/badges/ravetools" alt="r-universe"></a></li>
 </ul>

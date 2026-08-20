@@ -3,6 +3,7 @@
 ## Authors
 
 - **Zhengjia Wang**. Author, maintainer.
+  [](https://orcid.org/0000-0001-5629-1116)
 
 - **John Magnotti**. Author.
 
@@ -127,4 +128,20 @@ doi:10.1371/journal.pcbi.1011105.
       number = {5},
       pages = {e1011105},
       doi = {10.1371/journal.pcbi.1011105},
+    }
+
+Miller KJ, Mueller K-R, Hermes D (2021). Basis profile curve
+identification to understand electrical stimulation effects in human
+brain networks. PLOS Computational Biology, 17(9), e1008710.
+doi:10.1371/journal.pcbi.1008710.
+
+    @Article{,
+      title = {Basis profile curve identification to understand electrical stimulation effects in human brain networks},
+      author = {Kai J. Miller and Klaus-Robert Mueller and Dora Hermes},
+      journal = {PLOS Computational Biology},
+      year = {2021},
+      volume = {17},
+      number = {9},
+      pages = {e1008710},
+      doi = {10.1371/journal.pcbi.1008710},
     }
