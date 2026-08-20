@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.16</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.7" id="ravetools-027">ravetools 0.2.7<a class="anchor" aria-label="anchor" href="#ravetools-027"></a></h2>
-<ul><li>Added <code>color_ramp_continuous</code> helper to create a vectorized color-mapping function from a palette and a numeric domain</li>
+<ul><li>Added <code>vcg_detect_collision</code> to detect exact collisions and proximity within a distance tolerance between two geometries, where each side may be a point cloud, a chain of connected line segments (such as diffusion streamlines, delimited by <code>NA</code> rows), or a triangular mesh; optionally counts geometry enclosed by a closed surface</li>
+<li>Added <code>color_ramp_continuous</code> helper to create a vectorized color-mapping function from a palette and a numeric domain</li>
 <li>Fixed <code>make_error</code> to properly protect the error class string from garbage collection, preventing class names from being silently lost in nested error calls</li>
 <li>Guarded <code>design_filter</code> against <code>bandstop</code> configurations where automatically derived transition bandwidths overlap each other, producing unordered frequency breakpoints</li>
 <li>Added <code>mris_curvature</code> to estimate per-vertex mean, Gaussian, and principal curvatures by fitting an osculating quadratic surface to each vertex’s two-ring neighborhood</li>

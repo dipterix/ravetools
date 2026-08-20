@@ -314,6 +314,9 @@
 - [`vcg_count_edge_defects()`](https://dipterix.org/ravetools/reference/vcg_count_edge_defects.md)
   : Count boundary and non-manifold edges of a triangular mesh
 
+- [`vcg_detect_collision()`](https://dipterix.org/ravetools/reference/vcg_detect_collision.md)
+  : Detect collisions between two geometries
+
 - [`vcg_fix_defects()`](https://dipterix.org/ravetools/reference/vcg_fix_defects.md)
   : Detect and repair defects in a triangular surface mesh
 
