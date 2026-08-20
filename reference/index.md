@@ -95,17 +95,16 @@
   [`fast_mvmedian()`](https://dipterix.org/ravetools/reference/fast_quantile.md)
   : Compute quantiles
 
-- [`fftw-internal`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_r2c`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_c2r`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_c2c`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`mvfftw_r2c`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`mvfftw_c2c`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`mvfftw_c2r`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_r2c_2d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_c2c_2d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_r2c_3d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
-  [`fftw_c2c_3d`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+- [`fftw_r2c()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`fftw_c2c()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`fftw_c2r()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`mvfftw_r2c()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`mvfftw_c2c()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`mvfftw_c2r()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`fftw_r2c_2d()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`fftw_c2c_2d()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`fftw_r2c_3d()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
+  [`fftw_c2c_3d()`](https://dipterix.org/ravetools/reference/fftw-internal.md)
   :
 
   Low-level FFTW3 wrappers

@@ -1,6 +1,6 @@
 # Changelog
 
-## ravetools 0.2.7
+## ravetools 0.3.0
 
 - Added `vcg_detect_collision` to detect exact collisions and proximity
   within a distance tolerance between two geometries, where each side

@@ -17,6 +17,30 @@ and the filtering utilities.
 may change between releases. Outputs match the corresponding base R
 transforms up to floating-point round-off.
 
+## Usage
+
+``` r
+fftw_r2c(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL)
+
+fftw_c2c(data, inverse = 0L, fftwplanopt = 0L, ret = NULL)
+
+fftw_c2r(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL)
+
+mvfftw_r2c(data, fftwplanopt = 0L, HermConj = 0L, ret = NULL)
+
+mvfftw_c2c(data, inverse = 0L, fftwplanopt = 0L, ret = NULL)
+
+mvfftw_c2r(data, fftwplanopt = 0L, retrows = 0L, ret = NULL)
+
+fftw_r2c_2d(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL)
+
+fftw_c2c_2d(data, inverse = 0L, fftwplanopt = 0L, ret = NULL)
+
+fftw_r2c_3d(data, HermConj = 1L, fftwplanopt = 0L, ret = NULL)
+
+fftw_c2c_3d(data, inverse = 0L, fftwplanopt = 0L, ret = NULL)
+```
+
 ## Arguments
 
 - data:
@@ -32,28 +56,28 @@ transforms up to floating-point round-off.
   [`stats::fft`](https://rdrr.io/r/stats/fft.html)); when `0`, return
   only the non-redundant one-sided half of length `floor(N/2) + 1`.
 
-- inverse:
-
-  Integer `0` (forward) or `1` (inverse). The inverse transform is
-  **unnormalized**; divide by the number of elements to invert a forward
-  transform, mirroring `stats::fft(., inverse = TRUE)`.
-
 - fftwplanopt:
 
   Integer planner effort: `0` = `FFTW_ESTIMATE` (default, fast
   planning), `1` = `FFTW_MEASURE`, `2` = `FFTW_PATIENT`, `3` =
   `FFTW_EXHAUSTIVE`.
 
-- retrows:
-
-  Integer; expected number of rows of the time-domain signal for
-  `mvfftw_c2r` when reconstructing from a one-sided spectrum.
-
 - ret:
 
   Optional reusable output buffer of the correct type and length; pass
   `NULL` (default) to let the function allocate one. This input is for
-  advanced users; leave `NULL` if you do not know what you are d
+  advanced users; leave `NULL` if you do not know what you are doing.
+
+- inverse:
+
+  Integer `0` (forward) or `1` (inverse). The inverse transform is
+  **unnormalized**; divide by the number of elements to invert a forward
+  transform, mirroring `stats::fft(., inverse = TRUE)`.
+
+- retrows:
+
+  Integer; expected number of rows of the time-domain signal for
+  `mvfftw_c2r` when reconstructing from a one-sided spectrum.
 
 ## Value
 
@@ -86,9 +110,11 @@ all.equal(a_half, b[seq_len(length(x) %/% 2 + 1)])
 
 ## --- 1D complex-to-complex ----------------------------------------------
 z <- complex(real = rnorm(16), imaginary = rnorm(16))
-all.equal(ravetools::fftw_c2c(z, inverse = 0), stats::fft(z))
+all.equal(ravetools::fftw_c2c(z, inverse = 0),
+          stats::fft(z))
 #> [1] TRUE
-all.equal(ravetools::fftw_c2c(z, inverse = 1), stats::fft(z, inverse = TRUE))
+all.equal(ravetools::fftw_c2c(z, inverse = 1),
+          stats::fft(z, inverse = TRUE))
 #> [1] TRUE
 
 ## --- 1D complex-to-real (inverse of fftw_r2c) ---------------------------
