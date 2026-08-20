@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 adhoc/
+revdep/
 src/vcglib/unused/
 aclocal.log
 autom4te.cache/
