@@ -107,3 +107,18 @@ bibentry(bibtype = "Article",
          header       = "If you use the crp() function, please also cite the original CRP manuscript:",
          textVersion  = "Miller KJ, Mueller K-R, Ojeda Valencia G, Huang H, Gregg NM, Worrell GA, Hermes D (2023). Canonical response parameterization: Quantifying the structure of responses to single-pulse intracranial electrical brain stimulation. PLOS Computational Biology, 19(5), e1011105. doi:10.1371/journal.pcbi.1011105."
 )
+
+bibentry(bibtype = "Article",
+         title        = "Basis profile curve identification to understand electrical stimulation effects in human brain networks",
+         author       = c(as.person("Kai J. Miller"),
+                          as.person("Klaus-Robert Mueller"),
+                          as.person("Dora Hermes")),
+         journal      = "PLOS Computational Biology",
+         year         = "2021",
+         volume       = "17",
+         number       = "9",
+         pages        = "e1008710",
+         doi          = "10.1371/journal.pcbi.1008710",
+         header       = "If you use the bpc() function, please also cite the original BPC manuscript:",
+         textVersion  = "Miller KJ, Mueller K-R, Hermes D (2021). Basis profile curve identification to understand electrical stimulation effects in human brain networks. PLOS Computational Biology, 17(9), e1008710. doi:10.1371/journal.pcbi.1008710."
+)
