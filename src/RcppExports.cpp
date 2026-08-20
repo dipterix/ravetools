@@ -3728,6 +3728,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgDetectCollision
+SEXP vcgDetectCollision(const Rcpp::NumericMatrix& x_, SEXP x_it_, const Rcpp::NumericMatrix& y_, SEXP y_it_, int mode_x, int mode_y, double radius, bool early_stop, bool include_interior);
+RcppExport SEXP _ravetools_vcgDetectCollision(SEXP x_SEXP, SEXP x_it_SEXP, SEXP y_SEXP, SEXP y_it_SEXP, SEXP mode_xSEXP, SEXP mode_ySEXP, SEXP radiusSEXP, SEXP early_stopSEXP, SEXP include_interiorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type x_(x_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type x_it_(x_it_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type y_(y_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type y_it_(y_it_SEXP);
+    Rcpp::traits::input_parameter< int >::type mode_x(mode_xSEXP);
+    Rcpp::traits::input_parameter< int >::type mode_y(mode_ySEXP);
+    Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
+    Rcpp::traits::input_parameter< bool >::type early_stop(early_stopSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_interior(include_interiorSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgDetectCollision(x_, x_it_, y_, y_it_, mode_x, mode_y, radius, early_stop, include_interior));
+    return rcpp_result_gen;
+END_RCPP
+}
 // vcgIsoSurface
 SEXP vcgIsoSurface(SEXP array_, double thresh);
 RcppExport SEXP _ravetools_vcgIsoSurface(SEXP array_SEXP, SEXP threshSEXP) {
@@ -4311,6 +4330,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_resample3D", (DL_FUNC) &_ravetools_resample3D, 6},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},
     {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},
+    {"_ravetools_vcgDetectCollision", (DL_FUNC) &_ravetools_vcgDetectCollision, 9},
     {"_ravetools_vcgIsoSurface", (DL_FUNC) &_ravetools_vcgIsoSurface, 2},
     {"_ravetools_vcgSmoothImplicit", (DL_FUNC) &_ravetools_vcgSmoothImplicit, 9},
     {"_ravetools_vcgSmooth", (DL_FUNC) &_ravetools_vcgSmooth, 7},

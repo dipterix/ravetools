@@ -7,7 +7,10 @@ test_that("carla_zmin_all matches the R reference", {
   # re-referenced one, Fisher-z, and record the mean z of the most globally
   # anti-correlated channel. Row 1 (subset size 1) is structurally NA.
   ref_zmin_all <- function(x_ord, ind) {
-    d <- dim(x_ord); n_t <- d[1]; n_tr <- d[2]; n_good <- d[3]
+    d <- dim(x_ord)
+    n_t <- d[1]
+    n_tr <- d[2]
+    n_good <- d[3]
     nboot <- ncol(ind)
     out <- matrix(NA_real_, n_good, nboot)
     for (b in seq_len(nboot)) {
@@ -32,7 +35,10 @@ test_that("carla_zmin_all matches the R reference", {
   set.seed(101)
   # A few shapes, read as (n_t, n_tr, n_good); smallest subset size ii = 2.
   for (cfg in list(c(30, 8, 4), c(60, 20, 6), c(120, 40, 12), c(200, 50, 20))) {
-    n_t <- cfg[1]; n_tr <- cfg[2]; n_good <- cfg[3]; nboot <- 20L
+    n_t <- cfg[1]
+    n_tr <- cfg[2]
+    n_good <- cfg[3]
+    nboot <- 20L
     x_ord <- array(stats::rnorm(n_t * n_tr * n_good), dim = c(n_t, n_tr, n_good))
     ind <- matrix(sample.int(n_tr, n_tr * nboot, replace = TRUE),
                   nrow = n_tr, ncol = nboot)
@@ -58,7 +64,9 @@ test_that("carla_zmin_all is deterministic and thread-count invariant", {
 
 test_that("carla() runs end-to-end and selects the non-responsive channels", {
   set.seed(303)
-  nchan <- 16L; n_t <- 200L; ntrial <- 30L
+  nchan <- 16L
+  n_t <- 200L
+  ntrial <- 30L
   # time x trials x channels
   x <- array(stats::rnorm(n_t * ntrial * nchan), dim = c(n_t, ntrial, nchan))
   # Channels 1:3 carry a phase-locked evoked response; the rest are noise.
@@ -80,8 +88,10 @@ test_that("carla() determinism under a fixed seed", {
   set.seed(404)
   # time x trials x channels
   x <- array(stats::rnorm(100 * 20 * 12), dim = c(100, 20, 12))
-  set.seed(1); a <- carla(x, nboot = 30L, sensitive = TRUE)
-  set.seed(1); b <- carla(x, nboot = 30L, sensitive = TRUE)
+  set.seed(1)
+  a <- carla(x, nboot = 30L, sensitive = TRUE)
+  set.seed(1)
+  b <- carla(x, nboot = 30L, sensitive = TRUE)
   expect_equal(a$zmin_mean, b$zmin_mean)
   expect_equal(a$channels, b$channels)
   expect_equal(a$n_optimum, b$n_optimum)
@@ -107,7 +117,9 @@ test_that("carla() accepts a FileArray and matches the in-memory result", {
   skip_if_not_installed("filearray")
 
   set.seed(606)
-  nchan <- 14L; n_t <- 120L; ntrial <- 25L
+  nchan <- 14L
+  n_t <- 120L
+  ntrial <- 25L
   x <- array(stats::rnorm(n_t * ntrial * nchan), dim = c(n_t, ntrial, nchan))
   ep <- 5 * exp(-seq(0, 2, length.out = n_t)) * sin(2 * pi * 6 * seq(0, 0.2, length.out = n_t))
   for (ch in 1:3) for (k in seq_len(ntrial)) x[, k, ch] <- x[, k, ch] + ep
@@ -116,8 +128,10 @@ test_that("carla() accepts a FileArray and matches the in-memory result", {
   on.exit(xf$delete(force = TRUE), add = TRUE)
 
   for (vref in c(FALSE, TRUE)) {
-    set.seed(7); mem  <- carla(x,  nboot = 40L, virtual_reference = vref)
-    set.seed(7); disk <- carla(xf, nboot = 40L, virtual_reference = vref)
+    set.seed(7)
+    mem <- carla(x, nboot = 40L, virtual_reference = vref)
+    set.seed(7)
+    disk <- carla(xf, nboot = 40L, virtual_reference = vref)
     expect_equal(disk$channels,  mem$channels)
     expect_equal(disk$n_optimum, mem$n_optimum)
     expect_equal(disk$zmin_mean, mem$zmin_mean, tolerance = 1e-9)

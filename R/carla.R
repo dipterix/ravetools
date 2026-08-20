@@ -355,7 +355,7 @@ carla <- function(x, nboot = 100L, sensitive = FALSE, min_size = NULL,
 
         # system.time({
           vapply(seq_len(n_ch), function(ii) {
-            slice <- matrix(signal[,, ii], nrow = n_t, ncol = n_tr)  # time x trials
+            slice <- matrix(signal[, , ii], nrow = n_t, ncol = n_tr) # time x trials
             cv <- fast_cov(slice)                                   # trials x trials
             cov_summary(cv[upper.tri(cv)])
           }, numeric(1L))

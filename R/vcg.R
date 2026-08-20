@@ -75,6 +75,29 @@ pcax <- function(mesh) {
   return(pc)
 }
 
+# Coerce a point-cloud-ish input (n x 2 or n x 3 matrix, or any surface that
+# `meshintegrity` accepts) into the 3 x n layout the vcg wrappers pass down to
+# C++. `NA` rows are carried through untouched: `vcg_detect_collision` uses
+# them as polyline separators.
+as_point_cloud_matrix <- function(x, caller) {
+  if (is.matrix(x) || is.array(x)) {
+    x <- x[drop = FALSE]
+    stopifnot2(
+      is.matrix(x) && ncol(x) %in% c(2, 3),
+      msg = sprintf("`%s`: input must be a column-matrix with 2 or 3 columns and `n` rows as number of points.", caller)
+    )
+    if (ncol(x) == 2) {
+      x <- cbind(x, 0)
+    }
+    x <- t(x)
+  } else {
+    x <- meshintegrity(mesh = x, facecheck = FALSE)
+    x <- x$vb[1:3, , drop = FALSE]
+  }
+  storage.mode(x) <- "double"
+  x
+}
+
 meshOff <- function(x, offset) {
   x <- vcg_update_normals(x)
   x$vb[1:3, ] <- x$vb[1:3, ] + offset * x$normals[1:3, ]
@@ -997,26 +1020,8 @@ vcg_raycaster <- function(
 vcg_kdtree_nearest <- function(
     target, query, k = 1, leaf_size = 16, max_depth = 64) {
 
-  get_point_cloud <- function(x) {
-    if (is.matrix(x) || is.array(x)) {
-      x <- x[drop = FALSE]
-      stopifnot2(
-        is.matrix(x) && ncol(x) %in% c(2, 3),
-        msg = "`vcg_kdtree_nearest`: input `x` must be a column-matrix with 2 or 3 columns and `n` rows as number of points."
-      )
-      if ( ncol(x)  == 2 ) {
-        x <- cbind(x, 0)
-      }
-      x <- t(x)
-    } else {
-      x <- meshintegrity(mesh = x, facecheck = FALSE)
-      x <- x$vb[1:3, , drop = FALSE]
-    }
-    x
-  }
-
-  target <- get_point_cloud(target)
-  query <- get_point_cloud(query)
+  target <- as_point_cloud_matrix(target, "vcg_kdtree_nearest")
+  query <- as_point_cloud_matrix(query, "vcg_kdtree_nearest")
 
   k <- as.integer(k)
   if (!is.finite(k) || k <= 0) {
