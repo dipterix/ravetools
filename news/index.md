@@ -2,6 +2,8 @@
 
 ## ravetools 0.3.0
 
+CRAN release: 2026-08-21
+
 - Added `vcg_detect_collision` to detect exact collisions and proximity
   within a distance tolerance between two geometries, where each side
   may be a point cloud, a chain of connected line segments (such as
