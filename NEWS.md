@@ -1,3 +1,8 @@
+# ravetools 0.3.0.1
+
+* Fixed the internal mesh reader leaving vertex normals uninitialized when the caller supplied no normals, which `valgrind` reported as a conditional jump depending on uninitialized values while subdividing edges; normals are now zeroed on load
+* Fixed `vcg_smooth_implicit` returning a completely corrupted mesh (all zeros or `NaN`, varying between runs) whenever the input contained vertices belonging to no face; such vertices make the implicit linear system singular, and are now excluded from the solve and returned at their input positions, consistent with `vcg_smooth_explicit`
+
 # ravetools 0.3.0
 
 * Added `vcg_detect_collision` to detect exact collisions and proximity within a distance tolerance between two geometries, where each side may be a point cloud, a chain of connected line segments (such as diffusion streamlines, delimited by `NA` rows), or a triangular mesh; optionally counts geometry enclosed by a closed surface

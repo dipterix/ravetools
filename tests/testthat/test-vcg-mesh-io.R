@@ -88,14 +88,6 @@ test_that("vcg_smooth_explicit keeps isolated vertices intact for every type", {
 
 # ---- vcg_smooth_implicit -----------------------------------------------
 
-# NOTE: vcg_smooth_implicit is deliberately exercised without isolated
-# vertices. An unreferenced vertex makes the implicit solve singular and the
-# whole mesh comes back as garbage - all zeros, denormals or NaN depending on
-# heap state. That is a pre-existing defect (it reproduces before the vcgReadR
-# normal fix and implicit_smooth.h never reads a vertex normal), so there is no
-# defined behaviour to assert on. Do not "fix" this test by pinning down
-# whatever the solver happens to return for that input.
-
 test_that("vcg_smooth_implicit shrinks a sphere without distorting it", {
   sphere   <- vcg_sphere(sub_division = 2)
   smoothed <- vcg_smooth_implicit(sphere)
@@ -112,6 +104,48 @@ test_that("vcg_smooth_implicit shrinks a sphere without distorting it", {
 
   lengths <- sqrt(colSums(smoothed$normals[1:3, , drop = FALSE]^2))
   expect_equal(lengths, rep(1, length(lengths)), tolerance = 1e-5)
+})
+
+test_that("vcg_smooth_implicit keeps isolated vertices intact", {
+  mesh <- sphere_with_isolated()
+  iso  <- isolated_columns(mesh)
+  smoothed <- vcg_smooth_implicit(mesh)
+
+  expect_equal(ncol(smoothed$vb), ncol(mesh$vb))
+  expect_true(all(is.finite(smoothed$vb)))
+  expect_true(all(is.finite(smoothed$normals)))
+  expect_true(all(smoothed$normals[1:3, iso] == 0))
+  # a vertex with no incident face has nothing to smooth against
+  expect_equal(smoothed$vb[1:3, iso], mesh$vb[1:3, iso])
+  expect_identical(smoothed$it, mesh$it)
+})
+
+test_that("vcg_smooth_implicit ignores unreferenced vertices entirely", {
+  # an unreferenced vertex used to make the implicit solve singular, which
+  # destroyed the whole mesh rather than just that vertex
+  clean  <- vcg_sphere(sub_division = 2)
+  padded <- sphere_with_isolated()
+  kept   <- seq_len(ncol(clean$vb))
+
+  expect_equal(
+    vcg_smooth_implicit(padded)$vb[1:3, kept],
+    vcg_smooth_implicit(clean)$vb[1:3, ]
+  )
+})
+
+test_that("vcg_smooth_implicit is deterministic with unreferenced vertices", {
+  mesh <- sphere_with_isolated()
+  expect_identical(vcg_smooth_implicit(mesh)$vb, vcg_smooth_implicit(mesh)$vb)
+})
+
+test_that("vcg_smooth_implicit returns a face-less mesh unchanged", {
+  cloud <- vcg_sphere(sub_division = 2)
+  cloud$it <- NULL
+  cloud$normals <- NULL
+  smoothed <- vcg_smooth_implicit(cloud)
+
+  expect_equal(smoothed$vb[1:3, ], cloud$vb[1:3, ])
+  expect_true(all(smoothed$normals[1:3, ] == 0))
 })
 
 # ---- vcg_fix_defects ---------------------------------------------------

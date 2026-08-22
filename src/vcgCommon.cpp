@@ -172,6 +172,14 @@ SEXP vcgSmoothImplicit(
     ravetools::ScalarType lambda = lambda_;
     ravetools::ScalarType lapWeight = lapWeight_;
 
+    // PRECONDITION: every vertex in vb_ must be referenced by some face in it_.
+    // ImplicitSmoother sizes its linear system as one block per vertex but
+    // accumulates the mass matrix and Laplacian from faces only, so a vertex
+    // with no incident face contributes an all-zero row, the Cholesky solve
+    // goes singular (its assert is compiled out by NDEBUG above) and the
+    // garbage solution is written back over *every* vertex. The R wrapper
+    // `vcg_smooth_implicit` guarantees this by solving on the referenced
+    // sub-mesh and scattering the result back.
     //allocate mesh and fill it
     ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m,vb_,it_);
 

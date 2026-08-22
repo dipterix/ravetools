@@ -304,7 +304,10 @@ vcg_subdivision <- function(mesh, method = c("edge", "barycenter")) {
 #' @name vcg_smooth
 #' @title Implicitly smooth a triangular mesh
 #' @description
-#' Applies smoothing algorithms on a triangular mesh.
+#' Applies smoothing algorithms on a triangular mesh. Vertices that belong to
+#' no face carry no connectivity, so they are excluded from the computation and
+#' returned at their input positions with zero normal vectors; the remaining
+#' vertices are unaffected by their presence.
 #'
 #' @param mesh triangular mesh stored as object of class 'mesh3d'.
 #' @param use_mass_matrix logical: whether to use mass matrix to keep the mesh
@@ -399,9 +402,6 @@ vcg_smooth_implicit <- function(
 ) {
   mesh <- meshintegrity(mesh)
   smooth_quality <- FALSE
-  vb <- mesh$vb[1:3, , drop = FALSE]
-  it <- (mesh$it - 1L)
-  storage.mode(it) <- "integer"
   lambda <- as.double(lambda)[[1]]
   laplacian_weight <- as.double(laplacian_weight)[[1]]
   use_mass_matrix <- as.logical(use_mass_matrix)[[1]]
@@ -409,10 +409,45 @@ vcg_smooth_implicit <- function(
   use_cot_weight <- as.logical(use_cot_weight)[[1]]
   smooth_quality <- as.logical(smooth_quality)[[1]]
   degree <- as.integer(degree)[[1]]
-  tmp <- vcgSmoothImplicit(vb, it, lambda, use_mass_matrix, fix_border, use_cot_weight, degree, laplacian_weight, smooth_quality)
-  mesh$vb[1:3, ] <- tmp$vb
-  mesh$normals <- rbind(tmp$normals, 1)
-  mesh$it <- tmp$it
+
+  n_vertex <- ncol(mesh$vb)
+
+  # The implicit solver builds one row per vertex out of the incident faces, so
+  # a vertex belonging to no face gives an all-zero row and makes the system
+  # singular - the solve then returns garbage for *every* vertex. Smooth the
+  # referenced sub-mesh only and leave unreferenced vertices where they are,
+  # which is what `vcg_smooth_explicit` does with the same input.
+  referenced <- if (is.matrix(mesh$it)) {
+    sort(unique(as.vector(mesh$it)))
+  } else {
+    integer(0)
+  }
+
+  normals <- matrix(0, nrow = 3L, ncol = n_vertex)
+
+  if (length(referenced)) {
+    vb <- mesh$vb[1:3, referenced, drop = FALSE]
+    if (length(referenced) == n_vertex) {
+      it <- mesh$it
+    } else {
+      remap <- integer(n_vertex)
+      remap[referenced] <- seq_along(referenced)
+      it <- matrix(remap[mesh$it], nrow = 3L)
+    }
+    it <- it - 1L
+    storage.mode(it) <- "integer"
+
+    tmp <- vcgSmoothImplicit(vb, it, lambda, use_mass_matrix, fix_border,
+                             use_cot_weight, degree, laplacian_weight,
+                             smooth_quality)
+
+    mesh$vb[1:3, referenced] <- tmp$vb
+    normals[, referenced] <- tmp$normals
+    # `tmp$it` indexes the sub-mesh; translate back to original vertex ids
+    mesh$it <- matrix(referenced[tmp$it], nrow = 3L)
+  }
+
+  mesh$normals <- rbind(normals, 1)
   mesh
 }
 

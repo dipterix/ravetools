@@ -67,7 +67,10 @@ An object of class "mesh3d" with:
 \item{\code{it}}{triangular face index}
 }
 \description{
-Applies smoothing algorithms on a triangular mesh.
+Applies smoothing algorithms on a triangular mesh. Vertices that belong to
+no face carry no connectivity, so they are excluded from the computation and
+returned at their input positions with zero normal vectors; the remaining
+vertices are unaffected by their presence.
 }
 \section{Coercing Surface Inputs}{
 
