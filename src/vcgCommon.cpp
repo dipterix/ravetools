@@ -511,6 +511,9 @@ SEXP vcgEdgeSubdivision(SEXP vb_, SEXP it_)
       // new midpoint vertex is at m.vert[origVn + i]
       ravetools::VertexPointer mv = &m.vert[ origVn + i ];
       mv->P() = (v0->P() + v1->P()) * ravetools::ScalarType(0.5);
+      // AddVertices leaves the normal uninitialised; both parents have a
+      // defined normal (see IOMesh::vcgReadR), so averaging is safe here
+      mv->N() = (v0->N() + v1->N()) * ravetools::ScalarType(0.5);
       // canonical key ordering
       ravetools::EdgePair key = v0 < v1 ? ravetools::EdgePair(v0,v1) : ravetools::EdgePair(v1,v0);
       midMap[key] = mv;

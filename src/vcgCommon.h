@@ -283,10 +283,19 @@ public:
         ivp.resize(d);
         vcg::SimpleTempData<typename MeshType::VertContainer, unsigned int> indices(m.vert);
         //read vertices
+        // Vertices from Allocator::AddVertices are default-constructed and
+        // vcg::Point3's default ctor leaves its coordinates uninitialised, so
+        // the normal must be zeroed here: callers that pass no normals matrix
+        // (e.g. vcgEdgeLengthSubdivision) would otherwise let algorithms such
+        // as tri::MidPoint read uninitialised memory.
+        const bool hasVertexNormal = vcg::tri::HasPerVertexNormal(m);
         for ( int i = 0; i < d; i++ ) {
           VertexIterator vi = m.vert.begin() + i;
           ivp[i] = &*vi;
           (*vi).P() = CoordType( vb(0,i), vb(1,i), vb(2,i) );
+          if ( hasVertexNormal ) {
+            (*vi).N() = CoordType( 0, 0, 0 );
+          }
         }
         //insert vertex normals
         if ( Rf_isMatrix(normals_) && vcg::tri::HasPerVertexNormal(m) && readnormals ) {
