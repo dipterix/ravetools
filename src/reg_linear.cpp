@@ -181,7 +181,7 @@ Rcpp::List register_linear_cpp(const Rcpp::NumericVector& fixed,
               ((double)fnz - 1.0) / 2.0, 1.0);
   xform.center = (fV2R * cc).head<3>();
   if (initTransform.isNotNull()) {
-    Rcpp::NumericMatrix it(initTransform);
+    Rcpp::NumericMatrix it(initTransform.get());
     xform.fromRas(asMatrix4(it));
   }
 
@@ -195,7 +195,7 @@ Rcpp::List register_linear_cpp(const Rcpp::NumericVector& fixed,
   RegImage3 movMaskImg;
   const RegImage3* movMaskPtr = nullptr;
   if (movingMask.isNotNull()) {
-    Rcpp::NumericVector mm(movingMask);
+    Rcpp::NumericVector mm(movingMask.get());
     movMaskStore.assign(mm.begin(), mm.end());
     movMaskImg = RegImage3(movMaskStore.data(), mnx, mny, mnz, mV2R);
     movMaskPtr = &movMaskImg;
@@ -205,7 +205,7 @@ Rcpp::List register_linear_cpp(const Rcpp::NumericVector& fixed,
   std::vector<reg_real> fixedMaskFull;
   const reg_real* fixedMaskData = nullptr;
   if (fixedMask.isNotNull()) {
-    Rcpp::NumericVector fm(fixedMask);
+    Rcpp::NumericVector fm(fixedMask.get());
     fixedMaskFull.assign(fm.begin(), fm.end());
     fixedMaskData = fixedMaskFull.data();
   }

@@ -1,6 +1,7 @@
 # ravetools 0.3.0.1
 
 * Fixed the internal mesh reader leaving vertex normals uninitialized when the caller supplied no normals, which `valgrind` reported as a conditional jump depending on uninitialized values while subdividing edges; normals are now zeroed on load
+* Fixed the native registration sources failing to compile under `C++11` toolchains (such as the `conda-forge` builds) with recent `clang`, where converting an `Rcpp::Nullable` argument to `Rcpp::NumericVector` or `Rcpp::NumericMatrix` was ambiguous; the `SEXP` accessor is now called explicitly
 * Fixed `vcg_smooth_implicit` returning a completely corrupted mesh (all zeros or `NaN`, varying between runs) whenever the input contained vertices belonging to no face; such vertices make the implicit linear system singular, and are now excluded from the solve and returned at their input positions, consistent with `vcg_smooth_explicit`
 
 # ravetools 0.3.0

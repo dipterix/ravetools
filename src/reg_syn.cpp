@@ -606,7 +606,7 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
   RegImage3 movMaskImg;
   const RegImage3* movMaskPtr = nullptr;
   if (movingMask.isNotNull()) {
-    Rcpp::NumericVector mm(movingMask);
+    Rcpp::NumericVector mm(movingMask.get());
     movMaskStore.assign(mm.begin(), mm.end());
     movMaskImg = RegImage3(movMaskStore.data(), mnx, mny, mnz, mV2R);
     movMaskPtr = &movMaskImg;
@@ -614,7 +614,7 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
   std::vector<reg_real> fixedMaskFull;
   const reg_real* fixedMaskData = nullptr;
   if (fixedMask.isNotNull()) {
-    Rcpp::NumericVector fm(fixedMask);
+    Rcpp::NumericVector fm(fixedMask.get());
     fixedMaskFull.assign(fm.begin(), fm.end());
     fixedMaskData = fixedMaskFull.data();
   }
