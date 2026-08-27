@@ -31,6 +31,7 @@
 #include <vcg/space/intersection3.h>
 #include <vcg/complex/algorithms/inside.h>
 
+#include <atomic>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -50,6 +51,19 @@ static const Scalar kEps = std::numeric_limits<Scalar>::epsilon();
 
 // Modes, shared with the R wrapper.
 enum Mode { MODE_POINTS = 0, MODE_SEGMENTS = 1, MODE_MESH = 2 };
+
+// How exhaustively the target is scanned, shared with the R wrapper. Results
+// are always reported per *unit* of the target -- a point, a polyline, or a
+// face -- and the level decides which element of a hit unit is reported and how
+// early the scan gives up:
+//
+//   ELEMENT  every element of every unit; reports the closest one
+//   UNIT     stops at the first hit inside each unit; reports that one
+//   WHOLE    stops at the first hit anywhere; reports that single witness
+//
+// A point and a face each *are* their own unit, so ELEMENT and UNIT differ only
+// for polylines.
+enum Level { LEVEL_ELEMENT = 0, LEVEL_UNIT = 1, LEVEL_WHOLE = 2 };
 
 // ---------------------------------------------------------------------------
 // Exact primitive distances
@@ -313,9 +327,36 @@ struct Hit {
   bool   found;
   Scalar distance;
   int    index;   // 0-based ROI row, or -1
+  int    sub;     // 1-based element within the target unit
 
-  Hit() : found(false), distance(0), index(-1) {}
+  Hit() : found(false), distance(0), index(-1), sub(1) {}
 };
+
+// Which element of the query primitive to name in the result. A point and a
+// segment are atomic, so the answer is 1 (for a segment the driver overwrites
+// it with the ordinal inside the polyline, which only the driver knows). A
+// triangle reports its vertex nearest the ROI element -- a locator only: the
+// closest point on a triangle is often on an edge or in the interior, and the
+// reported distance stays the exact triangle distance.
+template <class ElemType>
+inline int sub_index(const Point3 &, const ElemType &) { return 1; }
+
+template <class ElemType>
+inline int sub_index(const Segment3 &, const ElemType &) { return 1; }
+
+template <class ElemType>
+inline int sub_index(const Triangle3 &t, const ElemType &e)
+{
+  int    best = 0;
+  Scalar bd   = elem_distance(e, t.cP(0));
+
+  Scalar d = elem_distance(e, t.cP(1));
+  if (d < bd) { bd = d; best = 1; }
+  d = elem_distance(e, t.cP(2));
+  if (d < bd) { best = 2; }
+
+  return best + 1;
+}
 
 // Scratch buffer reused across queries by one thread.
 template <class ElemType>
@@ -472,6 +513,7 @@ private:
         result.found    = true;
         result.distance = d;
         result.index    = elem_row(*elem, mesh_);
+        result.sub      = sub_index(prim, *elem);
       }
     }
     return result;
@@ -490,30 +532,39 @@ private:
 // Target side
 // ---------------------------------------------------------------------------
 
-// A run of consecutive, non-separator rows.
+// A run of consecutive, non-separator rows. May be empty.
 struct Group {
   int begin;
   int end;   // exclusive
 };
 
-// Splits a 3 x n coordinate buffer into runs delimited by NaN columns.
+// Splits a 3 x n coordinate buffer into the chains delimited by NaN columns.
+//
+// Every slot between separators is a chain, empty ones included, so `A NA NA B`
+// is three chains and the middle one is empty. The two ends are not symmetric:
+// a separator in the first row opens an empty leading chain, but a separator in
+// the last row terminates the final chain rather than opening a trailing empty
+// one. That is what makes the idiom
+//
+//   do.call("rbind", lapply(tracts, function(line) rbind(line, NA)))
+//
+// yield exactly one chain per tract -- an empty tract contributes only its own
+// separator, and the separator closing the last tract adds nothing.
 inline std::vector<Group> find_groups(const std::vector<Scalar> &coords, int n)
 {
   std::vector<Group> groups;
-  int start = -1;
+  if (n == 0) { return groups; }
+
+  int start = 0;
   for (int i = 0; i < n; i++) {
-    const bool sep = !(coords[i * 3] == coords[i * 3]);   // NaN test
-    if (sep) {
-      if (start >= 0) {
-        Group g = { start, i };
-        groups.push_back(g);
-        start = -1;
-      }
-    } else if (start < 0) {
-      start = i;
-    }
+    if (coords[i * 3] == coords[i * 3]) { continue; }   // not a separator
+    Group g = { start, i };
+    groups.push_back(g);
+    start = i + 1;
   }
-  if (start >= 0) {
+  // Skipped when the last row is itself a separator, which closes the chain
+  // before it instead of starting an empty one.
+  if (start < n) {
     Group g = { start, n };
     groups.push_back(g);
   }
@@ -525,36 +576,63 @@ inline Point3 coord_at(const std::vector<Scalar> &coords, int i)
   return Point3(coords[i * 3], coords[i * 3 + 1], coords[i * 3 + 2]);
 }
 
-// Everything the drivers need, in plain buffers so worker threads never touch
-// the R API.
-struct Output {
-  std::vector<int>    hit;        // 1 = hit, 0 = miss, NA_INTEGER = not evaluated
+// One slot per unit of the target, in plain buffers so worker threads never
+// touch the R API. Each group of the target owns its own slots, so workers
+// never write to the same slot and no synchronization is needed.
+struct UnitOutput {
+  std::vector<int>    hit;        // 1 = hit, 0 = miss, NA_INTEGER = nothing to test
+  std::vector<int>    index;      // 1-based element within the unit
   std::vector<double> distance;
-  std::vector<int>    index;      // 1-based, NA_INTEGER when no hit
+  std::vector<int>    x_index;    // 1-based ROI element, NA_INTEGER when unknown
 
+  // Slots start at NA, and a unit with nothing to test is simply never written:
+  // a separator row, an empty or single-vertex chain, a deleted face. That NA is
+  // part of the contract and reaches R untouched -- it distinguishes "no
+  // geometry here" from the 0 that `record` writes for "tested and missed".
   void resize(std::size_t n)
   {
     hit.assign(n, NA_INTEGER);
-    distance.assign(n, NA_REAL);
     index.assign(n, NA_INTEGER);
+    distance.assign(n, NA_REAL);
+    x_index.assign(n, NA_INTEGER);
   }
 
   void record(std::size_t i, const Hit &h)
   {
     if (h.found) {
       hit[i]      = 1;
+      index[i]    = h.sub;
       distance[i] = static_cast<double>(h.distance);
-      index[i]    = (h.index >= 0) ? (h.index + 1) : NA_INTEGER;
+      x_index[i]  = (h.index >= 0) ? (h.index + 1) : NA_INTEGER;
     } else {
       hit[i] = 0;
     }
   }
+};
 
-  void record_interior(std::size_t i)
+// The single witness recorded at LEVEL_WHOLE. `flag` is the short-circuit
+// signal every worker polls; the first thread to flip it is the only one that
+// writes the payload, so no mutex is needed. Which unit wins is therefore
+// timing-dependent when several threads are running -- `flag` itself is not.
+struct WholeResult {
+  std::atomic<bool> flag;
+  int               unit;       // 0-based unit ordinal
+  int               sub;
+  double            distance;
+  int               x_index;    // 1-based, or NA_INTEGER
+
+  WholeResult()
+    : flag(false), unit(-1), sub(1), distance(NA_REAL), x_index(NA_INTEGER) {}
+
+  bool hit() const { return flag.load(); }
+
+  void claim(int unit_, const Hit &h)
   {
-    hit[i]      = 1;
-    distance[i] = 0.0;
-    index[i]    = NA_INTEGER;
+    if (flag.exchange(true)) { return; }   // someone else got there first
+    unit     = unit_;
+    sub      = h.sub;
+    distance = static_cast<double>(h.distance);
+    x_index  = (h.index >= 0) ? (h.index + 1) : NA_INTEGER;
   }
 };
 
@@ -582,16 +660,25 @@ struct InteriorTester<MyFace> {
 // against the index.
 template <class ElemType>
 struct Driver {
+  typedef typename CollisionIndex<ElemType>::Scratch Scratch;
+
   CollisionIndex<ElemType> *index;
   const std::vector<Scalar> *coords;   // 3 x n, points / segments modes
   const std::vector<Group>  *groups;
   MyMesh                    *target_mesh;   // mesh mode
-  Output                    *out;
+  UnitOutput                *out;           // NULL at LEVEL_WHOLE
+  WholeResult               *whole;         // only used at LEVEL_WHOLE
   int                        mode_y;
-  bool                       early_stop;
+  int                        level;
   bool                       include_interior;
 
-  void run_group(std::size_t gi, typename CollisionIndex<ElemType>::Scratch &scratch) const
+  // True once some thread has answered the LEVEL_WHOLE question.
+  inline bool answered() const
+  {
+    return level == LEVEL_WHOLE && whole->hit();
+  }
+
+  void run_group(std::size_t gi, Scratch &scratch) const
   {
     if (mode_y == MODE_MESH) {
       run_mesh(scratch);
@@ -600,55 +687,121 @@ struct Driver {
 
     const Group g = (*groups)[gi];
 
+    // An empty chain has no vertices to box and nothing to test; its slot keeps
+    // the NA it was initialized with.
+    if (g.begin >= g.end) { return; }
+
     // Whole-polyline reject: one box test can skip an entire tract.
     Box3 gbox;
     gbox.SetNull();
     for (int i = g.begin; i < g.end; i++) { gbox.Add(coord_at(*coords, i)); }
     const bool worth_testing = index->box_may_collide(gbox);
 
-    const int last = (mode_y == MODE_SEGMENTS) ? (g.end - 1) : g.end;
-
-    for (int i = g.begin; i < last; i++) {
-      Hit h;
-      if (worth_testing) {
-        if (mode_y == MODE_SEGMENTS) {
-          h = index->test_segment(coord_at(*coords, i), coord_at(*coords, i + 1),
-                                  scratch);
-        } else {
-          h = index->test_point(coord_at(*coords, i), scratch);
-        }
-      }
-      out->record(i, h);
-
-      if (!h.found && include_interior &&
-          InteriorTester<ElemType>::inside(*index, coord_at(*coords, i))) {
-        out->record_interior(i);
-        h.found = true;
-      }
-
-      if (h.found && early_stop) { break; }
+    if (mode_y == MODE_SEGMENTS) {
+      run_polyline(gi, g, worth_testing, scratch);
+    } else {
+      run_points(g, worth_testing, scratch);
     }
   }
 
-  void run_mesh(typename CollisionIndex<ElemType>::Scratch &scratch) const
+  // Each row is its own unit, so its slot is the row itself. Separator rows lie
+  // outside every group and keep their initial NA.
+  void run_points(const Group &g, bool worth_testing, Scratch &scratch) const
+  {
+    for (int i = g.begin; i < g.end; i++) {
+      if (answered()) { return; }
+
+      const Point3 p = coord_at(*coords, i);
+
+      Hit h;
+      if (worth_testing) { h = index->test_point(p, scratch); }
+      if (!h.found && include_interior &&
+          InteriorTester<ElemType>::inside(*index, p)) {
+        h.found    = true;
+        h.distance = 0;
+        h.index    = -1;
+      }
+
+      if (level == LEVEL_WHOLE) {
+        if (h.found) { whole->claim(i, h); return; }
+      } else {
+        out->record(i, h);
+      }
+    }
+  }
+
+  // The whole polyline is one unit, occupying the slot of its group ordinal.
+  // A group of a single row carries no segment at all and stays NA.
+  void run_polyline(std::size_t gi, const Group &g, bool worth_testing,
+                    Scratch &scratch) const
+  {
+    if (g.end - g.begin < 2) { return; }
+
+    Hit best;
+
+    for (int i = g.begin; i + 1 < g.end; i++) {
+      if (answered()) { return; }
+
+      Hit h;
+      if (worth_testing) {
+        h = index->test_segment(coord_at(*coords, i), coord_at(*coords, i + 1),
+                                scratch);
+      }
+      if (!h.found && include_interior &&
+          InteriorTester<ElemType>::inside(*index, coord_at(*coords, i))) {
+        h.found    = true;
+        h.distance = 0;
+        h.index    = -1;
+      }
+      if (!h.found) { continue; }
+
+      h.sub = i - g.begin + 1;   // 1-based, relative to the polyline start
+
+      if (level == LEVEL_WHOLE) {
+        whole->claim(static_cast<int>(gi), h);
+        return;
+      }
+      if (level == LEVEL_UNIT) {
+        out->record(gi, h);   // first hit wins; the rest is not measured
+        return;
+      }
+      if (!best.found || h.distance < best.distance) { best = h; }
+    }
+
+    // Nothing to write at LEVEL_WHOLE: reaching here means this polyline missed,
+    // and only the first hit anywhere is reported.
+    if (level != LEVEL_WHOLE) {
+      out->record(gi, best);   // records a miss when nothing was found
+    }
+  }
+
+  // Each face is its own unit, so its slot is the face itself. A face cannot
+  // short-circuit within itself, so ELEMENT and UNIT do the same work.
+  void run_mesh(Scratch &scratch) const
   {
     const int nf = target_mesh->fn;
     for (int i = 0; i < nf; i++) {
+      if (answered()) { return; }
+
       const MyFace &f = target_mesh->face[i];
       if (f.IsD()) { continue; }
 
       Hit h = index->test_triangle(f.cP(0), f.cP(1), f.cP(2), scratch);
-      out->record(i, h);
 
       if (!h.found && include_interior) {
         const Point3 bary = (f.cP(0) + f.cP(1) + f.cP(2)) / 3.0f;
         if (InteriorTester<ElemType>::inside(*index, bary)) {
-          out->record_interior(i);
-          h.found = true;
+          h.found    = true;
+          h.distance = 0;
+          h.index    = -1;   // no ROI element and no nearest vertex to name
         }
       }
 
-      if (h.found && early_stop) { break; }
+      if (level == LEVEL_WHOLE) {
+        if (h.found) { whole->claim(i, h); return; }
+      } else {
+        out->record(i, h);
+      }
     }
   }
 };
@@ -727,9 +880,11 @@ inline std::vector<PointElem> build_point_elems(const std::vector<Scalar> &coord
   return elems;
 }
 
-inline std::vector<SegElem> build_seg_elems(const std::vector<Scalar> &coords, int n)
+// `groups` comes from find_groups; the caller keeps it so that the chain count
+// reported in the summary and the elements indexed here share one grouping.
+inline std::vector<SegElem> build_seg_elems(const std::vector<Scalar> &coords,
+                                            const std::vector<Group> &groups)
 {
-  const std::vector<Group> groups = find_groups(coords, n);
   std::vector<SegElem> elems;
   for (std::size_t g = 0; g < groups.size(); g++) {
     for (int i = groups[g].begin; i + 1 < groups[g].end; i++) {
@@ -743,23 +898,19 @@ inline std::vector<SegElem> build_seg_elems(const std::vector<Scalar> &coords, i
   return elems;
 }
 
-// Runs the whole query once the ROI element type is known.
+// Runs the whole query once the ROI element type is known. The returned list is
+// flat -- the R wrapper assembles `unit` / `index` / `distance` / `x_index`
+// into a data frame, drops `hit_unit` at LEVEL_WHOLE, and folds the two unit
+// counts into the summary.
 template <class ElemType, class ObjIter>
 Rcpp::List dispatch_target(ObjIter first, ObjIter last, std::size_t n_elems,
                            MyMesh *roi_mesh, double radius,
                            const std::vector<Scalar> &y_coords, int ny,
-                           MyMesh *y_mesh, int mode_y, bool early_stop,
-                           bool include_interior)
+                           MyMesh *y_mesh, int mode_y, int level,
+                           bool include_interior, int n_units_x)
 {
   CollisionIndex<ElemType> index;
   index.build(first, last, n_elems, static_cast<Scalar>(radius), roi_mesh);
-
-  const std::size_t n_out =
-    (mode_y == MODE_MESH) ? static_cast<std::size_t>(y_mesh->fn)
-                          : static_cast<std::size_t>(ny);
-
-  Output out;
-  out.resize(n_out);
 
   std::vector<Group> groups;
   if (mode_y == MODE_MESH) {
@@ -769,29 +920,90 @@ Rcpp::List dispatch_target(ObjIter first, ObjIter last, std::size_t n_elems,
     groups = find_groups(y_coords, ny);
   }
 
+  // One slot per unit of the target: a face, a polyline, or a row (separator
+  // rows included, so the answers stay aligned with the input matrix).
+  std::size_t n_units;
+  if (mode_y == MODE_MESH) {
+    n_units = static_cast<std::size_t>(y_mesh->fn);
+  } else if (mode_y == MODE_SEGMENTS) {
+    n_units = groups.size();
+  } else {
+    n_units = static_cast<std::size_t>(ny);
+  }
+
+  UnitOutput  out;
+  WholeResult whole;
+  if (level != LEVEL_WHOLE) { out.resize(n_units); }
+
   Driver<ElemType> driver;
   driver.index            = &index;
   driver.coords           = &y_coords;
   driver.groups           = &groups;
   driver.target_mesh      = y_mesh;
-  driver.out              = &out;
+  driver.out              = (level == LEVEL_WHOLE) ? NULL : &out;
+  driver.whole            = &whole;
   driver.mode_y           = mode_y;
-  driver.early_stop       = early_stop;
+  driver.level            = level;
   driver.include_interior = include_interior;
 
   // Is_Inside builds its own mutating FaceTmark, so the interior pass must
   // stay on one thread.
   run_driver(driver, groups.size(), include_interior);
 
-  Rcpp::LogicalVector hit(n_out);
-  for (std::size_t i = 0; i < n_out; i++) {
-    hit[i] = (out.hit[i] == NA_INTEGER) ? NA_LOGICAL : out.hit[i];
+  if (level == LEVEL_WHOLE) {
+    const bool found = whole.hit();
+    const int  n     = found ? 1 : 0;
+
+    Rcpp::IntegerVector rep_unit(n), rep_index(n), rep_x(n);
+    Rcpp::NumericVector rep_dist(n);
+    if (found) {
+      rep_unit[0]  = whole.unit + 1;
+      rep_index[0] = whole.sub;
+      rep_dist[0]  = whole.distance;
+      rep_x[0]     = whole.x_index;
+    }
+
+    return Rcpp::List::create(
+      Rcpp::Named("collide")   = found,
+      Rcpp::Named("hit_unit")  = R_NilValue,
+      Rcpp::Named("unit")      = rep_unit,
+      Rcpp::Named("index")     = rep_index,
+      Rcpp::Named("distance")  = rep_dist,
+      Rcpp::Named("x_index")   = rep_x,
+      Rcpp::Named("n_units_x") = n_units_x,
+      Rcpp::Named("n_units_y") = static_cast<int>(n_units));
+  }
+
+  // Compact the per-unit slots into the sparse table of hit units.
+  std::size_t n_hit = 0;
+  for (std::size_t i = 0; i < n_units; i++) {
+    if (out.hit[i] == 1) { n_hit++; }
+  }
+
+  Rcpp::LogicalVector hit_unit(n_units);
+  Rcpp::IntegerVector rep_unit(n_hit), rep_index(n_hit), rep_x(n_hit);
+  Rcpp::NumericVector rep_dist(n_hit);
+
+  std::size_t k = 0;
+  for (std::size_t i = 0; i < n_units; i++) {
+    hit_unit[i] = (out.hit[i] == NA_INTEGER) ? NA_LOGICAL : out.hit[i];
+    if (out.hit[i] != 1) { continue; }
+    rep_unit[k]  = static_cast<int>(i) + 1;
+    rep_index[k] = out.index[i];
+    rep_dist[k]  = out.distance[i];
+    rep_x[k]     = out.x_index[i];
+    k++;
   }
 
   return Rcpp::List::create(
-    Rcpp::Named("hit")      = hit,
-    Rcpp::Named("distance") = Rcpp::wrap(out.distance),
-    Rcpp::Named("index")    = Rcpp::wrap(out.index));
+    Rcpp::Named("collide")   = (n_hit > 0),
+    Rcpp::Named("hit_unit")  = hit_unit,
+    Rcpp::Named("unit")      = rep_unit,
+    Rcpp::Named("index")     = rep_index,
+    Rcpp::Named("distance")  = rep_dist,
+    Rcpp::Named("x_index")   = rep_x,
+    Rcpp::Named("n_units_x") = n_units_x,
+    Rcpp::Named("n_units_y") = static_cast<int>(n_units));
 }
 
 }   // namespace collision
@@ -801,6 +1013,7 @@ Rcpp::List dispatch_target(ObjIter first, ObjIter last, std::size_t n_elems,
 // R entry point
 //
 //   mode_x / mode_y : 0 = points, 1 = segments, 2 = mesh
+//   test_level      : 0 = element, 1 = unit, 2 = whole
 //   x_ / y_         : 3 x n coordinate matrices (mesh `vb` in mesh mode)
 //   x_it_ / y_it_   : 3 x m 0-based face matrices, or NULL
 //
@@ -812,7 +1025,7 @@ SEXP vcgDetectCollision(
     const Rcpp::NumericMatrix &y_, SEXP y_it_,
     int mode_x, int mode_y,
     double radius,
-    bool early_stop,
+    int test_level,
     bool include_interior)
 {
   using namespace ravetools;
@@ -821,6 +1034,9 @@ SEXP vcgDetectCollision(
   try {
     if (!(radius >= 0)) {
       Rcpp::stop("vcgDetectCollision: `radius` must be a non-negative number.");
+    }
+    if (test_level < LEVEL_ELEMENT || test_level > LEVEL_WHOLE) {
+      Rcpp::stop("vcgDetectCollision: `test_level` must be 0, 1, or 2.");
     }
     if (include_interior && mode_x != MODE_MESH) {
       Rcpp::stop("vcgDetectCollision: `include_interior` requires a mesh `x`.");
@@ -855,23 +1071,27 @@ SEXP vcgDetectCollision(
       return dispatch_target<MyFace>(
         x_mesh.face.begin(), x_mesh.face.end(),
         static_cast<std::size_t>(x_mesh.fn), &x_mesh, radius,
-        y_coords, ny, &y_mesh, mode_y, early_stop, include_interior);
+        y_coords, ny, &y_mesh, mode_y, test_level, include_interior,
+        x_mesh.fn);
     }
 
     int nx = 0;
     const std::vector<Scalar> x_coords = read_coords(x_, nx);
 
     if (mode_x == MODE_SEGMENTS) {
-      std::vector<SegElem> elems = build_seg_elems(x_coords, nx);
+      // One grouping serves both the elements indexed and the chain count.
+      const std::vector<Group> x_groups = find_groups(x_coords, nx);
+      std::vector<SegElem> elems = build_seg_elems(x_coords, x_groups);
       return dispatch_target<SegElem>(
         elems.begin(), elems.end(), elems.size(), NULL, radius,
-        y_coords, ny, &y_mesh, mode_y, early_stop, include_interior);
+        y_coords, ny, &y_mesh, mode_y, test_level, include_interior,
+        static_cast<int>(x_groups.size()));
     }
 
     std::vector<PointElem> elems = build_point_elems(x_coords, nx);
     return dispatch_target<PointElem>(
       elems.begin(), elems.end(), elems.size(), NULL, radius,
-      y_coords, ny, &y_mesh, mode_y, early_stop, include_interior);
+      y_coords, ny, &y_mesh, mode_y, test_level, include_interior, nx);
 
   } catch (std::exception &e) {
     Rcpp::stop(e.what());

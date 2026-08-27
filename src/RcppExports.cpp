@@ -3729,8 +3729,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // vcgDetectCollision
-SEXP vcgDetectCollision(const Rcpp::NumericMatrix& x_, SEXP x_it_, const Rcpp::NumericMatrix& y_, SEXP y_it_, int mode_x, int mode_y, double radius, bool early_stop, bool include_interior);
-RcppExport SEXP _ravetools_vcgDetectCollision(SEXP x_SEXP, SEXP x_it_SEXP, SEXP y_SEXP, SEXP y_it_SEXP, SEXP mode_xSEXP, SEXP mode_ySEXP, SEXP radiusSEXP, SEXP early_stopSEXP, SEXP include_interiorSEXP) {
+SEXP vcgDetectCollision(const Rcpp::NumericMatrix& x_, SEXP x_it_, const Rcpp::NumericMatrix& y_, SEXP y_it_, int mode_x, int mode_y, double radius, int test_level, bool include_interior);
+RcppExport SEXP _ravetools_vcgDetectCollision(SEXP x_SEXP, SEXP x_it_SEXP, SEXP y_SEXP, SEXP y_it_SEXP, SEXP mode_xSEXP, SEXP mode_ySEXP, SEXP radiusSEXP, SEXP test_levelSEXP, SEXP include_interiorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -3741,9 +3741,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type mode_x(mode_xSEXP);
     Rcpp::traits::input_parameter< int >::type mode_y(mode_ySEXP);
     Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
-    Rcpp::traits::input_parameter< bool >::type early_stop(early_stopSEXP);
+    Rcpp::traits::input_parameter< int >::type test_level(test_levelSEXP);
     Rcpp::traits::input_parameter< bool >::type include_interior(include_interiorSEXP);
-    rcpp_result_gen = Rcpp::wrap(vcgDetectCollision(x_, x_it_, y_, y_it_, mode_x, mode_y, radius, early_stop, include_interior));
+    rcpp_result_gen = Rcpp::wrap(vcgDetectCollision(x_, x_it_, y_, y_it_, mode_x, mode_y, radius, test_level, include_interior));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -645,8 +645,8 @@ getDefaultNumThreads <- function() {
     .Call(`_ravetools_getDefaultNumThreads`)
 }
 
-vcgDetectCollision <- function(x_, x_it_, y_, y_it_, mode_x, mode_y, radius, early_stop, include_interior) {
-    .Call(`_ravetools_vcgDetectCollision`, x_, x_it_, y_, y_it_, mode_x, mode_y, radius, early_stop, include_interior)
+vcgDetectCollision <- function(x_, x_it_, y_, y_it_, mode_x, mode_y, radius, test_level, include_interior) {
+    .Call(`_ravetools_vcgDetectCollision`, x_, x_it_, y_, y_it_, mode_x, mode_y, radius, test_level, include_interior)
 }
 
 vcgIsoSurface <- function(array_, thresh) {
