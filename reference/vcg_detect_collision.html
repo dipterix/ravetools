@@ -21,7 +21,7 @@ vertex-sampled approximation."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@ vertex-sampled approximation.</p>
 <span>  mode_x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"points"</span>, <span class="st">"segments"</span>, <span class="st">"mesh"</span><span class="op">)</span>,</span>
 <span>  mode_y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"points"</span>, <span class="st">"segments"</span>, <span class="st">"mesh"</span><span class="op">)</span>,</span>
 <span>  radius <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  early_stop <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  test_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"element"</span>, <span class="st">"unit"</span>, <span class="st">"whole"</span><span class="op">)</span>,</span>
 <span>  include_interior <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -100,16 +100,16 @@ distance is at most <code>radius</code>. Defaults to <code>0</code>, meaning lit
 contact; a positive tolerance is usually what is wanted</p></dd>
 
 
-<dt id="arg-early-stop">early_stop<a class="anchor" aria-label="anchor" href="#arg-early-stop"></a></dt>
-<dd><p>whether to stop as soon as a collision is found, scanning
-independently within each group of <code>y</code> delimited by <code>NA</code> rows. A
-matrix carrying no <code>NA</code> rows is a single group, so a point cloud stops
-after one hit overall rather than per row; likewise <code>mode_y = 'mesh'</code>
-stops at the first colliding face. Skipped elements report <code>hit = NA</code>,
-meaning <em>not evaluated</em> rather than <em>no collision</em>, and the
-collision reported is the first in row order, not the closest. Use
-<code>FALSE</code> (the default) whenever the per-element profile or a minimum
-distance is wanted</p></dd>
+<dt id="arg-test-level">test_level<a class="anchor" aria-label="anchor" href="#arg-test-level"></a></dt>
+<dd><p>how exhaustively <code>y</code> is scanned. Answers are always
+reported per <em>unit</em> of <code>y</code>: a point when <code>mode_y = 'points'</code>,
+a chain when <code>'segments'</code>, a face when <code>'mesh'</code>.
+<code>'element'</code> (the default) measures every element of every unit and
+reports the closest one; <code>'unit'</code> stops at the first hit inside each
+unit and reports that one; <code>'whole'</code> stops at the first hit anywhere and
+answers only whether the two geometries collide. Because a point and a face
+each <em>are</em> their own unit, <code>'element'</code> and <code>'unit'</code> differ
+only when <code>mode_y = 'segments'</code></p></dd>
 
 
 <dt id="arg-include-interior">include_interior<a class="anchor" aria-label="anchor" href="#arg-include-interior"></a></dt>
@@ -121,24 +121,57 @@ Default is <code>FALSE</code></p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of three vectors, each aligned one-to-one with the rows of
-<code>y</code> (or with the faces of <code>y</code> when <code>mode_y = 'mesh'</code>):</p><dl><dt><code>hit</code></dt>
-<dd><p>logical. <code>NA</code> marks an element with nothing to
-    test: a separator row, or the final vertex of each group when
-    <code>mode_y = 'segments'</code>. When <code>early_stop = TRUE</code>, <code>NA</code>
-    also marks elements the scan never reached</p></dd>
+    <p>A list. <code>collide</code> is always present, so a plain yes-or-no
+question can be asked at any <code>test_level</code>:</p><dl><dt><code>collide</code></dt>
+<dd><p>a length-one logical: whether <code>x</code> and <code>y</code>
+    collide at all. <code>FALSE</code> for empty input</p></dd>
 
-  <dt><code>distance</code></dt>
-<dd><p>the exact minimum distance where <code>hit</code> is
-    <code>TRUE</code>, and <code>NA</code> everywhere else. Distances beyond
-    <code>radius</code> are never computed, so a <code>FALSE</code> element carries no
-    distance</p></dd>
+  <dt><code>hit_unit</code></dt>
+<dd><p>logical, one entry per unit of <code>y</code>, omitted
+    when <code>test_level = 'whole'</code>. <code>NA</code> marks a unit with nothing to
+    test, and is deliberately not <code>FALSE</code>; see <em>Why
+    <code>hit_unit</code> reports <code>NA</code></em> below</p></dd>
+
+  <dt><code>representation</code></dt>
+<dd><p>a data frame with one row per <em>hit</em>
+    unit, so <code>nrow</code> equals <code>sum(hit_unit, na.rm = TRUE)</code> and a
+    collision-free query gives zero rows. When
+    <code>test_level = 'whole'</code> it holds at most one row</p></dd>
+
+  <dt><code>summary</code></dt>
+<dd><p>what the query actually was, so a stored result can
+    be read back without the call that made it</p></dd>
+
+
+</dl><p><code>summary</code> holds <code>radius</code>, <code>test_level</code>,
+<code>include_interior</code>, and one entry per side. Each side reports its
+<code>mode</code> <em>as resolved</em> (never <code>'auto'</code>), the matching
+<code>unit_type</code> of <code>'point'</code>, <code>'line'</code>, or <code>'face'</code>, and
+<code>n_units</code>: one per row for <code>'points'</code> with separator rows included,
+one per chain for <code>'segments'</code>, one per face for <code>'mesh'</code>. So
+<code>summary$y$n_units</code> always equals <code>length(hit_unit)</code>, and remains
+the only record of the size of <code>y</code> when <code>test_level = 'whole'</code>
+drops that vector.</p>
+<p>The columns of <code>representation</code> name the collision on both sides:</p><dl><dt><code>unit</code></dt>
+<dd><p>1-based unit of <code>y</code>: the row itself when
+    <code>mode_y = 'points'</code>, the position of the chain when
+    <code>'segments'</code>, the face column when <code>'mesh'</code></p></dd>
 
   <dt><code>index</code></dt>
-<dd><p>1-based index of the closest element of <code>x</code>
-    within <code>radius</code>: a row when <code>mode_x</code> is <code>'points'</code>, the
-    row where the segment starts when <code>'segments'</code>, or a face column
-    when <code>'mesh'</code>. <code>NA</code> where there is no collision</p></dd>
+<dd><p>1-based element <em>within</em> that unit: always
+    <code>1</code> for a point, the position of the segment counted from the start
+    of its own chain for <code>'segments'</code>, and the face vertex nearest
+    <code>x</code> (<code>1</code>, <code>2</code>, or <code>3</code>) for <code>'mesh'</code></p></dd>
+
+  <dt><code>distance</code></dt>
+<dd><p>the exact distance from that element to <code>x</code>.
+    Distances beyond <code>radius</code> are never computed</p></dd>
+
+  <dt><code>x_index</code></dt>
+<dd><p>1-based element of <code>x</code> that was hit: a row when
+    <code>mode_x</code> is <code>'points'</code>, the row where the segment starts when
+    <code>'segments'</code>, or a face column when <code>'mesh'</code>. <code>NA</code> for a
+    hit found by <code>include_interior</code> rather than by proximity</p></dd>
 
 
 </dl></div>
@@ -146,7 +179,7 @@ Default is <code>FALSE</code></p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>x</code> is indexed once into a uniform spatial grid and <code>y</code> is
 streamed against it, so put the larger or repeatedly-reused geometry in
-<code>x</code> and the geometry you want per-element answers about in <code>y</code>.</p>
+<code>x</code> and the geometry you want per-unit answers about in <code>y</code>.</p>
 <p>Several chains share one matrix and are delimited by rows of <code>NA</code>; any
 row that is not fully finite is treated as a separator. This lets a whole
 bundle of streamlines be passed as a single matrix:</p>
@@ -157,11 +190,60 @@ bundle of streamlines be passed as a single matrix:</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">0</span><span class="op">)</span>                <span class="co"># second streamline</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 
-<p>Those separators also define the unit that <code>early_stop</code> works on: it
-stops once per group, so a bundle of streamlines yields at most one hit per
-streamline.</p>
-<p>When <code>mode_y = 'segments'</code>, row <code>i</code> of the result describes the
-segment running from row <code>i</code> to row <code>i + 1</code>.</p>
+<p>Those separators define the units that results are reported against: with
+<code>mode_y = 'segments'</code> the matrix above is two units, so
+<code>hit_unit</code> has two entries whatever the <code>test_level</code>. With
+<code>mode_y = 'points'</code> every row is its own unit, separators included, so
+<code>hit_unit</code> stays aligned with the rows of <code>y</code> and reports
+<code>NA</code> at each separator.</p>
+<p>Separators split the matrix into slots, and <em>every</em> slot is a chain,
+empty ones included: two adjacent separators enclose an empty chain, which
+reports <code>NA</code>. The two ends are deliberately not symmetric. A separator
+in the first row opens an empty leading chain, but a separator in the last
+row closes the chain before it rather than opening a trailing empty one:</p>
+<table class="table table"><tr><td><strong>matrix</strong></td><td><strong>chains</strong></td></tr><tr><td><code>A</code></td><td>1: <code>[A]</code></td></tr><tr><td><code>A NA B</code></td><td>2: <code>[A] [B]</code></td></tr><tr><td><code>A NA NA B</code></td><td>3: <code>[A] [] [B]</code></td></tr><tr><td><code>NA A</code></td><td>2: <code>[] [A]</code></td></tr><tr><td><code>A NA</code></td><td>1: <code>[A]</code></td></tr></table><p>That rule exists so a bundle assembled by appending a separator to every
+chain gives exactly one unit per chain, whichever of them happen to be empty:</p>
+<div class="sourceCode"><pre><code><span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="st">"rbind"</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">tracts</span>, <span class="kw">function</span><span class="op">(</span><span class="va">line</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">line</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+
+<p>Since <code>mode_x</code> plays no part in that grouping, the <code>index</code> of a
+segment is always counted from the start of its own chain rather than from
+the top of the matrix. The <code>unit</code> column gives the chain.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="why-hit-unit-reports-na">Why <code>hit_unit</code> reports <code>NA</code><a class="anchor" aria-label="anchor" href="#why-hit-unit-reports-na"></a></h2>
+
+
+
+<p><code>NA</code> means <em>there was no geometry here to test</em>. <code>FALSE</code> means
+<em>geometry was here and it missed</em>. Three situations produce the first:</p>
+<table class="table table"><tr><td><strong><code>mode_y</code></strong></td><td><strong>the unit reports <code>NA</code> when</strong></td></tr><tr><td><code>'points'</code></td><td>the row is a separator</td></tr><tr><td><code>'segments'</code></td><td>the chain is empty (two adjacent separators)</td></tr><tr><td><code>'segments'</code></td><td>the chain holds one vertex, so carries no segment</td></tr></table><p><code>mode_y = 'mesh'</code> therefore never reports <code>NA</code>: a face is always
+testable. (The scan does skip faces flagged as deleted, but a surface is
+rebuilt from its vertex and face matrices on every call, so no face arrives
+flagged.)</p>
+<p>An empty chain cannot collide with anything, so reporting <code>FALSE</code> would
+not be wrong in the set-theoretic sense. It is avoided for two reasons. In
+<code>'points'</code> mode <code>hit_unit</code> is aligned to the rows of <code>y</code> so
+that it can be indexed straight back into the input matrix, which means
+separator rows occupy slots; calling those <code>FALSE</code> asserts something
+about a point that does not exist. And <code>sum(is.na(hit_unit))</code> counts the
+degenerate units that were passed in – empty or single-vertex streamlines in
+a tract file, deleted faces in a surface – which is usually a data-quality
+signal worth seeing rather than silently folding into "missed". Once
+flattened to <code>FALSE</code> that count cannot be recovered.</p>
+<p>Most uses never have to deal with it. <code>which</code> already drops <code>NA</code>,
+so <code>which(hit_unit)</code> gives the colliding units directly, and
+<code>representation$unit</code> is that same vector without any coercion.
+<code>NA</code> only intrudes on <code>sum</code> / <code>any</code> / <code>if</code> without
+<code>na.rm</code>, and on logical subsetting such as <code>tracts[hit_unit]</code>,
+which yields <code>NULL</code> entries. Where a plain mask really is wanted:</p>
+<div class="sourceCode"><pre><code><span></span>
+<span>  <span class="va">mask</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">hit_unit</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="cn">TRUE</span>     <span class="co"># NA becomes FALSE</span></span></code></pre></div>
+
+<p><code>test_level = 'whole'</code> reports <em>a</em> colliding unit, not necessarily
+the first one in order: the scan stops as soon as any thread finds a
+collision. <code>collide</code> itself is deterministic, as are the two lower
+levels, which measure each unit in row order.</p>
 <p>Both geometries must already share one coordinate space. Surface
 coordinates, volume <code>IJK</code> indices, and scanner coordinates are all
 different spaces, and no transform is applied here.</p>
@@ -222,51 +304,84 @@ before calling <span class="pkg">ravetools</span> mesh functions.</p>
 <span class="r-in"><span>  radius <span class="op">=</span> <span class="fl">0.1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Which segments touch the sphere, and how close do they get?</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  hit <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">hit</span>,</span></span>
-<span class="r-in"><span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">distance</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Which streamlines touch the sphere, and where does each come closest?</span></span></span>
+<span class="r-in"><span><span class="va">result</span><span class="op">$</span><span class="va">hit_unit</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  TRUE FALSE</span>
+<span class="r-in"><span><span class="va">result</span><span class="op">$</span><span class="va">representation</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   unit index distance x_index</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1     4        0     494</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># What was actually asked, including what `mode = "auto"` resolved to</span></span></span>
+<span class="r-in"><span><span class="va">result</span><span class="op">$</span><span class="va">summary</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $x$mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mesh"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $x$unit_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "face"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $x$n_units</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1280</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $y$mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "segments"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $y$unit_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "line"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $y$n_units</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $radius</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $test_level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "element"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $include_interior</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A bundle assembled by appending a separator to every streamline gives one</span></span></span>
+<span class="r-in"><span><span class="co"># unit per streamline, even where a streamline is empty: here the middle one</span></span></span>
+<span class="r-in"><span><span class="co"># contributes only its own separator, and reports NA rather than vanishing</span></span></span>
+<span class="r-in"><span><span class="va">tracts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">3</span>, by <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">3</span>, by <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      hit distance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   TRUE        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   TRUE        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   TRUE        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   TRUE        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26 FALSE       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27    NA       NA</span>
+<span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="st">"rbind"</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">tracts</span>, <span class="kw">function</span><span class="op">(</span><span class="va">line</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">line</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="va">bundle</span>, mode_y <span class="op">=</span> <span class="st">"segments"</span>,</span></span>
+<span class="r-in"><span>                     radius <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">$</span><span class="va">hit_unit</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  TRUE    NA FALSE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The same question, giving up on a streamline once it is known to collide.</span></span></span>
+<span class="r-in"><span><span class="co"># `hit_unit` is unchanged; `index` names the first colliding segment instead</span></span></span>
+<span class="r-in"><span><span class="co"># of the closest one, which here happens to be the same segment</span></span></span>
+<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="va">streamlines</span>, mode_y <span class="op">=</span> <span class="st">"segments"</span>, radius <span class="op">=</span> <span class="fl">0.1</span>,</span></span>
+<span class="r-in"><span>                     test_level <span class="op">=</span> <span class="st">"unit"</span><span class="op">)</span><span class="op">$</span><span class="va">representation</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   unit index distance x_index</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1     4        0     494</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Does the bundle touch the sphere at all?</span></span></span>
+<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="va">streamlines</span>, mode_y <span class="op">=</span> <span class="st">"segments"</span>, radius <span class="op">=</span> <span class="fl">0.1</span>,</span></span>
+<span class="r-in"><span>                     test_level <span class="op">=</span> <span class="st">"whole"</span><span class="op">)</span><span class="op">$</span><span class="va">collide</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A point cloud against the same region, asking only for proximity</span></span></span>
 <span class="r-in"><span><span class="va">points</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.05</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="va">points</span>, radius <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">$</span><span class="va">hit</span></span></span>
+<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="va">points</span>, radius <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">$</span><span class="va">hit_unit</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE  TRUE FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The centre of the sphere is far from its surface, so it only counts as a</span></span></span>
 <span class="r-in"><span><span class="co"># collision when the interior is included</span></span></span>
-<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, radius <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">$</span><span class="va">hit</span></span></span>
+<span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, radius <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">$</span><span class="va">collide</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span><span class="fu">vcg_detect_collision</span><span class="op">(</span><span class="va">roi</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, radius <span class="op">=</span> <span class="fl">0.1</span>,</span></span>
-<span class="r-in"><span>                     include_interior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">hit</span></span></span>
+<span class="r-in"><span>                     include_interior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">collide</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

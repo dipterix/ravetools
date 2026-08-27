@@ -1,13 +1,13 @@
 # Changelog
 
-## ravetools 0.3.0.1
+## ravetools 0.3.1
 
 - Fixed the internal mesh reader leaving vertex normals uninitialized
   when the caller supplied no normals, which `valgrind` reported as a
   conditional jump depending on uninitialized values while subdividing
   edges; normals are now zeroed on load
 - Fixed the native registration sources failing to compile under `C++11`
-  toolchains (such as the `conda-forge` builds) with recent `clang`,
+  tool-chains (such as the `conda-forge` builds) with recent `clang`,
   where converting an `Rcpp::Nullable` argument to `Rcpp::NumericVector`
   or `Rcpp::NumericMatrix` was ambiguous; the `SEXP` accessor is now
   called explicitly

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.0.1" id="ravetools-0301">ravetools 0.3.0.1<a class="anchor" aria-label="anchor" href="#ravetools-0301"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1" id="ravetools-031">ravetools 0.3.1<a class="anchor" aria-label="anchor" href="#ravetools-031"></a></h2>
 <ul><li>Fixed the internal mesh reader leaving vertex normals uninitialized when the caller supplied no normals, which <code>valgrind</code> reported as a conditional jump depending on uninitialized values while subdividing edges; normals are now zeroed on load</li>
-<li>Fixed the native registration sources failing to compile under <code>C++11</code> toolchains (such as the <code>conda-forge</code> builds) with recent <code>clang</code>, where converting an <code>Rcpp::Nullable</code> argument to <code>Rcpp::NumericVector</code> or <code>Rcpp::NumericMatrix</code> was ambiguous; the <code>SEXP</code> accessor is now called explicitly</li>
+<li>Fixed the native registration sources failing to compile under <code>C++11</code> tool-chains (such as the <code>conda-forge</code> builds) with recent <code>clang</code>, where converting an <code>Rcpp::Nullable</code> argument to <code>Rcpp::NumericVector</code> or <code>Rcpp::NumericMatrix</code> was ambiguous; the <code>SEXP</code> accessor is now called explicitly</li>
 <li>Fixed <code>vcg_smooth_implicit</code> returning a completely corrupted mesh (all zeros or <code>NaN</code>, varying between runs) whenever the input contained vertices belonging to no face; such vertices make the implicit linear system singular, and are now excluded from the solve and returned at their input positions, consistent with <code>vcg_smooth_explicit</code>
 </li>
 </ul></div>
