@@ -189,8 +189,10 @@ is_not_cran <- function(if_interactive = TRUE, verbose = FALSE) {
 #' @returns Function object if found, otherwise \code{on_missing}.
 #' @export
 internal_rave_function <- function(name, pkg, inherit = TRUE, on_missing = NULL) {
-  if (!pkg %in% c("ravecore", "raveio", "ravedash", "ravebuiltins", "rave", "threeBrain",
-                 "dipsaus", "filearray", "readNSx", "rpymat", "rpyANTs")) {
+  if (!pkg %in% c(
+    "ravecore", "raveio", "ravedash", "ravebuiltins", "rave",
+    "threeBrain", "ravemanager", "ieegio", "bidsr", "rutabaga",
+    "dipsaus", "filearray", "readNSx", "rpymat", "rpyANTs")) {
     stop("`extern_function`: Package [", pkg, "] is not a RAVE package.")
   }
   if (system.file(package = pkg) == "") { return(on_missing) }
@@ -236,7 +238,15 @@ lapply_async <- function(x, FUN, FUN.args = list(), callback = NULL, ncores = NU
     ret <- lapply(x, FUN)
   } else {
     raveio <- asNamespace("raveio")
-    ret <- raveio$lapply_async(x = x, FUN = FUN, FUN.args = FUN.args, callback = callback, ncores = ncores, on_failure = on_failure, ...)
+    ret <- raveio$lapply_async(
+      x = x,
+      FUN = FUN,
+      FUN.args = FUN.args,
+      callback = callback,
+      ncores = ncores,
+      on_failure = on_failure,
+      ...
+    )
   }
   ret
 }
