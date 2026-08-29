@@ -23,3 +23,8 @@ valgrind.R
 valgrind.sh
 .positai
 mountainsort4_output
+inst/doc
+vignettes/*.html
+vignettes/*.R
+ravetools.Rcheck
+ravetools_*.tar.gz

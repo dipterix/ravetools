@@ -383,6 +383,57 @@ The `vcg_*` and `mris_*` families are the building blocks the two sections above
 | Query | `vcg_kdtree_nearest`, `vcg_raycaster`, `vcg_detect_collision` |
 | Subset and extract | `vcg_subset_vertex`, `vcg_mesh_patch`, `mris_make_surfaces` |
 
+They compose. Two primitives, the three `Query` functions asked about them, and one `plot` call:
+
+```{r geometry, fig.height = 3.6}
+# A unit sphere, and a plane tilted so that it slices through it
+sphere <- vcg_sphere(sub_division = 4)
+plane <- plane_geometry(width = 2.6, height = 2.6, shape = c(40, 40))
+tilt <- new_matrix4()$make_rotation_y(25 * pi / 180)$to_array()
+plane$vb <- (tilt %*% rbind(plane$vb[1:3, ], 1))[1:3, ] + c(0, 0, 0.35)
+
+# Which of the 3042 plane triangles actually cut the sphere?
+cut <- vcg_detect_collision(sphere, plane, radius = 0.02)
+band <- plane
+band$it <- plane$it[, which(cut$hit_unit), drop = FALSE]
+
+# Nearest sphere vertex to every plane vertex, mapped onto a color ramp
+kd <- vcg_kdtree_nearest(target = sphere, query = plane, k = 1)
+col <- color_ramp_continuous(kd$distance[, 1],
+                             cmap = c("#f2f2f2", "#7fa8c9", "#2c5f8a"))
+
+# Lift the same plane clear of the sphere, then drop a ray from every vertex
+above <- plane$vb
+above[3, ] <- above[3, ] + 1.8
+rays <- vcg_raycaster(sphere, ray_origin = above, ray_direction = c(0, 0, -1))
+pierce <- structure(
+  list(vb = rays$intersection[, rays$has_intersection, drop = FALSE]),
+  class = "mesh3d"
+)
+
+oldpar <- par(mfrow = c(1, 2), mar = c(0.1, 0.1, 2.1, 0.1))
+plot_mesh_polygon(
+  list(sphere, plane, band),
+  col = list("gray55", col, "#a33a3a"), alpha = c(0.5, 0.92, 1),
+  eye = c(3.5, -4, 2.2), up = c(0, 0, 1), zoom = 1.15,
+  shadow_color = "white", ambient_intensity = 0.55,
+  main = "Distance to the sphere; cut faces in red"
+)
+plot_mesh_polygon(
+  list(sphere, pierce),
+  col = list("gray72", "#a33a3a"), cex = 0.03,
+  eye = c(3.5, -4, 2.2), up = c(0, 0, 1), zoom = 0.68,
+  shadow_color = "white", ambient_intensity = 0.55,
+  main = "Where a downward ray enters the sphere"
+)
+par(oldpar)
+```
+<img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/geometry-1.png?raw=true" width="100%">
+
+307 of the plane's triangles cut the sphere, and 780 of the 1600 dropped rays land on it. The two distances answer different questions: `vcg_detect_collision` reports the exact minimum distance to the surface, while `vcg_kdtree_nearest` reports the distance to the nearest *vertex* - the sampled approximation that is cheaper and usually good enough. A point cloud handed to `plot_mesh_polygon` with no face matrix is drawn as one small sphere per point, which is how the ray hits are rendered above.
+
+The `vignette("mesh-geometry", package = "ravetools")` article walks the rest of the table - repair, re-meshing, smoothing, inflation, patches, and geodesic paths - on a real hippocampus surface.
+
 The `vcg_*` functions are built on [`vcglib`](https://github.com/cnr-isti-vclab/vcglib) from the Visual Computing Lab, `ISTI`. `mris_remesh` implements the isotropic re-meshing algorithm of `Botsch` and `Kobbelt` (2003), and the `mris_inflate` and `mris_sphere` pair follows the cortical inflation and spherical mapping of `Fischl` and colleagues (1999).
 
 ---
