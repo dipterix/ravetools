@@ -32,6 +32,12 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/mesh-geometry.html">Mesh geometry</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -414,6 +420,52 @@
 </tr>
 </tbody>
 </table>
+<p>They compose. Two primitives, the three <code>Query</code> functions asked about them, and one <code>plot</code> call:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># A unit sphere, and a plane tilted so that it slices through it</span></span>
+<span><span class="va">sphere</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcg_sphere.html">vcg_sphere</a></span><span class="op">(</span>sub_division <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">plane</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plane_geometry.html">plane_geometry</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2.6</span>, height <span class="op">=</span> <span class="fl">2.6</span>, shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">40</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">tilt</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_matrix4.html">new_matrix4</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">make_rotation_y</span><span class="op">(</span><span class="fl">25</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">/</span> <span class="fl">180</span><span class="op">)</span><span class="op">$</span><span class="fu">to_array</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">plane</span><span class="op">$</span><span class="va">vb</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">tilt</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">plane</span><span class="op">$</span><span class="va">vb</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.35</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Which of the 3042 plane triangles actually cut the sphere?</span></span>
+<span><span class="va">cut</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcg_detect_collision.html">vcg_detect_collision</a></span><span class="op">(</span><span class="va">sphere</span>, <span class="va">plane</span>, radius <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span>
+<span><span class="va">band</span> <span class="op">&lt;-</span> <span class="va">plane</span></span>
+<span><span class="va">band</span><span class="op">$</span><span class="va">it</span> <span class="op">&lt;-</span> <span class="va">plane</span><span class="op">$</span><span class="va">it</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">cut</span><span class="op">$</span><span class="va">hit_unit</span><span class="op">)</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Nearest sphere vertex to every plane vertex, mapped onto a color ramp</span></span>
+<span><span class="va">kd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcg_kdtree_nearest.html">vcg_kdtree_nearest</a></span><span class="op">(</span>target <span class="op">=</span> <span class="va">sphere</span>, query <span class="op">=</span> <span class="va">plane</span>, k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">col</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/color_ramp_continuous.html">color_ramp_continuous</a></span><span class="op">(</span><span class="va">kd</span><span class="op">$</span><span class="va">distance</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>,</span>
+<span>                             cmap <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#f2f2f2"</span>, <span class="st">"#7fa8c9"</span>, <span class="st">"#2c5f8a"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lift the same plane clear of the sphere, then drop a ray from every vertex</span></span>
+<span><span class="va">above</span> <span class="op">&lt;-</span> <span class="va">plane</span><span class="op">$</span><span class="va">vb</span></span>
+<span><span class="va">above</span><span class="op">[</span><span class="fl">3</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">above</span><span class="op">[</span><span class="fl">3</span>, <span class="op">]</span> <span class="op">+</span> <span class="fl">1.8</span></span>
+<span><span class="va">rays</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcg_raycaster.html">vcg_raycaster</a></span><span class="op">(</span><span class="va">sphere</span>, ray_origin <span class="op">=</span> <span class="va">above</span>, ray_direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pierce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>vb <span class="op">=</span> <span class="va">rays</span><span class="op">$</span><span class="va">intersection</span><span class="op">[</span>, <span class="va">rays</span><span class="op">$</span><span class="va">has_intersection</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  class <span class="op">=</span> <span class="st">"mesh3d"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">oldpar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">2.1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/plot_mesh_polygon.html">plot_mesh_polygon</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">sphere</span>, <span class="va">plane</span>, <span class="va">band</span><span class="op">)</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"gray55"</span>, <span class="va">col</span>, <span class="st">"#a33a3a"</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.92</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  eye <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="op">-</span><span class="fl">4</span>, <span class="fl">2.2</span><span class="op">)</span>, up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, zoom <span class="op">=</span> <span class="fl">1.15</span>,</span>
+<span>  shadow_color <span class="op">=</span> <span class="st">"white"</span>, ambient_intensity <span class="op">=</span> <span class="fl">0.55</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Distance to the sphere; cut faces in red"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/plot_mesh_polygon.html">plot_mesh_polygon</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">sphere</span>, <span class="va">pierce</span><span class="op">)</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"gray72"</span>, <span class="st">"#a33a3a"</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.03</span>,</span>
+<span>  eye <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="op">-</span><span class="fl">4</span>, <span class="fl">2.2</span><span class="op">)</span>, up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, zoom <span class="op">=</span> <span class="fl">0.68</span>,</span>
+<span>  shadow_color <span class="op">=</span> <span class="st">"white"</span>, ambient_intensity <span class="op">=</span> <span class="fl">0.55</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Where a downward ray enters the sphere"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">oldpar</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://github.com/dipterix/ravetools/blob/master/adhoc/README-figures/geometry-1.png?raw=true" width="100%"></p>
+<p>307 of the plane’s triangles cut the sphere, and 780 of the 1600 dropped rays land on it. The two distances answer different questions: <code>vcg_detect_collision</code> reports the exact minimum distance to the surface, while <code>vcg_kdtree_nearest</code> reports the distance to the nearest <em>vertex</em> - the sampled approximation that is cheaper and usually good enough. A point cloud handed to <code>plot_mesh_polygon</code> with no face matrix is drawn as one small sphere per point, which is how the ray hits are rendered above.</p>
+<p>The <code><a href="articles/mesh-geometry.html">vignette("mesh-geometry", package = "ravetools")</a></code> article walks the rest of the table - repair, re-meshing, smoothing, inflation, patches, and geodesic paths - on a real hippocampus surface.</p>
 <p>The <code>vcg_*</code> functions are built on <a href="https://github.com/cnr-isti-vclab/vcglib" class="external-link"><code>vcglib</code></a> from the Visual Computing Lab, <code>ISTI</code>. <code>mris_remesh</code> implements the isotropic re-meshing algorithm of <code>Botsch</code> and <code>Kobbelt</code> (2003), and the <code>mris_inflate</code> and <code>mris_sphere</code> pair follows the cortical inflation and spherical mapping of <code>Fischl</code> and colleagues (1999).</p>
 <hr>
 </div>
@@ -465,7 +517,7 @@
 </tbody>
 </table>
 <p>The heavy loops are <code>C++</code> parallelized with <code>TinyThread</code>. <code>detect_threads</code> reports how many threads are available and <code>ravetools_threads</code> sets how many are used:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/parallel-options.html">detect_threads</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/parallel-options.html">ravetools_threads</a></span><span class="op">(</span>n_threads <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p>Where a computation would not fit in memory, the entry points accept on-disk <code>filearray</code> inputs instead - <code>carla</code> is one - and <code>morlet_wavelet(segment_length = ...)</code> streams long recordings segment by segment.</p>
@@ -476,53 +528,53 @@
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p><code>ravetools</code> is part of <code>RAVE</code>. To cite it in publications, please cite the <code>RAVE</code> paper from <code>Beauchamp's lab</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE<span class="sc">:</span> comprehensive</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span></code></pre></div>
 <p>Several functions re-implement published methods. If you use one of them, please cite the original work as well; <code>citation("ravetools")</code> lists them all.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, <span class="fu">MS</span> (<span class="dv">2020</span>). RAVE<span class="sc">:</span> comprehensive</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>    open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>[<span class="dv">2</span>] Prerau, MJ, and Brown, RE, and Bianchi, MT, and Ellenbogen, JM, and</span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>    Purdon, <span class="fu">PL</span> (<span class="dv">2016</span>). Sleep Neurophysiological Dynamics Through the Lens of</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>    Multitaper Spectral Analysis. Physiology, December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>[<span class="dv">3</span>] Avants, BB, and Epstein, CL, and Grossman, M, and Gee, <span class="fu">JC</span> (<span class="dv">2008</span>).</span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>    Symmetric diffeomorphic image registration with cross<span class="sc">-</span>correlation<span class="sc">:</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>    evaluating automated labeling of elderly and neurodegenerative brain.</span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>    Medical Image Analysis, <span class="dv">12</span>(<span class="dv">1</span>), <span class="dv">26</span><span class="fl">-41.</span></span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>[<span class="dv">4</span>] Fischl, B, and Sereno, MI, and Dale, <span class="fu">AM</span> (<span class="dv">1999</span>). Cortical surface<span class="sc">-</span>based</span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>    analysis II<span class="sc">:</span> inflation, flattening, and a surface<span class="sc">-</span>based coordinate</span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>    system. NeuroImage, <span class="dv">9</span>(<span class="dv">2</span>), <span class="dv">195</span><span class="fl">-207.</span></span>
-<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>[<span class="dv">5</span>] Huang, H, and Ojeda Valencia, G, and Gregg, NM, and Osman, GM, and</span>
-<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>    Montoya, MN, and Worrell, GA, and Miller, KJ, and Hermes, <span class="fu">D</span> (<span class="dv">2024</span>).</span>
-<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>    CARLA<span class="sc">:</span> Adjusted common average referencing <span class="cf">for</span> cortico<span class="sc">-</span>cortical evoked</span>
-<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>    potential data. Journal of Neuroscience Methods, <span class="dv">407</span>, <span class="fl">110153.</span></span>
-<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a>[<span class="dv">6</span>] Huang, H, and Adkinson, JA, and Jensen, MA, and Hasen, M, and Danstrom,</span>
-<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a>    IA, and Bijanki, KR, and Gregg, NM, and Miller, KJ, and Sheth, SA, and</span>
-<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a>    Hermes, D, and Bartoli, <span class="fu">E</span> (<span class="dv">2025</span>). Proper reference selection and</span>
-<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a>    re<span class="sc">-</span>referencing to mitigate bias <span class="cf">in</span> single pulse electrical stimulation</span>
-<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a>    data. Journal of Neuroscience Methods, <span class="dv">419</span>, <span class="fl">110461.</span></span>
-<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a>[<span class="dv">7</span>] Miller, KJ, and Mueller, K<span class="sc">-</span>R, and Ojeda Valencia, G, and Huang, H, and</span>
-<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a>    Gregg, NM, and Worrell, GA, and Hermes, <span class="fu">D</span> (<span class="dv">2023</span>). Canonical response</span>
-<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a>    parameterization<span class="sc">:</span> Quantifying the structure of responses to single<span class="sc">-</span>pulse</span>
-<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a>    intracranial electrical brain stimulation. PLOS Computational Biology,</span>
-<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a>    <span class="dv">19</span>(<span class="dv">5</span>), e1011105.</span>
-<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a>[<span class="dv">8</span>] Miller, KJ, and Mueller, K<span class="sc">-</span>R, and Hermes, <span class="fu">D</span> (<span class="dv">2021</span>). Basis profile curve</span>
-<span id="cb14-29"><a href="#cb14-29" tabindex="-1"></a>    identification to understand electrical stimulation effects <span class="cf">in</span> human</span>
-<span id="cb14-30"><a href="#cb14-30" tabindex="-1"></a>    brain networks. PLOS Computational Biology, <span class="dv">17</span>(<span class="dv">9</span>), e1008710.</span>
-<span id="cb14-31"><a href="#cb14-31" tabindex="-1"></a>[<span class="dv">9</span>] Botsch, M, and Kobbelt, <span class="fu">L</span> (<span class="dv">2003</span>). A remeshing approach to multiresolution</span>
-<span id="cb14-32"><a href="#cb14-32" tabindex="-1"></a>    modeling. Proceedings of Shape Modelling International, <span class="dv">49</span><span class="fl">-58.</span></span>
-<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a>[<span class="dv">10</span>] Modat, M, and Cash, DM, and Daga, P, and Winston, GP, and Duncan, JS,</span>
-<span id="cb14-34"><a href="#cb14-34" tabindex="-1"></a>    and Ourselin, <span class="fu">S</span> (<span class="dv">2014</span>). Global image registration using a symmetric</span>
-<span id="cb14-35"><a href="#cb14-35" tabindex="-1"></a>    block<span class="sc">-</span>matching approach. Journal of Medical Imaging, <span class="dv">1</span>(<span class="dv">2</span>), <span class="fl">024003.</span></span>
-<span id="cb14-36"><a href="#cb14-36" tabindex="-1"></a>[<span class="dv">11</span>] Allaire, JJ, and Francois, R, and Ushey, K, and Vandenbrouck, G, and</span>
-<span id="cb14-37"><a href="#cb14-37" tabindex="-1"></a>    Geelnard, M, and <span class="fu">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="sc">:</span> Parallel Programming Tools</span>
-<span id="cb14-38"><a href="#cb14-38" tabindex="-1"></a>    <span class="cf">for</span> <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
-<span id="cb14-39"><a href="#cb14-39" tabindex="-1"></a>    https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>RcppParallel</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>[<span class="dv">1</span>] Magnotti, JF, and Wang, Z, and Beauchamp, <span class="fu">MS</span> (<span class="dv">2020</span>). RAVE<span class="sc">:</span> comprehensive</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>    open<span class="sc">-</span>source software <span class="cf">for</span> reproducible analysis and visualization of</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>    intracranial EEG data. NeuroImage, <span class="dv">223</span>, p.<span class="fl">117341.</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>[<span class="dv">2</span>] Prerau, MJ, and Brown, RE, and Bianchi, MT, and Ellenbogen, JM, and</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>    Purdon, <span class="fu">PL</span> (<span class="dv">2016</span>). Sleep Neurophysiological Dynamics Through the Lens of</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>    Multitaper Spectral Analysis. Physiology, December <span class="dv">7</span>, <span class="dv">2016</span>, <span class="dv">60</span><span class="fl">-92.</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>[<span class="dv">3</span>] Avants, BB, and Epstein, CL, and Grossman, M, and Gee, <span class="fu">JC</span> (<span class="dv">2008</span>).</span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>    Symmetric diffeomorphic image registration with cross<span class="sc">-</span>correlation<span class="sc">:</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>    evaluating automated labeling of elderly and neurodegenerative brain.</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>    Medical Image Analysis, <span class="dv">12</span>(<span class="dv">1</span>), <span class="dv">26</span><span class="fl">-41.</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>[<span class="dv">4</span>] Fischl, B, and Sereno, MI, and Dale, <span class="fu">AM</span> (<span class="dv">1999</span>). Cortical surface<span class="sc">-</span>based</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>    analysis II<span class="sc">:</span> inflation, flattening, and a surface<span class="sc">-</span>based coordinate</span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>    system. NeuroImage, <span class="dv">9</span>(<span class="dv">2</span>), <span class="dv">195</span><span class="fl">-207.</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>[<span class="dv">5</span>] Huang, H, and Ojeda Valencia, G, and Gregg, NM, and Osman, GM, and</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>    Montoya, MN, and Worrell, GA, and Miller, KJ, and Hermes, <span class="fu">D</span> (<span class="dv">2024</span>).</span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>    CARLA<span class="sc">:</span> Adjusted common average referencing <span class="cf">for</span> cortico<span class="sc">-</span>cortical evoked</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>    potential data. Journal of Neuroscience Methods, <span class="dv">407</span>, <span class="fl">110153.</span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>[<span class="dv">6</span>] Huang, H, and Adkinson, JA, and Jensen, MA, and Hasen, M, and Danstrom,</span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>    IA, and Bijanki, KR, and Gregg, NM, and Miller, KJ, and Sheth, SA, and</span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a>    Hermes, D, and Bartoli, <span class="fu">E</span> (<span class="dv">2025</span>). Proper reference selection and</span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a>    re<span class="sc">-</span>referencing to mitigate bias <span class="cf">in</span> single pulse electrical stimulation</span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>    data. Journal of Neuroscience Methods, <span class="dv">419</span>, <span class="fl">110461.</span></span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>[<span class="dv">7</span>] Miller, KJ, and Mueller, K<span class="sc">-</span>R, and Ojeda Valencia, G, and Huang, H, and</span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a>    Gregg, NM, and Worrell, GA, and Hermes, <span class="fu">D</span> (<span class="dv">2023</span>). Canonical response</span>
+<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a>    parameterization<span class="sc">:</span> Quantifying the structure of responses to single<span class="sc">-</span>pulse</span>
+<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a>    intracranial electrical brain stimulation. PLOS Computational Biology,</span>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a>    <span class="dv">19</span>(<span class="dv">5</span>), e1011105.</span>
+<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a>[<span class="dv">8</span>] Miller, KJ, and Mueller, K<span class="sc">-</span>R, and Hermes, <span class="fu">D</span> (<span class="dv">2021</span>). Basis profile curve</span>
+<span id="cb15-29"><a href="#cb15-29" tabindex="-1"></a>    identification to understand electrical stimulation effects <span class="cf">in</span> human</span>
+<span id="cb15-30"><a href="#cb15-30" tabindex="-1"></a>    brain networks. PLOS Computational Biology, <span class="dv">17</span>(<span class="dv">9</span>), e1008710.</span>
+<span id="cb15-31"><a href="#cb15-31" tabindex="-1"></a>[<span class="dv">9</span>] Botsch, M, and Kobbelt, <span class="fu">L</span> (<span class="dv">2003</span>). A remeshing approach to multiresolution</span>
+<span id="cb15-32"><a href="#cb15-32" tabindex="-1"></a>    modeling. Proceedings of Shape Modelling International, <span class="dv">49</span><span class="fl">-58.</span></span>
+<span id="cb15-33"><a href="#cb15-33" tabindex="-1"></a>[<span class="dv">10</span>] Modat, M, and Cash, DM, and Daga, P, and Winston, GP, and Duncan, JS,</span>
+<span id="cb15-34"><a href="#cb15-34" tabindex="-1"></a>    and Ourselin, <span class="fu">S</span> (<span class="dv">2014</span>). Global image registration using a symmetric</span>
+<span id="cb15-35"><a href="#cb15-35" tabindex="-1"></a>    block<span class="sc">-</span>matching approach. Journal of Medical Imaging, <span class="dv">1</span>(<span class="dv">2</span>), <span class="fl">024003.</span></span>
+<span id="cb15-36"><a href="#cb15-36" tabindex="-1"></a>[<span class="dv">11</span>] Allaire, JJ, and Francois, R, and Ushey, K, and Vandenbrouck, G, and</span>
+<span id="cb15-37"><a href="#cb15-37" tabindex="-1"></a>    Geelnard, M, and <span class="fu">Intel</span> (<span class="dv">2022</span>). RcppParallel<span class="sc">:</span> Parallel Programming Tools</span>
+<span id="cb15-38"><a href="#cb15-38" tabindex="-1"></a>    <span class="cf">for</span> <span class="st">'Rcpp'</span>. R package version <span class="dv">5</span>.<span class="dv">1</span>.<span class="fl">5.</span></span>
+<span id="cb15-39"><a href="#cb15-39" tabindex="-1"></a>    https<span class="sc">:</span><span class="er">//</span>CRAN.R<span class="sc">-</span>project.org<span class="sc">/</span>package<span class="ot">=</span>RcppParallel</span></code></pre></div>
 <div class="section level3">
 <h3 id="attributions">Attributions<a class="anchor" aria-label="anchor" href="#attributions"></a>
 </h3>
