@@ -118,7 +118,7 @@ filter
 #>     Freq=12 Hz, mag=-146.5 dB (expected=-0.1 dB)
 #>     Freq=6 Hz, mag=-198.9 dB (expected=-40 dB)
 #>     Freq=15 Hz, mag=-124.6 dB (expected=-40 dB)
-#>   Reciprocal condition number: 2.7e-22 < .Machine$double.eps
+#>   Reciprocal condition number: 1.4e-22 < .Machine$double.eps
 #>   
 #>   WARNING: 
 #>    * Unstable autoregressive (AR) polynomial coefficients
