@@ -240,6 +240,22 @@ test_that("vcg_mesh_volume approximates the volume of a unit sphere", {
   expect_equal(volume, 4 / 3 * pi, tolerance = 0.05)
 })
 
+test_that("vcg_mesh_volume reports a stable non-manifold edge count", {
+  # vcglib's CountNonManifoldEdgeFF used to leak three process-lifetime user
+  # bit flags per call; once the allocator ran past the sign bit it handed out
+  # 0, the de-duplication stopped working, and the count drifted 3 -> 4 -> 9.
+  broken <- vcg_sphere()
+  broken$it <- cbind(broken$it, broken$it[, 1, drop = FALSE])
+
+  counts <- vapply(seq_len(8L), function(i) {
+    msg <- gsub("\n", " ", tryCatch(vcg_mesh_volume(broken), error = conditionMessage))
+    as.integer(sub(".*Non-manifold edges:\\s*(\\d+).*", "\\1", msg))
+  }, integer(1L))
+
+  # the duplicated face makes exactly its three edges non-manifold
+  expect_equal(counts, rep(3L, 8L))
+})
+
 # ---- vcg_uniform_remesh ------------------------------------------------
 
 test_that("vcg_uniform_remesh returns a mesh with unit normals", {

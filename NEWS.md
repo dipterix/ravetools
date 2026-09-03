@@ -1,3 +1,7 @@
+# ravetools 0.3.1.1
+
+* Fixed `vcg_mesh_volume` leaking three per-process face bit flags on every call inside the bundled `VCG` library, which `clang`-`UBSAN` reported as a left shift of a negative value; after four calls in one session the bit allocator overran the sign bit, and the reported non-manifold edge count was silently inflated
+
 # ravetools 0.3.1
 
 * Fixed the internal mesh reader leaving vertex normals uninitialized when the caller supplied no normals, which `valgrind` reported as a conditional jump depending on uninitialized values while subdividing edges; normals are now zeroed on load

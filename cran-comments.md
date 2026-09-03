@@ -2,12 +2,15 @@
 
 0 errors | 0 warnings | 0 note
 
-Currently CRAN's servers report "OK" on all flavors, but self-checking found some critical bugs.
+This patch addresses the `clang`-`UBSAN` report in `build_vignettes.log`
+("left shift of negative value" in the bundled `VCG` library). The cause was a
+bit-flag allocator leak in `VCG`'s `CountNonManifoldEdgeFF`, which never
+released the three flags it acquired; after a few calls in one session the
+allocator's counter overran the sign bit. The same leak also silently inflated
+the non-manifold edge count reported by `vcg_mesh_volume`, so this is a
+correctness fix as well.
 
-This patch aims to improve the robustness by fixing:
-
-* A hidden `valgrind` issue reported by `rhub`;
-* A syntax issue that prevents the code from compiling on `C++11`;
-* A bug that corrupted mesh in `vcg_smooth_implicit` may lead to segfault.
+The bundled `VCG` sources are patched locally (the defect is still present
+upstream) and the allocator's shift is now performed on an unsigned type.
 
 

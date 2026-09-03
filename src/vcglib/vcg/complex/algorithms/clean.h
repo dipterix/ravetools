@@ -1100,6 +1100,16 @@ public:
 					}
 			}
 		}
+		// ravetools: upstream vcglib never releases these three bits, so every
+		// call leaks three bits from the process-lifetime
+		// FaceType::FirstUnusedBitFlag() counter. After a handful of calls the
+		// counter reaches the sign bit and `b <<= 1` is undefined behaviour
+		// (clang-UBSAN: "left shift of negative value"); past that NewBitFlag()
+		// returns 0 and the non-manifold edge count is silently over-reported.
+		// Release in reverse order: DeleteBitFlag is LIFO.
+		FaceType::DeleteBitFlag(nmfBit[2]);
+		FaceType::DeleteBitFlag(nmfBit[1]);
+		FaceType::DeleteBitFlag(nmfBit[0]);
 		return edgeCnt;
 	}
 

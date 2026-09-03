@@ -211,7 +211,9 @@ public:
     static inline int NewBitFlag()
     {
       int bitForTheUser = FirstUnusedBitFlag();
-      FirstUnusedBitFlag()=FirstUnusedBitFlag()<<1;
+      // ravetools: shift through `unsigned` so that exhausting the user bits
+      // cannot produce a signed left-shift overflow (UBSAN `shift-base`).
+      FirstUnusedBitFlag() = (int)((unsigned int)FirstUnusedBitFlag() << 1);
       return bitForTheUser;
     }
 
