@@ -9,7 +9,7 @@ contrast."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@ contrast."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Calculate Contrasts of Arrays in Different Methods</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.3.1/R/baseline.R" class="external-link"><code>R/baseline.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/baseline.R" class="external-link"><code>R/baseline.R</code></a></small>
       <div class="d-none name"><code>baseline_array.Rd</code></div>
     </div>
 
@@ -230,9 +230,9 @@ $$</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1.818989e-12  2.273737e-12</span>
 <span class="r-in"><span><span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span><span class="fu">f1</span><span class="op">(</span><span class="op">)</span>, <span class="fu">f2</span><span class="op">(</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  expr       min       lq      mean   median        uq       max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  f1() 78.538091 82.40970 121.53997 91.40424 173.48365 180.50803    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  f2()  9.505955 12.29459  12.49467 12.55523  13.01261  15.90692    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  expr        min         lq      mean    median        uq       max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  f1() 103.213009 108.376282 141.57417 113.54025 211.39913 218.39025    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  f2()   8.301226   8.664146  10.45056  10.30203  11.96552  13.28345    10</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
