@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Collapse array</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/collapse.R" class="external-link"><code>R/collapse.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.3.2/R/collapse.R" class="external-link"><code>R/collapse.R</code></a></small>
       <div class="d-none name"><code>collapse.Rd</code></div>
     </div>
 
@@ -128,8 +128,8 @@ collapsing dimensions</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: microseconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     expr      min       lq     mean   median       uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   result  601.435  601.435  601.435  601.435  601.435  601.435     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 1429.376 1429.376 1429.376 1429.376 1429.376 1429.376     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   result  485.124  485.124  485.124  485.124  485.124  485.124     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 1322.134 1322.134 1322.134 1322.134 1322.134 1322.134     1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># large data big difference</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="fl">300</span>,<span class="fl">200</span>,<span class="fl">105</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>,<span class="fl">200</span>,<span class="fl">105</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -141,8 +141,8 @@ collapsing dimensions</p>
 <span class="r-in"><span>  <span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     expr       min        lq      mean    median        uq       max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   result  23.63154  23.63154  23.63154  23.63154  23.63154  23.63154     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 201.46268 201.46268 201.46268 201.46268 201.46268 201.46268     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   result  20.43669  20.43669  20.43669  20.43669  20.43669  20.43669     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  compare 191.30919 191.30919 191.30919 191.30919 191.30919 191.30919     1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
