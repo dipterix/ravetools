@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,8 +37,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1.1" id="ravetools-0311">ravetools 0.3.1.1<a class="anchor" aria-label="anchor" href="#ravetools-0311"></a></h2>
-<ul><li>Fixed <code>vcg_mesh_volume</code> leaking three per-process face bit flags on every call inside the bundled <code>VCG</code> library, which <code>clang</code>-<code>UBSAN</code> reported as a left shift of a negative value; after four calls in one session the bit allocator overran the sign bit, and the reported non-manifold edge count was silently inflated</li>
+<h2 class="pkg-version" data-toc-text="0.3.2" id="ravetools-032">ravetools 0.3.2<a class="anchor" aria-label="anchor" href="#ravetools-032"></a></h2>
+<ul><li>Fixed <code>vcg_fix_defects</code> compacting the mesh containers while face-to-face adjacency still referenced deleted faces; the <code>VCG</code> compactor remaps such links through a table whose deleted-face entries are <code>size_t(-1)</code>, so it computed an out-of-range pointer and stored a stray adjacency link, which <code>clang</code>-<code>UBSAN</code> reported as a pointer overflow. Topology is now rebuilt before compacting</li>
+<li>Fixed <code>vcg_mesh_volume</code> leaking three per-process face bit flags on every call inside the bundled <code>VCG</code> library, which <code>clang</code>-<code>UBSAN</code> reported as a left shift of a negative value; after four calls in one session the bit allocator overran the sign bit, and the reported non-manifold edge count was silently inflated</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.1" id="ravetools-031">ravetools 0.3.1<a class="anchor" aria-label="anchor" href="#ravetools-031"></a></h2>
