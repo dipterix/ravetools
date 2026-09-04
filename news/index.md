@@ -11,7 +11,7 @@
 - Fixed `vcg_mesh_volume` leaking three per-process face bit flags on
   every call inside the bundled `VCG` library, which `clang`-`UBSAN`
   reported as a left shift of a negative value; after four calls in one
-  session the bit allocator overran the sign bit, and the reported
+  session the bit `allocator` overran the sign bit, and the reported
   non-manifold edge count was silently inflated
 
 ## ravetools 0.3.1
