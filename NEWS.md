@@ -1,5 +1,6 @@
-# ravetools 0.3.1.1
+# ravetools 0.3.2
 
+* Fixed `vcg_fix_defects` compacting the mesh containers while face-to-face adjacency still referenced deleted faces; the `VCG` compactor remaps such links through a table whose deleted-face entries are `size_t(-1)`, so it computed an out-of-range pointer and stored a stray adjacency link, which `clang`-`UBSAN` reported as a pointer overflow. Topology is now rebuilt before compacting
 * Fixed `vcg_mesh_volume` leaking three per-process face bit flags on every call inside the bundled `VCG` library, which `clang`-`UBSAN` reported as a left shift of a negative value; after four calls in one session the bit allocator overran the sign bit, and the reported non-manifold edge count was silently inflated
 
 # ravetools 0.3.1

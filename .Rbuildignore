@@ -21,6 +21,8 @@ autom4te.cache/
 ^\.Rhistory$
 ^valgrind\.sh$
 ^valgrind\.R$
+^ubsan\.sh$
+^ubsan\.R$
 ^\.positai$
 ^\.claude$
 ^\.lintr$

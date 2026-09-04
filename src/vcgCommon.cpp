@@ -1303,8 +1303,18 @@ Rcpp::List vcgFixDefects(
         // 3. Ear-cut fill any remaining small boundary loops ("isolated
         //    edges" / small holes that are genuine gaps, not duplicate-vertex
         //    cracks, and therefore are not closed by welding).
-        vcg::tri::Allocator<ravetools::MyMesh>::CompactEveryVector(m);
+        // Rebuild FF adjacency *before* compacting. Steps 1-2 above mark faces
+        // deleted (RemoveDegenerateFace / RemoveDuplicateFace / MergeCloseVertex)
+        // without detaching the FF links of the surviving faces that point at
+        // them. CompactFaceVector then remaps every FF link through
+        // PointerUpdater::remap, whose entries for deleted faces are left at
+        // size_t(-1), so it evaluates `fbase + size_t(-1)` -- pointer overflow
+        // (clang-UBSAN: allocate.h:1330) that stores a wild adjacency pointer
+        // one element before the face array. Rebuilding first guarantees every
+        // FF link refers to a surviving face; the compactor then remaps them
+        // correctly and topology stays valid for the hole fill below.
         vcg::tri::UpdateTopology<ravetools::MyMesh>::FaceFace(m);
+        vcg::tri::Allocator<ravetools::MyMesh>::CompactEveryVector(m);
         Rcpp::checkUserInterrupt();
 
         // MinimumWeightEar inspects neighboring faces' and vertices' normals
