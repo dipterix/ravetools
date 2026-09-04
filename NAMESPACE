@@ -186,26 +186,32 @@ export(wavelet_cycles_suggest)
 export(wavelet_kernels)
 export(write_ants_transform)
 export(write_ants_warp)
-importFrom(R6,R6Class)
-importFrom(R6,is.R6)
+importFrom(R6,
+  R6Class,
+  is.R6
+)
 importFrom(Rcpp,sourceCpp)
 importFrom(graphics,image)
-importFrom(gsignal,buttap)
-importFrom(gsignal,butter)
-importFrom(gsignal,buttord)
-importFrom(gsignal,cheb1ap)
-importFrom(gsignal,cheb1ord)
-importFrom(gsignal,cheb2ap)
-importFrom(gsignal,cheb2ord)
-importFrom(gsignal,cheby1)
-importFrom(gsignal,cheby2)
-importFrom(gsignal,ellip)
-importFrom(gsignal,ellipap)
-importFrom(gsignal,ellipord)
-importFrom(gsignal,hilbert)
-importFrom(gsignal,resample)
-importFrom(stats,approx)
-importFrom(stats,median)
-importFrom(stats,quantile)
-importFrom(stats,sd)
+importFrom(gsignal,
+  buttap,
+  butter,
+  buttord,
+  cheb1ap,
+  cheb1ord,
+  cheb2ap,
+  cheb2ord,
+  cheby1,
+  cheby2,
+  ellip,
+  ellipap,
+  ellipord,
+  hilbert,
+  resample
+)
+importFrom(stats,
+  approx,
+  median,
+  quantile,
+  sd
+)
 useDynLib(ravetools, .registration = TRUE)
