@@ -14,6 +14,12 @@
 - [`baseline_array()`](https://dipterix.org/ravetools/reference/baseline_array.md)
   : Calculate Contrasts of Arrays in Different Methods
 
+- [`bias_correction_n4()`](https://dipterix.org/ravetools/reference/bias_correction_n4.md)
+  :
+
+  Correct the intensity non-uniformity (bias field) of a 3D volume with
+  the `N4` algorithm
+
 - [`bpc()`](https://dipterix.org/ravetools/reference/bpc.md) :
 
   Basis Profile Curve (`BPC`) identification
@@ -295,6 +301,12 @@
 
   Save or load a registration result in `'ANTs'`-compatible files
 
+- [`segment_volume_tissue_gmm()`](https://dipterix.org/ravetools/reference/segment_volume_tissue_gmm.md)
+  :
+
+  Prior-guided tissue segmentation with a `Gaussian` mixture and an
+  `MRF`
+
 - [`shift_array()`](https://dipterix.org/ravetools/reference/shift_array.md)
   : Shift array by index
 
@@ -312,6 +324,11 @@
 
 - [`vcg_count_edge_defects()`](https://dipterix.org/ravetools/reference/vcg_count_edge_defects.md)
   : Count boundary and non-manifold edges of a triangular mesh
+
+- [`vcg_decimate()`](https://dipterix.org/ravetools/reference/vcg_decimate.md)
+  :
+
+  Simplify a triangular mesh by `quadric` edge collapse
 
 - [`vcg_detect_collision()`](https://dipterix.org/ravetools/reference/vcg_detect_collision.md)
   : Detect collisions between two geometries

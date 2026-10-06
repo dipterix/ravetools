@@ -9,6 +9,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/apply_transform3d.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/band_pass.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/baseline_array.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/bias_correction_n4.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/bpc.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/butter_max_order.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/carla.html</loc></url>
@@ -79,11 +80,13 @@
 <url><loc>https://dipterix.org/ravetools/reference/resample_3d_volume.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/rgl-call.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/save_registration.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/segment_volume_tissue_gmm.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/shift_array.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimpulse_interpolate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimulation_signal.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_average_edge_length.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_count_edge_defects.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_decimate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_detect_collision.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_fix_defects.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_isosurface.html</loc></url>

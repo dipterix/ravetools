@@ -5,6 +5,17 @@ to no face carry no connectivity, so they are excluded from the
 computation and returned at their input positions with zero normal
 vectors; the remaining vertices are unaffected by their presence.
 
+`vcg_smooth_implicit` solves, separately for each coordinate, the sparse
+linear system \\(M + \lambda L^k) x = M v\\, where \\v\\ holds the input
+positions, \\M\\ the per-vertex areas scaled to a maximum of one, \\L\\
+the 'Laplacian' and \\k = 2^{degree - 1}\\. Degrees 1 and 2 are solved
+iteratively (conjugate gradients), with memory growing linearly with the
+mesh; higher degrees are solved by a sparse factorization. The memory
+the solve needs is estimated before anything large is allocated, and the
+function stops with an explanation when it exceeds `max_memory`; very
+large meshes can be simplified first with
+[`vcg_decimate`](https://dipterix.org/ravetools/reference/vcg_decimate.md).
+
 ## Usage
 
 ``` r
@@ -15,7 +26,8 @@ vcg_smooth_implicit(
   fix_border = FALSE,
   use_cot_weight = FALSE,
   degree = 1L,
-  laplacian_weight = 1
+  laplacian_weight = 1,
+  max_memory = 2
 )
 
 vcg_smooth_explicit(
@@ -37,20 +49,24 @@ vcg_smooth_explicit(
 
 - lambda:
 
-  In `vcg_smooth_implicit`, the amount of smoothness, useful only if
-  `use_mass_matrix` is `TRUE`; default is `0.2`. In
+  In `vcg_smooth_implicit`, the amount of smoothness, which has no
+  effect when `use_mass_matrix` is `FALSE`; default is `0.2`. In
   `vcg_smooth_explicit`, parameter for `'taubin'` smoothing.
 
 - use_mass_matrix:
 
-  logical: whether to use mass matrix to keep the mesh close to its
-  original position (weighted per area distributed on vertices); default
-  is `TRUE`
+  logical: whether to keep the mesh close to its input position with an
+  area-weighted (mass matrix) term; default is `TRUE`. With `FALSE`
+  there is no such term and the fixed border vertices alone determine
+  the result, the smoothest surface spanning the border; this needs
+  `fix_border = TRUE` and a border in every connected part of the mesh,
+  and `lambda` then has no effect
 
 - fix_border:
 
-  logical: whether to fix the border vertices of the mesh; default is
-  `FALSE`
+  logical: whether border vertices (vertices on an edge that belongs to
+  exactly one face) keep exactly their input positions; default is
+  `FALSE`. Closed meshes have no border
 
 - use_cot_weight:
 
@@ -59,11 +75,21 @@ vcg_smooth_explicit(
 
 - degree:
 
-  integer: degrees of 'Laplacian'; default is `1`
+  integer: degree of the 'Laplacian' operator; the system uses \\L^k\\
+  with \\k = 2^{degree - 1}\\ (the 'Laplacian' squared `degree - 1`
+  times), so `degree = 2` uses \\L^2\\ and `degree = 3` uses \\L^4\\;
+  default is `1`
 
 - laplacian_weight:
 
   numeric: weight when `use_cot_weight` is `FALSE`; default is `1.0`
+
+- max_memory:
+
+  maximum memory in `GiB` that `vcg_smooth_implicit` may use for the
+  solve; default is `2`. The need is estimated from the mesh before any
+  large allocation, and exceeding it raises an error that suggests
+  alternatives
 
 - type:
 

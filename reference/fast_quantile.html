@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Compute quantiles</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.3.2/R/fast_quantile.R" class="external-link"><code>R/fast_quantile.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/fast_quantile.R" class="external-link"><code>R/fast_quantile.R</code></a></small>
       <div class="d-none name"><code>fast_quantile.Rd</code></div>
     </div>
 
@@ -106,9 +106,9 @@ the number of columns).</p>
 <span class="r-in"><span>  times <span class="op">=</span> <span class="fl">100</span>, unit <span class="op">=</span> <span class="st">"milliseconds"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min        lq      mean   median        uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.089336 0.1267110 0.1403640 0.143052 0.1532510 0.189683   100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 0.119242 0.1410175 0.1530517 0.152014 0.1604695 0.294730   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min        lq      mean    median        uq      max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.103072 0.1428265 0.1632136 0.1622050 0.1772675 0.408274   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 0.104715 0.1200775 0.1438192 0.1353505 0.1619050 0.301406   100</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multivariate cases</span></span></span>
 <span class="r-in"><span><span class="co"># (5~7x faster than base R)</span></span></span>
@@ -121,9 +121,9 @@ the number of columns).</p>
 <span class="r-in"><span>  times <span class="op">=</span> <span class="fl">10</span>, unit <span class="op">=</span> <span class="st">"milliseconds"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min       lq     mean   median       uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.715674 0.766249 0.812074 0.782108 0.808007 1.122653    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 2.777458 2.818454 2.894922 2.877043 2.891510 3.279995    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         expr      min       lq      mean   median       uq      max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  fast_median 0.787605 0.813954 0.8596681 0.858255 0.900012 0.916186    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  base_median 2.907143 2.977777 3.0603433 3.015313 3.044556 3.620769    10</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

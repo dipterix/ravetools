@@ -25,7 +25,7 @@ ensure_mesh3d(surface)
   `'fs.surface'`
 
   :   a surface in the format produced by
-      [`freesurferformats::read.fs.surface`](https://rdrr.io/pkg/freesurferformats/man/read.fs.surface.html).
+      [`freesurferformats::read.fs.surface`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.surface.html).
       Vertices and faces are copied into a `'mesh3d'` list; zero-indexed
       faces are bumped by 1.
 

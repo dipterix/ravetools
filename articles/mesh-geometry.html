@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
       <h1>Mesh geometry</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.3.2/vignettes/mesh-geometry.Rmd" class="external-link"><code>vignettes/mesh-geometry.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/vignettes/mesh-geometry.Rmd" class="external-link"><code>vignettes/mesh-geometry.Rmd</code></a></small>
       <div class="d-none name"><code>mesh-geometry.Rmd</code></div>
     </div>
 
@@ -438,7 +438,7 @@ cortical-surface literature:</p>
 <span><span class="va">fs_style</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mris_smooth.html">mris_smooth</a></span><span class="op">(</span><span class="va">mesh</span>, niterations <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">mesh</span>, <span class="va">taubin</span>, <span class="va">implicit</span>, <span class="va">fs_style</span><span class="op">)</span>, <span class="va">vcg_mesh_volume</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 5517.250 5526.756 5419.094 4496.284</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 5517.250 5526.756 5419.186 4496.284</span></span></code></pre></div>
 <p><code>vcg_smooth_explicit</code> applies a per-vertex
 <code>Laplacian</code> step repeatedly; <code>type = "taubin"</code>
 alternates a positive and a negative step so the surface does not

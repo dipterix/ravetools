@@ -439,7 +439,7 @@ implicit <- vcg_smooth_implicit(mesh, lambda = 0.2, degree = 2)
 fs_style <- mris_smooth(mesh, niterations = 20L)
 
 vapply(list(mesh, taubin, implicit, fs_style), vcg_mesh_volume, 0)
-#> [1] 5517.250 5526.756 5419.094 4496.284
+#> [1] 5517.250 5526.756 5419.186 4496.284
 ```
 
 `vcg_smooth_explicit` applies a per-vertex `Laplacian` step repeatedly;

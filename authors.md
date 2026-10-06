@@ -35,7 +35,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/dipterix/ravetools/blob/v0.3.2/inst/CITATION)
+[`inst/CITATION`](https://github.com/dipterix/ravetools/blob/master/inst/CITATION)
 
 Magnotti, JF, and Wang, Z, and Beauchamp, MS. RAVE: comprehensive
 open-source software for reproducible analysis and visualization of
@@ -65,6 +65,21 @@ analysis, 12(1), 26-41.
       pages = {26-41},
       number = {1},
       doi = {10.1016/j.media.2007.06.004},
+    }
+
+Tustison NJ, Avants BB, Cook PA, Zheng Y, Egan A, Yushkevich PA, Gee JC
+(2010). N4ITK: Improved N3 Bias Correction. IEEE Transactions on Medical
+Imaging, 29(6), 1310-1320. doi:10.1109/TMI.2010.2046908.
+
+    @Article{,
+      title = {{N4ITK}: Improved {N3} Bias Correction},
+      author = {Nicholas J. Tustison and Brian B. Avants and Philip A. Cook and Yuanjie Zheng and Alexander Egan and Paul A. Yushkevich and James C. Gee},
+      journal = {IEEE Transactions on Medical Imaging},
+      year = {2010},
+      volume = {29},
+      number = {6},
+      pages = {1310-1320},
+      doi = {10.1109/TMI.2010.2046908},
     }
 
 Fischl B, Sereno MI, Dale AM (1999). Cortical surface-based analysis:

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,16 +33,31 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dipterix/ravetools/blob/v0.3.2/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dipterix/ravetools/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.2" id="ravetools-032">ravetools 0.3.2<a class="anchor" aria-label="anchor" href="#ravetools-032"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.3" id="ravetools-033">ravetools 0.3.3<a class="anchor" aria-label="anchor" href="#ravetools-033"></a></h2>
+<ul><li>Added <code>segment_volume_tissue_gmm</code> for prior-guided tissue segmentation of a 3D volume with a Gaussian mixture model, optional spatial prior probability maps (for example template tissue priors warped into the subject space) and a mean-field Markov random field; a native re-implementation of the <code>ANTs</code> <code>Atropos</code> algorithm (<code>Avants</code> and colleagues, 2011) with its default <code>Socrates</code> posterior formulation (posterior proportional to <code>s_k^w * (likelihood * MRF)^(1 - w)</code>, the priors re-weighted by the mixture proportions), so <code>prior_weight</code> has the meaning of the <code>priorweight</code> of <code>ANTs</code>; the defaults reproduce <code>ANTsPy</code> <code>atropos(i = 'Kmeans[3]', m = '[0.2,1x1x1]', c = '[5,0]', priorweight = 0.25)</code>
+</li>
+<li>
+<code>segment_volume_tissue_gmm</code> restricts all computation to the mask (memory of order <code>K * N_mask</code>), runs the E-step in parallel with results that are identical for any thread count, propagates the <code>vox2ras</code> attribute (which also sets the physical neighbor distances of the <code>MRF</code>), stops with the convergence rule of <code>Atropos</code> (the iterations end as soon as the mean maximum posterior over the mask changes by less than <code>tolerance</code>, so the default <code>tolerance = 0</code> stops at the first decrease, like <code>c = [n,0]</code> in <code>ANTs</code>) and returns the integer segmentation, the per-class posteriors, the class means, standard deviations and proportions, and the convergence trace; the remaining difference from <code>Atropos</code> is the mean-field <code>MRF</code> (neighbors’ posteriors instead of hard labels)</li>
+<li>Added <code>bias_correction_n4</code> to correct the intensity non-uniformity (bias field) of a 3D volume: a native re-implementation of the <code>N4</code> algorithm (<code>Tustison</code> and colleagues, 2010) wrapped like the <code>abp_n4</code> function of <code>ANTsPy</code>, with histogram-quantile intensity truncation, multi-resolution <code>B-spline</code> fitting with histogram sharpening, an optional mask or per-voxel weight mask, intensity rescaling and a <code>return_bias_field</code> switch; the defaults reproduce <code>abp_n4</code> of <code>ANTsPy</code> 0.6.3 (its truncation rule, the whole image as mask and one spline span per axis; log-bias correlation 0.996 and corrected-image correlation 0.9995 against <code>ants.abp_n4</code> on a toy phantom), while <code>mask = "auto"</code> with <code>spline_distance = 200</code> gives the older <code>abpN4</code> recipe of <code>ANTsR</code> and <code>ANTsPy</code> 0.3 (an automatic head mask and a 200-millimeter spline distance); out-of-range spline distances stop with an explanation, results are identical for any thread count, and no external dependency is needed</li>
+<li>Fixed <code>vcg_smooth_implicit</code> crashing R with a segmentation fault on large meshes, such as a whole-brain surface with about 3 million vertices at <code>degree = 2</code>: the bundled <code>VCG</code> smoother factorized one sparse system with three rows per vertex, whose <code>Cholesky</code> factor needed more entries than the 32-bit indices of <code>Eigen</code> can address, so the factor was never allocated and the factorization wrote through a null pointer. The smoother now solves one system per coordinate in double precision, by conjugate gradients for <code>degree</code> 1 and 2 (memory linear in the mesh size) and by a sparse factorization for higher degrees; results differ from earlier versions by the single-precision round-off of the old solver (below 0.01 millimeters on typical atlas surfaces, more at <code>degree = 3</code>)</li>
+<li>
+<code>vcg_smooth_implicit</code> estimates the memory the solve needs before allocating it, and stops with an explanation when the estimate exceeds the new argument <code>max_memory</code> (2 <code>GiB</code> by default)</li>
+<li>Fixed <code>vcg_smooth_implicit(fix_border = TRUE)</code> having no effect; border vertices now keep exactly their input positions</li>
+<li>Fixed <code>vcg_smooth_implicit(use_mass_matrix = FALSE)</code> collapsing every vertex to the origin; without the mass matrix the fixed border vertices alone now determine the surface, and a mesh with a connected part that has nothing fixed raises an error</li>
+<li>Added <code>vcg_decimate</code> to simplify triangular meshes by <code>quadric</code> edge collapse, adapted from <code>Rvcg</code>
+</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.2" id="ravetools-032">ravetools 0.3.2<a class="anchor" aria-label="anchor" href="#ravetools-032"></a></h2><p class="text-muted">CRAN release: 2026-09-04</p>
 <ul><li>Fixed <code>vcg_fix_defects</code> compacting the mesh containers while face-to-face adjacency still referenced deleted faces; the <code>VCG</code> compactor remaps such links through a table whose deleted-face entries are <code>size_t(-1)</code>, so it computed an out-of-range pointer and stored a stray adjacency link, which <code>clang</code>-<code>UBSAN</code> reported as a pointer overflow. Topology is now rebuilt before compacting</li>
 <li>Fixed <code>vcg_mesh_volume</code> leaking three per-process face bit flags on every call inside the bundled <code>VCG</code> library, which <code>clang</code>-<code>UBSAN</code> reported as a left shift of a negative value; after four calls in one session the bit <code>allocator</code> overran the sign bit, and the reported non-manifold edge count was silently inflated</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1" id="ravetools-031">ravetools 0.3.1<a class="anchor" aria-label="anchor" href="#ravetools-031"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1" id="ravetools-031">ravetools 0.3.1<a class="anchor" aria-label="anchor" href="#ravetools-031"></a></h2><p class="text-muted">CRAN release: 2026-08-31</p>
 <ul><li>Fixed the internal mesh reader leaving vertex normals uninitialized when the caller supplied no normals, which <code>valgrind</code> reported as a conditional jump depending on uninitialized values while subdividing edges; normals are now zeroed on load</li>
 <li>Fixed the native registration sources failing to compile under <code>C++11</code> tool-chains (such as the <code>conda-forge</code> builds) with recent <code>clang</code>, where converting an <code>Rcpp::Nullable</code> argument to <code>Rcpp::NumericVector</code> or <code>Rcpp::NumericMatrix</code> was ambiguous; the <code>SEXP</code> accessor is now called explicitly</li>
 <li>Fixed <code>vcg_smooth_implicit</code> returning a completely corrupted mesh (all zeros or <code>NaN</code>, varying between runs) whenever the input contained vertices belonging to no face; such vertices make the implicit linear system singular, and are now excluded from the solve and returned at their input positions, consistent with <code>vcg_smooth_explicit</code>
