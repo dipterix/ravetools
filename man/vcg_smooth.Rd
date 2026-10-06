@@ -13,7 +13,8 @@ vcg_smooth_implicit(
   fix_border = FALSE,
   use_cot_weight = FALSE,
   degree = 1L,
-  laplacian_weight = 1
+  laplacian_weight = 1,
+  max_memory = 2
 )
 
 vcg_smooth_explicit(
@@ -29,24 +30,37 @@ vcg_smooth_explicit(
 \arguments{
 \item{mesh}{triangular mesh stored as object of class 'mesh3d'.}
 
-\item{lambda}{In \code{vcg_smooth_implicit}, the amount of smoothness,
-useful only if \code{use_mass_matrix} is \code{TRUE}; default is \code{0.2}.
-In \code{vcg_smooth_explicit}, parameter for \code{'taubin'} smoothing.}
+\item{lambda}{In \code{vcg_smooth_implicit}, the amount of smoothness, which
+has no effect when \code{use_mass_matrix} is \code{FALSE}; default is
+\code{0.2}. In \code{vcg_smooth_explicit}, parameter for \code{'taubin'}
+smoothing.}
 
-\item{use_mass_matrix}{logical: whether to use mass matrix to keep the mesh
-close to its original position (weighted per area distributed on vertices);
-default is \code{TRUE}}
+\item{use_mass_matrix}{logical: whether to keep the mesh close to its input
+position with an area-weighted (mass matrix) term; default is \code{TRUE}.
+With \code{FALSE} there is no such term and the fixed border vertices alone
+determine the result, the smoothest surface spanning the border; this needs
+\code{fix_border = TRUE} and a border in every connected part of the mesh,
+and \code{lambda} then has no effect}
 
-\item{fix_border}{logical: whether to fix the border vertices of the mesh;
-default is \code{FALSE}}
+\item{fix_border}{logical: whether border vertices (vertices on an edge
+that belongs to exactly one face) keep exactly their input positions;
+default is \code{FALSE}. Closed meshes have no border}
 
 \item{use_cot_weight}{logical: whether to use cotangent weight; default is
 \code{FALSE} (using uniform 'Laplacian')}
 
-\item{degree}{integer: degrees of 'Laplacian'; default is \code{1}}
+\item{degree}{integer: degree of the 'Laplacian' operator; the system uses
+\eqn{L^k} with \eqn{k = 2^{degree - 1}}{k = 2^(degree - 1)} (the
+'Laplacian' squared \code{degree - 1} times), so \code{degree = 2} uses
+\eqn{L^2} and \code{degree = 3} uses \eqn{L^4}; default is \code{1}}
 
 \item{laplacian_weight}{numeric: weight when \code{use_cot_weight} is \code{FALSE};
 default is \code{1.0}}
+
+\item{max_memory}{maximum memory in \verb{GiB} that
+\code{vcg_smooth_implicit} may use for the solve; default is \code{2}. The
+need is estimated from the mesh before any large allocation, and exceeding
+it raises an error that suggests alternatives}
 
 \item{type}{method name of explicit smooth, choices are \code{'taubin'},
 \code{'laplace'}, \code{'HClaplace'}, \code{'fujiLaplace'},
@@ -71,6 +85,18 @@ Applies smoothing algorithms on a triangular mesh. Vertices that belong to
 no face carry no connectivity, so they are excluded from the computation and
 returned at their input positions with zero normal vectors; the remaining
 vertices are unaffected by their presence.
+
+\code{vcg_smooth_implicit} solves, separately for each coordinate, the
+sparse linear system
+\eqn{(M + \lambda L^k) x = M v}{(M + lambda L^k) x = M v}, where \eqn{v}
+holds the input positions, \eqn{M} the per-vertex areas scaled to a
+maximum of one, \eqn{L} the 'Laplacian' and
+\eqn{k = 2^{degree - 1}}{k = 2^(degree - 1)}. Degrees 1 and 2 are solved
+iteratively (conjugate gradients), with memory growing linearly with the
+mesh; higher degrees are solved by a sparse factorization. The memory the
+solve needs is estimated before anything large is allocated, and the
+function stops with an explanation when it exceeds \code{max_memory}; very
+large meshes can be simplified first with \code{\link{vcg_decimate}}.
 }
 \section{Coercing Surface Inputs}{
 

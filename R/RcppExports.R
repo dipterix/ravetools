@@ -565,6 +565,10 @@ Vector3__set_from_matrix_scale <- function(self, m) {
     invisible(.Call(`_ravetools_Vector3__set_from_matrix_scale`, self, m))
 }
 
+segment_gmm_mrf_cpp <- function(volume, dims, mask, priors, n_classes, prior_weight, mrf_beta, mrf_radius, direction, iterations, tolerance, verbose) {
+    .Call(`_ravetools_segment_gmm_mrf_cpp`, volume, dims, mask, priors, n_classes, prior_weight, mrf_beta, mrf_radius, direction, iterations, tolerance, verbose)
+}
+
 mrisSmooth <- function(vb_, it_, niterations = 10L, npasses = 1L, rescale = FALSE, verbose = FALSE) {
     .Call(`_ravetools_mrisSmooth`, vb_, it_, niterations, npasses, rescale, verbose)
 }
@@ -653,8 +657,8 @@ vcgIsoSurface <- function(array_, thresh) {
     .Call(`_ravetools_vcgIsoSurface`, array_, thresh)
 }
 
-vcgSmoothImplicit <- function(vb_, it_, lambda_, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight_, SmoothQ) {
-    .Call(`_ravetools_vcgSmoothImplicit`, vb_, it_, lambda_, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight_, SmoothQ)
+vcgSmoothImplicit <- function(vb_, it_, lambda, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight, SmoothQ, maxMemory) {
+    .Call(`_ravetools_vcgSmoothImplicit`, vb_, it_, lambda, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight, SmoothQ, maxMemory)
 }
 
 vcgSmooth <- function(vb_, it_, iter, method, lambda, mu, delta_) {
@@ -719,6 +723,10 @@ vcgMeshPatchFaces <- function(vb_, it_, boundary_seq, seed_face) {
 
 vcgFixDefects <- function(vb_, it_, merge_tolerance = -1.0, max_hole_size = 100L, verbose = FALSE) {
     .Call(`_ravetools_vcgFixDefects`, vb_, it_, merge_tolerance, max_hole_size, verbose)
+}
+
+vcgDecimate <- function(vb_, it_, targetFaces, preserveTopology, preserveBoundary, normalCheck, qualityThreshold, verbose) {
+    .Call(`_ravetools_vcgDecimate`, vb_, it_, targetFaces, preserveTopology, preserveBoundary, normalCheck, qualityThreshold, verbose)
 }
 
 # Register entry points for exported C++ functions
