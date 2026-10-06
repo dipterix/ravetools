@@ -672,6 +672,11 @@ by `CMIC` at University College London.
 
   Apply a linear `RAS` transform to resample a 3D volume
 
+- [`apply_transform3d_volume()`](https://dipterix.org/ravetools/reference/apply_transform3d_volume.md)
+  [`apply_transform3d_points()`](https://dipterix.org/ravetools/reference/apply_transform3d_volume.md)
+  : Apply a registration (linear and/or deformable) to a volume or to
+  points
+
 - [`band_pass1()`](https://dipterix.org/ravetools/reference/band_pass.md)
   [`band_pass2()`](https://dipterix.org/ravetools/reference/band_pass.md)
   : Band-pass signals

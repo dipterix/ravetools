@@ -21,7 +21,7 @@ different sampling, orientation, or field of view are aligned correctly."></head
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,6 +87,9 @@ different sampling, orientation, or field of view are aligned correctly.</p>
 <span>  init_transform <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  syn_iterations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">20</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  syn_sigma <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  syn_grad_step <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  syn_total_sigma <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  syn_cc_radius <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -234,6 +237,25 @@ vary the regularization per stage (e.g. <code>c(3, 3, 1)</code> to relax it at t
 finest level for sharper detail)</p></dd>
 
 
+<dt id="arg-syn-grad-step">syn_grad_step<a class="anchor" aria-label="anchor" href="#arg-syn-grad-step"></a></dt>
+<dd><p>deformable stage step size: each update is capped at
+<code>syn_grad_step</code> times the voxel spacing of the current level; default
+<code>0.2</code> (must be positive)</p></dd>
+
+
+<dt id="arg-syn-total-sigma">syn_total_sigma<a class="anchor" aria-label="anchor" href="#arg-syn-total-sigma"></a></dt>
+<dd><p>Gaussian sigma (in voxels) applied to the total
+deformation field after each update (the elastic-like regularization of
+<span class="pkg">'ANTs'</span> <code>SyN[gradStep, updateFieldSigma, totalFieldSigma]</code>);
+default <code>0</code> (none; must be non-negative)</p></dd>
+
+
+<dt id="arg-syn-cc-radius">syn_cc_radius<a class="anchor" aria-label="anchor" href="#arg-syn-cc-radius"></a></dt>
+<dd><p>radius (in voxels) of the local window of the
+deformable-stage cross-correlation metric; default <code>2L</code> (a
+\(5^3\) window; must be an integer of at least 1)</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>logical; if <code>TRUE</code> (default) print per-level and
 per-iteration progress to the console, including the current stage, shrink
@@ -243,7 +265,7 @@ displacement (deformable); useful to monitor convergence on large volumes</p></d
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with:</p><dl><dt><code>transform</code></dt>
+    <p>A list of class <code>ravetools_register_volume3d</code> with:</p><dl><dt><code>transform</code></dt>
 <dd><p>the estimated 4x4 <code>RAS</code>-to-<code>RAS</code> linear
 transform mapping <code>target</code> (fixed) coordinates to <code>source</code> (moving)
 coordinates</p></dd>
@@ -259,10 +281,14 @@ first element. For single-image input this is a length-1 list</p></dd>
 
 <dt><code>forward_field</code>,<code>inverse_field</code></dt>
 <dd><p>(only for <code>"syn"</code>) the
-deformation fields</p></dd>
+deformation fields on the target grid, see ‘Details’</p></dd>
 
 <dt><code>metric_trace</code></dt>
 <dd><p>the metric value across optimizer iterations</p></dd>
+
+<dt><code>geometry</code></dt>
+<dd><p>the source and target grids (<code>source_dim</code>,
+<code>source_vox2ras</code>, <code>target_dim</code>, <code>target_vox2ras</code>)</p></dd>
 
 <dt><code>type</code>,<code>metric</code></dt>
 <dd><p>echoes of the inputs</p></dd>
@@ -270,8 +296,52 @@ deformation fields</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><strong>Choosing a metric.</strong> For a same-contrast pair, such as a native
+<code>'T1'</code>-weighted scan against a <code>'T1'</code> template, the default
+<code>metric = "mattes"</code> reproduces the <span class="pkg">'ANTs'</span> <code>SyN</code> recipe:
+Mattes mutual information drives the rigid and <code>affine</code> stages and
+local cross-correlation drives the deformable stage (the <code>"cc"</code>
+metric only changes the linear stages). The <span class="pkg">'ANTs'</span>-like
+<code>'T1'</code>-to-template preset is <code>syn_cc_radius = 4</code>,
+<code>syn_grad_step = 0.15</code> and <code>syn_sigma = 3.5</code>; the defaults are a
+faster, lightly regularized variant. For cross-contrast pairs mutual
+information is the usual choice for the linear stages; the deformable stage
+has no mutual-information metric, and its squared local correlation
+tolerates an inverted contrast (such as <code>'T2'</code> against <code>'T1'</code>)
+but not a non-monotonic relation (such as <code>FLAIR</code> or <code>'CT'</code>
+against <code>'T1'</code>), so give such channels a low weight in a multichannel
+call.</p>
+<p><strong>Deformation fields.</strong> <code>forward_field</code> is the displacement
+\(u_f\) on the target grid such that <code>image</code> samples the source at
+\(A(r + u_f(r))\). <code>inverse_field</code> is its numerical inverse on the
+same grid, computed by damped fixed-point iteration (Chen 2008, see
+‘References’; at most 20 sweeps, as in <span class="pkg">'ANTs'</span>), so
+\(r + u_f(r) + u_i(r + u_f(r)) \approx r\) and vice versa to within a
+small fraction of a voxel wherever the forward map is one-to-one inside the
+target grid. Near the border of an unmasked registration the deformation can
+fold or push points out of the grid; there the inverse has no exact
+solution, so <code>inverse_field</code> values at the border are approximate (a
+<code>target_mask</code> keeps the deformation away from the border). Use
+<code><a href="apply_transform3d_volume.html">apply_transform3d_volume</a></code> and
+<code><a href="apply_transform3d_volume.html">apply_transform3d_points</a></code> to apply the result to other volumes
+or coordinates.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p><code>Avants</code> B, Epstein C, <code>Grossman</code> M, Gee J (2008). Symmetric
+<code>diffeomorphic</code> image registration with cross-correlation: evaluating
+automated labeling of elderly and <code>neurodegenerative</code> brain. Medical
+Image Analysis, 12(1), 26-41.</p>
+<p>Chen M, Lu W, Chen Q, <code>Ruchala</code> K, <code>Olivera</code> G (2008). A simple
+fixed-point approach to invert a deformation field. Medical Physics, 35(1),
+81-88.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="apply_transform3d.html">apply_transform3d</a></code>, <code><a href="resample_3d_volume.html">resample_3d_volume</a></code></p></div>
+    <div class="dont-index"><p><code><a href="apply_transform3d_volume.html">apply_transform3d_volume</a></code>,
+<code><a href="apply_transform3d_volume.html">apply_transform3d_points</a></code>, <code><a href="save_registration.html">save_registration</a></code>,
+<code><a href="resample_3d_volume.html">resample_3d_volume</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -942,6 +1012,7 @@ deformation fields</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it    19: cost = -0.888188  field_max = 15.25 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it    20: cost = -0.887909  field_max = 15.30 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [SyN] level 3/3 (shrink=1, sigma=0.0, flow=3.0, channels=2): max 0 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.65e-02, max = 1.58e+00 voxel</span>
 <span class="r-in"><span><span class="va">res_mm</span><span class="op">$</span><span class="va">transform</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  2.0017331 -1.0002336  0.9990778</span>
 <span class="r-in"><span></span></span>

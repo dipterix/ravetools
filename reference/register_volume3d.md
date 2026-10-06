@@ -36,6 +36,9 @@ register_volume3d(
   init_transform = NULL,
   syn_iterations = c(40, 20, 0),
   syn_sigma = 3,
+  syn_grad_step = 0.2,
+  syn_total_sigma = 0,
+  syn_cc_radius = 2L,
   verbose = TRUE
 )
 ```
@@ -178,6 +181,25 @@ register_volume3d(
   vary the regularization per stage (e.g. `c(3, 3, 1)` to relax it at
   the finest level for sharper detail)
 
+- syn_grad_step:
+
+  deformable stage step size: each update is capped at `syn_grad_step`
+  times the voxel spacing of the current level; default `0.2` (must be
+  positive)
+
+- syn_total_sigma:
+
+  Gaussian sigma (in voxels) applied to the total deformation field
+  after each update (the elastic-like regularization of 'ANTs'
+  `SyN[gradStep, updateFieldSigma, totalFieldSigma]`); default `0`
+  (none; must be non-negative)
+
+- syn_cc_radius:
+
+  radius (in voxels) of the local window of the deformable-stage
+  cross-correlation metric; default `2L` (a \\5^3\\ window; must be an
+  integer of at least 1)
+
 - verbose:
 
   logical; if `TRUE` (default) print per-level and per-iteration
@@ -188,7 +210,7 @@ register_volume3d(
 
 ## Value
 
-A list with:
+A list of class `ravetools_register_volume3d` with:
 
 - `transform`:
 
@@ -207,19 +229,71 @@ A list with:
 
 - `forward_field`,`inverse_field`:
 
-  (only for `"syn"`) the deformation fields
+  (only for `"syn"`) the deformation fields on the target grid, see
+  ‘Details’
 
 - `metric_trace`:
 
   the metric value across optimizer iterations
 
+- `geometry`:
+
+  the source and target grids (`source_dim`, `source_vox2ras`,
+  `target_dim`, `target_vox2ras`)
+
 - `type`,`metric`:
 
   echoes of the inputs
 
+## Details
+
+**Choosing a metric.** For a same-contrast pair, such as a native
+`'T1'`-weighted scan against a `'T1'` template, the default
+`metric = "mattes"` reproduces the 'ANTs' `SyN` recipe: Mattes mutual
+information drives the rigid and `affine` stages and local
+cross-correlation drives the deformable stage (the `"cc"` metric only
+changes the linear stages). The 'ANTs'-like `'T1'`-to-template preset is
+`syn_cc_radius = 4`, `syn_grad_step = 0.15` and `syn_sigma = 3.5`; the
+defaults are a faster, lightly regularized variant. For cross-contrast
+pairs mutual information is the usual choice for the linear stages; the
+deformable stage has no mutual-information metric, and its squared local
+correlation tolerates an inverted contrast (such as `'T2'` against
+`'T1'`) but not a non-monotonic relation (such as `FLAIR` or `'CT'`
+against `'T1'`), so give such channels a low weight in a multichannel
+call.
+
+**Deformation fields.** `forward_field` is the displacement \\u_f\\ on
+the target grid such that `image` samples the source at \\A(r +
+u_f(r))\\. `inverse_field` is its numerical inverse on the same grid,
+computed by damped fixed-point iteration (Chen 2008, see ‘References’;
+at most 20 sweeps, as in 'ANTs'), so \\r + u_f(r) + u_i(r + u_f(r))
+\approx r\\ and vice versa to within a small fraction of a voxel
+wherever the forward map is one-to-one inside the target grid. Near the
+border of an unmasked registration the deformation can fold or push
+points out of the grid; there the inverse has no exact solution, so
+`inverse_field` values at the border are approximate (a `target_mask`
+keeps the deformation away from the border). Use
+[`apply_transform3d_volume`](https://dipterix.org/ravetools/reference/apply_transform3d_volume.md)
+and
+[`apply_transform3d_points`](https://dipterix.org/ravetools/reference/apply_transform3d_volume.md)
+to apply the result to other volumes or coordinates.
+
+## References
+
+`Avants` B, Epstein C, `Grossman` M, Gee J (2008). Symmetric
+`diffeomorphic` image registration with cross-correlation: evaluating
+automated labeling of elderly and `neurodegenerative` brain. Medical
+Image Analysis, 12(1), 26-41.
+
+Chen M, Lu W, Chen Q, `Ruchala` K, `Olivera` G (2008). A simple
+fixed-point approach to invert a deformation field. Medical Physics,
+35(1), 81-88.
+
 ## See also
 
-[`apply_transform3d`](https://dipterix.org/ravetools/reference/apply_transform3d.md),
+[`apply_transform3d_volume`](https://dipterix.org/ravetools/reference/apply_transform3d_volume.md),
+[`apply_transform3d_points`](https://dipterix.org/ravetools/reference/apply_transform3d_volume.md),
+[`save_registration`](https://dipterix.org/ravetools/reference/save_registration.md),
 [`resample_3d_volume`](https://dipterix.org/ravetools/reference/resample_3d_volume.md)
 
 ## Examples
@@ -891,6 +965,7 @@ res_mm <- register_volume3d(
 #>   it    19: cost = -0.888188  field_max = 15.25 mm
 #>   it    20: cost = -0.887909  field_max = 15.30 mm
 #> [SyN] level 3/3 (shrink=1, sigma=0.0, flow=3.0, channels=2): max 0 iterations
+#> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.65e-02, max = 1.58e+00 voxel
 res_mm$transform[1:3, 4]
 #> [1]  2.0017331 -1.0002336  0.9990778
 

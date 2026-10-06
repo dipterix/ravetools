@@ -40,6 +40,42 @@
   200-millimeter spline distance); out-of-range spline distances stop
   with an explanation, results are identical for any thread count, and
   no external dependency is needed
+- Added `apply_transform3d_volume` to resample a 3D volume (or each
+  frame of a 4D stack) through a `register_volume3d` result or through
+  an `ANTs`-style list of `affine` matrices, displacement fields and
+  transform files in `antsApplyTransforms` order, with `trilinear` or
+  nearest-neighbor interpolation; every voxel is streamed through the
+  composite transform in `C++` without materializing a composite field
+- Added `apply_transform3d_points` to map `RAS` coordinates (such as
+  electrode contacts or surface vertices) through the same registration
+  objects and transform lists; with a registration object,
+  `direction = "forward"` maps from source to target space for volumes
+  and points alike (`"inverse"` the reverse), while a transform list
+  follows `antsApplyTransforms` and `antsApplyTransformsToPoints`, where
+  the same list resamples an image from moving to fixed space but
+  carries a point from fixed to moving space
+- `apply_transform3d` is superseded by `apply_transform3d_volume` and
+  `apply_transform3d_points`; it is kept unchanged (no warning), and
+  `ravetools` no longer calls it internally
+- Fixed `register_volume3d` (`SyN`) returning `inverse_field` as the
+  negated `forward_field`, which is only a first-order inverse; the
+  inverse is now computed from the final forward field by damped
+  fixed-point inversion (`Chen` and colleagues, 2008; at most 20 sweeps,
+  as in `ANTs`), so forward and inverse compose to the identity within a
+  small fraction of a voxel wherever the forward map is one-to-one
+  inside the target grid (border voxels of an unmasked registration can
+  fold and stay approximate); `transform`, `image`, `images` and
+  `forward_field` are unchanged
+- `register_volume3d` gains `syn_grad_step`, `syn_total_sigma` and
+  `syn_cc_radius` to control the deformable stage (passing the defaults
+  explicitly gives results identical to omitting them); the
+  documentation describes the `ANTs`-like `T1`-to-template preset
+  (`syn_cc_radius = 4`, `syn_grad_step = 0.15`, `syn_sigma = 3.5`) and
+  the metric choice for same-contrast versus cross-contrast pairs
+- `register_volume3d` results record the source grid dimension
+  (`geometry$source_dim`), which `save_registration` writes as
+  `SourceDim` in the manifest and `load_registration` reads back; older
+  manifests without it still load
 - Fixed `vcg_smooth_implicit` crashing R with a segmentation fault on
   large meshes, such as a whole-brain surface with about 3 million
   vertices at `degree = 2`: the bundled `VCG` smoother factorized one
