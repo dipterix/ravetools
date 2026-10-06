@@ -309,24 +309,48 @@ vcg_subdivision <- function(mesh, method = c("edge", "barycenter")) {
 #' returned at their input positions with zero normal vectors; the remaining
 #' vertices are unaffected by their presence.
 #'
+#' \code{vcg_smooth_implicit} solves, separately for each coordinate, the
+#' sparse linear system
+#' \eqn{(M + \lambda L^k) x = M v}{(M + lambda L^k) x = M v}, where \eqn{v}
+#' holds the input positions, \eqn{M} the per-vertex areas scaled to a
+#' maximum of one, \eqn{L} the 'Laplacian' and
+#' \eqn{k = 2^{degree - 1}}{k = 2^(degree - 1)}. Degrees 1 and 2 are solved
+#' iteratively (conjugate gradients), with memory growing linearly with the
+#' mesh; higher degrees are solved by a sparse factorization. The memory the
+#' solve needs is estimated before anything large is allocated, and the
+#' function stops with an explanation when it exceeds \code{max_memory}; very
+#' large meshes can be simplified first with \code{\link{vcg_decimate}}.
+#'
 #' @param mesh triangular mesh stored as object of class 'mesh3d'.
-#' @param use_mass_matrix logical: whether to use mass matrix to keep the mesh
-#' close to its original position (weighted per area distributed on vertices);
-#' default is \code{TRUE}
-#' @param fix_border logical: whether to fix the border vertices of the mesh;
-#' default is \code{FALSE}
+#' @param use_mass_matrix logical: whether to keep the mesh close to its input
+#' position with an area-weighted (mass matrix) term; default is \code{TRUE}.
+#' With \code{FALSE} there is no such term and the fixed border vertices alone
+#' determine the result, the smoothest surface spanning the border; this needs
+#' \code{fix_border = TRUE} and a border in every connected part of the mesh,
+#' and \code{lambda} then has no effect
+#' @param fix_border logical: whether border vertices (vertices on an edge
+#' that belongs to exactly one face) keep exactly their input positions;
+#' default is \code{FALSE}. Closed meshes have no border
 #' @param use_cot_weight logical: whether to use cotangent weight; default is
 #' \code{FALSE} (using uniform 'Laplacian')
 #' @param laplacian_weight numeric: weight when \code{use_cot_weight} is \code{FALSE};
 #' default is \code{1.0}
-#' @param degree integer: degrees of 'Laplacian'; default is \code{1}
+#' @param degree integer: degree of the 'Laplacian' operator; the system uses
+#' \eqn{L^k} with \eqn{k = 2^{degree - 1}}{k = 2^(degree - 1)} (the
+#' 'Laplacian' squared \code{degree - 1} times), so \code{degree = 2} uses
+#' \eqn{L^2} and \code{degree = 3} uses \eqn{L^4}; default is \code{1}
+#' @param max_memory maximum memory in \verb{GiB} that
+#' \code{vcg_smooth_implicit} may use for the solve; default is \code{2}. The
+#' need is estimated from the mesh before any large allocation, and exceeding
+#' it raises an error that suggests alternatives
 #' @param type method name of explicit smooth, choices are \code{'taubin'},
 #' \code{'laplace'}, \code{'HClaplace'}, \code{'fujiLaplace'},
 #' \code{'angWeight'}, \code{'surfPreserveLaplace'}.
 #' @param iteration number of iterations
-#' @param lambda In \code{vcg_smooth_implicit}, the amount of smoothness,
-#' useful only if \code{use_mass_matrix} is \code{TRUE}; default is \code{0.2}.
-#' In \code{vcg_smooth_explicit}, parameter for \code{'taubin'} smoothing.
+#' @param lambda In \code{vcg_smooth_implicit}, the amount of smoothness, which
+#' has no effect when \code{use_mass_matrix} is \code{FALSE}; default is
+#' \code{0.2}. In \code{vcg_smooth_explicit}, parameter for \code{'taubin'}
+#' smoothing.
 #' @param mu parameter for \code{'taubin'} explicit smoothing.
 #' @param delta parameter for scale-dependent 'Laplacian' smoothing or
 #' maximum allowed angle (in 'Radian') for deviation between surface preserving
@@ -398,7 +422,8 @@ vcg_subdivision <- function(mesh, method = c("edge", "barycenter")) {
 #' @export
 vcg_smooth_implicit <- function(
     mesh, lambda = 0.2, use_mass_matrix = TRUE, fix_border = FALSE,
-    use_cot_weight = FALSE, degree = 1L, laplacian_weight = 1.0
+    use_cot_weight = FALSE, degree = 1L, laplacian_weight = 1.0,
+    max_memory = 2
 ) {
   mesh <- meshintegrity(mesh)
   smooth_quality <- FALSE
@@ -409,24 +434,31 @@ vcg_smooth_implicit <- function(
   use_cot_weight <- as.logical(use_cot_weight)[[1]]
   smooth_quality <- as.logical(smooth_quality)[[1]]
   degree <- as.integer(degree)[[1]]
+  max_memory <- as.double(max_memory)[[1]]
+  if (is.na(degree)) {
+    stop("vcg_smooth_implicit: `degree` must be an integer")
+  }
+  if (!isTRUE(max_memory > 0)) {
+    stop("vcg_smooth_implicit: `max_memory` must be a positive number of GiB")
+  }
 
   n_vertex <- ncol(mesh$vb)
 
-  # The implicit solver builds one row per vertex out of the incident faces, so
-  # a vertex belonging to no face gives an all-zero row and makes the system
-  # singular - the solve then returns garbage for *every* vertex. Smooth the
+  # A vertex belonging to no face has nothing to smooth against; smooth the
   # referenced sub-mesh only and leave unreferenced vertices where they are,
-  # which is what `vcg_smooth_explicit` does with the same input.
+  # which is what `vcg_smooth_explicit` does with the same input. This also
+  # keeps them out of the border and connected-part checks.
+  # (`tabulate` counts uses without copying the face matrix)
   referenced <- if (is.matrix(mesh$it)) {
-    sort(unique(as.vector(mesh$it)))
+    which(tabulate(mesh$it, nbins = n_vertex) > 0L)
   } else {
     integer(0)
   }
 
-  normals <- matrix(0, nrow = 3L, ncol = n_vertex)
-
+  normals <- NULL
   if (length(referenced)) {
     vb <- mesh$vb[1:3, referenced, drop = FALSE]
+    storage.mode(vb) <- "double"
     if (length(referenced) == n_vertex) {
       it <- mesh$it
     } else {
@@ -439,12 +471,16 @@ vcg_smooth_implicit <- function(
 
     tmp <- vcgSmoothImplicit(vb, it, lambda, use_mass_matrix, fix_border,
                              use_cot_weight, degree, laplacian_weight,
-                             smooth_quality)
+                             smooth_quality, max_memory * 1024^3)
+    rm(vb, it)
 
     mesh$vb[1:3, referenced] <- tmp$vb
+    normals <- matrix(0, nrow = 3L, ncol = n_vertex)
     normals[, referenced] <- tmp$normals
     # `tmp$it` indexes the sub-mesh; translate back to original vertex ids
     mesh$it <- matrix(referenced[tmp$it], nrow = 3L)
+  } else {
+    normals <- matrix(0, nrow = 3L, ncol = n_vertex)
   }
 
   mesh$normals <- rbind(normals, 1)
@@ -483,6 +519,88 @@ vcg_smooth_explicit <- function(
   mesh$normals <- rbind(tmp$normals, 1)
   mesh$it <- tmp$it
   invisible(meshintegrity(mesh))
+}
+
+#' @title Simplify a triangular mesh by \verb{quadric} edge collapse
+#' @description
+#' Reduces the number of faces of a triangular mesh by repeatedly collapsing
+#' the edge whose removal changes the surface least, measured by the
+#' \verb{quadric} error metric of \verb{Garland} and \verb{Heckbert} (1997): the squared
+#' distance from the merged vertex to the planes of the faces around it.
+#' Flat regions are simplified first and curved ones last, so the shape is
+#' kept while the vertex count drops. Useful before
+#' \code{\link{vcg_smooth_implicit}} on very large meshes, such as surfaces
+#' extracted from whole-brain volumes.
+#' @param mesh triangular mesh of class \code{'mesh3d'}
+#' @param ratio fraction of the faces to keep, greater than 0 and at most 1;
+#' ignored when \code{target_faces} is given
+#' @param target_faces number of faces to keep; default \code{NULL} uses
+#' \code{ratio}
+#' @param preserve_topology whether to forbid collapses that change the
+#' topology (join or split connected parts, open or close handles); default
+#' is \code{TRUE}
+#' @param preserve_boundary whether to keep the boundary edges of an open mesh
+#' in place; default is \code{TRUE}
+#' @param normal_check whether to forbid collapses that flip a face; default
+#' is \code{TRUE}
+#' @param quality_threshold collapses that would create faces of lower quality
+#' than this, from 0 (degenerate) to 1 (equilateral), are penalized; default
+#' is \code{0.3}
+#' @param verbose whether to print the vertex and face counts
+#' @returns A \code{'mesh3d'} object with \code{vb}, \code{it}, and
+#' \code{normals}; vertices are re-indexed. A mesh that already has no more
+#' faces than requested is returned unchanged. The decimation can stop short
+#' of the target when the constraints above forbid every remaining collapse.
+#' @references \verb{Garland} M, \verb{Heckbert} PS (1997). Surface
+#' simplification using \verb{quadric} error metrics. In \emph{Proceedings of
+#' the annual conference on computer graphics and interactive techniques},
+#' 209-216.
+#'
+#' @inheritSection ensure_mesh3d Coercing Surface Inputs
+#'
+#' @examples
+#'
+#' sphere <- vcg_sphere(sub_division = 4L)
+#' ncol(sphere$it)
+#'
+#' simplified <- vcg_decimate(sphere, ratio = 0.1)
+#' ncol(simplified$it)
+#'
+#' @export
+vcg_decimate <- function(
+    mesh, ratio = 0.5, target_faces = NULL, preserve_topology = TRUE,
+    preserve_boundary = TRUE, normal_check = TRUE, quality_threshold = 0.3,
+    verbose = FALSE
+) {
+  mesh <- meshintegrity(mesh, facecheck = TRUE)
+  n_faces <- ncol(mesh$it)
+  if (length(target_faces)) {
+    target_faces <- as.integer(target_faces)[[1]]
+    if (is.na(target_faces) || target_faces < 1L) {
+      stop("vcg_decimate: `target_faces` must be a positive integer")
+    }
+  } else {
+    ratio <- as.double(ratio)[[1]]
+    if (!isTRUE(ratio > 0 && ratio <= 1)) {
+      stop("vcg_decimate: `ratio` must be greater than 0 and at most 1")
+    }
+    target_faces <- as.integer(floor(ratio * n_faces))
+  }
+  if (target_faces >= n_faces) {
+    return(mesh)
+  }
+
+  vb <- mesh$vb[1:3, , drop = FALSE]
+  it <- mesh$it - 1L
+  storage.mode(it) <- "integer"
+  vcgDecimate(
+    vb, it, target_faces,
+    preserveTopology = as.logical(preserve_topology)[[1]],
+    preserveBoundary = as.logical(preserve_boundary)[[1]],
+    normalCheck = as.logical(normal_check)[[1]],
+    qualityThreshold = as.double(quality_threshold)[[1]],
+    verbose = as.logical(verbose)[[1]]
+  )
 }
 
 #' @title Compute volume for manifold meshes

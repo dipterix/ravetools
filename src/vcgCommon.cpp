@@ -1,9 +1,13 @@
 #include <Rcpp.h>
 #include "vcgCommon.h"
 #include <vcg/complex/algorithms/hole.h>
+#include <Eigen/Sparse>
+#include <algorithm>
+#include <cmath>
 #include <unordered_map>
 #include <unordered_set>
 #include <cstdint>
+#include <vector>
 
 namespace {
 
@@ -69,6 +73,197 @@ double maxEdgeLength(ravetools::MyMesh &m)
     }
   }
   return maxLen;
+}
+
+// ---- implicit smoothing (vcgSmoothImplicit) --------------------------------
+//
+// Smoothing solves, per coordinate axis, (M + lambda * L^k) X = M V with
+// k = 2^(degree - 1): M is the per-vertex sum of doubled incident face areas
+// scaled by its maximum, and L the Laplacian accumulated per face edge. This
+// is the system vcglib's ImplicitSmoother assembles, but vcglib stacks the
+// three axes into one 3N x 3N system and factorizes it with 32-bit indices:
+// on a 3.2 M vertex whole-brain isosurface (degree 2) the factor needs
+// 2.85e9 nonzeros, the index sum wraps negative, the factor is never
+// allocated and the factorization writes through a null pointer. Here the
+// axes share one N x N matrix, in double precision with 64-bit indices, and
+// every allocation proportional to the mesh is estimated before it is made.
+
+typedef Eigen::Index SmoothIndex;
+typedef Eigen::SparseMatrix<double, Eigen::ColMajor, SmoothIndex> SmoothMatrix;
+
+// Symmetric sparsity pattern in compressed columns, diagonal included and
+// row indices sorted
+struct SmoothPattern {
+  std::vector<int64_t> ptr;
+  std::vector<int> idx;
+};
+
+double smoothMatrixBytes(double nnz, double n)
+{
+  return nnz * (sizeof(double) + sizeof(SmoothIndex)) + (n + 1.0) * sizeof(SmoothIndex);
+}
+
+double smoothPatternBytes(double nnz, double n)
+{
+  return nnz * sizeof(int) + (n + 1.0) * sizeof(int64_t);
+}
+
+// Peak memory of the solve: each stage records the bytes it holds at once
+// (live arrays, not what the allocator may keep after they are freed), and
+// `check` stops with an explanation when the largest exceeds the limit
+struct SmoothMemoryGuard {
+  double limit;
+  int nVertices;
+  int degree;
+  double base;   // the input arrays, held throughout
+  double peak;
+
+  void need(double bytes) {
+    if (base + bytes > peak) peak = base + bytes;
+  }
+
+  // `partial`: stages still to come are not counted yet
+  void check(bool partial) {
+    if (peak <= limit) return;
+    const double gib = 1024.0 * 1024.0 * 1024.0;
+    Rcpp::stop(
+      "vcg_smooth_implicit: smoothing this mesh (%d vertices, degree %d) "
+      "needs %s %.3g GiB of memory, more than `max_memory` (%.3g GiB). "
+      "Reduce the mesh first (for example with `vcg_decimate()`), use a "
+      "lower `degree`, smooth explicitly with `vcg_smooth_explicit()` or "
+      "`mris_smooth()`, or raise `max_memory` if this machine has the memory.",
+      nVertices, degree, partial ? "at least" : "about", peak / gib, limit / gib);
+  }
+};
+
+// Number of nonzeros of A * A for a symmetric pattern A. When `out` is not
+// null the (sorted) pattern of the product is stored there as well.
+int64_t squarePattern(const SmoothPattern &a, int n, SmoothPattern *out)
+{
+  std::vector<int> mark(n, -1);
+  int64_t total = 0;
+  if (out) out->ptr.assign((size_t)n + 1, 0);
+  for (int c = 0; c < n; c++) {
+    for (int64_t k = a.ptr[c]; k < a.ptr[c + 1]; k++) {
+      const int j = a.idx[k];
+      for (int64_t l = a.ptr[j]; l < a.ptr[j + 1]; l++) {
+        const int i = a.idx[l];
+        if (mark[i] != c) { mark[i] = c; total++; }
+      }
+    }
+    if (out) out->ptr[c + 1] = total;
+  }
+  if (!out) return total;
+
+  out->idx.resize((size_t)total);
+  std::fill(mark.begin(), mark.end(), -1);
+  for (int c = 0; c < n; c++) {
+    int64_t pos = out->ptr[c];
+    for (int64_t k = a.ptr[c]; k < a.ptr[c + 1]; k++) {
+      const int j = a.idx[k];
+      for (int64_t l = a.ptr[j]; l < a.ptr[j + 1]; l++) {
+        const int i = a.idx[l];
+        if (mark[i] != c) { mark[i] = c; out->idx[pos++] = i; }
+      }
+    }
+    std::sort(out->idx.begin() + out->ptr[c], out->idx.begin() + pos);
+  }
+  return total;
+}
+
+// A * A for a symmetric matrix with sorted columns (Gustavson's algorithm
+// with a dense accumulator), producing sorted columns. Eigen's own sparse
+// product keeps three copies of the result alive while it sorts them.
+SmoothMatrix squareSymmetric(const SmoothMatrix &a)
+{
+  const SmoothIndex n = a.cols();
+  const SmoothIndex *ap = a.outerIndexPtr();
+  const SmoothIndex *ai = a.innerIndexPtr();
+  const double *ax = a.valuePtr();
+
+  std::vector<SmoothIndex> mark(n, -1);
+  std::vector<SmoothIndex> colPtr(n + 1, 0);
+  for (SmoothIndex c = 0; c < n; c++) {
+    SmoothIndex cnt = 0;
+    for (SmoothIndex k = ap[c]; k < ap[c + 1]; k++) {
+      const SmoothIndex j = ai[k];
+      for (SmoothIndex l = ap[j]; l < ap[j + 1]; l++) {
+        const SmoothIndex i = ai[l];
+        if (mark[i] != c) { mark[i] = c; cnt++; }
+      }
+    }
+    colPtr[c + 1] = colPtr[c] + cnt;
+  }
+
+  SmoothMatrix r(n, n);
+  r.resizeNonZeros(colPtr[n]);
+  SmoothIndex *rp = r.outerIndexPtr();
+  SmoothIndex *ri = r.innerIndexPtr();
+  double *rx = r.valuePtr();
+  std::copy(colPtr.begin(), colPtr.end(), rp);
+  std::vector<SmoothIndex>().swap(colPtr);
+
+  std::fill(mark.begin(), mark.end(), -1);
+  std::vector<double> acc(n, 0.0);
+  for (SmoothIndex c = 0; c < n; c++) {
+    SmoothIndex pos = rp[c];
+    for (SmoothIndex k = ap[c]; k < ap[c + 1]; k++) {
+      const SmoothIndex j = ai[k];
+      const double ajc = ax[k];
+      for (SmoothIndex l = ap[j]; l < ap[j + 1]; l++) {
+        const SmoothIndex i = ai[l];
+        if (mark[i] != c) { mark[i] = c; ri[pos++] = i; acc[i] = 0.0; }
+        acc[i] += ax[l] * ajc;
+      }
+    }
+    std::sort(ri + rp[c], ri + rp[c + 1]);
+    for (SmoothIndex k = rp[c]; k < rp[c + 1]; k++) rx[k] = acc[ri[k]];
+  }
+  return r;
+}
+
+// Reference to the stored entry (row, col); the entry must exist
+double &smoothEntry(SmoothMatrix &m, SmoothIndex row, SmoothIndex col)
+{
+  SmoothIndex *begin = m.innerIndexPtr() + m.outerIndexPtr()[col];
+  SmoothIndex *end = m.innerIndexPtr() + m.outerIndexPtr()[col + 1];
+  SmoothIndex *hit = std::lower_bound(begin, end, row);
+  return m.valuePtr()[hit - m.innerIndexPtr()];
+}
+
+// Nonzeros of the strictly lower LDLT factor of `ap` (upper triangle stored,
+// already permuted), counted in 64 bits with the elimination-tree walk of
+// Eigen's SimplicialCholeskyBase::analyzePattern_preordered, which sums the
+// same counts in the matrix's index type
+double ldltFactorNonZeros(const SmoothMatrix &ap)
+{
+  const SmoothIndex n = ap.cols();
+  std::vector<SmoothIndex> parent(n), tags(n);
+  double total = 0.0;
+  for (SmoothIndex k = 0; k < n; ++k) {
+    parent[k] = -1;
+    tags[k] = k;
+    for (SmoothMatrix::InnerIterator it(ap, k); it; ++it) {
+      SmoothIndex i = it.index();
+      if (i < k) {
+        for (; tags[i] != k; i = parent[i]) {
+          if (parent[i] == -1) parent[i] = k;
+          total += 1.0;
+          tags[i] = k;
+        }
+      }
+    }
+  }
+  return total;
+}
+
+int findRoot(std::vector<int> &root, int i)
+{
+  while (root[i] != i) {
+    root[i] = root[root[i]];
+    i = root[i];
+  }
+  return i;
 }
 
 } // namespace
@@ -160,82 +355,380 @@ SEXP vcgIsoSurface(SEXP array_, double thresh) {
 
 // [[Rcpp::export]]
 SEXP vcgSmoothImplicit(
-    SEXP vb_, SEXP it_, float lambda_, bool useMassMatrix, bool fixBorder,
-    bool useCotWeight, int degree, float lapWeight_, bool SmoothQ)
+    SEXP vb_, SEXP it_, double lambda, bool useMassMatrix, bool fixBorder,
+    bool useCotWeight, int degree, double lapWeight, bool SmoothQ,
+    double maxMemory)
 {
   try {
-    int i;
-    ravetools::MyMesh m;
-    ravetools::VertexIterator vi;
-    ravetools::FaceIterator fi;
+    if (SmoothQ) {
+      Rcpp::stop("vcg_smooth_implicit: smoothing per-vertex quality is not supported");
+    }
+    if (!std::isfinite(lambda) || lambda < 0.0) {
+      Rcpp::stop("vcg_smooth_implicit: `lambda` must be a non-negative number");
+    }
+    if (degree < 1) degree = 1;
 
-    ravetools::ScalarType lambda = lambda_;
-    ravetools::ScalarType lapWeight = lapWeight_;
+    Rcpp::NumericMatrix vb(vb_);
+    Rcpp::IntegerMatrix it(it_);
+    const int n = vb.ncol();
+    const int nf = it.ncol();
+    if (vb.nrow() < 3 || it.nrow() != 3) {
+      Rcpp::stop("vcg_smooth_implicit: `vb` must have 3 rows and `it` exactly 3 rows");
+    }
+    for (R_xlen_t k = 0; k < it.size(); k++) {
+      if (it[k] < 0 || it[k] >= n) {
+        Rcpp::stop("vcg_smooth_implicit: face index out of range");
+      }
+    }
 
-    // PRECONDITION: every vertex in vb_ must be referenced by some face in it_.
-    // ImplicitSmoother sizes its linear system as one block per vertex but
-    // accumulates the mass matrix and Laplacian from faces only, so a vertex
-    // with no incident face contributes an all-zero row, the Cholesky solve
-    // goes singular (its assert is compiled out by NDEBUG above) and the
-    // garbage solution is written back over *every* vertex. The R wrapper
-    // `vcg_smooth_implicit` guarantees this by solving on the referenced
-    // sub-mesh and scattering the result back.
-    //allocate mesh and fill it
-    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m,vb_,it_);
+    const double dn = n, df = nf, vec = n * (double)sizeof(double);
+    SmoothMemoryGuard guard = { maxMemory, n, degree,
+                                3.0 * vec + 3.0 * df * sizeof(int), 0.0 };
 
+    // ---- vertex adjacency: the pattern of L, border vertices --------------
+    // every face edge (a, b) lists b in column a and a in column b; those
+    // slots and the merged pattern (at most n + 6 nf entries) coexist
+    guard.need(6.0 * df * sizeof(int) + 2.0 * (dn + 1.0) * sizeof(int64_t) + dn
+               + smoothPatternBytes(dn + 6.0 * df, dn));
+    guard.check(true);
+    SmoothPattern pattern;
+    std::vector<char> border(n, 0);
+    {
+      std::vector<int64_t> slot((size_t)n + 1, 0);
+      for (int f = 0; f < nf; f++) {
+        for (int e = 0; e < 3; e++) {
+          const int a = it(e, f), b = it((e + 1) % 3, f);
+          if (a == b) continue;
+          slot[a + 1]++;
+          slot[b + 1]++;
+        }
+      }
+      for (int i = 0; i < n; i++) slot[i + 1] += slot[i];
+      std::vector<int> nbr((size_t)slot[n]);
+      std::vector<int64_t> cursor(slot.begin(), slot.end() - 1);
+      for (int f = 0; f < nf; f++) {
+        for (int e = 0; e < 3; e++) {
+          const int a = it(e, f), b = it((e + 1) % 3, f);
+          if (a == b) continue;
+          nbr[cursor[a]++] = b;
+          nbr[cursor[b]++] = a;
+        }
+      }
+      std::vector<int64_t>().swap(cursor);
 
-    vcg::ImplicitSmoother<ravetools::MyMesh>::Parameter par;
-    par.lambda = lambda;
-    par.useMassMatrix = useMassMatrix;
-    par.fixBorder = fixBorder;
-    par.useCotWeight = useCotWeight;
-    par.degree = degree;
-    par.lapWeight = lapWeight;
-    par.SmoothQ = SmoothQ;
-
-    vcg::ImplicitSmoother<ravetools::MyMesh>::Compute(m, par);
-
+      // sort each column, merge repeated neighbors (an edge used by exactly
+      // one face lies on the border) and insert the diagonal
+      int64_t nnz = 0;
+      for (int c = 0; c < n; c++) {
+        std::sort(nbr.begin() + slot[c], nbr.begin() + slot[c + 1]);
+        int64_t k = slot[c];
+        while (k < slot[c + 1]) {
+          int64_t run = k;
+          while (run < slot[c + 1] && nbr[run] == nbr[k]) run++;
+          if (run - k == 1) border[c] = 1;
+          nnz++;
+          k = run;
+        }
+        nnz++;
+      }
+      pattern.ptr.assign((size_t)n + 1, 0);
+      pattern.idx.resize((size_t)nnz);
+      int64_t pos = 0;
+      for (int c = 0; c < n; c++) {
+        bool diag = false;
+        int64_t k = slot[c];
+        while (k < slot[c + 1]) {
+          const int j = nbr[k];
+          if (!diag && j > c) { pattern.idx[pos++] = c; diag = true; }
+          pattern.idx[pos++] = j;
+          while (k < slot[c + 1] && nbr[k] == j) k++;
+        }
+        if (!diag) pattern.idx[pos++] = c;
+        pattern.ptr[c + 1] = pos;
+      }
+    }
     Rcpp::checkUserInterrupt();
 
-    vcg::tri::Allocator<ravetools::MyMesh>::CompactVertexVector(m);
-    vcg::tri::Allocator<ravetools::MyMesh>::CompactFaceVector(m);
+    // ---- vertices held at their input positions ---------------------------
+    // a vertex on no face has nothing to smooth against
+    std::vector<char> pinned(n, 0);
+    for (int c = 0; c < n; c++) {
+      const bool isolated = pattern.ptr[c + 1] - pattern.ptr[c] == 1;
+      pinned[c] = isolated || (fixBorder && border[c]);
+    }
+    std::vector<char>().swap(border);
+
+    if (!useMassMatrix) {
+      // without the data term only the pinned vertices hold the mesh, so every
+      // connected component needs at least one of them
+      std::vector<int> root(n);
+      for (int i = 0; i < n; i++) root[i] = i;
+      for (int c = 0; c < n; c++) {
+        for (int64_t k = pattern.ptr[c]; k < pattern.ptr[c + 1]; k++) {
+          const int a = findRoot(root, c), b = findRoot(root, pattern.idx[k]);
+          if (a != b) root[a] = b;
+        }
+      }
+      std::vector<char> held(n, 0), seen(n, 0);
+      for (int i = 0; i < n; i++) {
+        if (pinned[i]) held[findRoot(root, i)] = 1;
+      }
+      int loose = 0, parts = 0;
+      for (int i = 0; i < n; i++) {
+        const int r = findRoot(root, i);
+        if (seen[r]) continue;
+        seen[r] = 1;
+        parts++;
+        if (!held[r]) loose++;
+      }
+      if (loose > 0) {
+        Rcpp::stop(
+          "vcg_smooth_implicit: with `use_mass_matrix = FALSE` nothing keeps "
+          "vertices near their input positions except the fixed border "
+          "vertices, but %d of %d connected parts of the mesh have none "
+          "(closed parts have no border, and `fix_border = FALSE` fixes "
+          "nothing). Use `fix_border = TRUE` on an open mesh, or "
+          "`use_mass_matrix = TRUE`.", loose, parts);
+      }
+    }
+
+    // ---- memory needed, from the exact sizes of the powers of L -----------
+    const int squarings = degree - 1;
+    const bool direct = degree >= 3;
+    std::vector<double> nnzPow(1, (double)pattern.idx.size());
+    {
+      SmoothPattern cur;
+      const SmoothPattern *src = &pattern;
+      for (int s = 1; s <= squarings; s++) {
+        const double cnt = (double)squarePattern(*src, n, NULL);
+        nnzPow.push_back(cnt);
+        if (s < squarings) {
+          // the next count needs this power's pattern
+          guard.need(smoothPatternBytes(nnzPow[0], dn)
+                     + (s > 1 ? smoothPatternBytes(nnzPow[s - 1], dn) : 0.0)
+                     + smoothPatternBytes(cnt, dn));
+          guard.check(true);
+          SmoothPattern next;
+          squarePattern(*src, n, &next);
+          cur.ptr.swap(next.ptr);
+          cur.idx.swap(next.idx);
+          src = &cur;
+        }
+        Rcpp::checkUserInterrupt();
+      }
+    }
+    const double nnzK = nnzPow.back();
+
+    // L next to its pattern, then each squaring with its operand
+    guard.need(smoothPatternBytes(nnzPow[0], dn) + smoothMatrixBytes(nnzPow[0], dn) + vec);
+    for (int s = 1; s <= squarings; s++) {
+      guard.need(smoothMatrixBytes(nnzPow[s - 1], dn) + smoothMatrixBytes(nnzPow[s], dn)
+                 + 3.0 * vec + vec);
+    }
+    // the system with its right-hand sides, initial guesses and solutions
+    const double system = smoothMatrixBytes(nnzK, dn) + 10.0 * vec + dn;
+    if (direct) {
+      const double nnzUpper = (nnzK - dn) / 2.0 + dn;
+      // AMD copies the symmetric pattern and grows it by a fifth
+      guard.need(system + 2.2 * nnzK * (sizeof(double) + sizeof(SmoothIndex))
+                 + 10.0 * (dn + 1.0) * sizeof(SmoothIndex));
+      guard.need(system + smoothMatrixBytes(nnzUpper, dn) + 2.0 * dn * sizeof(SmoothIndex));
+    } else {
+      guard.need(system + 5.0 * vec);
+    }
+    // normals are computed on a vcg mesh rebuilt from the result
+    guard.need(dn * sizeof(ravetools::MyVertex) + df * sizeof(ravetools::MyFace)
+               + dn * (sizeof(void*) + sizeof(unsigned int)) + df * sizeof(unsigned int)
+               + 6.0 * vec + 3.0 * df * sizeof(int));
+    // the factor of the direct path is counted once its ordering is known
+    guard.check(direct);
+
+    // ---- assemble L and its powers ----------------------------------------
+    SmoothMatrix S(n, n);
+    S.resizeNonZeros(pattern.idx.size());
+    std::copy(pattern.ptr.begin(), pattern.ptr.end(), S.outerIndexPtr());
+    std::copy(pattern.idx.begin(), pattern.idx.end(), S.innerIndexPtr());
+    std::fill(S.valuePtr(), S.valuePtr() + S.nonZeros(), 0.0);
+    std::vector<int64_t>().swap(pattern.ptr);
+    std::vector<int>().swap(pattern.idx);
+
+    std::vector<double> mass(n, 0.0);
+    for (int f = 0; f < nf; f++) {
+      const int idx[3] = { it(0, f), it(1, f), it(2, f) };
+      double p[3][3];
+      for (int v = 0; v < 3; v++) {
+        for (int d = 0; d < 3; d++) p[v][d] = vb(d, idx[v]);
+      }
+      const double u[3] = { p[1][0] - p[0][0], p[1][1] - p[0][1], p[1][2] - p[0][2] };
+      const double w[3] = { p[2][0] - p[0][0], p[2][1] - p[0][1], p[2][2] - p[0][2] };
+      const double cr[3] = { u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2],
+                             u[0] * w[1] - u[1] * w[0] };
+      const double doubleArea = std::sqrt(cr[0] * cr[0] + cr[1] * cr[1] + cr[2] * cr[2]);
+      for (int e = 0; e < 3; e++) {
+        mass[idx[e]] += doubleArea;
+        const int a = idx[e], b = idx[(e + 1) % 3], o = (e + 2) % 3;
+        if (a == b) continue;
+        double weight = lapWeight;
+        if (useCotWeight) {
+          // half the cotangent of the angle opposite the edge, as
+          // vcg::tri::Harmonic::CotangentWeight returns without
+          // face-face adjacency
+          double ca[3], cb[3];
+          for (int d = 0; d < 3; d++) {
+            ca[d] = p[e][d] - p[o][d];
+            cb[d] = p[(e + 1) % 3][d] - p[o][d];
+          }
+          const double dot = ca[0] * cb[0] + ca[1] * cb[1] + ca[2] * cb[2];
+          const double cx = ca[1] * cb[2] - ca[2] * cb[1];
+          const double cy = ca[2] * cb[0] - ca[0] * cb[2];
+          const double cz = ca[0] * cb[1] - ca[1] * cb[0];
+          weight = dot / std::sqrt(cx * cx + cy * cy + cz * cz) / 2.0;
+        }
+        smoothEntry(S, a, a) += weight;
+        smoothEntry(S, b, b) += weight;
+        smoothEntry(S, a, b) -= weight;
+        smoothEntry(S, b, a) -= weight;
+      }
+    }
+    Rcpp::checkUserInterrupt();
+
+    for (int s = 1; s <= squarings; s++) {
+      SmoothMatrix next = squareSymmetric(S);
+      S.swap(next);
+      Rcpp::checkUserInterrupt();
+    }
+
+    // ---- S = M + lambda * L^k, pinned vertices as identity rows -----------
+    double maxMass = 0.0;
+    for (int i = 0; i < n; i++) maxMass = std::max(maxMass, mass[i]);
+    if (useMassMatrix && !(maxMass > 0.0)) {
+      Rcpp::stop("vcg_smooth_implicit: every face of the mesh has zero area");
+    }
+
+    Eigen::MatrixXd B = Eigen::MatrixXd::Zero(n, 3);
+    Eigen::MatrixXd X0(n, 3);
+    for (int i = 0; i < n; i++) {
+      for (int d = 0; d < 3; d++) X0(i, d) = vb(d, i);
+    }
+    {
+      double *sx = S.valuePtr();
+      for (SmoothIndex k = 0; k < S.nonZeros(); k++) sx[k] *= lambda;
+    }
+    if (useMassMatrix) {
+      for (int i = 0; i < n; i++) {
+        const double m = mass[i] / maxMass;
+        smoothEntry(S, i, i) += m;
+        B.row(i) = m * X0.row(i);
+      }
+    }
+    std::vector<double>().swap(mass);
+
+    // move each pinned vertex's couplings to the right-hand side
+    for (int p = 0; p < n; p++) {
+      if (!pinned[p]) continue;
+      for (SmoothMatrix::InnerIterator iter(S, p); iter; ++iter) {
+        const SmoothIndex i = iter.index();
+        if (i == p) continue;
+        if (!pinned[i]) B.row(i) -= iter.value() * X0.row(p);
+        iter.valueRef() = 0.0;
+        smoothEntry(S, p, i) = 0.0;
+      }
+      smoothEntry(S, p, p) = 1.0;
+      B.row(p) = X0.row(p);
+    }
+    S.prune(0.0);
+
+    {
+      const double *sx = S.valuePtr();
+      bool finite = B.allFinite();
+      for (SmoothIndex k = 0; finite && k < S.nonZeros(); k++) finite = std::isfinite(sx[k]);
+      if (!finite) {
+        Rcpp::stop(
+          "vcg_smooth_implicit: the smoothing system has non-finite entries; "
+          "the mesh probably has degenerate (zero-area) faces%s",
+          useCotWeight ? ", whose cotangent weights are infinite" : "");
+      }
+    }
+    Rcpp::checkUserInterrupt();
+
+    // ---- solve ---------------------------------------------------------------
+    Eigen::MatrixXd X(n, 3);
+    if (!direct) {
+      // conjugate gradients: memory linear in the mesh, and degree <= 2 is
+      // well conditioned enough to converge in a few hundred iterations
+      Eigen::ConjugateGradient<SmoothMatrix, Eigen::Lower | Eigen::Upper> cg;
+      cg.setTolerance(1e-10);
+      cg.setMaxIterations(10000);
+      cg.compute(S);
+      for (int d = 0; d < 3; d++) {
+        X.col(d) = cg.solveWithGuess(B.col(d), X0.col(d));
+        if (cg.info() != Eigen::Success) {
+          Rcpp::stop(
+            "vcg_smooth_implicit: the iterative solve did not converge in %d "
+            "iterations (relative residual %.3g); try a smaller `lambda` or "
+            "`degree`", (int)cg.iterations(), (double)cg.error());
+        }
+        Rcpp::checkUserInterrupt();
+      }
+      SmoothMatrix().swap(S);
+    } else {
+      // degree >= 3 squares L at least twice, too stiff for unpreconditioned
+      // conjugate gradients: factorize, after counting the factor's size
+      Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, SmoothIndex> perm, permInv;
+      {
+        Eigen::AMDOrdering<SmoothIndex> amd;
+        amd(S.selfadjointView<Eigen::Lower>(), permInv);
+      }
+      perm = permInv.inverse();
+      SmoothMatrix upper(n, n);
+      upper.selfadjointView<Eigen::Upper>() = S.selfadjointView<Eigen::Lower>().twistedBy(perm);
+      SmoothMatrix().swap(S);
+      Rcpp::checkUserInterrupt();
+
+      const double nnzFactor = ldltFactorNonZeros(upper);
+      guard.need(smoothMatrixBytes((double)upper.nonZeros(), dn)
+                 + smoothMatrixBytes(nnzFactor, dn) + 8.0 * vec
+                 + 2.0 * dn * sizeof(SmoothIndex) + 9.0 * vec);
+      guard.check(false);
+
+      Eigen::SimplicialLDLT<SmoothMatrix, Eigen::Upper, Eigen::NaturalOrdering<SmoothIndex> > ldlt;
+      ldlt.compute(upper);
+      if (ldlt.info() != Eigen::Success) {
+        Rcpp::stop("vcg_smooth_implicit: the smoothing system is singular");
+      }
+      for (int d = 0; d < 3; d++) {
+        Eigen::VectorXd rhs = perm * B.col(d);
+        Eigen::VectorXd sol = ldlt.solve(rhs);
+        X.col(d) = permInv * sol;
+        Rcpp::checkUserInterrupt();
+      }
+    }
+    if (!X.allFinite()) {
+      Rcpp::stop("vcg_smooth_implicit: the solution has non-finite coordinates");
+    }
+
+    // pinned vertices keep their input coordinates exactly
+    Rcpp::NumericMatrix vbout(3, n);
+    for (int i = 0; i < n; i++) {
+      for (int d = 0; d < 3; d++) vbout(d, i) = pinned[i] ? vb(d, i) : X(i, d);
+    }
+    X.resize(0, 0);
+    B.resize(0, 0);
+    X0.resize(0, 0);
+
+    // ---- normals of the smoothed mesh -------------------------------------
+    ravetools::MyMesh m;
+    ravetools::IOMesh<ravetools::MyMesh>::vcgReadR(m, vbout, it_);
     vcg::tri::UpdateNormal<ravetools::MyMesh>::PerVertexAngleWeighted(m);
     vcg::tri::UpdateNormal<ravetools::MyMesh>::NormalizePerVertex(m);
-    Rcpp::NumericMatrix vb(3, m.vn);
-    Rcpp::NumericMatrix normals(3, m.vn);
-    Rcpp::IntegerMatrix itout(3, m.fn);
-    //write back output
-    vcg::SimpleTempData<ravetools::MyMesh::VertContainer,int>indices(m.vert);
-
-    Rcpp::checkUserInterrupt();
-
-    // write back updated mesh
-    vi=m.vert.begin();
-    for (i=0; i < m.vn; i++) {
-      indices[vi] = i;
-      if( ! vi->IsD() ) {
-        vb(0,i) = (*vi).P()[0];
-        vb(1,i) = (*vi).P()[1];
-        vb(2,i) = (*vi).P()[2];
-        normals(0,i) = (*vi).N()[0];
-        normals(1,i) = (*vi).N()[1];
-        normals(2,i) = (*vi).N()[2];
-      }
-      ++vi;
+    Rcpp::NumericMatrix normals(3, n);
+    for (int i = 0; i < n; i++) {
+      for (int d = 0; d < 3; d++) normals(d, i) = m.vert[i].N()[d];
     }
+    Rcpp::IntegerMatrix itout(3, nf);
+    for (R_xlen_t k = 0; k < itout.size(); k++) itout[k] = it[k] + 1;
 
-    ravetools::FacePointer fp;
-    fi=m.face.begin();
-    for (i=0; i < m.fn; i++) {
-      fp=&(*fi);
-      if( ! fp->IsD() ) {
-        itout(0,i) = indices[fp->cV(0)]+1;
-        itout(1,i) = indices[fp->cV(1)]+1;
-        itout(2,i) = indices[fp->cV(2)]+1;
-      }
-      ++fi;
-    }
-    return Rcpp::List::create(Rcpp::Named("vb") = vb,
+    return Rcpp::List::create(Rcpp::Named("vb") = vbout,
                               Rcpp::Named("normals") = normals,
                               Rcpp::Named("it") = itout
     );

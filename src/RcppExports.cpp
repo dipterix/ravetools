@@ -3415,6 +3415,28 @@ RcppExport SEXP _ravetools_Vector3__set_from_matrix_scale(SEXP selfSEXP, SEXP mS
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// segment_gmm_mrf_cpp
+Rcpp::List segment_gmm_mrf_cpp(const Rcpp::NumericVector& volume, const Rcpp::IntegerVector& dims, const Rcpp::LogicalVector& mask, const Rcpp::List& priors, int n_classes, double prior_weight, double mrf_beta, const Rcpp::IntegerVector& mrf_radius, const Rcpp::NumericMatrix& direction, int iterations, double tolerance, bool verbose);
+RcppExport SEXP _ravetools_segment_gmm_mrf_cpp(SEXP volumeSEXP, SEXP dimsSEXP, SEXP maskSEXP, SEXP priorsSEXP, SEXP n_classesSEXP, SEXP prior_weightSEXP, SEXP mrf_betaSEXP, SEXP mrf_radiusSEXP, SEXP directionSEXP, SEXP iterationsSEXP, SEXP toleranceSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type volume(volumeSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type dims(dimsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::LogicalVector& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type priors(priorsSEXP);
+    Rcpp::traits::input_parameter< int >::type n_classes(n_classesSEXP);
+    Rcpp::traits::input_parameter< double >::type prior_weight(prior_weightSEXP);
+    Rcpp::traits::input_parameter< double >::type mrf_beta(mrf_betaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type mrf_radius(mrf_radiusSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type direction(directionSEXP);
+    Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(segment_gmm_mrf_cpp(volume, dims, mask, priors, n_classes, prior_weight, mrf_beta, mrf_radius, direction, iterations, tolerance, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mrisSmooth
 Rcpp::List mrisSmooth(SEXP vb_, SEXP it_, int niterations, int npasses, bool rescale, bool verbose);
 RcppExport SEXP _ravetools_mrisSmooth(SEXP vb_SEXP, SEXP it_SEXP, SEXP niterationsSEXP, SEXP npassesSEXP, SEXP rescaleSEXP, SEXP verboseSEXP) {
@@ -3760,21 +3782,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // vcgSmoothImplicit
-SEXP vcgSmoothImplicit(SEXP vb_, SEXP it_, float lambda_, bool useMassMatrix, bool fixBorder, bool useCotWeight, int degree, float lapWeight_, bool SmoothQ);
-RcppExport SEXP _ravetools_vcgSmoothImplicit(SEXP vb_SEXP, SEXP it_SEXP, SEXP lambda_SEXP, SEXP useMassMatrixSEXP, SEXP fixBorderSEXP, SEXP useCotWeightSEXP, SEXP degreeSEXP, SEXP lapWeight_SEXP, SEXP SmoothQSEXP) {
+SEXP vcgSmoothImplicit(SEXP vb_, SEXP it_, double lambda, bool useMassMatrix, bool fixBorder, bool useCotWeight, int degree, double lapWeight, bool SmoothQ, double maxMemory);
+RcppExport SEXP _ravetools_vcgSmoothImplicit(SEXP vb_SEXP, SEXP it_SEXP, SEXP lambdaSEXP, SEXP useMassMatrixSEXP, SEXP fixBorderSEXP, SEXP useCotWeightSEXP, SEXP degreeSEXP, SEXP lapWeightSEXP, SEXP SmoothQSEXP, SEXP maxMemorySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
     Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
-    Rcpp::traits::input_parameter< float >::type lambda_(lambda_SEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< bool >::type useMassMatrix(useMassMatrixSEXP);
     Rcpp::traits::input_parameter< bool >::type fixBorder(fixBorderSEXP);
     Rcpp::traits::input_parameter< bool >::type useCotWeight(useCotWeightSEXP);
     Rcpp::traits::input_parameter< int >::type degree(degreeSEXP);
-    Rcpp::traits::input_parameter< float >::type lapWeight_(lapWeight_SEXP);
+    Rcpp::traits::input_parameter< double >::type lapWeight(lapWeightSEXP);
     Rcpp::traits::input_parameter< bool >::type SmoothQ(SmoothQSEXP);
-    rcpp_result_gen = Rcpp::wrap(vcgSmoothImplicit(vb_, it_, lambda_, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight_, SmoothQ));
+    Rcpp::traits::input_parameter< double >::type maxMemory(maxMemorySEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgSmoothImplicit(vb_, it_, lambda, useMassMatrix, fixBorder, useCotWeight, degree, lapWeight, SmoothQ, maxMemory));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -3999,6 +4022,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type max_hole_size(max_hole_sizeSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     rcpp_result_gen = Rcpp::wrap(vcgFixDefects(vb_, it_, merge_tolerance, max_hole_size, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vcgDecimate
+Rcpp::List vcgDecimate(SEXP vb_, SEXP it_, int targetFaces, bool preserveTopology, bool preserveBoundary, bool normalCheck, double qualityThreshold, bool verbose);
+RcppExport SEXP _ravetools_vcgDecimate(SEXP vb_SEXP, SEXP it_SEXP, SEXP targetFacesSEXP, SEXP preserveTopologySEXP, SEXP preserveBoundarySEXP, SEXP normalCheckSEXP, SEXP qualityThresholdSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< int >::type targetFaces(targetFacesSEXP);
+    Rcpp::traits::input_parameter< bool >::type preserveTopology(preserveTopologySEXP);
+    Rcpp::traits::input_parameter< bool >::type preserveBoundary(preserveBoundarySEXP);
+    Rcpp::traits::input_parameter< bool >::type normalCheck(normalCheckSEXP);
+    Rcpp::traits::input_parameter< double >::type qualityThreshold(qualityThresholdSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgDecimate(vb_, it_, targetFaces, preserveTopology, preserveBoundary, normalCheck, qualityThreshold, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -4310,6 +4351,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_Vector3__set_from_spherical_coords", (DL_FUNC) &_ravetools_Vector3__set_from_spherical_coords, 4},
     {"_ravetools_Vector3__set_from_matrix_position", (DL_FUNC) &_ravetools_Vector3__set_from_matrix_position, 2},
     {"_ravetools_Vector3__set_from_matrix_scale", (DL_FUNC) &_ravetools_Vector3__set_from_matrix_scale, 2},
+    {"_ravetools_segment_gmm_mrf_cpp", (DL_FUNC) &_ravetools_segment_gmm_mrf_cpp, 12},
     {"_ravetools_mrisSmooth", (DL_FUNC) &_ravetools_mrisSmooth, 6},
     {"_ravetools_mrisInflate", (DL_FUNC) &_ravetools_mrisInflate, 11},
     {"_ravetools_mrisSphere", (DL_FUNC) &_ravetools_mrisSphere, 10},
@@ -4332,7 +4374,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_getDefaultNumThreads", (DL_FUNC) &_ravetools_getDefaultNumThreads, 0},
     {"_ravetools_vcgDetectCollision", (DL_FUNC) &_ravetools_vcgDetectCollision, 9},
     {"_ravetools_vcgIsoSurface", (DL_FUNC) &_ravetools_vcgIsoSurface, 2},
-    {"_ravetools_vcgSmoothImplicit", (DL_FUNC) &_ravetools_vcgSmoothImplicit, 9},
+    {"_ravetools_vcgSmoothImplicit", (DL_FUNC) &_ravetools_vcgSmoothImplicit, 10},
     {"_ravetools_vcgSmooth", (DL_FUNC) &_ravetools_vcgSmooth, 7},
     {"_ravetools_vcgUniformResample", (DL_FUNC) &_ravetools_vcgUniformResample, 9},
     {"_ravetools_vcgUpdateNormals", (DL_FUNC) &_ravetools_vcgUpdateNormals, 5},
@@ -4349,6 +4391,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgMaxEdgeLength", (DL_FUNC) &_ravetools_vcgMaxEdgeLength, 2},
     {"_ravetools_vcgMeshPatchFaces", (DL_FUNC) &_ravetools_vcgMeshPatchFaces, 4},
     {"_ravetools_vcgFixDefects", (DL_FUNC) &_ravetools_vcgFixDefects, 5},
+    {"_ravetools_vcgDecimate", (DL_FUNC) &_ravetools_vcgDecimate, 8},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };
