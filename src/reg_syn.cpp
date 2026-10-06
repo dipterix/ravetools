@@ -5,9 +5,13 @@
 //   1. warp the moving image to the fixed grid through affine o (id + disp);
 //   2. form a similarity force (local normalized CC, or mean squares);
 //   3. Gaussian-smooth the update (flow_sigma), the fluid-like regularizer;
-//   4. take a capped step (grad_step), updating the forward field and, with the
-//      opposite update, the inverse field (symmetric);
+//   4. take a capped step (grad_step) on the forward field;
 //   5. optionally Gaussian-smooth the total field (total_sigma), elastic.
+// After the last level the inverse field is computed from the final forward
+// field on the full fixed grid by fixed-point inversion (reg_apply.h), so
+// forward o inverse and inverse o forward are both identity to within the
+// inversion tolerance (the negated forward field used before was only a
+// first-order inverse).
 //
 // Everything is in RAS. This is the functional-equivalence counterpart to ANTs
 // SyN; it is diffeomorphic for smooth/moderate deformations rather than a full
@@ -39,6 +43,7 @@
 #include <algorithm>
 #include <iomanip>
 #include "reg_core.h"
+#include "reg_apply.h"   // ravereg_apply::invertDisplacementField
 
 using namespace ravereg;
 
@@ -458,16 +463,15 @@ struct MaxNormReducer : public TinyParallel::Worker {
   void join(const MaxNormReducer& rhs) { if (rhs.maxn2 > maxn2) maxn2 = rhs.maxn2; }
 };
 
-// cur += scale * force ; curInv -= scale * force  (symmetric update).
+// cur += scale * force.
 struct FieldUpdateWorker : public TinyParallel::Worker {
-  reg_real *cx, *cy, *cz, *ix, *iy, *iz;
+  reg_real *cx, *cy, *cz;
   const reg_real *fx, *fy, *fz;
   double scale;
   void operator()(std::size_t begin, std::size_t end) override {
     for (std::size_t i = begin; i < end; ++i) {
       const double sx = scale * fx[i], sy = scale * fy[i], sz = scale * fz[i];
       cx[i] += sx; cy[i] += sy; cz[i] += sz;
-      ix[i] -= sx; iy[i] -= sy; iz[i] -= sz;
     }
   }
 };
@@ -637,7 +641,6 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
   std::vector<double> trace;
 
   Field disp;        // forward field on the current fixed level
-  Field dispInv;     // approximate inverse field
   bool haveField = false;
 
   for (int lev = 0; lev < nLevels; ++lev) {
@@ -670,10 +673,8 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
     // (re)build the shared field at this level
     Field cur; cur.nx = lnx; cur.ny = lny; cur.nz = lnz; cur.vox2ras = levelV2R;
     cur.alloc(lnx, lny, lnz);
-    Field curInv = cur;
     if (haveField) {
       resampleField(disp, cur);        // cur is already allocated/zeroed
-      resampleField(dispInv, curInv);
     }
 
     const double levelSpacing = std::cbrt(std::abs(
@@ -835,7 +836,6 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
         {
           FieldUpdateWorker uw;
           uw.cx = cur.x.data(); uw.cy = cur.y.data(); uw.cz = cur.z.data();
-          uw.ix = curInv.x.data(); uw.iy = curInv.y.data(); uw.iz = curInv.z.data();
           uw.fx = force.x.data(); uw.fy = force.y.data(); uw.fz = force.z.data();
           uw.scale = scale;
           TinyParallel::parallelFor(0, N, uw, 4096);
@@ -843,7 +843,6 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
 
         // ---- regularize total field (elastic) ----
         smoothFieldInto(cur, totalSigma, gscratch.data());
-        smoothFieldInto(curInv, totalSigma, gscratch.data());
 
         trace.push_back(metricVal);
 
@@ -860,7 +859,7 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
       }
     } // maxIter > 0
 
-    disp = cur; dispInv = curInv; haveField = true;
+    disp = cur; haveField = true;
   }
 
   // ---- warp every moving channel onto the full-resolution fixed grid ----
@@ -916,13 +915,31 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
     return v;
   };
 
-  Field fullInv; fullInv.nx = fnx; fullInv.ny = fny; fullInv.nz = fnz;
-  fullInv.vox2ras = fV2R; fullInv.alloc(fnx, fny, fnz);
-  if (haveField) resampleField(dispInv, fullInv);
+  // ---- inverse field: fixed-point inversion of the final forward field ----
+  // (nx, ny, nz, 3) in double, on the same full fixed grid as `full`.
+  Rcpp::NumericVector inverseField(static_cast<R_xlen_t>(3 * Nf));
+  if (haveField) {
+    double* v = &inverseField[0];
+    ravereg_apply::InvertOptions iopt;
+    // at most 20 sweeps, as the inversion inside ANTs' SyN: nodes at the border
+    // of an unmasked field often have no inverse and never meet the tolerances,
+    // while the interior is far below them after 20 sweeps
+    iopt.maxIterations = 20;
+    const ravereg_apply::InvertResult ires = ravereg_apply::invertDisplacementField<reg_real>(
+      full.x.data(), full.y.data(), full.z.data(), fnx, fny, fnz, fV2R,
+      v, v + Nf, v + 2 * Nf, iopt);
+    if (verbose) {
+      Rcpp::Rcout << "[SyN] inverse field: " << ires.iterations << " fixed-point iterations"
+                  << ", residual mean = " << std::scientific << std::setprecision(2)
+                  << ires.meanResidual << ", max = " << ires.maxResidual
+                  << " voxel" << std::defaultfloat << std::endl;
+    }
+  }
+  inverseField.attr("dim") = Rcpp::IntegerVector::create(fnx, fny, fnz, 3);
 
   return Rcpp::List::create(
     Rcpp::Named("forward_field") = packField(full),
-    Rcpp::Named("inverse_field") = packField(fullInv),
+    Rcpp::Named("inverse_field") = inverseField,
     Rcpp::Named("image") = warpedCh[0],     // primary channel (back-compat)
     Rcpp::Named("images") = images,         // all channels, per-channel interpolation
     Rcpp::Named("metric_trace") = Rcpp::wrap(trace));
