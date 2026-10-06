@@ -394,25 +394,29 @@ test_that("grid geometry: limits raise informative errors, extremes stay well de
   expect_error(geo(200, spacing = rep(1e-9, 3), iters = 1L), "too large")
 })
 
-test_that("logical switches and integer settings are validated", {
+test_that("logical switches follow isTRUE(as.logical(.)); integer settings are validated", {
   ph <- n4_phantom(nd = c(16L, 16L, 16L))
   x <- ph$biased
   args <- list(x, mask = ph$mask, intensity_truncation = NULL, shrink_factor = 2,
                iterations = c(2, 2))
   run <- function(...) n4_call_with(args, ...)
 
-  # numbers behave like base-R truth values; the bias field is never silently
-  # swapped for the corrected image
+  # a switch is on only for a single TRUE-like value (TRUE, a non-zero number,
+  # "TRUE"/"true"); anything else, including NA, NULL and vectors, means off
   b <- run(return_bias_field = TRUE)
-  expect_identical(run(return_bias_field = 1), b)
-  expect_identical(run(return_bias_field = 0), run())
-  expect_identical(run(rescale_intensities = 1), run(rescale_intensities = TRUE))
-  for (bad in list(NA, "TRUE", c(TRUE, TRUE), NULL, logical(0))) {
-    expect_error(run(return_bias_field = bad), "return_bias_field")
-    expect_error(run(verbose = bad), "verbose")
-    expect_error(run(rescale_intensities = bad), "rescale_intensities")
+  corrected <- run()
+  rescaled <- run(rescale_intensities = TRUE)
+  expect_false(identical(b, corrected))
+  for (on in list(TRUE, 1, "TRUE", "true")) {
+    expect_identical(run(return_bias_field = on), b)
+    expect_identical(run(rescale_intensities = on), rescaled)
   }
-  expect_silent(run(verbose = FALSE))
+  for (off in list(FALSE, 0, NA, "no", c(TRUE, TRUE), NULL, logical(0))) {
+    expect_identical(run(return_bias_field = off), corrected)
+    expect_identical(run(rescale_intensities = off), corrected)
+    expect_silent(run(verbose = off))
+  }
+  expect_output(run(verbose = TRUE), "N4")
 
   # no silent truncation of fractional settings, no misleading type errors
   expect_error(run(iterations = c(3.9, 3.9)), "iterations")

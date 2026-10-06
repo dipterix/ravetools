@@ -32,6 +32,25 @@ bibentry(bibtype = "Article",
 )
 
 bibentry(bibtype = "Article",
+         title        = "{N4ITK}: Improved {N3} Bias Correction",
+         author       = c(as.person("Nicholas J. Tustison"),
+                          as.person("Brian B. Avants"),
+                          as.person("Philip A. Cook"),
+                          as.person("Yuanjie Zheng"),
+                          as.person("Alexander Egan"),
+                          as.person("Paul A. Yushkevich"),
+                          as.person("James C. Gee")),
+         journal      = "IEEE Transactions on Medical Imaging",
+         year         = "2010",
+         volume       = "29",
+         number       = "6",
+         pages        = "1310-1320",
+         doi          = "10.1109/TMI.2010.2046908",
+         header       = "If you use `bias_correction_n4` for intensity non-uniformity (bias field) correction, please also cite:",
+         textVersion  = "Tustison NJ, Avants BB, Cook PA, Zheng Y, Egan A, Yushkevich PA, Gee JC (2010). N4ITK: Improved N3 Bias Correction. IEEE Transactions on Medical Imaging, 29(6), 1310-1320. doi:10.1109/TMI.2010.2046908."
+)
+
+bibentry(bibtype = "Article",
          title        = "Cortical surface-based analysis: II: inflation, flattening, and a surface-based coordinate system",
          author       = c(as.person("Bruce Fischl"),
                           as.person("Martin I. Sereno"),

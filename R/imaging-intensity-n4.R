@@ -228,7 +228,8 @@ bias_correction_n4 <- function(
     intensity_truncation = c(0.025, 0.975, 256), shrink_factor = 4,
     iterations = c(50, 50, 50, 50), tolerance = 1e-7, spline_distance = NULL,
     spline_order = 3, histogram_bins = 200, bias_fwhm = 0.15, wiener_noise = 0.01,
-    rescale_intensities = FALSE, return_bias_field = FALSE, verbose = FALSE) {
+    rescale_intensities = FALSE, return_bias_field = FALSE, verbose = FALSE
+) {
 
   fname <- "`bias_correction_n4`"
 
