@@ -27,6 +27,9 @@ register_volume3d(
   init_transform = NULL,
   syn_iterations = c(40, 20, 0),
   syn_sigma = 3,
+  syn_grad_step = 0.2,
+  syn_total_sigma = 0,
+  syn_cc_radius = 2L,
   verbose = TRUE
 )
 }
@@ -134,13 +137,26 @@ are recycled to the number of levels, so \code{syn_sigma} may be a vector to
 vary the regularization per stage (e.g. \code{c(3, 3, 1)} to relax it at the
 finest level for sharper detail)}
 
+\item{syn_grad_step}{deformable stage step size: each update is capped at
+\code{syn_grad_step} times the voxel spacing of the current level; default
+\code{0.2} (must be positive)}
+
+\item{syn_total_sigma}{Gaussian sigma (in voxels) applied to the total
+deformation field after each update (the elastic-like regularization of
+\pkg{'ANTs'} \code{SyN[gradStep, updateFieldSigma, totalFieldSigma]});
+default \code{0} (none; must be non-negative)}
+
+\item{syn_cc_radius}{radius (in voxels) of the local window of the
+deformable-stage cross-correlation metric; default \code{2L} (a
+\eqn{5^3} window; must be an integer of at least 1)}
+
 \item{verbose}{logical; if \code{TRUE} (default) print per-level and
 per-iteration progress to the console, including the current stage, shrink
 factor, smoothing sigma, cost metric, and step size (linear) or maximum
 displacement (deformable); useful to monitor convergence on large volumes}
 }
 \value{
-A list with:
+A list of class \code{ravetools_register_volume3d} with:
 \describe{
 \item{\code{transform}}{the estimated 4x4 \verb{RAS}-to-\verb{RAS} linear
 transform mapping \code{target} (fixed) coordinates to \code{source} (moving)
@@ -151,8 +167,10 @@ coordinates}
 \code{target} grid using its own \code{interpolation}; \code{image} is the
 first element. For single-image input this is a length-1 list}
 \item{\code{forward_field},\code{inverse_field}}{(only for \code{"syn"}) the
-deformation fields}
+deformation fields on the target grid, see \sQuote{Details}}
 \item{\code{metric_trace}}{the metric value across optimizer iterations}
+\item{\code{geometry}}{the source and target grids (\code{source_dim},
+\code{source_vox2ras}, \code{target_dim}, \code{target_vox2ras})}
 \item{\code{type},\code{metric}}{echoes of the inputs}
 }
 }
@@ -165,6 +183,38 @@ working entirely in the anatomical \verb{RAS} (right-anterior-superior)
 space. Each volume carries its own \code{vox2ras} (0-indexed voxel index to
 anatomical \verb{RAS}) \eqn{4\times 4} transform, so volumes with
 different sampling, orientation, or field of view are aligned correctly.
+}
+\details{
+\strong{Choosing a metric.} For a same-contrast pair, such as a native
+\code{'T1'}-weighted scan against a \code{'T1'} template, the default
+\code{metric = "mattes"} reproduces the \pkg{'ANTs'} \code{SyN} recipe:
+Mattes mutual information drives the rigid and \verb{affine} stages and
+local cross-correlation drives the deformable stage (the \code{"cc"}
+metric only changes the linear stages). The \pkg{'ANTs'}-like
+\code{'T1'}-to-template preset is \code{syn_cc_radius = 4},
+\code{syn_grad_step = 0.15} and \code{syn_sigma = 3.5}; the defaults are a
+faster, lightly regularized variant. For cross-contrast pairs mutual
+information is the usual choice for the linear stages; the deformable stage
+has no mutual-information metric, and its squared local correlation
+tolerates an inverted contrast (such as \code{'T2'} against \code{'T1'})
+but not a non-monotonic relation (such as \verb{FLAIR} or \code{'CT'}
+against \code{'T1'}), so give such channels a low weight in a multichannel
+call.
+
+\strong{Deformation fields.} \code{forward_field} is the displacement
+\eqn{u_f} on the target grid such that \code{image} samples the source at
+\eqn{A(r + u_f(r))}. \code{inverse_field} is its numerical inverse on the
+same grid, computed by damped fixed-point iteration (Chen 2008, see
+\sQuote{References}; at most 20 sweeps, as in \pkg{'ANTs'}), so
+\eqn{r + u_f(r) + u_i(r + u_f(r)) \approx r} and vice versa to within a
+small fraction of a voxel wherever the forward map is one-to-one inside the
+target grid. Near the border of an unmasked registration the deformation can
+fold or push points out of the grid; there the inverse has no exact
+solution, so \code{inverse_field} values at the border are approximate (a
+\code{target_mask} keeps the deformation away from the border). Use
+\code{\link{apply_transform3d_volume}} and
+\code{\link{apply_transform3d_points}} to apply the result to other volumes
+or coordinates.
 }
 \examples{
 \donttest{
@@ -209,6 +259,18 @@ res_mm$transform[1:3, 4]
 
 }
 }
+\references{
+\verb{Avants} B, Epstein C, \verb{Grossman} M, Gee J (2008). Symmetric
+\verb{diffeomorphic} image registration with cross-correlation: evaluating
+automated labeling of elderly and \verb{neurodegenerative} brain. Medical
+Image Analysis, 12(1), 26-41.
+
+Chen M, Lu W, Chen Q, \verb{Ruchala} K, \verb{Olivera} G (2008). A simple
+fixed-point approach to invert a deformation field. Medical Physics, 35(1),
+81-88.
+}
 \seealso{
-\code{\link{apply_transform3d}}, \code{\link{resample_3d_volume}}
+\code{\link{apply_transform3d_volume}},
+\code{\link{apply_transform3d_points}}, \code{\link{save_registration}},
+\code{\link{resample_3d_volume}}
 }

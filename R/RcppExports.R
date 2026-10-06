@@ -653,6 +653,18 @@ rawToString <- function(x) {
     .Call(`_ravetools_rawToString`, x)
 }
 
+apply_transform3d_volume_cpp <- function(volume, volumeDim, volumeVox2Ras, referenceDim, referenceVox2Ras, chain, interpolation, naFill) {
+    .Call(`_ravetools_apply_transform3d_volume_cpp`, volume, volumeDim, volumeVox2Ras, referenceDim, referenceVox2Ras, chain, interpolation, naFill)
+}
+
+apply_transform3d_points_cpp <- function(points, chain) {
+    .Call(`_ravetools_apply_transform3d_points_cpp`, points, chain)
+}
+
+invert_displacement_field_cpp <- function(field, dim, vox2ras, maxIterations, meanTolerance, maxTolerance) {
+    .Call(`_ravetools_invert_displacement_field_cpp`, field, dim, vox2ras, maxIterations, meanTolerance, maxTolerance)
+}
+
 register_linear_cpp <- function(fixed, fixedDim, fixedVox2Ras, moving, movingDim, movingVox2Ras, type, metric, shrinkFactors, smoothingSigmas, iterations, samplingRate, learningRate, numberOfBins, seed, initTransform, fixedMask, movingMask, verbose = FALSE) {
     .Call(`_ravetools_register_linear_cpp`, fixed, fixedDim, fixedVox2Ras, moving, movingDim, movingVox2Ras, type, metric, shrinkFactors, smoothingSigmas, iterations, samplingRate, learningRate, numberOfBins, seed, initTransform, fixedMask, movingMask, verbose)
 }

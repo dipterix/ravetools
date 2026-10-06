@@ -3742,6 +3742,52 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// apply_transform3d_volume_cpp
+Rcpp::NumericVector apply_transform3d_volume_cpp(const Rcpp::NumericVector& volume, const Rcpp::IntegerVector& volumeDim, const Rcpp::NumericMatrix& volumeVox2Ras, const Rcpp::IntegerVector& referenceDim, const Rcpp::NumericMatrix& referenceVox2Ras, const Rcpp::List& chain, const int interpolation, const double naFill);
+RcppExport SEXP _ravetools_apply_transform3d_volume_cpp(SEXP volumeSEXP, SEXP volumeDimSEXP, SEXP volumeVox2RasSEXP, SEXP referenceDimSEXP, SEXP referenceVox2RasSEXP, SEXP chainSEXP, SEXP interpolationSEXP, SEXP naFillSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type volume(volumeSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type volumeDim(volumeDimSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type volumeVox2Ras(volumeVox2RasSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type referenceDim(referenceDimSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type referenceVox2Ras(referenceVox2RasSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type chain(chainSEXP);
+    Rcpp::traits::input_parameter< const int >::type interpolation(interpolationSEXP);
+    Rcpp::traits::input_parameter< const double >::type naFill(naFillSEXP);
+    rcpp_result_gen = Rcpp::wrap(apply_transform3d_volume_cpp(volume, volumeDim, volumeVox2Ras, referenceDim, referenceVox2Ras, chain, interpolation, naFill));
+    return rcpp_result_gen;
+END_RCPP
+}
+// apply_transform3d_points_cpp
+Rcpp::NumericMatrix apply_transform3d_points_cpp(const Rcpp::NumericMatrix& points, const Rcpp::List& chain);
+RcppExport SEXP _ravetools_apply_transform3d_points_cpp(SEXP pointsSEXP, SEXP chainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type points(pointsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type chain(chainSEXP);
+    rcpp_result_gen = Rcpp::wrap(apply_transform3d_points_cpp(points, chain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// invert_displacement_field_cpp
+Rcpp::List invert_displacement_field_cpp(const Rcpp::NumericVector& field, const Rcpp::IntegerVector& dim, const Rcpp::NumericMatrix& vox2ras, const int maxIterations, const double meanTolerance, const double maxTolerance);
+RcppExport SEXP _ravetools_invert_displacement_field_cpp(SEXP fieldSEXP, SEXP dimSEXP, SEXP vox2rasSEXP, SEXP maxIterationsSEXP, SEXP meanToleranceSEXP, SEXP maxToleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type field(fieldSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type dim(dimSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type vox2ras(vox2rasSEXP);
+    Rcpp::traits::input_parameter< const int >::type maxIterations(maxIterationsSEXP);
+    Rcpp::traits::input_parameter< const double >::type meanTolerance(meanToleranceSEXP);
+    Rcpp::traits::input_parameter< const double >::type maxTolerance(maxToleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(invert_displacement_field_cpp(field, dim, vox2ras, maxIterations, meanTolerance, maxTolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
 // register_linear_cpp
 Rcpp::List register_linear_cpp(const Rcpp::NumericVector& fixed, const Rcpp::IntegerVector& fixedDim, const Rcpp::NumericMatrix& fixedVox2Ras, const Rcpp::NumericVector& moving, const Rcpp::IntegerVector& movingDim, const Rcpp::NumericMatrix& movingVox2Ras, const std::string& type, const std::string& metric, const Rcpp::IntegerVector& shrinkFactors, const Rcpp::NumericVector& smoothingSigmas, const Rcpp::IntegerVector& iterations, const double samplingRate, const double learningRate, const int numberOfBins, const unsigned int seed, const Rcpp::Nullable<Rcpp::NumericMatrix>& initTransform, const Rcpp::Nullable<Rcpp::NumericVector>& fixedMask, const Rcpp::Nullable<Rcpp::NumericVector>& movingMask, const bool verbose);
 RcppExport SEXP _ravetools_register_linear_cpp(SEXP fixedSEXP, SEXP fixedDimSEXP, SEXP fixedVox2RasSEXP, SEXP movingSEXP, SEXP movingDimSEXP, SEXP movingVox2RasSEXP, SEXP typeSEXP, SEXP metricSEXP, SEXP shrinkFactorsSEXP, SEXP smoothingSigmasSEXP, SEXP iterationsSEXP, SEXP samplingRateSEXP, SEXP learningRateSEXP, SEXP numberOfBinsSEXP, SEXP seedSEXP, SEXP initTransformSEXP, SEXP fixedMaskSEXP, SEXP movingMaskSEXP, SEXP verboseSEXP) {
@@ -4467,6 +4513,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_rawToInt64", (DL_FUNC) &_ravetools_rawToInt64, 1},
     {"_ravetools_rawToFloat", (DL_FUNC) &_ravetools_rawToFloat, 1},
     {"_ravetools_rawToString", (DL_FUNC) &_ravetools_rawToString, 1},
+    {"_ravetools_apply_transform3d_volume_cpp", (DL_FUNC) &_ravetools_apply_transform3d_volume_cpp, 8},
+    {"_ravetools_apply_transform3d_points_cpp", (DL_FUNC) &_ravetools_apply_transform3d_points_cpp, 2},
+    {"_ravetools_invert_displacement_field_cpp", (DL_FUNC) &_ravetools_invert_displacement_field_cpp, 6},
     {"_ravetools_register_linear_cpp", (DL_FUNC) &_ravetools_register_linear_cpp, 19},
     {"_ravetools_register_syn_cpp", (DL_FUNC) &_ravetools_register_syn_cpp, 23},
     {"_ravetools_resample3D", (DL_FUNC) &_ravetools_resample3D, 6},

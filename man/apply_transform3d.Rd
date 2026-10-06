@@ -41,7 +41,17 @@ Warps a moving volume onto a reference grid given a 4x4
 \verb{RAS}-to-\verb{RAS} transform (such as the \code{transform} returned
 by \code{\link{register_volume3d}}). The transform maps reference (fixed)
 \verb{RAS} coordinates to moving \verb{RAS} coordinates.
+
+This function is \strong{superseded} by
+\code{\link{apply_transform3d_volume}}, which additionally applies
+deformation fields and whole transform chains, and by
+\code{\link{apply_transform3d_points}} for coordinates. It is kept, with
+unchanged behavior and no warning, for existing code; new code should use
+\code{apply_transform3d_volume}. For a single linear transform the two give
+identical results (except that \code{apply_transform3d_volume} offers no
+\code{'bspline'} interpolation).
 }
 \seealso{
+\code{\link{apply_transform3d_volume}} (the replacement),
 \code{\link{register_volume3d}}
 }
