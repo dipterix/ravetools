@@ -94,11 +94,52 @@
 #' are recycled to the number of levels, so \code{syn_sigma} may be a vector to
 #' vary the regularization per stage (e.g. \code{c(3, 3, 1)} to relax it at the
 #' finest level for sharper detail)
+#' @param syn_grad_step deformable stage step size: each update is capped at
+#' \code{syn_grad_step} times the voxel spacing of the current level; default
+#' \code{0.2} (must be positive)
+#' @param syn_total_sigma Gaussian sigma (in voxels) applied to the total
+#' deformation field after each update (the elastic-like regularization of
+#' \pkg{'ANTs'} \code{SyN[gradStep, updateFieldSigma, totalFieldSigma]});
+#' default \code{0} (none; must be non-negative)
+#' @param syn_cc_radius radius (in voxels) of the local window of the
+#' deformable-stage cross-correlation metric; default \code{2L} (a
+#' \eqn{5^3} window; must be an integer of at least 1)
 #' @param verbose logical; if \code{TRUE} (default) print per-level and
 #' per-iteration progress to the console, including the current stage, shrink
 #' factor, smoothing sigma, cost metric, and step size (linear) or maximum
 #' displacement (deformable); useful to monitor convergence on large volumes
-#' @returns A list with:
+#' @details
+#' \strong{Choosing a metric.} For a same-contrast pair, such as a native
+#' \code{'T1'}-weighted scan against a \code{'T1'} template, the default
+#' \code{metric = "mattes"} reproduces the \pkg{'ANTs'} \code{SyN} recipe:
+#' Mattes mutual information drives the rigid and \verb{affine} stages and
+#' local cross-correlation drives the deformable stage (the \code{"cc"}
+#' metric only changes the linear stages). The \pkg{'ANTs'}-like
+#' \code{'T1'}-to-template preset is \code{syn_cc_radius = 4},
+#' \code{syn_grad_step = 0.15} and \code{syn_sigma = 3.5}; the defaults are a
+#' faster, lightly regularized variant. For cross-contrast pairs mutual
+#' information is the usual choice for the linear stages; the deformable stage
+#' has no mutual-information metric, and its squared local correlation
+#' tolerates an inverted contrast (such as \code{'T2'} against \code{'T1'})
+#' but not a non-monotonic relation (such as \verb{FLAIR} or \code{'CT'}
+#' against \code{'T1'}), so give such channels a low weight in a multichannel
+#' call.
+#'
+#' \strong{Deformation fields.} \code{forward_field} is the displacement
+#' \eqn{u_f} on the target grid such that \code{image} samples the source at
+#' \eqn{A(r + u_f(r))}. \code{inverse_field} is its numerical inverse on the
+#' same grid, computed by damped fixed-point iteration (Chen 2008, see
+#' \sQuote{References}; at most 20 sweeps, as in \pkg{'ANTs'}), so
+#' \eqn{r + u_f(r) + u_i(r + u_f(r)) \approx r} and vice versa to within a
+#' small fraction of a voxel wherever the forward map is one-to-one inside the
+#' target grid. Near the border of an unmasked registration the deformation can
+#' fold or push points out of the grid; there the inverse has no exact
+#' solution, so \code{inverse_field} values at the border are approximate (a
+#' \code{target_mask} keeps the deformation away from the border). Use
+#' \code{\link{apply_transform3d_volume}} and
+#' \code{\link{apply_transform3d_points}} to apply the result to other volumes
+#' or coordinates.
+#' @returns A list of class \code{ravetools_register_volume3d} with:
 #' \describe{
 #' \item{\code{transform}}{the estimated 4x4 \verb{RAS}-to-\verb{RAS} linear
 #' transform mapping \code{target} (fixed) coordinates to \code{source} (moving)
@@ -109,11 +150,24 @@
 #' \code{target} grid using its own \code{interpolation}; \code{image} is the
 #' first element. For single-image input this is a length-1 list}
 #' \item{\code{forward_field},\code{inverse_field}}{(only for \code{"syn"}) the
-#' deformation fields}
+#' deformation fields on the target grid, see \sQuote{Details}}
 #' \item{\code{metric_trace}}{the metric value across optimizer iterations}
+#' \item{\code{geometry}}{the source and target grids (\code{source_dim},
+#' \code{source_vox2ras}, \code{target_dim}, \code{target_vox2ras})}
 #' \item{\code{type},\code{metric}}{echoes of the inputs}
 #' }
-#' @seealso \code{\link{apply_transform3d}}, \code{\link{resample_3d_volume}}
+#' @references
+#' \verb{Avants} B, Epstein C, \verb{Grossman} M, Gee J (2008). Symmetric
+#' \verb{diffeomorphic} image registration with cross-correlation: evaluating
+#' automated labeling of elderly and \verb{neurodegenerative} brain. Medical
+#' Image Analysis, 12(1), 26-41.
+#'
+#' Chen M, Lu W, Chen Q, \verb{Ruchala} K, \verb{Olivera} G (2008). A simple
+#' fixed-point approach to invert a deformation field. Medical Physics, 35(1),
+#' 81-88.
+#' @seealso \code{\link{apply_transform3d_volume}},
+#' \code{\link{apply_transform3d_points}}, \code{\link{save_registration}},
+#' \code{\link{resample_3d_volume}}
 #' @examples
 #' \donttest{
 #'
@@ -175,9 +229,20 @@ register_volume3d <- function(
     init_transform = NULL,
     syn_iterations = c(40, 20, 0),
     syn_sigma = 3,
+    syn_grad_step = 0.2,
+    syn_total_sigma = 0,
+    syn_cc_radius = 2L,
     verbose = TRUE) {
 
   type <- match.arg(type)
+
+  # Deformable-stage controls (validated for every `type`, so a bad value is
+  # reported before any work starts). Defaults equal the former hard-coded
+  # values, so default results are unchanged.
+  syn_grad_step <- validate_scalar(syn_grad_step, "syn_grad_step", lower = 0, strict = TRUE)
+  syn_total_sigma <- validate_scalar(syn_total_sigma, "syn_total_sigma", lower = 0, strict = FALSE)
+  syn_cc_radius <- validate_scalar(syn_cc_radius, "syn_cc_radius", lower = 1, strict = FALSE,
+                                   integer = TRUE)
 
   # Accept either a single array or a list of co-registered modalities.
   if (!is.list(source)) source <- list(source)
@@ -326,6 +391,8 @@ register_volume3d <- function(
       fixed_mask = target_mask, moving_mask = source_mask,
       fixed_points = target_points, moving_points = source_points,
       points_weight = points_weight,
+      grad_step = syn_grad_step, total_sigma = syn_total_sigma,
+      cc_radius = syn_cc_radius,
       verbose = isTRUE(verbose))
     return(finalize_registration(list(
       transform = transform,
@@ -336,7 +403,7 @@ register_volume3d <- function(
       metric_trace = syn$metric_trace,
       type = type,
       metric = metric
-    ), source_vox2ras, target_vox2ras, tgt_dim))
+    ), source_vox2ras, target_vox2ras, tgt_dim, src_dim))
   }
 
   # Staged initialization (ANTs-style): rigid -> affine -> deformable
@@ -371,33 +438,44 @@ register_volume3d <- function(
       fixed_mask = target_mask, moving_mask = source_mask,
       fixed_points = target_points, moving_points = source_points,
       points_weight = points_weight,
+      grad_step = syn_grad_step, total_sigma = syn_total_sigma,
+      cc_radius = syn_cc_radius,
       verbose = isTRUE(verbose))
     result$forward_field <- syn$forward_field
     result$inverse_field <- syn$inverse_field
     result$metric_trace <- c(trace, syn$metric_trace)
     result$image <- syn$image
     result$images <- syn$images
-    return(finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim))
+    return(finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim, src_dim))
   }
 
   # resample each moving channel onto the fixed grid using the linear transform,
   # each with its own output interpolation
   images <- lapply(seq_len(n_pairs), function(k) {
-    apply_transform3d(
-      src_list[[k]], source_vox2ras, transform,
-      reference_dim = tgt_dim, reference_vox2ras = target_vox2ras,
-      interpolation = interpolation[k])
+    if (interpolation[k] == "bspline") {
+      # cubic B-spline output is not offered by apply_transform3d_volume; use the
+      # package resampler directly (the same call apply_transform3d makes)
+      resample_volume_affine(
+        src_list[[k]], source_vox2ras, transform, tgt_dim, target_vox2ras,
+        interp_code = 2L, na_fill = 0)
+    } else {
+      apply_transform3d_volume(
+        src_list[[k]], transform, vox2ras = source_vox2ras,
+        reference_dim = tgt_dim, reference_vox2ras = target_vox2ras,
+        interpolation = interpolation[k], na_fill = 0)
+    }
   })
   result$image <- images[[1]]
   result$images <- images
 
-  finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim)
+  finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim, src_dim)
 }
 
 # Tag a registration result with its class, attach the fixed-grid vox2ras to the
 # deformation fields (so they are self-describing for save_registration), and
 # record the grid geometry needed to re-apply or export the transform.
-finalize_registration <- function(result, source_vox2ras, target_vox2ras, target_dim) {
+finalize_registration <- function(result, source_vox2ras, target_vox2ras, target_dim,
+                                  source_dim = NULL) {
   if (!is.null(result$forward_field)) {
     attr(result$forward_field, "vox2ras") <- target_vox2ras
   }
@@ -407,10 +485,24 @@ finalize_registration <- function(result, source_vox2ras, target_vox2ras, target
   result$geometry <- list(
     source_vox2ras = source_vox2ras,
     target_vox2ras = target_vox2ras,
-    target_dim = target_dim
+    target_dim = target_dim,
+    source_dim = source_dim
   )
   class(result) <- "ravetools_register_volume3d"
   result
+}
+
+# Validate a finite numeric scalar option (optionally integer-valued) against a
+# lower bound; returns it as double or integer.
+validate_scalar <- function(x, name, lower, strict = FALSE, integer = FALSE) {
+  ok <- is.numeric(x) && length(x) == 1L && is.finite(x) &&
+    (if (strict) x > lower else x >= lower) && (!integer || x == round(x))
+  if (!ok) {
+    stop(sprintf("`register_volume3d`: `%s` must be a single finite %s %s %s.",
+                 name, if (integer) "integer" else "number",
+                 if (strict) "greater than" else "of at least", format(lower)))
+  }
+  if (integer) as.integer(x) else as.double(x)
 }
 
 
@@ -420,6 +512,15 @@ finalize_registration <- function(result, source_vox2ras, target_vox2ras, target
 #' \verb{RAS}-to-\verb{RAS} transform (such as the \code{transform} returned
 #' by \code{\link{register_volume3d}}). The transform maps reference (fixed)
 #' \verb{RAS} coordinates to moving \verb{RAS} coordinates.
+#'
+#' This function is \strong{superseded} by
+#' \code{\link{apply_transform3d_volume}}, which additionally applies
+#' deformation fields and whole transform chains, and by
+#' \code{\link{apply_transform3d_points}} for coordinates. It is kept, with
+#' unchanged behavior and no warning, for existing code; new code should use
+#' \code{apply_transform3d_volume}. For a single linear transform the two give
+#' identical results (except that \code{apply_transform3d_volume} offers no
+#' \code{'bspline'} interpolation).
 #' @param volume moving 3D array to resample
 #' @param vox2ras the moving volume's voxel-to-\verb{RAS} 4x4 transform
 #' @param transform 4x4 \verb{RAS}-to-\verb{RAS} transform (fixed to moving)
@@ -432,7 +533,8 @@ finalize_registration <- function(result, source_vox2ras, target_vox2ras, target
 #' @param na_fill value for out-of-bounds voxels; default \code{0}
 #' @returns The resampled volume on the reference grid, with a \code{'vox2ras'}
 #' attribute equal to \code{reference_vox2ras}.
-#' @seealso \code{\link{register_volume3d}}
+#' @seealso \code{\link{apply_transform3d_volume}} (the replacement),
+#' \code{\link{register_volume3d}}
 #' @export
 apply_transform3d <- function(
     volume, vox2ras, transform,
