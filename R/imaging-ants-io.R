@@ -448,6 +448,7 @@ save_registration.ravetools_register_volume3d <- function(
     if (!is.null(geom$source_vox2ras)) rec$SourceVox2RAS <- mat_to_str(geom$source_vox2ras)
     if (!is.null(geom$target_vox2ras)) rec$TargetVox2RAS <- mat_to_str(geom$target_vox2ras)
     if (!is.null(geom$target_dim))     rec$TargetDim <- paste(geom$target_dim, collapse = " ")
+    if (!is.null(geom$source_dim))     rec$SourceDim <- paste(geom$source_dim, collapse = " ")
   }
 
   write.dcf(as.data.frame(rec, stringsAsFactors = FALSE, check.names = FALSE), manifest)
@@ -506,6 +507,9 @@ load_registration_manifest <- function(file, recover_affine_from_header) {
   if (!is.null(rec$SourceVox2RAS)) geom$source_vox2ras <- str_to_mat(rec$SourceVox2RAS)
   if (!is.null(rec$TargetVox2RAS)) geom$target_vox2ras <- str_to_mat(rec$TargetVox2RAS)
   if (!is.null(rec$TargetDim)) geom$target_dim <- as.integer(strsplit(trimws(rec$TargetDim), "\\s+")[[1]])
+  # SourceDim was added later; older manifests simply lack it (then the inverse
+  # direction of apply_transform3d_volume needs an explicit reference_dim)
+  if (!is.null(rec$SourceDim)) geom$source_dim <- as.integer(strsplit(trimws(rec$SourceDim), "\\s+")[[1]])
   if (length(geom)) res$geometry <- geom
 
   if (!is.null(rec$ForwardField)) {
@@ -530,7 +534,10 @@ print.ravetools_register_volume3d <- function(x, ...) {
     if (!is.null(x$inverse_field)) "inverse_field")
   cat("  parts:  ", paste(has, collapse = ", "), "\n")
   if (!is.null(x$geometry$target_dim)) {
-    cat("  grid:   ", paste(x$geometry$target_dim, collapse = " x "), "\n")
+    cat("  grid:   ", paste(x$geometry$target_dim, collapse = " x "), "(target)\n")
+  }
+  if (!is.null(x$geometry$source_dim)) {
+    cat("          ", paste(x$geometry$source_dim, collapse = " x "), "(source)\n")
   }
   invisible(x)
 }
