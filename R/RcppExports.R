@@ -565,6 +565,30 @@ Vector3__set_from_matrix_scale <- function(self, m) {
     invisible(.Call(`_ravetools_Vector3__set_from_matrix_scale`, self, m))
 }
 
+n4_truncate_quantiles <- function(x, lower, upper, bins) {
+    .Call(`_ravetools_n4_truncate_quantiles`, x, lower, upper, bins)
+}
+
+n4_mask_morph <- function(mask, dims, radius, erode) {
+    .Call(`_ravetools_n4_mask_morph`, mask, dims, radius, erode)
+}
+
+n4_mask_cleanup <- function(mask, dims, radius, keep_largest, min_size) {
+    .Call(`_ravetools_n4_mask_cleanup`, mask, dims, radius, keep_largest, min_size)
+}
+
+n4_bspline_evaluate <- function(lattice, ldims, order, grid) {
+    .Call(`_ravetools_n4_bspline_evaluate`, lattice, ldims, order, grid)
+}
+
+n4_bspline_refine <- function(lattice, ldims, order) {
+    .Call(`_ravetools_n4_bspline_refine`, lattice, ldims, order)
+}
+
+n4_bias_field <- function(x, dims, mask, weight, spacing, shrink, iterations, tol, spline_distance, order, bins, fwhm, noise, verbose) {
+    .Call(`_ravetools_n4_bias_field`, x, dims, mask, weight, spacing, shrink, iterations, tol, spline_distance, order, bins, fwhm, noise, verbose)
+}
+
 segment_gmm_mrf_cpp <- function(volume, dims, mask, priors, n_classes, prior_weight, mrf_beta, mrf_radius, direction, iterations, tolerance, verbose) {
     .Call(`_ravetools_segment_gmm_mrf_cpp`, volume, dims, mask, priors, n_classes, prior_weight, mrf_beta, mrf_radius, direction, iterations, tolerance, verbose)
 }

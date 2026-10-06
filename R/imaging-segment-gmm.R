@@ -147,7 +147,7 @@
 #' handful of extreme intensities stretches that range so much that a seed
 #' can end up without any voxel, which is reported as an error naming the
 #' intensity range: truncate or clip the intensities first (the intensity
-#' truncation of \code{normalize_volume_intensity_n4} does this), tighten
+#' truncation of \code{bias_correction_n4} does this), tighten
 #' the mask, or reduce \code{n_classes}. With \code{priors}, each voxel
 #' starts at the class with the largest prior (voxels where every prior is
 #' zero start unlabeled), the initial class statistics are weighted by that

@@ -487,7 +487,7 @@ Rcpp::List segment_gmm_mrf_cpp(const Rcpp::NumericVector& volume,
         // The k-means seeds are spread evenly over [min, max] of the masked
         // intensities, so a few extreme values (hot voxels, untruncated CT)
         // leave the middle seeds without any voxel.
-        Rcpp::stop("Class %d received no voxels during the k-means initialization: the intensity range inside the mask (%g to %g) is dominated by extreme values. Truncate or clip the intensities (for example with the intensity truncation of `normalize_volume_intensity_n4`), tighten the mask, or reduce `n_classes`.",
+        Rcpp::stop("Class %d received no voxels during the k-means initialization: the intensity range inside the mask (%g to %g) is dominated by extreme values. Truncate or clip the intensities (for example with the intensity truncation of `bias_correction_n4`), tighten the mask, or reduce `n_classes`.",
                    static_cast<int>(k + 1), ymin, ymax);
       }
       const double e1 = a1 / a0;
