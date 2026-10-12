@@ -1,6 +1,6 @@
 # Changelog
 
-## ravetools 0.3.3
+## ravetools 0.4.0
 
 - Added `segment_volume_tissue_gmm` for prior-guided tissue segmentation
   of a 3D volume with a Gaussian mixture model, optional spatial prior
