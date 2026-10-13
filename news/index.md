@@ -2,6 +2,8 @@
 
 ## ravetools 0.4.0
 
+CRAN release: 2026-10-12
+
 - Added `segment_volume_tissue_gmm` for prior-guided tissue segmentation
   of a 3D volume with a Gaussian mixture model, optional spatial prior
   probability maps (for example template tissue priors warped into the
