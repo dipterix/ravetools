@@ -54,9 +54,15 @@ class HullFace : public vcg::Face<
   vcg::face::BitFlags
 > {};
 
+// vcglib's TriMesh destructor leaves named attributes allocated (upstream
+// comments out its ClearAttributes() call), and ComputeConvexHull adds the
+// per-vertex attribute "indexInput"; free it on every exit, errors included
 class HullMesh : public vcg::tri::TriMesh<
   std::vector<HullVertex>, std::vector<HullFace>
-> {};
+> {
+public:
+  ~HullMesh() { ClearAttributes(); }
+};
 
 } // namespace
 
