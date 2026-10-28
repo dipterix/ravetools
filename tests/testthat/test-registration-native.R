@@ -323,11 +323,14 @@ test_that("cortical landmark term pulls the SyN warp onto correspondences", {
   expect_identical(a, b)
 
   # identical images => the image force is ~0, so the landmarks drive the field
+  # (every iteration runs: the convergence stop watches the image cost, which
+  # only gets worse as the landmarks move the field)
   res <- register_volume3d(
     img, img, v2r, v2r, type = "syn_only", init_transform = diag(4),
     target_points = ras_fix, source_points = ras_mov, points_weight = 2,
     shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0),
-    syn_iterations = c(40, 40), syn_sigma = 2, metric = "cc", verbose = FALSE)
+    syn_iterations = c(40, 40), syn_sigma = 2, metric = "cc",
+    syn_convergence = NULL, verbose = FALSE)
   ff <- res$forward_field
   disp <- t(vapply(seq_len(nP), function(p) {
     ff[ijk[p, 1] + 1, ijk[p, 2] + 1, ijk[p, 3] + 1, ]

@@ -30,6 +30,8 @@ register_volume3d(
   syn_grad_step = 0.2,
   syn_total_sigma = 0,
   syn_cc_radius = 2L,
+  syn_convergence = 1e-06,
+  syn_convergence_window = 10L,
   verbose = TRUE
 )
 }
@@ -131,11 +133,12 @@ metric; default \code{32}}
 transform (fixed to moving) to start from}
 
 \item{syn_iterations, syn_sigma}{deformable stage controls (only used when
-\code{type = "syn"} or \code{"syn_only"}): per-level iteration counts and the
-Gaussian regularization sigma (in voxels) applied to the update field. Both
-are recycled to the number of levels, so \code{syn_sigma} may be a vector to
-vary the regularization per stage (e.g. \code{c(3, 3, 1)} to relax it at the
-finest level for sharper detail)}
+\code{type = "syn"} or \code{"syn_only"}): per-level iteration counts (the
+maxima: with \code{syn_convergence}, a level ends earlier once its cost stops
+decreasing) and the Gaussian regularization sigma (in voxels) applied to the
+update field. Both are recycled to the number of levels, so \code{syn_sigma}
+may be a vector to vary the regularization per stage (e.g. \code{c(3, 3, 1)}
+to relax it at the finest level for sharper detail)}
 
 \item{syn_grad_step}{deformable stage step size: each update is capped at
 \code{syn_grad_step} times the voxel spacing of the current level; default
@@ -150,10 +153,22 @@ default \code{0} (none; must be non-negative)}
 deformable-stage cross-correlation metric; default \code{2L} (a
 \eqn{5^3} window; must be an integer of at least 1)}
 
+\item{syn_convergence, syn_convergence_window}{convergence stop of each
+deformable level, with the rule of \pkg{'ANTs'}
+(\code{--convergence [syn_iterations,syn_convergence,syn_convergence_window]}):
+the threshold, a single finite number (default \code{1e-6}), or \code{NULL}
+to run every iteration of \code{syn_iterations}; and the window, the number
+of recent iterations whose cost trend is tested (an integer of at least 2;
+default \code{10L}). The defaults are those of \code{antsRegistration}; the
+\code{"SyN"} transforms of \pkg{'ANTsPy'} use \code{1e-7} and \code{8L}.
+See \sQuote{Details}}
+
 \item{verbose}{logical; if \code{TRUE} (default) print per-level and
 per-iteration progress to the console, including the current stage, shrink
 factor, smoothing sigma, cost metric, and step size (linear) or maximum
-displacement (deformable); useful to monitor convergence on large volumes}
+displacement (deformable), with the convergence stop also the convergence
+value and why each deformable level ended; useful to monitor convergence on
+large volumes}
 }
 \value{
 A list of class \code{ravetools_register_volume3d} with:
@@ -168,7 +183,12 @@ coordinates}
 first element. For single-image input this is a length-1 list}
 \item{\code{forward_field},\code{inverse_field}}{(only for \code{"syn"}) the
 deformation fields on the target grid, see \sQuote{Details}}
-\item{\code{metric_trace}}{the metric value across optimizer iterations}
+\item{\code{metric_trace}}{the metric value across the optimizer iterations
+that ran (in the deformable stage, the weighted cost of all channels plus the
+landmark term, one value per iteration)}
+\item{\code{syn_iterations_run}}{(only for \code{"syn"} and
+\code{"syn_only"}) the number of deformable iterations each level ran; 0 for
+levels without a positive iteration count}
 \item{\code{geometry}}{the source and target grids (\code{source_dim},
 \code{source_vox2ras}, \code{target_dim}, \code{target_vox2ras})}
 \item{\code{type},\code{metric}}{echoes of the inputs}
@@ -200,6 +220,27 @@ tolerates an inverted contrast (such as \code{'T2'} against \code{'T1'})
 but not a non-monotonic relation (such as \verb{FLAIR} or \code{'CT'}
 against \code{'T1'}), so give such channels a low weight in a multichannel
 call.
+
+\strong{Convergence of the deformable stage.} With \code{syn_convergence}
+set (the default), every deformable level ends as soon as its cost stops
+decreasing, by the rule of \pkg{'ANTs'}: the cost of the first channel
+(without its weight and without the landmark term) is recorded at every
+iteration and divided by the sum of its absolute values since the level
+started; once \code{syn_convergence_window} values exist, a straight line
+is fitted through the most recent ones (the \verb{B-spline} fit of
+\verb{ITK}), and the level stops when the fitted decrease across the window
+falls below \code{syn_convergence}. A level therefore runs at least
+\code{syn_convergence_window} iterations (or all of them, if fewer), unless
+an update vanishes, after which the field cannot change anymore (only with
+\code{syn_total_sigma = 0}); the last update is kept. The window thus sets
+the minimum number of iterations of a level, and the threshold how flat the
+trend of the cost must be before the level stops: while the cost still
+decreases steadily, a level can run to its maximum. Every update has the
+same size (\code{syn_grad_step} times the voxel spacing), so once the
+deformation settles the cost tends to oscillate, and a level then usually
+ends a few iterations later. \code{syn_iterations_run} in the result gives
+the iterations each level ran. With \code{syn_convergence = NULL}, every
+iteration runs (the behavior before \pkg{ravetools} 0.4.1).
 
 \strong{Deformation fields.} \code{forward_field} is the displacement
 \eqn{u_f} on the target grid such that \code{image} samples the source at

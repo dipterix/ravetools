@@ -630,19 +630,22 @@ test_that("B1-B3: SyN controls (explicit defaults, non-default values, validatio
   args <- toy$args
   # B1: explicit defaults are bit-identical to the implicit call
   res_b1 <- do.call(register_volume3d, c(args, list(syn_grad_step = 0.2, syn_total_sigma = 0,
-                                                    syn_cc_radius = 2L)))
+                                                    syn_cc_radius = 2L, syn_convergence = 1e-6,
+                                                    syn_convergence_window = 10L)))
   expect_identical(res_b1$forward_field, toy$res$forward_field)
   expect_identical(res_b1$inverse_field, toy$res$inverse_field)
   expect_identical(res_b1$image, toy$res$image)
   expect_identical(res_b1$transform, toy$res$transform)
 
-  # both fields are identical with a single thread
+  # both fields are identical with a single thread (the convergence stop,
+  # on by default, sees the same cost for any thread count)
   ravetools_threads(1)
   on.exit(ravetools_threads("auto"), add = TRUE)
   res_t1 <- do.call(register_volume3d, args)
   ravetools_threads("auto")
   expect_identical(res_t1$forward_field, toy$res$forward_field)
   expect_identical(res_t1$inverse_field, toy$res$inverse_field)
+  expect_identical(res_t1$syn_iterations_run, toy$res$syn_iterations_run)
 
   # B2: non-default values change the field and still recover the deformation
   res_b2 <- do.call(register_volume3d, c(args, list(syn_grad_step = 0.25, syn_total_sigma = 0.5,
@@ -663,6 +666,253 @@ test_that("B1-B3: SyN controls (explicit defaults, non-default values, validatio
   expect_error(bad(syn_cc_radius = 0), "syn_cc_radius")
   expect_error(bad(syn_cc_radius = 1.5), "syn_cc_radius")
   expect_error(bad(syn_cc_radius = "a"), "syn_cc_radius")
+  # beyond the integer range (it used to become NA with only a warning)
+  expect_error(bad(syn_cc_radius = 1e10), "syn_cc_radius")
+  expect_error(bad(syn_convergence = NA), "syn_convergence")
+  expect_error(bad(syn_convergence = Inf), "syn_convergence")
+  expect_error(bad(syn_convergence = c(1e-7, 1e-6)), "syn_convergence")
+  expect_error(bad(syn_convergence = "a"), "syn_convergence")
+  expect_error(bad(syn_convergence_window = 1), "syn_convergence_window")
+  expect_error(bad(syn_convergence_window = 1.5), "syn_convergence_window")
+  expect_error(bad(syn_convergence_window = NA), "syn_convergence_window")
+  expect_error(bad(syn_convergence_window = "a"), "syn_convergence_window")
+  expect_error(bad(syn_convergence_window = c(8, 10)), "syn_convergence_window")
+  expect_error(bad(syn_convergence_window = 1e10), "syn_convergence_window")
+  # the window is validated even when the stop is off
+  expect_error(bad(syn_convergence = NULL, syn_convergence_window = 1), "syn_convergence_window")
+})
+
+# ---- C1-C7: convergence stop of the deformable stage --------------------------
+
+test_that("C1-C2: the stop is on by default; NULL or a window that never fills runs every iteration", {
+  toy <- ta_syn_toy()
+  args <- toy$args
+  run <- toy$res$syn_iterations_run
+  expect_identical(length(run), 3L)
+  # each level runs at least the window (10) and at most syn_iterations; the
+  # cost of this toy still decreases at every level, so no level ended early
+  # when this test was written (C5 and C6 cover levels that do)
+  expect_true(all(run >= 10L & run <= c(40L, 30L, 15L)))
+
+  # the threshold and the window reach the stop of type "syn": a threshold of
+  # 1 ends every level as soon as the window is full (the convergence value
+  # is a normalized drop, always below 1 in absolute value)
+  res_stop <- do.call(register_volume3d, c(args, list(syn_convergence = 1,
+                                                      syn_convergence_window = 3L)))
+  expect_identical(res_stop$syn_iterations_run, c(3L, 3L, 3L))
+
+  res_off <- do.call(register_volume3d, c(args, list(syn_convergence = NULL)))
+  expect_identical(res_off$syn_iterations_run, c(40L, 30L, 15L))
+  # a window longer than every level never fills, so the convergence rule
+  # never stops a level (its weights are never computed, whatever the window)
+  res_w <- do.call(register_volume3d, c(args, list(syn_convergence_window = .Machine$integer.max)))
+  expect_identical(res_w$syn_iterations_run, c(40L, 30L, 15L))
+  expect_identical(res_w$forward_field, res_off$forward_field)
+  # the deformation is recovered with and without the stop
+  for (res in list(toy$res, res_off)) {
+    expect_lt(mean((res$image - toy$target)^2), mean((toy$moving - toy$target)^2) / 2)
+  }
+})
+
+test_that("C3: any finite threshold is accepted, as in ANTs", {
+  nd <- c(16L, 16L, 16L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -8
+  target <- ta_phantom(nd, seed = 5, nblob = 3)
+  moving <- ta_phantom(nd, seed = 6, nblob = 3)
+  reg <- function(...) {
+    register_volume3d(moving, target, v2r, v2r, type = "syn_only", init_transform = diag(4),
+                      metric = "cc", shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0),
+                      syn_iterations = c(12, 12), verbose = FALSE, ...)
+  }
+  # a negative threshold stops only when the cost clearly rises
+  res <- reg(syn_convergence = -1)
+  expect_identical(res$syn_iterations_run, c(12L, 12L))
+  # the window reaches the stop of type "syn_only": with a threshold of 1,
+  # every level ends as soon as the window is full
+  expect_identical(reg(syn_convergence = 1, syn_convergence_window = 2L)$syn_iterations_run,
+                   c(2L, 2L))
+  expect_identical(reg(syn_convergence = 1, syn_convergence_window = 5L)$syn_iterations_run,
+                   c(5L, 5L))
+})
+
+test_that("C4: the convergence values reproduce antsRegistration", {
+  # antsRegistration (ANTsPy 0.6.3, ITK 5.4.5, --float 0) on a synthetic 40^3
+  # phantom warped by a 1.5-voxel sinusoid, CC[f,m,1,2] and SyN[0.2,3,0]: the
+  # metric and convergence values it printed (DIAGNOSTIC lines) for the
+  # levels that its convergence rule ended
+  ants <- list(
+    # --convergence [60x40x30,1e-7,8], level 1 (stopped after 21 iterations)
+    list(window = 8L, threshold = 1e-7,
+         energy = c(-0.9534817520485, -0.9863615444358, -0.9939929613206, -0.9928075688292,
+                    -0.9936093919049, -0.9941722740227, -0.9940831673035, -0.9945053216596,
+                    -0.9942628177195, -0.9947127045077, -0.9943688346661, -0.9948625060497,
+                    -0.9944288336964, -0.9949711167153, -0.9944596448428, -0.9950528226227,
+                    -0.9944704749348, -0.9951176459934, -0.9944670035906, -0.9951718004368,
+                    -0.9944529951296),
+         convergence = c(2.117641090733e-03, 3.654874191594e-04, 8.971072668161e-05,
+                         8.773176707673e-05, 5.414556199589e-05, 2.800373479256e-05,
+                         3.047145412989e-05, 1.396948482014e-05, 2.086720344979e-05,
+                         6.609357542035e-06, 1.539436909694e-05, 2.292390979847e-06,
+                         1.218750408772e-05, -2.938096951149e-07)),
+    # the same run, level 2 (stopped after 11 iterations)
+    list(window = 8L, threshold = 1e-7,
+         energy = c(-0.9824308203472, -0.9848277201765, -0.9860547036689, -0.9866027186624,
+                    -0.9868179480036, -0.9868486189153, -0.986777472132, -0.9866499500529,
+                    -0.9864890872576, -0.9863218411308, -0.9861430020056),
+         convergence = c(2.862343163986e-04, 9.356169950051e-05, 6.044941262107e-06,
+                         -3.215349337767e-05)),
+    # --convergence [60x40x30,1e-6,10], level 2 (stopped after 12 iterations)
+    list(window = 10L, threshold = 1e-6,
+         energy = c(-0.9824751016292, -0.9848528023048, -0.9860754012519, -0.9866213039993,
+                    -0.9868355999594, -0.9868658750108, -0.9867947200248, -0.9866673516224,
+                    -0.9865067133555, -0.9863396747303, -0.9861611088611, -0.9859775914951),
+         convergence = c(1.70671985927e-04, 3.87428028709e-05, -2.225787590776e-05))
+  )
+  for (lv in ants) {
+    conv <- syn_convergence_values_cpp(lv$energy, lv$window)
+    n <- length(lv$energy)
+    # no value before the window is full
+    expect_true(all(is.infinite(conv[seq_len(lv$window - 1L)])))
+    expect_equal(conv[lv$window:n], lv$convergence, tolerance = 1e-8, scale = 1)
+    # the first value below the threshold is the iteration at which ANTs stopped
+    expect_identical(which(conv < lv$threshold)[1], n)
+  }
+
+  # a flat negative cost reads as slightly decreasing (ITK's end-point clamp),
+  # a flat positive cost as slightly increasing; an all-zero cost gives 0
+  flat <- syn_convergence_values_cpp(rep(-0.55, 400), 8L)
+  expect_identical(which(flat < 1e-7)[1], 389L)
+  flat <- syn_convergence_values_cpp(rep(-0.55, 100), 10L)
+  expect_identical(which(flat < 1e-6)[1], 32L)
+  expect_identical(which(syn_convergence_values_cpp(rep(0.55, 20), 8L) < 1e-7)[1], 8L)
+  expect_identical(syn_convergence_values_cpp(rep(0, 10), 10L)[10], 0)
+  expect_error(syn_convergence_values_cpp(1:3, 1L), "window")
+})
+
+test_that("C5: identical images end every level early without moving the field more", {
+  nd <- c(40L, 40L, 40L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -20
+  img <- ta_phantom(nd, seed = 3, nblob = 8)
+  reg <- function(...) {
+    register_volume3d(img, img, v2r, v2r, type = "syn_only", init_transform = diag(4),
+                      metric = "cc", verbose = FALSE, ...)
+  }
+  # one level at full resolution: the force vanishes at once, so the level
+  # ends after one iteration (before the window fills) with a zero field
+  one <- reg(shrink_factors = 1, smoothing_sigmas = 0, syn_iterations = 30L)
+  one_off <- reg(shrink_factors = 1, smoothing_sigmas = 0, syn_iterations = 30L,
+                 syn_convergence = NULL)
+  expect_identical(one$syn_iterations_run, 1L)
+  expect_length(one$metric_trace, 1L)
+  expect_identical(one$forward_field, one_off$forward_field)
+  expect_identical(max(abs(one$forward_field)), 0)
+
+  # three levels: the coarse levels move a little on a perfect match (the
+  # shrunken fixed level is stored in single precision), so the levels end
+  # once the window has filled (12/11/10 of 60/40/30 when this test was written)
+  three <- reg(shrink_factors = c(4, 2, 1), smoothing_sigmas = c(2, 1, 0),
+               syn_iterations = c(60, 40, 30))
+  three_off <- reg(shrink_factors = c(4, 2, 1), smoothing_sigmas = c(2, 1, 0),
+                   syn_iterations = c(60, 40, 30), syn_convergence = NULL)
+  run <- three$syn_iterations_run
+  expect_true(all(run >= 10L))
+  expect_lt(sum(run), 65L)
+  expect_length(three$metric_trace, sum(run))
+  expect_identical(three_off$syn_iterations_run, c(60L, 40L, 30L))
+  expect_lt(max(abs(three$forward_field)), max(abs(three_off$forward_field)))
+})
+
+test_that("C6: the stop limits the drift from moving tissue outside the target mask", {
+  # a bright brain with blobs; the moving one is 12% larger, so its bright
+  # edge lies outside the target mask, where the deformable stage applies no
+  # force (the target mask gates it) to pull it back in
+  nd <- c(48L, 48L, 48L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -24
+  g <- expand.grid(x = 0:(nd[1] - 1), y = 0:(nd[2] - 1), z = 0:(nd[3] - 1))
+  ctr <- (nd[1] - 1) / 2
+  r <- sqrt((g$x - ctr)^2 + (g$y - ctr)^2 + (g$z - ctr)^2)
+  set.seed(3)
+  blobs <- numeric(nrow(g))
+  for (k in 1:10) {
+    c0 <- runif(3, 14, 34)
+    blobs <- blobs + runif(1, .5, 1) *
+      exp(-((g$x - c0[1])^2 + (g$y - c0[2])^2 + (g$z - c0[3])^2) / (2 * runif(1, 2, 4)^2))
+  }
+  target <- array((0.5 + blobs) * (r < 14), nd)
+  s <- 1.12
+  moving <- array(ta_tril(target, ctr + (g$x - ctr) / s, ctr + (g$y - ctr) / s,
+                          ctr + (g$z - ctr) / s), nd)
+  target_mask <- array((r < 14) * 1, nd)
+  source_mask <- array((r < 14 * s) * 1, nd)
+  reg <- function(...) {
+    register_volume3d(moving, target, v2r, v2r, source_mask = source_mask,
+                      target_mask = target_mask, type = "syn_only", init_transform = diag(4),
+                      metric = "cc", shrink_factors = c(4, 2, 1), smoothing_sigmas = c(2, 1, 0),
+                      syn_iterations = c(100, 70, 50), syn_sigma = 3.5, syn_grad_step = 0.15,
+                      syn_cc_radius = 4L, verbose = FALSE, ...)
+  }
+  inside <- target_mask > 0
+  start_cor <- cor(moving[inside], target[inside])
+  field_max <- function(res) max(sqrt(rowSums(matrix(res$forward_field, ncol = 3)^2)))
+
+  # with the stop (11/17/10 iterations, 1.66 mm and 0.997 when this test was
+  # written)
+  res <- reg()
+  expect_lt(sum(res$syn_iterations_run), 220L)
+  expect_length(res$metric_trace, sum(res$syn_iterations_run))
+  expect_lt(field_max(res), 2.5)
+  expect_gt(cor(res$image[inside], target[inside]), 0.99)
+
+  # the stop sees the same cost with one thread, so it ends the levels at the
+  # same iterations and the field is identical
+  ravetools_threads(1)
+  on.exit(ravetools_threads("auto"), add = TRUE)
+  res_t1 <- reg()
+  ravetools_threads("auto")
+  expect_identical(res_t1$syn_iterations_run, res$syn_iterations_run)
+  expect_identical(res_t1$forward_field, res$forward_field)
+
+  # every iteration: the field keeps growing and the match inside the mask
+  # ends worse than before the registration (5.23 mm and 0.941 against 0.975)
+  skip_on_cran()
+  res_off <- reg(syn_convergence = NULL)
+  expect_gt(field_max(res_off), 4)
+  expect_lt(cor(res_off$image[inside], target[inside]), start_cor)
+})
+
+test_that("C7: verbose output reports the convergence and why each level ended", {
+  nd <- c(16L, 16L, 16L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -8
+  target <- ta_phantom(nd, seed = 5, nblob = 3)
+  moving <- ta_phantom(nd, seed = 6, nblob = 3)
+  reg <- function(...) {
+    register_volume3d(moving, target, v2r, v2r, type = "syn_only", init_transform = diag(4),
+                      metric = "cc", shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0),
+                      syn_iterations = c(30, 5), verbose = TRUE, ...)
+  }
+  out <- capture.output(res <- reg())
+  level_start <- grep("^\\[SyN\\] level", out)
+  expect_length(level_start, 2L)
+  ends <- grep("^  => ", out)
+  expect_length(ends, 2L)
+  # the second level has fewer iterations than the window
+  expect_match(out[ends[2]], "max iterations reached \\(5\\)")
+  expect_true(any(grepl("^  it +[0-9]+: .*convergence = ", out)))
+  # the last iteration printed in each level is the last one that ran
+  for (lv in 1:2) {
+    block <- out[level_start[lv]:ends[lv]]
+    its <- as.integer(sub("^  it +([0-9]+):.*", "\\1", grep("^  it +[0-9]+:", block, value = TRUE)))
+    expect_identical(max(its), res$syn_iterations_run[lv])
+  }
+
+  # without the stop, the output is as before: no convergence values, no
+  # end-of-level lines
+  out <- capture.output(reg(syn_convergence = NULL))
+  expect_false(any(grepl("^  => |convergence = ", out)))
 })
 
 # ---- review fixes ------------------------------------------------------------

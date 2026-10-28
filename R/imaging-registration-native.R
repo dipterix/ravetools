@@ -89,11 +89,12 @@
 #' @param init_transform optional 4x4 initial \verb{RAS}-to-\verb{RAS}
 #' transform (fixed to moving) to start from
 #' @param syn_iterations,syn_sigma deformable stage controls (only used when
-#' \code{type = "syn"} or \code{"syn_only"}): per-level iteration counts and the
-#' Gaussian regularization sigma (in voxels) applied to the update field. Both
-#' are recycled to the number of levels, so \code{syn_sigma} may be a vector to
-#' vary the regularization per stage (e.g. \code{c(3, 3, 1)} to relax it at the
-#' finest level for sharper detail)
+#' \code{type = "syn"} or \code{"syn_only"}): per-level iteration counts (the
+#' maxima: with \code{syn_convergence}, a level ends earlier once its cost stops
+#' decreasing) and the Gaussian regularization sigma (in voxels) applied to the
+#' update field. Both are recycled to the number of levels, so \code{syn_sigma}
+#' may be a vector to vary the regularization per stage (e.g. \code{c(3, 3, 1)}
+#' to relax it at the finest level for sharper detail)
 #' @param syn_grad_step deformable stage step size: each update is capped at
 #' \code{syn_grad_step} times the voxel spacing of the current level; default
 #' \code{0.2} (must be positive)
@@ -104,10 +105,21 @@
 #' @param syn_cc_radius radius (in voxels) of the local window of the
 #' deformable-stage cross-correlation metric; default \code{2L} (a
 #' \eqn{5^3} window; must be an integer of at least 1)
+#' @param syn_convergence,syn_convergence_window convergence stop of each
+#' deformable level, with the rule of \pkg{'ANTs'}
+#' (\code{--convergence [syn_iterations,syn_convergence,syn_convergence_window]}):
+#' the threshold, a single finite number (default \code{1e-6}), or \code{NULL}
+#' to run every iteration of \code{syn_iterations}; and the window, the number
+#' of recent iterations whose cost trend is tested (an integer of at least 2;
+#' default \code{10L}). The defaults are those of \code{antsRegistration}; the
+#' \code{"SyN"} transforms of \pkg{'ANTsPy'} use \code{1e-7} and \code{8L}.
+#' See \sQuote{Details}
 #' @param verbose logical; if \code{TRUE} (default) print per-level and
 #' per-iteration progress to the console, including the current stage, shrink
 #' factor, smoothing sigma, cost metric, and step size (linear) or maximum
-#' displacement (deformable); useful to monitor convergence on large volumes
+#' displacement (deformable), with the convergence stop also the convergence
+#' value and why each deformable level ended; useful to monitor convergence on
+#' large volumes
 #' @details
 #' \strong{Choosing a metric.} For a same-contrast pair, such as a native
 #' \code{'T1'}-weighted scan against a \code{'T1'} template, the default
@@ -124,6 +136,27 @@
 #' but not a non-monotonic relation (such as \verb{FLAIR} or \code{'CT'}
 #' against \code{'T1'}), so give such channels a low weight in a multichannel
 #' call.
+#'
+#' \strong{Convergence of the deformable stage.} With \code{syn_convergence}
+#' set (the default), every deformable level ends as soon as its cost stops
+#' decreasing, by the rule of \pkg{'ANTs'}: the cost of the first channel
+#' (without its weight and without the landmark term) is recorded at every
+#' iteration and divided by the sum of its absolute values since the level
+#' started; once \code{syn_convergence_window} values exist, a straight line
+#' is fitted through the most recent ones (the \verb{B-spline} fit of
+#' \verb{ITK}), and the level stops when the fitted decrease across the window
+#' falls below \code{syn_convergence}. A level therefore runs at least
+#' \code{syn_convergence_window} iterations (or all of them, if fewer), unless
+#' an update vanishes, after which the field cannot change anymore (only with
+#' \code{syn_total_sigma = 0}); the last update is kept. The window thus sets
+#' the minimum number of iterations of a level, and the threshold how flat the
+#' trend of the cost must be before the level stops: while the cost still
+#' decreases steadily, a level can run to its maximum. Every update has the
+#' same size (\code{syn_grad_step} times the voxel spacing), so once the
+#' deformation settles the cost tends to oscillate, and a level then usually
+#' ends a few iterations later. \code{syn_iterations_run} in the result gives
+#' the iterations each level ran. With \code{syn_convergence = NULL}, every
+#' iteration runs (the behavior before \pkg{ravetools} 0.4.1).
 #'
 #' \strong{Deformation fields.} \code{forward_field} is the displacement
 #' \eqn{u_f} on the target grid such that \code{image} samples the source at
@@ -151,7 +184,12 @@
 #' first element. For single-image input this is a length-1 list}
 #' \item{\code{forward_field},\code{inverse_field}}{(only for \code{"syn"}) the
 #' deformation fields on the target grid, see \sQuote{Details}}
-#' \item{\code{metric_trace}}{the metric value across optimizer iterations}
+#' \item{\code{metric_trace}}{the metric value across the optimizer iterations
+#' that ran (in the deformable stage, the weighted cost of all channels plus the
+#' landmark term, one value per iteration)}
+#' \item{\code{syn_iterations_run}}{(only for \code{"syn"} and
+#' \code{"syn_only"}) the number of deformable iterations each level ran; 0 for
+#' levels without a positive iteration count}
 #' \item{\code{geometry}}{the source and target grids (\code{source_dim},
 #' \code{source_vox2ras}, \code{target_dim}, \code{target_vox2ras})}
 #' \item{\code{type},\code{metric}}{echoes of the inputs}
@@ -232,17 +270,30 @@ register_volume3d <- function(
     syn_grad_step = 0.2,
     syn_total_sigma = 0,
     syn_cc_radius = 2L,
+    syn_convergence = 1e-6,
+    syn_convergence_window = 10L,
     verbose = TRUE) {
 
   type <- match.arg(type)
 
   # Deformable-stage controls (validated for every `type`, so a bad value is
   # reported before any work starts). Defaults equal the former hard-coded
-  # values, so default results are unchanged.
+  # values, so default results are unchanged; the convergence stop (whose
+  # defaults are those of `antsRegistration`) is the exception.
   syn_grad_step <- validate_scalar(syn_grad_step, "syn_grad_step", lower = 0, strict = TRUE)
   syn_total_sigma <- validate_scalar(syn_total_sigma, "syn_total_sigma", lower = 0, strict = FALSE)
   syn_cc_radius <- validate_scalar(syn_cc_radius, "syn_cc_radius", lower = 1, strict = FALSE,
                                    integer = TRUE)
+  if (!is.null(syn_convergence)) {
+    # any finite threshold, as in ANTs (a negative one stops only on a clear rise)
+    if (!(is.numeric(syn_convergence) && length(syn_convergence) == 1L &&
+          is.finite(syn_convergence))) {
+      stop("`register_volume3d`: `syn_convergence` must be NULL or a single finite number.")
+    }
+    syn_convergence <- as.double(syn_convergence)
+  }
+  syn_convergence_window <- validate_scalar(syn_convergence_window, "syn_convergence_window",
+                                            lower = 2, strict = FALSE, integer = TRUE)
 
   # Accept either a single array or a list of co-registered modalities.
   if (!is.list(source)) source <- list(source)
@@ -393,6 +444,7 @@ register_volume3d <- function(
       points_weight = points_weight,
       grad_step = syn_grad_step, total_sigma = syn_total_sigma,
       cc_radius = syn_cc_radius,
+      convergence = syn_convergence, convergence_window = syn_convergence_window,
       verbose = isTRUE(verbose))
     return(finalize_registration(list(
       transform = transform,
@@ -401,6 +453,7 @@ register_volume3d <- function(
       image = syn$image,
       images = syn$images,
       metric_trace = syn$metric_trace,
+      syn_iterations_run = syn$iterations,
       type = type,
       metric = metric
     ), source_vox2ras, target_vox2ras, tgt_dim, src_dim))
@@ -440,10 +493,12 @@ register_volume3d <- function(
       points_weight = points_weight,
       grad_step = syn_grad_step, total_sigma = syn_total_sigma,
       cc_radius = syn_cc_radius,
+      convergence = syn_convergence, convergence_window = syn_convergence_window,
       verbose = isTRUE(verbose))
     result$forward_field <- syn$forward_field
     result$inverse_field <- syn$inverse_field
     result$metric_trace <- c(trace, syn$metric_trace)
+    result$syn_iterations_run <- syn$iterations
     result$image <- syn$image
     result$images <- syn$images
     return(finalize_registration(result, source_vox2ras, target_vox2ras, tgt_dim, src_dim))
@@ -495,8 +550,11 @@ finalize_registration <- function(result, source_vox2ras, target_vox2ras, target
 # Validate a finite numeric scalar option (optionally integer-valued) against a
 # lower bound; returns it as double or integer.
 validate_scalar <- function(x, name, lower, strict = FALSE, integer = FALSE) {
+  # an integer must also fit R's integer range, checked before `as.integer`
+  # (which would turn a larger value into NA)
   ok <- is.numeric(x) && length(x) == 1L && is.finite(x) &&
-    (if (strict) x > lower else x >= lower) && (!integer || x == round(x))
+    (if (strict) x > lower else x >= lower) &&
+    (!integer || (x == round(x) && abs(x) <= .Machine$integer.max))
   if (!ok) {
     stop(sprintf("`register_volume3d`: `%s` must be a single finite %s %s %s.",
                  name, if (integer) "integer" else "number",
@@ -665,6 +723,7 @@ register_syn <- function(fixed_list, fixed_dim, fixed_vox2ras,
                           fixed_mask = NULL, moving_mask = NULL,
                           fixed_points = NULL, moving_points = NULL, points_weight = 0.5,
                           grad_step = 0.2, total_sigma = 0, cc_radius = 2L,
+                          convergence = 1e-6, convergence_window = 10L,
                           verbose = FALSE) {
   # Mattes drives the linear stage; the deformable refinement uses local CC
   # (ANTs SyN's metric) unless mean squares was requested, applied per channel.
@@ -688,5 +747,8 @@ register_syn <- function(fixed_list, fixed_dim, fixed_vox2ras,
     fixedMask = fixed_mask, movingMask = moving_mask,
     fixedPoints = fixed_points_mat, movingPoints = moving_points_mat,
     pointsWeight = as.double(points_weight),
+    # a NULL convergence threshold runs every iteration (window 0)
+    convergenceThreshold = if (is.null(convergence)) NA_real_ else as.double(convergence),
+    convergenceWindow = if (is.null(convergence)) 0L else as.integer(convergence_window),
     verbose = isTRUE(verbose))
 }

@@ -6,7 +6,9 @@
 //   2. form a similarity force (local normalized CC, or mean squares);
 //   3. Gaussian-smooth the update (flow_sigma), the fluid-like regularizer;
 //   4. take a capped step (grad_step) on the forward field;
-//   5. optionally Gaussian-smooth the total field (total_sigma), elastic.
+//   5. optionally Gaussian-smooth the total field (total_sigma), elastic;
+//   6. optionally end the level once the cost of the first channel stops
+//      decreasing (the convergence rule of ANTs, ConvergenceMonitor below).
 // After the last level the inverse field is computed from the final forward
 // field on the full fixed grid by fixed-point inversion (reg_apply.h), so
 // forward o inverse and inverse o forward are both identity to within the
@@ -33,13 +35,18 @@
 // voxel each iteration (no metric subsampling, a dense force field and the CC
 // box-sums need the full warped image), so parallelism is the main lever. The
 // per-voxel force `factor` has no cross-voxel dependence, so the displacement
-// field is bit-identical regardless of thread count; only the scalar cost trace
-// (a parallel sum) may differ in its last ulps.
+// field is bit-identical regardless of thread count. The scalar cost is summed
+// over fixed blocks that are combined in block order, so the cost trace, and
+// with it the convergence stop, is identical for any thread count as well (for
+// a given starting transform: the Mattes linear stages still sum in a
+// thread-dependent order).
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <string>
 #include <vector>
+#include <deque>
+#include <cmath>
 #include <algorithm>
 #include <iomanip>
 #include "reg_core.h"
@@ -353,91 +360,82 @@ void fusedLocalCCSums(const double* Mw, const reg_real* F,
   TinyParallel::parallelFor(0, (std::size_t)nx * ny, wz, 32);
 }
 
+// Voxels per cost-reduction block. Fixed, so the block partial sums of the cost
+// (hence the cost trace and the convergence stop) do not depend on how
+// TinyParallel splits the block range among threads (the convention of
+// imaging_segment_gmm.cpp).
+const std::size_t kCostBlock = 2048;
+
 // Local normalized-CC force, accumulated (weighted) into the shared force
-// field; the scalar local-CC sum is reduced for the cost trace. Each index i is
-// written by one thread (disjoint ranges), so the force is bit-identical to the
-// serial result; only accCC/cnt are order-dependent.
-struct CCForceReducer : public TinyParallel::Worker {
-  const reg_real* F;
-  const double *Mw, *sumF, *sumFF, *sumM, *sumMM, *sumFM;
-  const double *gFx, *gFy, *gFz;
-  reg_real *fx, *fy, *fz;
-  double winN, tau, wk;
+// field; the local-CC sum and the number of valid windows are reduced per block
+// of kCostBlock voxels for the cost trace. Each index i is written by one
+// thread (disjoint blocks), so the force is bit-identical to the serial result.
+struct CCForceWorker : public TinyParallel::Worker {
+  const reg_real* F = nullptr;
+  const double *Mw = nullptr, *sumF = nullptr, *sumFF = nullptr, *sumM = nullptr,
+               *sumMM = nullptr, *sumFM = nullptr;
+  const double *gFx = nullptr, *gFy = nullptr, *gFz = nullptr;
+  reg_real *fx = nullptr, *fy = nullptr, *fz = nullptr;
+  double winN = 0.0, tau = 0.0, wk = 0.0;
   const reg_real* mask = nullptr;   // optional fixed mask: skip force where 0
-  double accCC; long cnt;
+  std::size_t N = 0;
+  double* blockAcc = nullptr;       // per block: sum of the local CC^2
+  long* blockCnt = nullptr;         // per block: number of valid windows
 
-  CCForceReducer(const reg_real* F_, const double* Mw_,
-                 const double* sumF_, const double* sumFF_, const double* sumM_,
-                 const double* sumMM_, const double* sumFM_,
-                 const double* gFx_, const double* gFy_, const double* gFz_,
-                 reg_real* fx_, reg_real* fy_, reg_real* fz_,
-                 double winN_, double tau_, double wk_)
-    : F(F_), Mw(Mw_), sumF(sumF_), sumFF(sumFF_), sumM(sumM_), sumMM(sumMM_),
-      sumFM(sumFM_), gFx(gFx_), gFy(gFy_), gFz(gFz_),
-      fx(fx_), fy(fy_), fz(fz_), winN(winN_), tau(tau_), wk(wk_),
-      accCC(0.0), cnt(0) {}
-
-  CCForceReducer(CCForceReducer& o, TinyParallel::Split)
-    : F(o.F), Mw(o.Mw), sumF(o.sumF), sumFF(o.sumFF), sumM(o.sumM),
-      sumMM(o.sumMM), sumFM(o.sumFM), gFx(o.gFx), gFy(o.gFy), gFz(o.gFz),
-      fx(o.fx), fy(o.fy), fz(o.fz), winN(o.winN), tau(o.tau), wk(o.wk),
-      mask(o.mask), accCC(0.0), cnt(0) {}
-
-  void operator()(std::size_t begin, std::size_t end) override {
-    for (std::size_t i = begin; i < end; ++i) {
-      if (mask && mask[i] == reg_real(0)) continue;   // outside fixed mask
-      const double mF = sumF[i] / winN, mM = sumM[i] / winN;
-      const double Sff = sumFF[i] - winN * mF * mF;
-      const double Smm = sumMM[i] - winN * mM * mM;
-      const double Sfm = sumFM[i] - winN * mF * mM;
-      const double denom = Sff * Smm;
-      // require both windows to carry real structure (skip flat/background)
-      if (Sff > tau && Smm > tau && denom > 1e-12) {
-        const double factor = 2.0 * Sfm / denom *
-          (((double)F[i] - mF) - (Sfm / Smm) * (Mw[i] - mM));
-        fx[i] += wk * factor * gFx[i];
-        fy[i] += wk * factor * gFy[i];
-        fz[i] += wk * factor * gFz[i];
-        accCC += (Sfm * Sfm) / denom; ++cnt;
+  void operator()(std::size_t bBegin, std::size_t bEnd) override {
+    for (std::size_t b = bBegin; b < bEnd; ++b) {
+      const std::size_t begin = b * kCostBlock;
+      const std::size_t end = std::min(N, begin + kCostBlock);
+      double accCC = 0.0; long cnt = 0;
+      for (std::size_t i = begin; i < end; ++i) {
+        if (mask && mask[i] == reg_real(0)) continue;   // outside fixed mask
+        const double mF = sumF[i] / winN, mM = sumM[i] / winN;
+        const double Sff = sumFF[i] - winN * mF * mF;
+        const double Smm = sumMM[i] - winN * mM * mM;
+        const double Sfm = sumFM[i] - winN * mF * mM;
+        const double denom = Sff * Smm;
+        // require both windows to carry real structure (skip flat/background)
+        if (Sff > tau && Smm > tau && denom > 1e-12) {
+          const double factor = 2.0 * Sfm / denom *
+            (((double)F[i] - mF) - (Sfm / Smm) * (Mw[i] - mM));
+          fx[i] += wk * factor * gFx[i];
+          fy[i] += wk * factor * gFy[i];
+          fz[i] += wk * factor * gFz[i];
+          accCC += (Sfm * Sfm) / denom; ++cnt;
+        }
       }
+      blockAcc[b] = accCC; blockCnt[b] = cnt;
     }
   }
-
-  void join(const CCForceReducer& rhs) { accCC += rhs.accCC; cnt += rhs.cnt; }
 };
 
 // Mean-squares force, accumulated (weighted) into the shared force field; the
-// SSE is reduced for the cost trace.
-struct MSForceReducer : public TinyParallel::Worker {
-  const reg_real* F;
-  const double *Mw, *gFx, *gFy, *gFz;
-  reg_real *fx, *fy, *fz;
-  double wk;
+// SSE is reduced per block of kCostBlock voxels for the cost trace.
+struct MSForceWorker : public TinyParallel::Worker {
+  const reg_real* F = nullptr;
+  const double *Mw = nullptr, *gFx = nullptr, *gFy = nullptr, *gFz = nullptr;
+  reg_real *fx = nullptr, *fy = nullptr, *fz = nullptr;
+  double wk = 0.0;
   const reg_real* mask = nullptr;   // optional fixed mask: skip force where 0
-  double sse;
+  std::size_t N = 0;
+  double* blockSse = nullptr;       // per block: sum of the squared differences
 
-  MSForceReducer(const reg_real* F_, const double* Mw_,
-                 const double* gFx_, const double* gFy_, const double* gFz_,
-                 reg_real* fx_, reg_real* fy_, reg_real* fz_, double wk_)
-    : F(F_), Mw(Mw_), gFx(gFx_), gFy(gFy_), gFz(gFz_),
-      fx(fx_), fy(fy_), fz(fz_), wk(wk_), sse(0.0) {}
-
-  MSForceReducer(MSForceReducer& o, TinyParallel::Split)
-    : F(o.F), Mw(o.Mw), gFx(o.gFx), gFy(o.gFy), gFz(o.gFz),
-      fx(o.fx), fy(o.fy), fz(o.fz), wk(o.wk), mask(o.mask), sse(0.0) {}
-
-  void operator()(std::size_t begin, std::size_t end) override {
-    for (std::size_t i = begin; i < end; ++i) {
-      if (mask && mask[i] == reg_real(0)) continue;   // outside fixed mask
-      const double d = (double)F[i] - Mw[i];
-      fx[i] += wk * d * gFx[i];
-      fy[i] += wk * d * gFy[i];
-      fz[i] += wk * d * gFz[i];
-      sse += d * d;
+  void operator()(std::size_t bBegin, std::size_t bEnd) override {
+    for (std::size_t b = bBegin; b < bEnd; ++b) {
+      const std::size_t begin = b * kCostBlock;
+      const std::size_t end = std::min(N, begin + kCostBlock);
+      double sse = 0.0;
+      for (std::size_t i = begin; i < end; ++i) {
+        if (mask && mask[i] == reg_real(0)) continue;   // outside fixed mask
+        const double d = (double)F[i] - Mw[i];
+        fx[i] += wk * d * gFx[i];
+        fy[i] += wk * d * gFy[i];
+        fz[i] += wk * d * gFz[i];
+        sse += d * d;
+      }
+      blockSse[b] = sse;
     }
   }
-
-  void join(const MSForceReducer& rhs) { sse += rhs.sse; }
 };
 
 // Maximum field magnitude (squared) over a reg_real field, for the step cap and
@@ -555,6 +553,54 @@ inline void splatTrilinear(Field& f, double cx, double cy, double cz,
       }
 }
 
+// The convergence rule of the deformable stages of ANTs (ITK's
+// WindowConvergenceMonitoringFunction, as SyNImageRegistrationMethod uses it).
+// Every energy E (the cost of the first channel) is added to a running sum
+// T = sum |E| over the level. Once W energies exist, the last W, divided by T
+// and placed at u = 0, 1/(W-1), ..., 1 (the last one clamped to 1 - 1e-4, as
+// in ITK), are fitted by ITK's one-level, order-1 B-spline approximation (two
+// control points phi_0 and phi_1), and the convergence value is the fitted drop
+// across the window, phi_0 - phi_1 = sum_n c_n E_n / T. It is +Inf until the
+// window is full (no stop before W iterations), and 0 when the quotient is not
+// finite (ITK replaces such control points by 0). The weights c_n are computed
+// when the window first fills, so a window longer than the level costs nothing.
+struct ConvergenceMonitor {
+  int W;
+  std::vector<double> c;            // fit weights
+  std::deque<double> window;        // the last W energies
+  double total = 0.0;               // sum of |E| since the level started
+
+  explicit ConvergenceMonitor(int W_) : W(W_) {}
+
+  void computeWeights() {
+    std::vector<double> u(W);
+    for (int n = 0; n < W; ++n) u[n] = (double)n / (double)(W - 1);
+    u[W - 1] = 1.0 - 1e-4;
+    double A = 0.0, B = 0.0;
+    for (int n = 0; n < W; ++n) {
+      A += (1.0 - u[n]) * (1.0 - u[n]);
+      B += u[n] * u[n];
+    }
+    c.assign(W, 0.0);
+    for (int n = 0; n < W; ++n) {
+      const double a = 1.0 - u[n], b = u[n], S = a * a + b * b;
+      c[n] = a * a * a / (S * A) - b * b * b / (S * B);
+    }
+  }
+
+  double add(double e) {
+    window.push_back(e);
+    if (window.size() > (std::size_t)W) window.pop_front();
+    total += std::abs(e);
+    if (window.size() < (std::size_t)W) return R_PosInf;
+    if (c.empty()) computeWeights();
+    double s = 0.0;
+    for (int n = 0; n < W; ++n) s += c[n] * window[n];
+    const double v = s / total;
+    return std::isfinite(v) ? v : 0.0;
+  }
+};
+
 } // anonymous namespace
 
 // [[Rcpp::export]]
@@ -580,7 +626,17 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
                             const Rcpp::NumericMatrix& fixedPoints,
                             const Rcpp::NumericMatrix& movingPoints,
                             const double pointsWeight,
+                            const double convergenceThreshold,
+                            const int convergenceWindow,
                             const bool verbose = false) {
+  // Optional per-level convergence stop (ConvergenceMonitor): a window of at
+  // least 2 energies and a finite threshold; window 0 (or a threshold that is
+  // not finite) runs every iteration
+  if (convergenceWindow != 0 && convergenceWindow < 2) {
+    Rcpp::stop("register_syn_cpp: `convergenceWindow` must be 0 (no stop) or at least 2");
+  }
+  const bool monitorOn = convergenceWindow >= 2 && R_finite(convergenceThreshold);
+
   const int fnx = fixedDim[0], fny = fixedDim[1], fnz = fixedDim[2];
   const int mnx = movingDim[0], mny = movingDim[1], mnz = movingDim[2];
   const Matrix4d fV2R = asMatrix4(fixedVox2Ras);
@@ -639,6 +695,7 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
 
   const int nLevels = shrinkFactors.size();
   std::vector<double> trace;
+  Rcpp::IntegerVector iterationsRun(nLevels);   // per level; 0 when skipped
 
   Field disp;        // forward field on the current fixed level
   bool haveField = false;
@@ -750,10 +807,20 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
       std::vector<reg_real> gscratch(N);                 // Gaussian ping-pong scratch
       Field force; force.nx = lnx; force.ny = lny; force.nz = lnz;
       force.vox2ras = levelV2R; force.alloc(lnx, lny, lnz);
+      // block partial sums of the cost (fixed blocks, combined in order)
+      const std::size_t nCostBlocks = (N + kCostBlock - 1) / kCostBlock;
+      std::vector<double> blockAcc(nCostBlocks), blockSse(nCostBlocks);
+      std::vector<long> blockCnt(nCostBlocks);
+
+      // a fresh convergence monitor at every level, as in ITK
+      ConvergenceMonitor monitor(monitorOn ? convergenceWindow : 0);
+      int itRun = 0, stopCode = 0;      // stopCode: 1 converged, 2 force vanished
+      double lastCost = 0.0, lastConv = R_PosInf;
 
       for (int it = 0; it < maxIter; ++it) {
         force.zero();
         double metricVal = 0.0;
+        double energy0 = 0.0;           // unweighted cost of the first channel
 
         for (int k = 0; k < K; ++k) {
           const std::vector<reg_real>& Fk = flvls[k].data;
@@ -776,22 +843,36 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
             fusedLocalCCSums(Mw.data(), Fk.data(), lnx, lny, lnz, ccRadius,
                              sumM, sumMM, sumFM, scrM, scrMM, scrFM);
 
-            CCForceReducer cc(
-              Fk.data(), Mw.data(), sumF[k].data(), sumFF[k].data(),
-              sumM.data(), sumMM.data(), sumFM.data(),
-              gFx.data(), gFy.data(), gFz.data(),
-              force.x.data(), force.y.data(), force.z.data(),
-              winN, ccTau[k], wk);
-            cc.mask = maskLevPtr;
-            TinyParallel::parallelReduce(0, N, cc, 1024);
-            metricVal += wk * ((cc.cnt > 0) ? -(cc.accCC / cc.cnt) : 0.0);   // cost = -localCC
+            CCForceWorker cc;
+            cc.F = Fk.data(); cc.Mw = Mw.data();
+            cc.sumF = sumF[k].data(); cc.sumFF = sumFF[k].data();
+            cc.sumM = sumM.data(); cc.sumMM = sumMM.data(); cc.sumFM = sumFM.data();
+            cc.gFx = gFx.data(); cc.gFy = gFy.data(); cc.gFz = gFz.data();
+            cc.fx = force.x.data(); cc.fy = force.y.data(); cc.fz = force.z.data();
+            cc.winN = winN; cc.tau = ccTau[k]; cc.wk = wk;
+            cc.mask = maskLevPtr; cc.N = N;
+            cc.blockAcc = blockAcc.data(); cc.blockCnt = blockCnt.data();
+            TinyParallel::parallelFor(0, nCostBlocks, cc, 1);
+            double accCC = 0.0; long cnt = 0;
+            for (std::size_t b = 0; b < nCostBlocks; ++b) {
+              accCC += blockAcc[b]; cnt += blockCnt[b];
+            }
+            const double ek = (cnt > 0) ? -(accCC / cnt) : 0.0;   // cost = -localCC
+            if (k == 0) energy0 = ek;
+            metricVal += wk * ek;
           } else {
-            MSForceReducer ms(
-              Fk.data(), Mw.data(), gFx.data(), gFy.data(), gFz.data(),
-              force.x.data(), force.y.data(), force.z.data(), wk);
-            ms.mask = maskLevPtr;
-            TinyParallel::parallelReduce(0, N, ms, 1024);
-            metricVal += wk * (ms.sse / N);
+            MSForceWorker ms;
+            ms.F = Fk.data(); ms.Mw = Mw.data();
+            ms.gFx = gFx.data(); ms.gFy = gFy.data(); ms.gFz = gFz.data();
+            ms.fx = force.x.data(); ms.fy = force.y.data(); ms.fz = force.z.data();
+            ms.wk = wk; ms.mask = maskLevPtr; ms.N = N;
+            ms.blockSse = blockSse.data();
+            TinyParallel::parallelFor(0, nCostBlocks, ms, 1);
+            double sse = 0.0;
+            for (std::size_t b = 0; b < nCostBlocks; ++b) sse += blockSse[b];
+            const double ek = sse / N;
+            if (k == 0) energy0 = ek;
+            metricVal += wk * ek;
           }
         } // channels
 
@@ -845,6 +926,21 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
         smoothFieldInto(cur, totalSigma, gscratch.data());
 
         trace.push_back(metricVal);
+        ++itRun;
+        lastCost = metricVal;
+
+        // ---- convergence, after the update as in ITK ----
+        // (the cost was measured before this iteration's update)
+        double conv = R_PosInf;
+        if (monitorOn) {
+          conv = monitor.add(energy0);
+          if (conv < convergenceThreshold) {
+            stopCode = 1;
+          } else if (maxn <= 1e-12 && totalSigma <= 0.0) {
+            stopCode = 2;     // no update was applied: the field cannot change anymore
+          }
+        }
+        lastConv = conv;
 
         if (verbose) {
           MaxNormReducer fm(cur.x.data(), cur.y.data(), cur.z.data());
@@ -852,10 +948,33 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
           Rcpp::Rcout << "  it " << std::setw(5) << (it+1)
                       << ": cost = " << std::fixed << std::setprecision(6) << metricVal
                       << "  field_max = " << std::setprecision(2)
-                      << std::sqrt(fm.maxn2) << " mm" << std::endl;
+                      << std::sqrt(fm.maxn2) << " mm";
+          if (monitorOn && std::isfinite(conv)) {
+            Rcpp::Rcout << "  convergence = " << std::scientific << std::setprecision(3)
+                        << conv << std::defaultfloat;
+          }
+          Rcpp::Rcout << std::endl;
         }
 
         Rcpp::checkUserInterrupt();
+        if (stopCode != 0) break;
+      }
+      iterationsRun[lev] = itRun;
+
+      if (verbose && monitorOn) {
+        Rcpp::Rcout << "  => ";
+        if (stopCode == 1) {
+          Rcpp::Rcout << "converged (convergence " << std::scientific << std::setprecision(3)
+                      << lastConv << " < threshold " << convergenceThreshold
+                      << std::defaultfloat << ") after " << itRun << " of " << maxIter
+                      << " iterations";
+        } else if (stopCode == 2) {
+          Rcpp::Rcout << "force vanished after " << itRun << " of " << maxIter << " iterations";
+        } else {
+          Rcpp::Rcout << "max iterations reached (" << maxIter << ")";
+        }
+        Rcpp::Rcout << "  cost=" << std::fixed << std::setprecision(6) << lastCost
+                    << std::endl;
       }
     } // maxIter > 0
 
@@ -942,5 +1061,21 @@ Rcpp::List register_syn_cpp(const Rcpp::List& fixedList,
     Rcpp::Named("inverse_field") = inverseField,
     Rcpp::Named("image") = warpedCh[0],     // primary channel (back-compat)
     Rcpp::Named("images") = images,         // all channels, per-channel interpolation
-    Rcpp::Named("metric_trace") = Rcpp::wrap(trace));
+    Rcpp::Named("metric_trace") = Rcpp::wrap(trace),
+    Rcpp::Named("iterations") = iterationsRun);   // iterations run per level
+}
+
+// The convergence values of the deformable-stage stop for the energy trace of
+// one level (one value per iteration, +Inf before the window is full), through
+// the same ConvergenceMonitor as register_syn_cpp. Internal, for the tests.
+// [[Rcpp::export]]
+Rcpp::NumericVector syn_convergence_values_cpp(const Rcpp::NumericVector& energy,
+                                               const int window) {
+  if (window < 2) {
+    Rcpp::stop("syn_convergence_values_cpp: `window` must be at least 2");
+  }
+  ConvergenceMonitor monitor(window);
+  Rcpp::NumericVector out(energy.size());
+  for (R_xlen_t k = 0; k < energy.size(); ++k) out[k] = monitor.add(energy[k]);
+  return out;
 }
