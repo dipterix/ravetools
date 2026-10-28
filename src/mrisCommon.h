@@ -71,9 +71,12 @@ struct MrisMesh {
 // Construction / validation
 // ---------------------------------------------------------------------------
 
-// Load vertex positions and faces from R matrices (vb_: 3 x nv numeric,
-// it_: 3 x nf integer, already 0-based, caller subtracts 1 in R). Allocates
-// and zeroes all derived state vectors (normals, gradient, momentum).
+// Load vertex positions and faces from R matrices: vb_ is 3 x nv numeric, and
+// it_ is 3 x nf integer with one-based indices as in `mesh3d$it`, which the R
+// wrappers pass unchanged; this function subtracts 1 to fill the 0-based
+// f0/f1/f2. (The vcg* entry points differ: their R wrappers subtract 1 and
+// pass 0-based faces.) Allocates and zeroes all derived state vectors
+// (normals, gradient, momentum).
 void mrisLoadMesh(MrisMesh &m, SEXP vb_, SEXP it_);
 
 // Validate that the mesh is closed and manifold (every edge shared by exactly
