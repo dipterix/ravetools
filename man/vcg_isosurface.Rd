@@ -29,6 +29,14 @@ A triangular mesh of class \code{'mesh3d'}
 \description{
 Create surface from 3D-array using marching cubes algorithm
 }
+\details{
+The surface is extracted from the binary mask of the 'voxels' between the
+thresholds, so it runs between the centers of the 'voxels' inside and
+outside the mask (0.001 'voxel' outside the midpoint). It is closed, without
+cracks: the mask is padded with empty 'voxels', so the surface also closes
+where the mask reaches the border of the array, and 'voxels' that share only
+an edge are always joined.
+}
 \examples{
 
 

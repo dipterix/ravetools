@@ -3643,6 +3643,57 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mrisFillInteriorParity
+Rcpp::LogicalVector mrisFillInteriorParity(const Rcpp::NumericMatrix& vb_, const Rcpp::IntegerMatrix& it_, const Rcpp::IntegerVector& dims);
+RcppExport SEXP _ravetools_mrisFillInteriorParity(SEXP vb_SEXP, SEXP it_SEXP, SEXP dimsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type dims(dimsSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrisFillInteriorParity(vb_, it_, dims));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mrisCloseBinary
+Rcpp::LogicalVector mrisCloseBinary(const Rcpp::LogicalVector& mask, const Rcpp::IntegerVector& dims, double radius, int slice_axis);
+RcppExport SEXP _ravetools_mrisCloseBinary(SEXP maskSEXP, SEXP dimsSEXP, SEXP radiusSEXP, SEXP slice_axisSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::LogicalVector& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type dims(dimsSEXP);
+    Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
+    Rcpp::traits::input_parameter< int >::type slice_axis(slice_axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrisCloseBinary(mask, dims, radius, slice_axis));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mrisLargestComponent
+Rcpp::List mrisLargestComponent(const Rcpp::IntegerMatrix& it_, int nv);
+RcppExport SEXP _ravetools_mrisLargestComponent(SEXP it_SEXP, SEXP nvSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::IntegerMatrix& >::type it_(it_SEXP);
+    Rcpp::traits::input_parameter< int >::type nv(nvSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrisLargestComponent(it_, nv));
+    return rcpp_result_gen;
+END_RCPP
+}
+// quickhull3dConvexHull
+Rcpp::IntegerMatrix quickhull3dConvexHull(const Rcpp::NumericMatrix& vb, double tolerance);
+RcppExport SEXP _ravetools_quickhull3dConvexHull(SEXP vbSEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type vb(vbSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(quickhull3dConvexHull(vb, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rawToUInt8
 SEXP rawToUInt8(SEXP x);
 RcppExport SEXP _ravetools_rawToUInt8(SEXP xSEXP) {
@@ -4165,6 +4216,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// vcgConvexHull
+Rcpp::IntegerMatrix vcgConvexHull(SEXP vb_, double tolerance);
+RcppExport SEXP _ravetools_vcgConvexHull(SEXP vb_SEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type vb_(vb_SEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(vcgConvexHull(vb_, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
 // vcgDecimate
 Rcpp::List vcgDecimate(SEXP vb_, SEXP it_, int targetFaces, bool preserveTopology, bool preserveBoundary, bool normalCheck, double qualityThreshold, bool verbose);
 RcppExport SEXP _ravetools_vcgDecimate(SEXP vb_SEXP, SEXP it_SEXP, SEXP targetFacesSEXP, SEXP preserveTopologySEXP, SEXP preserveBoundarySEXP, SEXP normalCheckSEXP, SEXP qualityThresholdSEXP, SEXP verboseSEXP) {
@@ -4504,6 +4567,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_mrisMakeSurfaces", (DL_FUNC) &_ravetools_mrisMakeSurfaces, 15},
     {"_ravetools_mrisCurvature", (DL_FUNC) &_ravetools_mrisCurvature, 3},
     {"_ravetools_mrisRemesh", (DL_FUNC) &_ravetools_mrisRemesh, 7},
+    {"_ravetools_mrisFillInteriorParity", (DL_FUNC) &_ravetools_mrisFillInteriorParity, 3},
+    {"_ravetools_mrisCloseBinary", (DL_FUNC) &_ravetools_mrisCloseBinary, 4},
+    {"_ravetools_mrisLargestComponent", (DL_FUNC) &_ravetools_mrisLargestComponent, 2},
+    {"_ravetools_quickhull3dConvexHull", (DL_FUNC) &_ravetools_quickhull3dConvexHull, 2},
     {"_ravetools_rawToUInt8", (DL_FUNC) &_ravetools_rawToUInt8, 1},
     {"_ravetools_rawToInt8", (DL_FUNC) &_ravetools_rawToInt8, 1},
     {"_ravetools_rawToUInt16", (DL_FUNC) &_ravetools_rawToUInt16, 1},
@@ -4540,6 +4607,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_vcgMaxEdgeLength", (DL_FUNC) &_ravetools_vcgMaxEdgeLength, 2},
     {"_ravetools_vcgMeshPatchFaces", (DL_FUNC) &_ravetools_vcgMeshPatchFaces, 4},
     {"_ravetools_vcgFixDefects", (DL_FUNC) &_ravetools_vcgFixDefects, 5},
+    {"_ravetools_vcgConvexHull", (DL_FUNC) &_ravetools_vcgConvexHull, 2},
     {"_ravetools_vcgDecimate", (DL_FUNC) &_ravetools_vcgDecimate, 8},
     {"_ravetools_RcppExport_registerCCallable", (DL_FUNC) &_ravetools_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}

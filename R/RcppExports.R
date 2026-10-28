@@ -617,6 +617,22 @@ mrisRemesh <- function(vb_, it_, target_edge_len, niterations = 5L, n_smooth = 2
     .Call(`_ravetools_mrisRemesh`, vb_, it_, target_edge_len, niterations, n_smooth, damping, verbose)
 }
 
+mrisFillInteriorParity <- function(vb_, it_, dims) {
+    .Call(`_ravetools_mrisFillInteriorParity`, vb_, it_, dims)
+}
+
+mrisCloseBinary <- function(mask, dims, radius, slice_axis) {
+    .Call(`_ravetools_mrisCloseBinary`, mask, dims, radius, slice_axis)
+}
+
+mrisLargestComponent <- function(it_, nv) {
+    .Call(`_ravetools_mrisLargestComponent`, it_, nv)
+}
+
+quickhull3dConvexHull <- function(vb, tolerance) {
+    .Call(`_ravetools_quickhull3dConvexHull`, vb, tolerance)
+}
+
 rawToUInt8 <- function(x) {
     .Call(`_ravetools_rawToUInt8`, x)
 }
@@ -759,6 +775,10 @@ vcgMeshPatchFaces <- function(vb_, it_, boundary_seq, seed_face) {
 
 vcgFixDefects <- function(vb_, it_, merge_tolerance = -1.0, max_hole_size = 100L, verbose = FALSE) {
     .Call(`_ravetools_vcgFixDefects`, vb_, it_, merge_tolerance, max_hole_size, verbose)
+}
+
+vcgConvexHull <- function(vb_, tolerance) {
+    .Call(`_ravetools_vcgConvexHull`, vb_, tolerance)
 }
 
 vcgDecimate <- function(vb_, it_, targetFaces, preserveTopology, preserveBoundary, normalCheck, qualityThreshold, verbose) {

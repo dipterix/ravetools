@@ -1,7 +1,7 @@
 Package: ravetools
 Type: Package
 Title: Signal and Image Processing Toolbox for Analyzing Intracranial Electroencephalography Data
-Version: 0.4.0
+Version: 0.4.0.1
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre"),
@@ -20,7 +20,7 @@ Authors@R: c(
             comment = "TinyThread library, tinythreadpp.bitsnbites.eu, located at inst/include/tthread/"),
     person("Stefan", "Schlager", role = c("ctb", "cph"), 
             comment = "R-vcg interface, located at src/vcgCommon.h"),
-    person("Visual Computing Lab, ISTI", role = c("ctb", "cph"), 
+    person("Visual Computing Lab, ISTI", role = c("ctb", "cph"),
             comment = "Copyright holder of vcglib, located at src/vcglib/")
     )
 Description: Implemented fast and memory-efficient Notch-filter, 
@@ -47,7 +47,8 @@ Copyright: Karim Rahim (author of R package 'fftwtools', licensed under 'GPL-2'
     wrote the original code that converts R objects to 'vcg' (see 
     'src/vcgCommon.h', licensed under 'GPL-2' or later). Visual Computing Lab 
     is the copyright holder of 'vcglib' source code (see 'src/vcglib', licensed
-    under GPL-2 or later). 
+    under GPL-2 or later). Mauricio Poppe wrote the 'quickhull3d' library
+    ('MIT' license), re-implemented and ported to C++ in 'src/quickhull3d.h'.
 Imports:
     graphics,
     stats,

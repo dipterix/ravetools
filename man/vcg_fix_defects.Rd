@@ -39,11 +39,11 @@ and manifold, i.e. ready for \code{\link{mris_inflate}}).
 \description{
 Repairs common defects that prevent a mesh from being a closed, manifold,
 genus-0 surface - a hard precondition of algorithms such as
-\code{\link{mris_inflate}}.  Typical sources of such defects are surfaces
-extracted from volumes via marching-cubes-style algorithms (e.g.
-\code{\link{vcg_isosurface}}), which can leave behind small "cracks": isolated
-boundary-edge loops bounding tiny holes that are not closed by simple
-vertex-welding.
+\code{\link{mris_inflate}}.  Typical sources of such defects are meshes
+edited by hand or produced by other software, for example marching-cubes
+implementations that leave behind small "cracks": isolated boundary-edge
+loops bounding tiny holes that are not closed by simple vertex-welding
+(\code{\link{vcg_isosurface}} returns closed meshes).
 }
 \details{
 The repair pipeline applies, in order:
@@ -65,6 +65,9 @@ The repair pipeline applies, in order:
 if (is_not_cran()) {
 
   mesh <- vcg_isosurface(left_hippocampus_mask)
+
+  # removing a face leaves a hole bounded by three edges
+  mesh$it <- mesh$it[, -1, drop = FALSE]
 
   repaired <- vcg_fix_defects(mesh, verbose = TRUE)
 
