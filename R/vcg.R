@@ -641,7 +641,9 @@ vcg_mesh_volume <- function(mesh) {
 #'   sphere <- vcg_sphere()
 #'   vcg_count_edge_defects(sphere)
 #'
-#'   defective <- vcg_isosurface(left_hippocampus_mask)
+#'   # removing a face leaves a hole bounded by three edges
+#'   defective <- sphere
+#'   defective$it <- defective$it[, -1, drop = FALSE]
 #'   vcg_count_edge_defects(defective)
 #'
 #' }
@@ -773,11 +775,11 @@ vcg_subdivide_max_edge_length <- function(mesh, max_edge_len, max_iter = NULL) {
 #' @description
 #' Repairs common defects that prevent a mesh from being a closed, manifold,
 #' genus-0 surface - a hard precondition of algorithms such as
-#' \code{\link{mris_inflate}}.  Typical sources of such defects are surfaces
-#' extracted from volumes via marching-cubes-style algorithms (e.g.
-#' \code{\link{vcg_isosurface}}), which can leave behind small "cracks": isolated
-#' boundary-edge loops bounding tiny holes that are not closed by simple
-#' vertex-welding.
+#' \code{\link{mris_inflate}}.  Typical sources of such defects are meshes
+#' edited by hand or produced by other software, for example marching-cubes
+#' implementations that leave behind small "cracks": isolated boundary-edge
+#' loops bounding tiny holes that are not closed by simple vertex-welding
+#' (\code{\link{vcg_isosurface}} returns closed meshes).
 #'
 #' @details
 #' The repair pipeline applies, in order:
@@ -819,6 +821,9 @@ vcg_subdivide_max_edge_length <- function(mesh, max_edge_len, max_iter = NULL) {
 #' if (is_not_cran()) {
 #'
 #'   mesh <- vcg_isosurface(left_hippocampus_mask)
+#'
+#'   # removing a face leaves a hole bounded by three edges
+#'   mesh$it <- mesh$it[, -1, drop = FALSE]
 #'
 #'   repaired <- vcg_fix_defects(mesh, verbose = TRUE)
 #'
@@ -896,6 +901,14 @@ vcg_sphere <- function(sub_division = 3L, normals = TRUE) {
 #' @param vox_to_ras a \code{4x4} \code{'affine'} transform matrix indicating the
 #' 'voxel'-to-world transform.
 #'
+#' @details
+#' The surface is extracted from the binary mask of the 'voxels' between the
+#' thresholds, so it runs between the centers of the 'voxels' inside and
+#' outside the mask (0.001 'voxel' outside the midpoint). It is closed, without
+#' cracks: the mask is padded with empty 'voxels', so the surface also closes
+#' where the mask reaches the border of the array, and 'voxels' that share only
+#' an edge are always joined.
+#'
 #' @returns A triangular mesh of class \code{'mesh3d'}
 #'
 #' @examples
@@ -943,10 +956,21 @@ vcg_isosurface <- function(
     sel <- sel & volume < threshold_ub
   }
 
-  mesh <- structure(vcgIsoSurface( sel, 0.5 ), class = c("ravetools_mesh3d", "mesh3d"))
+  # Two guards keep the marching-cubes mesh free of cracks (open edges):
+  # - pad the mask with empty voxels, one layer before and two after each
+  #   axis: a surface cannot close on the array border, and the bundled walker
+  #   never visits the last layer of cubes along an axis;
+  # - extract just below 0.5: at exactly 0.5, a cube face with two diagonal
+  #   inside corners has its saddle value on the level, and the two cubes
+  #   sharing the face can triangulate it differently. Below it, such corners
+  #   are always joined
+  dm <- dim(sel)
+  padded <- array(FALSE, dm + 3L)
+  padded[1L + seq_len(dm[[1]]), 1L + seq_len(dm[[2]]), 1L + seq_len(dm[[3]])] <- sel
+  mesh <- structure(vcgIsoSurface(padded, 0.499), class = c("ravetools_mesh3d", "mesh3d"))
 
-  # voxel (0-indexed) to RAS
-  mesh$vb <- (vox_to_ras %*% rbind(mesh$vb, 1))[seq_len(3), ]
+  # voxel (0-indexed, before padding) to RAS
+  mesh$vb <- (vox_to_ras %*% rbind(mesh$vb - 1, 1))[seq_len(3), ]
 
   if (!checkFaceOrientation(mesh)) {
     mesh <- invertFaces(mesh)
