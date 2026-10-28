@@ -1,5 +1,51 @@
 # Changelog
 
+## ravetools 0.4.1
+
+- Added `mris_outer_surface` to compute the outer (envelope) surface of
+  a `pial` surface, the `?h.pial-outer-smoothed` surface that
+  `FreeSurfer` writes for the local `gyrification` index
+  (`mris_compute_lgi`, run by `recon-all -localGI`), without `MATLAB`:
+  the volume inside the surface goes through a morphological closing (a
+  dilation followed by an erosion, so the `sulci` are bridged; the
+  result is not a convex hull), its surface is extracted by marching
+  cubes, the largest connected component is kept, and the vertices are
+  smoothed by 30 rounds of neighbor averaging
+- `mris_outer_surface(method = "freesurfer")` (the default) reproduces
+  `mris_compute_lgi` as it is coded rather than as it is documented: the
+  closing uses a disk of radius 15 millimeters in every coronal slice
+  (its `strel('ball', 15, 15)` is a two-dimensional element, documented
+  as a sphere of 15-millimeter diameter), the filled volume first grows
+  by one voxel toward the right and superior sides, and the fill carries
+  the sub-voxel grid shift of `mris_fill`; on the `N27` template, every
+  vertex of the surfaces `FreeSurfer` generated lies within 0.9
+  millimeters of the result (mean 0.34). `method = "isotropic"` closes
+  with a three-dimensional ball instead
+- Fixed `vcg_isosurface` returning meshes with small holes (open edges),
+  which made `vcg_fix_defects` necessary before topology-sensitive steps
+  such as `mris_inflate`. The bundled marching cubes ran at level 0.5 on
+  the binary mask, where a cube face with two diagonal inside corners
+  ties and the two cubes sharing it could triangulate it differently (40
+  open edges on `left_hippocampus_mask`, thousands on a cortical
+  ribbon); it also never visits the last layer of cubes along each axis,
+  so masks reaching the array border stayed open and voxels on the last
+  slice were dropped. The mask is now padded with empty voxels and
+  extracted at level 0.499: the meshes are closed and manifold, vertices
+  move by at most 0.001 voxel, and voxels that share only an edge are
+  always joined. `mesh_from_volume` benefits as well
+- Added `vcg_convex_hull` to compute the convex hull of a point cloud or
+  of the vertices of a surface, as a closed, outward-oriented mesh whose
+  vertices are input points (attribute `vertex_index` gives their rows
+  in the input). `method = "vcg"` (the default) runs the `Quickhull` of
+  the bundled `VCG` library in double precision, with a tolerance
+  relative to the bounding box; `method = "quickhull3d"` runs a `C++`
+  port of the `quickhull3d` library (`Lloyd`’s `QuickHull3D`, which
+  merges neighboring faces that lie in nearly the same plane) that
+  returns the same faces as `quickhull3d` 3.1.2. Points that enclose no
+  volume stop with an explanation, and a result that is not a closed,
+  consistently oriented surface (a numerical failure) is reported
+  instead of returned
+
 ## ravetools 0.4.0
 
 CRAN release: 2026-10-12

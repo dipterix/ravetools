@@ -3,11 +3,12 @@
 Repairs common defects that prevent a mesh from being a closed,
 manifold, genus-0 surface - a hard precondition of algorithms such as
 [`mris_inflate`](https://dipterix.org/ravetools/reference/mris_inflate.md).
-Typical sources of such defects are surfaces extracted from volumes via
-marching-cubes-style algorithms (e.g.
-[`vcg_isosurface`](https://dipterix.org/ravetools/reference/vcg_isosurface.md)),
-which can leave behind small "cracks": isolated boundary-edge loops
-bounding tiny holes that are not closed by simple vertex-welding.
+Typical sources of such defects are meshes edited by hand or produced by
+other software, for example marching-cubes implementations that leave
+behind small "cracks": isolated boundary-edge loops bounding tiny holes
+that are not closed by simple vertex-welding
+([`vcg_isosurface`](https://dipterix.org/ravetools/reference/vcg_isosurface.md)
+returns closed meshes).
 
 ## Usage
 
@@ -82,6 +83,9 @@ if (is_not_cran()) {
 
   mesh <- vcg_isosurface(left_hippocampus_mask)
 
+  # removing a face leaves a hole bounded by three edges
+  mesh$it <- mesh$it[, -1, drop = FALSE]
+
   repaired <- vcg_fix_defects(mesh, verbose = TRUE)
 
   attr(repaired, "info")$is_closed_manifold
@@ -90,14 +94,14 @@ if (is_not_cran()) {
   inflated <- mris_inflate(repaired, scale_brain = FALSE)
 
 }
-#> vcgFixDefects: input nv=4318 nf=8652, boundary edges=40, non-manifold edges=0
-#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=4318 nf=8652
-#> vcgFixDefects: [2] merged 0 close vertices -> nv=4318 nf=8652
+#> vcgFixDefects: input nv=4318 nf=8631, boundary edges=3, non-manifold edges=0
+#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=4318 nf=8631
+#> vcgFixDefects: [2] merged 0 close vertices -> nv=4318 nf=8631
 #> vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=100)
-#> vcgFixDefects: [3b] filled 10 hole(s) -> nv=4318 nf=8672
-#> vcgFixDefects: [4] removed unreferenced vertices -> nv=4318 nf=8672
+#> vcgFixDefects: [3b] filled 1 hole(s) -> nv=4318 nf=8632
+#> vcgFixDefects: [4] removed unreferenced vertices -> nv=4318 nf=8632
 #> vcgFixDefects: [5a] topology rebuilt, orienting coherently
 #> vcgFixDefects: [5b] oriented=1 orientable=1
-#> vcgFixDefects: removed/merged 0 vertices (tol=9.97168e-05), filled 10 hole(s)
-#> vcgFixDefects: output nv=4318 nf=8672, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no
+#> vcgFixDefects: removed/merged 0 vertices (tol=9.96724e-05), filled 1 hole(s)
+#> vcgFixDefects: output nv=4318 nf=8632, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no
 ```

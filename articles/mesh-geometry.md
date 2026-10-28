@@ -280,7 +280,7 @@ dim(left_hippocampus_mask)
 
 raw_mesh <- vcg_isosurface(left_hippocampus_mask)
 raw_mesh
-#>  mesh3d object with 4318 vertices, 8652 triangles.
+#>  mesh3d object with 4318 vertices, 8632 triangles.
 ```
 
 `mesh_from_volume` wraps the same step together with re-sampling and
@@ -294,7 +294,7 @@ smoothed <- mesh_from_volume(
   remesh = TRUE, remesh_voxel_size = 1, smooth = TRUE, verbose = FALSE
 )
 smoothed
-#>  mesh3d object with 4148 vertices, 8292 triangles.
+#>  mesh3d object with 4152 vertices, 8300 triangles.
 ```
 
 `mris_make_surfaces` is the fourth constructor. It deforms an existing
@@ -311,13 +311,13 @@ algorithms:
 
 vcg_count_edge_defects(raw_mesh)
 #> $boundary_edges
-#> [1] 40
+#> [1] 0
 #> 
 #> $nonmanifold_edges
 #> [1] 0
 #> 
 #> $is_closed_manifold
-#> [1] FALSE
+#> [1] TRUE
 ```
 
 Forty boundary edges means the marching-cubes output has holes, so it is
@@ -327,11 +327,9 @@ returning a number that means nothing:
 ``` r
 
 vcg_mesh_volume(raw_mesh)
-#> Warning in vcgVolume(meshintegrity(mesh)): Mesh is not watertight! USE RESULT
-#> WITH CARE!
-#> [1] 5517.25
+#> [1] 5523.685
 vcg_average_edge_length(raw_mesh)
-#> [1] 0.9971679
+#> [1] 0.9966903
 vcg_max_edge_length(raw_mesh)
 #> [1] 1.414214
 ```
@@ -348,10 +346,10 @@ mean, `Gaussian`, and the two principal curvatures:
 curv <- mris_curvature(raw_mesh)
 str(curv)
 #> List of 4
-#>  $ mean    : num [1:4318] -0.468 -0.69 -0.509 -0.284 -0.334 ...
-#>  $ gaussian: num [1:4318] 0.138 0.43 0.1937 0.061 0.0479 ...
-#>  $ k1      : num [1:4318] -0.183 -0.475 -0.2536 -0.1433 -0.0816 ...
-#>  $ k2      : num [1:4318] -0.754 -0.905 -0.764 -0.426 -0.587 ...
+#>  $ mean    : num [1:4318] -0.469 -0.691 -0.509 -0.285 -0.334 ...
+#>  $ gaussian: num [1:4318] 0.1388 0.4312 0.1943 0.0615 0.0479 ...
+#>  $ k1      : num [1:4318] -0.1841 -0.4756 -0.2542 -0.1443 -0.0815 ...
+#>  $ k2      : num [1:4318] -0.754 -0.907 -0.764 -0.426 -0.587 ...
 ```
 
 ## 5. Repairing and re-meshing
@@ -366,20 +364,20 @@ info <- attr(mesh, "info")
 info[c("boundary_edges_before", "boundary_edges_after",
        "holes_filled", "is_closed_manifold")]
 #> $boundary_edges_before
-#> [1] 40
+#> [1] 0
 #> 
 #> $boundary_edges_after
 #> [1] 0
 #> 
 #> $holes_filled
-#> [1] 10
+#> [1] 0
 #> 
 #> $is_closed_manifold
 #> [1] TRUE
 
 # the same call that warned above, now on a closed surface
 vcg_mesh_volume(mesh)
-#> [1] 5517.25
+#> [1] 5523.685
 ```
 
 The mesh is a closed `manifold` now, so its volume is trustworthy and
@@ -412,10 +410,10 @@ data.frame(
 )
 #>                          method vertices avg_edge max_edge
 #> 1                         input     4318    0.997    1.414
-#> 2            vcg_uniform_remesh     4161    0.988    1.717
-#> 3               vcg_subdivision    17326    0.498    0.707
-#> 4 vcg_subdivide_max_edge_length    12784    0.566    0.791
-#> 5                   mris_remesh     1121    1.663    3.127
+#> 2            vcg_uniform_remesh     4165    0.988    1.717
+#> 3               vcg_subdivision    17266    0.498    0.707
+#> 4 vcg_subdivide_max_edge_length    12744    0.566    0.791
+#> 5                   mris_remesh     1066    1.723    2.630
 ```
 
 `vcg_uniform_remesh` re-samples through a distance field on a `voxel`
@@ -439,7 +437,7 @@ implicit <- vcg_smooth_implicit(mesh, lambda = 0.2, degree = 2)
 fs_style <- mris_smooth(mesh, niterations = 20L)
 
 vapply(list(mesh, taubin, implicit, fs_style), vcg_mesh_volume, 0)
-#> [1] 5517.250 5526.756 5419.186 4496.284
+#> [1] 5523.685 5535.036 5435.650 4523.452
 ```
 
 `vcg_smooth_explicit` applies a per-vertex `Laplacian` step repeatedly;
@@ -459,7 +457,7 @@ inflated <- mris_inflate(fs_style, n_averages = 4L, niterations = 8L,
 names(inflated)
 #> [1] "mesh" "sulc"
 range(inflated$sulc)
-#> [1] -4.911788  4.436476
+#> [1] -4.932590  3.978328
 ```
 
 `mris_sphere` continues the deformation all the way onto a sphere of
@@ -472,8 +470,8 @@ spread in vertex radius is the honest measure of convergence:
 spherical <- mris_sphere(fs_style, target_radius = 100, verbose = FALSE)
 radius <- sqrt(colSums(spherical$vb[1:3, ]^2))
 c(min = min(radius), max = max(radius), cv = stats::sd(radius) / mean(radius))
-#>          min          max           cv 
-#>  90.34295945 112.17180004   0.01515924
+#>         min         max          cv 
+#>  90.3261054 112.5976581   0.0153544
 ```
 
 Under two percent here. Both `mris_inflate` and `mris_sphere` were
@@ -557,7 +555,7 @@ dist <- dijkstras_surface_distance(
 path <- surface_path(dist, target_node = ncol(mesh$vb))
 c(vertices_on_path = length(path$path), length = max(path$distance))
 #> vertices_on_path           length 
-#>         61.00000         61.72654
+#>         61.00000         61.72652
 ```
 
 Because the walk follows edges, the answer depends on the sampling –
@@ -610,7 +608,7 @@ probes <- structure(
   class = "mesh3d"
 )
 sum(inside)
-#> [1] 74
+#> [1] 77
 
 eye <- c(0, 100, 30)
 graphics::par(mfrow = c(1, 3), mar = c(0.1, 0.1, 2.1, 0.1), cex.main = 0.95)

@@ -11,7 +11,7 @@ an osculating quadratic surface to each vertex's neighborhood."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@ an osculating quadratic surface to each vertex's neighborhood."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Estimate per-node curvature of a surface mesh</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.0/R/mris-curvature.R" class="external-link"><code>R/mris-curvature.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/mris-curvature.R" class="external-link"><code>R/mris-curvature.R</code></a></small>
       <div class="d-none name"><code>mris_curvature.Rd</code></div>
     </div>
 
@@ -147,17 +147,17 @@ surface-based coordinate system. <em>NeuroImage</em>, 9(2), 195-207 (1999).</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-plt img"><img src="mris_curvature-1.png" alt="" width="700" height="433"></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: input nv=4318 nf=8652, boundary edges=40, non-manifold edges=0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [1] removed degenerate/duplicate faces -&gt; nv=4318 nf=8652</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [2] merged 0 close vertices -&gt; nv=4318 nf=8652</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: input nv=4318 nf=8632, boundary edges=0, non-manifold edges=0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [1] removed degenerate/duplicate faces -&gt; nv=4318 nf=8632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [2] merged 0 close vertices -&gt; nv=4318 nf=8632</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=100)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [3b] filled 10 hole(s) -&gt; nv=4318 nf=8672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [4] removed unreferenced vertices -&gt; nv=4318 nf=8672</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [3b] filled 0 hole(s) -&gt; nv=4318 nf=8632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [4] removed unreferenced vertices -&gt; nv=4318 nf=8632</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [5a] topology rebuilt, orienting coherently</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: [5b] oriented=1 orientable=1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: removed/merged 0 vertices (tol=9.97168e-05), filled 10 hole(s)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: output nv=4318 nf=8672, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mris_smooth: building adjacency for 4318 vertices, 8672 faces</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: removed/merged 0 vertices (tol=9.9669e-05), filled 0 hole(s)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> vcgFixDefects: output nv=4318 nf=8632, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mris_smooth: building adjacency for 4318 vertices, 8632 faces</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mris_smooth: pass 1/1: averaging vertex positions over 10 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mris_smooth: done</span>
 <span class="r-plt img"><img src="mris_curvature-2.png" alt="" width="700" height="433"></span>

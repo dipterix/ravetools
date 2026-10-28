@@ -35,12 +35,14 @@ if (is_not_cran()) {
   sphere <- vcg_sphere()
   vcg_count_edge_defects(sphere)
 
-  defective <- vcg_isosurface(left_hippocampus_mask)
+  # removing a face leaves a hole bounded by three edges
+  defective <- sphere
+  defective$it <- defective$it[, -1, drop = FALSE]
   vcg_count_edge_defects(defective)
 
 }
 #> $boundary_edges
-#> [1] 40
+#> [1] 3
 #> 
 #> $nonmanifold_edges
 #> [1] 0

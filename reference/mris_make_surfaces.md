@@ -201,16 +201,16 @@ plot(res$pial)
 
 }
 
-#> vcgFixDefects: input nv=9204 nf=15268, boundary edges=470, non-manifold edges=6
-#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=9204 nf=15268
-#> vcgFixDefects: [2] merged 7742 close vertices -> nv=1462 nf=1475
+#> vcgFixDefects: input nv=9702 nf=16196, boundary edges=0, non-manifold edges=0
+#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=9702 nf=16196
+#> vcgFixDefects: [2] merged 8179 close vertices -> nv=1523 nf=1472
 #> vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=100)
-#> vcgFixDefects: [3b] filled 0 hole(s) -> nv=1462 nf=1475
-#> vcgFixDefects: [4] removed unreferenced vertices -> nv=719 nf=1475
+#> vcgFixDefects: [3b] filled 0 hole(s) -> nv=1523 nf=1472
+#> vcgFixDefects: [4] removed unreferenced vertices -> nv=722 nf=1472
 #> vcgFixDefects: [5a] topology rebuilt, orienting coherently
 #> vcgFixDefects: [5b] oriented=1 orientable=1
-#> vcgFixDefects: removed/merged 7742 vertices (tol=1.75), filled 0 hole(s)
-#> vcgFixDefects: output nv=719 nf=1475, boundary edges=0, non-manifold edges=88, oriented=yes, orientable=yes, normals_flipped_outward=no
+#> vcgFixDefects: removed/merged 8179 vertices (tol=1.75), filled 0 hole(s)
+#> vcgFixDefects: output nv=722 nf=1472, boundary edges=0, non-manifold edges=81, oriented=yes, orientable=yes, normals_flipped_outward=no
 
 
 ```

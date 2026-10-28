@@ -52,6 +52,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/mris_curvature.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_inflate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_make_surfaces.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/mris_outer_surface.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_remesh.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_smooth.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/mris_sphere.html</loc></url>
@@ -86,6 +87,7 @@
 <url><loc>https://dipterix.org/ravetools/reference/stimpulse_interpolate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/stimulation_signal.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_average_edge_length.html</loc></url>
+<url><loc>https://dipterix.org/ravetools/reference/vcg_convex_hull.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_count_edge_defects.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_decimate.html</loc></url>
 <url><loc>https://dipterix.org/ravetools/reference/vcg_detect_collision.html</loc></url>

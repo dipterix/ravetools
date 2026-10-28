@@ -30,12 +30,11 @@ mris_inflate(
   in millimeters. The mesh **must** be closed, manifold, and genus-0
   (watertight, no boundary or non-manifold edges, single connected
   component) - this is a hard precondition of the underlying algorithm.
-  An open or defective mesh (e.g. a raw surface extracted via
-  [`vcg_isosurface`](https://dipterix.org/ravetools/reference/vcg_isosurface.md),
-  which often contains small extraction cracks) will silently inflate
-  into a distorted, "sausage"-shaped result rather than a smooth
-  sphere-like surface, and `mris_inflate` will raise an error if such
-  defects are detected.
+  An open or defective mesh (e.g. one with small holes; see
+  [`vcg_fix_defects`](https://dipterix.org/ravetools/reference/vcg_fix_defects.md))
+  will silently inflate into a distorted, "sausage"-shaped result rather
+  than a smooth sphere-like surface, and `mris_inflate` will raise an
+  error if such defects are detected.
 
 - n_averages:
 
@@ -177,23 +176,23 @@ plot(
 
 
 }
-#> vcgFixDefects: input nv=4318 nf=8652, boundary edges=40, non-manifold edges=0
-#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=4318 nf=8652
-#> vcgFixDefects: [2] merged 0 close vertices -> nv=4318 nf=8652
+#> vcgFixDefects: input nv=4318 nf=8632, boundary edges=0, non-manifold edges=0
+#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=4318 nf=8632
+#> vcgFixDefects: [2] merged 0 close vertices -> nv=4318 nf=8632
 #> vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=100)
-#> vcgFixDefects: [3b] filled 10 hole(s) -> nv=4318 nf=8672
-#> vcgFixDefects: [4] removed unreferenced vertices -> nv=4318 nf=8672
+#> vcgFixDefects: [3b] filled 0 hole(s) -> nv=4318 nf=8632
+#> vcgFixDefects: [4] removed unreferenced vertices -> nv=4318 nf=8632
 #> vcgFixDefects: [5a] topology rebuilt, orienting coherently
 #> vcgFixDefects: [5b] oriented=1 orientable=1
-#> vcgFixDefects: removed/merged 0 vertices (tol=9.97168e-05), filled 10 hole(s)
-#> vcgFixDefects: output nv=4318 nf=8672, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no
-#> mris_inflate: building adjacency for 4318 vertices, 8672 faces
+#> vcgFixDefects: removed/merged 0 vertices (tol=9.9669e-05), filled 0 hole(s)
+#> vcgFixDefects: output nv=4318 nf=8632, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no
+#> mris_inflate: building adjacency for 4318 vertices, 8632 faces
 #> mris_inflate: computing original distances
 #> mris_inflate: starting inflation, initial RMS=0.1937 (target=0.0150)
-#>   iter   5 (navg= 4, ldist=0.200): RMS=0.14109
-#>   iter  10 (navg= 2, ldist=0.141): RMS=0.10396
-#>   iter  15 (navg= 1, ldist=0.100): RMS=0.08010
-#>   iter  20 (navg= 0, ldist=0.000): RMS=0.06292
+#>   iter   5 (navg= 4, ldist=0.200): RMS=0.14092
+#>   iter  10 (navg= 2, ldist=0.141): RMS=0.10388
+#>   iter  15 (navg= 1, ldist=0.100): RMS=0.07939
+#>   iter  20 (navg= 0, ldist=0.000): RMS=0.06203
 #> mris_inflate: done (20 total iterations)
 
 ```

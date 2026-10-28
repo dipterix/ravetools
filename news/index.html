@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,17 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dipterix/ravetools/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.1" id="ravetools-041">ravetools 0.4.1<a class="anchor" aria-label="anchor" href="#ravetools-041"></a></h2>
+<ul><li>Added <code>mris_outer_surface</code> to compute the outer (envelope) surface of a <code>pial</code> surface, the <code>?h.pial-outer-smoothed</code> surface that <code>FreeSurfer</code> writes for the local <code>gyrification</code> index (<code>mris_compute_lgi</code>, run by <code>recon-all -localGI</code>), without <code>MATLAB</code>: the volume inside the surface goes through a morphological closing (a dilation followed by an erosion, so the <code>sulci</code> are bridged; the result is not a convex hull), its surface is extracted by marching cubes, the largest connected component is kept, and the vertices are smoothed by 30 rounds of neighbor averaging</li>
+<li>
+<code>mris_outer_surface(method = "freesurfer")</code> (the default) reproduces <code>mris_compute_lgi</code> as it is coded rather than as it is documented: the closing uses a disk of radius 15 millimeters in every coronal slice (its <code>strel('ball', 15, 15)</code> is a two-dimensional element, documented as a sphere of 15-millimeter diameter), the filled volume first grows by one voxel toward the right and superior sides, and the fill carries the sub-voxel grid shift of <code>mris_fill</code>; on the <code>N27</code> template, every vertex of the surfaces <code>FreeSurfer</code> generated lies within 0.9 millimeters of the result (mean 0.34). <code>method = "isotropic"</code> closes with a three-dimensional ball instead</li>
+<li>Fixed <code>vcg_isosurface</code> returning meshes with small holes (open edges), which made <code>vcg_fix_defects</code> necessary before topology-sensitive steps such as <code>mris_inflate</code>. The bundled marching cubes ran at level 0.5 on the binary mask, where a cube face with two diagonal inside corners ties and the two cubes sharing it could triangulate it differently (40 open edges on <code>left_hippocampus_mask</code>, thousands on a cortical ribbon); it also never visits the last layer of cubes along each axis, so masks reaching the array border stayed open and voxels on the last slice were dropped. The mask is now padded with empty voxels and extracted at level 0.499: the meshes are closed and manifold, vertices move by at most 0.001 voxel, and voxels that share only an edge are always joined. <code>mesh_from_volume</code> benefits as well</li>
+<li>Added <code>vcg_convex_hull</code> to compute the convex hull of a point cloud or of the vertices of a surface, as a closed, outward-oriented mesh whose vertices are input points (attribute <code>vertex_index</code> gives their rows in the input). <code>method = "vcg"</code> (the default) runs the <code>Quickhull</code> of the bundled <code>VCG</code> library in double precision, with a tolerance relative to the bounding box; <code>method = "quickhull3d"</code> runs a <code>C++</code> port of the <code>quickhull3d</code> library (<code>Lloyd</code>’s <code>QuickHull3D</code>, which merges neighboring faces that lie in nearly the same plane) that returns the same faces as <code>quickhull3d</code> 3.1.2. Points that enclose no volume stop with an explanation, and a result that is not a closed, consistently oriented surface (a numerical failure) is reported instead of returned</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="ravetools-040">ravetools 0.4.0<a class="anchor" aria-label="anchor" href="#ravetools-040"></a></h2><p class="text-muted">CRAN release: 2026-10-12</p>
 <ul><li>Added <code>segment_volume_tissue_gmm</code> for prior-guided tissue segmentation of a 3D volume with a Gaussian mixture model, optional spatial prior probability maps (for example template tissue priors warped into the subject space) and a mean-field Markov random field; a native re-implementation of the <code>ANTs</code> <code>Atropos</code> algorithm (<code>Avants</code> and colleagues, 2011) with its default <code>Socrates</code> posterior formulation (posterior proportional to <code>s_k^w * (likelihood * MRF)^(1 - w)</code>, the priors re-weighted by the mixture proportions), so <code>prior_weight</code> has the meaning of the <code>priorweight</code> of <code>ANTs</code>; the defaults reproduce <code>ANTsPy</code> <code>atropos(i = 'Kmeans[3]', m = '[0.2,1x1x1]', c = '[5,0]', priorweight = 0.25)</code>

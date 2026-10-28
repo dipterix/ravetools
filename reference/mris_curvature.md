@@ -117,17 +117,17 @@ plot(smoothed, col = list(col),
 
 }
 
-#> vcgFixDefects: input nv=4318 nf=8652, boundary edges=40, non-manifold edges=0
-#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=4318 nf=8652
-#> vcgFixDefects: [2] merged 0 close vertices -> nv=4318 nf=8652
+#> vcgFixDefects: input nv=4318 nf=8632, boundary edges=0, non-manifold edges=0
+#> vcgFixDefects: [1] removed degenerate/duplicate faces -> nv=4318 nf=8632
+#> vcgFixDefects: [2] merged 0 close vertices -> nv=4318 nf=8632
 #> vcgFixDefects: [3a] topology/normals ready, starting hole fill (max_hole_size=100)
-#> vcgFixDefects: [3b] filled 10 hole(s) -> nv=4318 nf=8672
-#> vcgFixDefects: [4] removed unreferenced vertices -> nv=4318 nf=8672
+#> vcgFixDefects: [3b] filled 0 hole(s) -> nv=4318 nf=8632
+#> vcgFixDefects: [4] removed unreferenced vertices -> nv=4318 nf=8632
 #> vcgFixDefects: [5a] topology rebuilt, orienting coherently
 #> vcgFixDefects: [5b] oriented=1 orientable=1
-#> vcgFixDefects: removed/merged 0 vertices (tol=9.97168e-05), filled 10 hole(s)
-#> vcgFixDefects: output nv=4318 nf=8672, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no
-#> mris_smooth: building adjacency for 4318 vertices, 8672 faces
+#> vcgFixDefects: removed/merged 0 vertices (tol=9.9669e-05), filled 0 hole(s)
+#> vcgFixDefects: output nv=4318 nf=8632, boundary edges=0, non-manifold edges=0, oriented=yes, orientable=yes, normals_flipped_outward=no
+#> mris_smooth: building adjacency for 4318 vertices, 8632 faces
 #> mris_smooth: pass 1/1: averaging vertex positions over 10 iterations
 #> mris_smooth: done
 

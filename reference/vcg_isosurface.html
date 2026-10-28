@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Create surface mesh from 3D-array</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.0/R/vcg.R" class="external-link"><code>R/vcg.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/vcg.R" class="external-link"><code>R/vcg.R</code></a></small>
       <div class="d-none name"><code>vcg_isosurface.Rd</code></div>
     </div>
 
@@ -77,6 +77,15 @@ is <code>NA</code> (no upper-bound)</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A triangular mesh of class <code>'mesh3d'</code></p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The surface is extracted from the binary mask of the 'voxels' between the
+thresholds, so it runs between the centers of the 'voxels' inside and
+outside the mask (0.001 'voxel' outside the midpoint). It is closed, without
+cracks: the mask is padded with empty 'voxels', so the surface also closes
+where the mask reaches the border of the array, and 'voxels' that share only
+an edge are always joined.</p>
     </div>
 
     <div class="section level2">

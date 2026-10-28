@@ -181,6 +181,9 @@
 
   Localize white-matter and `pial` surfaces from an intensity volume
 
+- [`mris_outer_surface()`](https://dipterix.org/ravetools/reference/mris_outer_surface.md)
+  : Outer (envelope) surface of a cortical surface
+
 - [`mris_remesh()`](https://dipterix.org/ravetools/reference/mris_remesh.md)
   : Isotropic re-triangulation of a surface mesh
 
@@ -326,6 +329,9 @@
 
 - [`vcg_average_edge_length()`](https://dipterix.org/ravetools/reference/vcg_average_edge_length.md)
   : Compute the average edge length of a triangular mesh
+
+- [`vcg_convex_hull()`](https://dipterix.org/ravetools/reference/vcg_convex_hull.md)
+  : Convex hull of a point cloud or surface
 
 - [`vcg_count_edge_defects()`](https://dipterix.org/ravetools/reference/vcg_count_edge_defects.md)
   : Count boundary and non-manifold edges of a triangular mesh

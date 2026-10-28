@@ -15,7 +15,7 @@ non-manifold when it is referenced by more than two faces."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ non-manifold when it is referenced by more than two faces."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Count boundary and non-manifold edges of a triangular mesh</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.0/R/vcg.R" class="external-link"><code>R/vcg.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/vcg.R" class="external-link"><code>R/vcg.R</code></a></small>
       <div class="d-none name"><code>vcg_count_edge_defects.Rd</code></div>
     </div>
 
@@ -82,12 +82,14 @@ i.e. the mesh is closed and manifold and ready for
 <span class="r-in"><span>  <span class="va">sphere</span> <span class="op">&lt;-</span> <span class="fu"><a href="vcg_sphere.html">vcg_sphere</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">vcg_count_edge_defects</span><span class="op">(</span><span class="va">sphere</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">defective</span> <span class="op">&lt;-</span> <span class="fu"><a href="vcg_isosurface.html">vcg_isosurface</a></span><span class="op">(</span><span class="va">left_hippocampus_mask</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># removing a face leaves a hole bounded by three edges</span></span></span>
+<span class="r-in"><span>  <span class="va">defective</span> <span class="op">&lt;-</span> <span class="va">sphere</span></span></span>
+<span class="r-in"><span>  <span class="va">defective</span><span class="op">$</span><span class="va">it</span> <span class="op">&lt;-</span> <span class="va">defective</span><span class="op">$</span><span class="va">it</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span></span>
 <span class="r-in"><span>  <span class="fu">vcg_count_edge_defects</span><span class="op">(</span><span class="va">defective</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $boundary_edges</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $nonmanifold_edges</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>

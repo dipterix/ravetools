@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
       <h1>Mesh geometry</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.0/vignettes/mesh-geometry.Rmd" class="external-link"><code>vignettes/mesh-geometry.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/vignettes/mesh-geometry.Rmd" class="external-link"><code>vignettes/mesh-geometry.Rmd</code></a></small>
       <div class="d-none name"><code>mesh-geometry.Rmd</code></div>
     </div>
 
@@ -303,7 +303,7 @@ marching cubes over a 3D array and returns the triangulation, mapping
 <span></span>
 <span><span class="va">raw_mesh</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vcg_isosurface.html">vcg_isosurface</a></span><span class="op">(</span><span class="va">left_hippocampus_mask</span><span class="op">)</span></span>
 <span><span class="va">raw_mesh</span></span>
-<span><span class="co">#&gt;  mesh3d object with 4318 vertices, 8652 triangles.</span></span></code></pre></div>
+<span><span class="co">#&gt;  mesh3d object with 4318 vertices, 8632 triangles.</span></span></code></pre></div>
 <p><code>mesh_from_volume</code> wraps the same step together with
 re-sampling and smoothing, which is convenient when the goal is a
 display surface rather than an exact level set:</p>
@@ -313,7 +313,7 @@ display surface rather than an exact level set:</p>
 <span>  remesh <span class="op">=</span> <span class="cn">TRUE</span>, remesh_voxel_size <span class="op">=</span> <span class="fl">1</span>, smooth <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">smoothed</span></span>
-<span><span class="co">#&gt;  mesh3d object with 4148 vertices, 8292 triangles.</span></span></code></pre></div>
+<span><span class="co">#&gt;  mesh3d object with 4152 vertices, 8300 triangles.</span></span></code></pre></div>
 <p><code>mris_make_surfaces</code> is the fourth constructor. It deforms
 an existing surface along the intensity gradient of a volume to produce
 paired white and <code>pial</code> surfaces, the way a cortical
@@ -328,23 +328,21 @@ most algorithms:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/vcg_count_edge_defects.html">vcg_count_edge_defects</a></span><span class="op">(</span><span class="va">raw_mesh</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $boundary_edges</span></span>
-<span><span class="co">#&gt; [1] 40</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $nonmanifold_edges</span></span>
 <span><span class="co">#&gt; [1] 0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $is_closed_manifold</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Forty boundary edges means the marching-cubes output has holes, so it
 is not closed. <code>vcg_mesh_volume</code> says so itself rather than
 quietly returning a number that means nothing:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/vcg_mesh_volume.html">vcg_mesh_volume</a></span><span class="op">(</span><span class="va">raw_mesh</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in vcgVolume(meshintegrity(mesh)): Mesh is not watertight! USE RESULT</span></span>
-<span><span class="co">#&gt; WITH CARE!</span></span>
-<span><span class="co">#&gt; [1] 5517.25</span></span>
+<span><span class="co">#&gt; [1] 5523.685</span></span>
 <span><span class="fu"><a href="../reference/vcg_average_edge_length.html">vcg_average_edge_length</a></span><span class="op">(</span><span class="va">raw_mesh</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.9971679</span></span>
+<span><span class="co">#&gt; [1] 0.9966903</span></span>
 <span><span class="fu"><a href="../reference/vcg_max_edge_length.html">vcg_max_edge_length</a></span><span class="op">(</span><span class="va">raw_mesh</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.414214</span></span></code></pre></div>
 <p>The two edge-length measures are the ones to check before any
@@ -357,10 +355,10 @@ curvatures:</p>
 <code class="sourceCode R"><span><span class="va">curv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mris_curvature.html">mris_curvature</a></span><span class="op">(</span><span class="va">raw_mesh</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">curv</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 4</span></span>
-<span><span class="co">#&gt;  $ mean    : num [1:4318] -0.468 -0.69 -0.509 -0.284 -0.334 ...</span></span>
-<span><span class="co">#&gt;  $ gaussian: num [1:4318] 0.138 0.43 0.1937 0.061 0.0479 ...</span></span>
-<span><span class="co">#&gt;  $ k1      : num [1:4318] -0.183 -0.475 -0.2536 -0.1433 -0.0816 ...</span></span>
-<span><span class="co">#&gt;  $ k2      : num [1:4318] -0.754 -0.905 -0.764 -0.426 -0.587 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ mean    : num [1:4318] -0.469 -0.691 -0.509 -0.285 -0.334 ...</span></span>
+<span><span class="co">#&gt;  $ gaussian: num [1:4318] 0.1388 0.4312 0.1943 0.0615 0.0479 ...</span></span>
+<span><span class="co">#&gt;  $ k1      : num [1:4318] -0.1841 -0.4756 -0.2542 -0.1443 -0.0815 ...</span></span>
+<span><span class="co">#&gt;  $ k2      : num [1:4318] -0.754 -0.907 -0.764 -0.426 -0.587 ...</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="repairing-and-re-meshing">5. Repairing and re-meshing<a class="anchor" aria-label="anchor" href="#repairing-and-re-meshing"></a>
@@ -374,20 +372,20 @@ attribute:</p>
 <span><span class="va">info</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"boundary_edges_before"</span>, <span class="st">"boundary_edges_after"</span>,</span>
 <span>       <span class="st">"holes_filled"</span>, <span class="st">"is_closed_manifold"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; $boundary_edges_before</span></span>
-<span><span class="co">#&gt; [1] 40</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $boundary_edges_after</span></span>
 <span><span class="co">#&gt; [1] 0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $holes_filled</span></span>
-<span><span class="co">#&gt; [1] 10</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $is_closed_manifold</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
 <span><span class="co"># the same call that warned above, now on a closed surface</span></span>
 <span><span class="fu"><a href="../reference/vcg_mesh_volume.html">vcg_mesh_volume</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 5517.25</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 5523.685</span></span></code></pre></div>
 <p>The mesh is a closed <code>manifold</code> now, so its volume is
 trustworthy and <code>include_interior</code> collision tests will work
 on it. Center it for the plots that follow:</p>
@@ -413,10 +411,10 @@ preserve:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;                          method vertices avg_edge max_edge</span></span>
 <span><span class="co">#&gt; 1                         input     4318    0.997    1.414</span></span>
-<span><span class="co">#&gt; 2            vcg_uniform_remesh     4161    0.988    1.717</span></span>
-<span><span class="co">#&gt; 3               vcg_subdivision    17326    0.498    0.707</span></span>
-<span><span class="co">#&gt; 4 vcg_subdivide_max_edge_length    12784    0.566    0.791</span></span>
-<span><span class="co">#&gt; 5                   mris_remesh     1121    1.663    3.127</span></span></code></pre></div>
+<span><span class="co">#&gt; 2            vcg_uniform_remesh     4165    0.988    1.717</span></span>
+<span><span class="co">#&gt; 3               vcg_subdivision    17266    0.498    0.707</span></span>
+<span><span class="co">#&gt; 4 vcg_subdivide_max_edge_length    12744    0.566    0.791</span></span>
+<span><span class="co">#&gt; 5                   mris_remesh     1066    1.723    2.630</span></span></code></pre></div>
 <p><code>vcg_uniform_remesh</code> re-samples through a distance field
 on a <code>voxel</code> grid, so it also repairs topology at the cost of
 exact geometry. <code>vcg_subdivision</code> splits every edge, doubling
@@ -438,7 +436,7 @@ cortical-surface literature:</p>
 <span><span class="va">fs_style</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mris_smooth.html">mris_smooth</a></span><span class="op">(</span><span class="va">mesh</span>, niterations <span class="op">=</span> <span class="fl">20L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">mesh</span>, <span class="va">taubin</span>, <span class="va">implicit</span>, <span class="va">fs_style</span><span class="op">)</span>, <span class="va">vcg_mesh_volume</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 5517.250 5526.756 5419.186 4496.284</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 5523.685 5535.036 5435.650 4523.452</span></span></code></pre></div>
 <p><code>vcg_smooth_explicit</code> applies a per-vertex
 <code>Laplacian</code> step repeatedly; <code>type = "taubin"</code>
 alternates a positive and a negative step so the surface does not
@@ -456,7 +454,7 @@ inflated surface readable:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">inflated</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "mesh" "sulc"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">inflated</span><span class="op">$</span><span class="va">sulc</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -4.911788  4.436476</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] -4.932590  3.978328</span></span></code></pre></div>
 <p><code>mris_sphere</code> continues the deformation all the way onto a
 sphere of <code>target_radius</code>, which is the mapping that
 surface-based registration is built on. How close it gets is worth
@@ -466,8 +464,8 @@ measure of convergence:</p>
 <code class="sourceCode R"><span><span class="va">spherical</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mris_sphere.html">mris_sphere</a></span><span class="op">(</span><span class="va">fs_style</span>, target_radius <span class="op">=</span> <span class="fl">100</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">radius</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">spherical</span><span class="op">$</span><span class="va">vb</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">radius</span><span class="op">)</span>, max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">radius</span><span class="op">)</span>, cv <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">radius</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">radius</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          min          max           cv </span></span>
-<span><span class="co">#&gt;  90.34295945 112.17180004   0.01515924</span></span></code></pre></div>
+<span><span class="co">#&gt;         min         max          cv </span></span>
+<span><span class="co">#&gt;  90.3261054 112.5976581   0.0153544</span></span></code></pre></div>
 <p>Under two percent here. Both <code>mris_inflate</code> and
 <code>mris_sphere</code> were designed for cortical surfaces, where the
 input is large, smooth, and genuinely sphere-like; a small closed
@@ -532,7 +530,7 @@ matrices – one row per vertex and one row per face:</p>
 <span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dijkstras-path.html">surface_path</a></span><span class="op">(</span><span class="va">dist</span>, target_node <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">mesh</span><span class="op">$</span><span class="va">vb</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>vertices_on_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">path</span><span class="op">$</span><span class="va">path</span><span class="op">)</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">path</span><span class="op">$</span><span class="va">distance</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; vertices_on_path           length </span></span>
-<span><span class="co">#&gt;         61.00000         61.72654</span></span></code></pre></div>
+<span><span class="co">#&gt;         61.00000         61.72652</span></span></code></pre></div>
 <p>Because the walk follows edges, the answer depends on the sampling –
 which is the practical reason to run <code>mris_remesh</code> before
 measuring distances across a surface.</p>
@@ -581,7 +579,7 @@ surface open and the probes stay whole.</p>
 <span>  class <span class="op">=</span> <span class="st">"mesh3d"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">inside</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 74</span></span>
+<span><span class="co">#&gt; [1] 77</span></span>
 <span></span>
 <span><span class="va">eye</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span>, <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="fu">graphics</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">2.1</span>, <span class="fl">0.1</span><span class="op">)</span>, cex.main <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
