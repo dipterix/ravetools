@@ -58,7 +58,12 @@ private:
   static void InitConvexHull(InputMesh& mesh, CHMesh& convexHull)
   {
   typename CHMesh:: template PerVertexAttributeHandle<size_t> indexInputVertex = Allocator<CHMesh>::template GetPerVertexAttribute<size_t>(convexHull, std::string("indexInput"));
-  InputVertexPointer v[3];
+  // ravetools: upstream vcglib leaves v[] and v4 (below) uninitialized and
+  // assigns them only when a strictly positive distance is found, so
+  // identical, collinear or coplanar input dereferenced garbage, and GCC -Wall
+  // reports -Wmaybe-uninitialized for v4 (inlined into v4->SetV()). They now
+  // start as NULL; vcg_convex_hull rejects such input before calling.
+  InputVertexPointer v[3] = { NULL, NULL, NULL };
     //Find the 6 points with min/max coordinate values
     InputVertexIterator vi = mesh.vert.begin();
     std::vector<InputVertexPointer> minMax(6, &(*vi));
@@ -117,7 +122,7 @@ private:
     (*fi).N() = vcg::NormalizedTriangleNormal(*fi);
 
     //Find the fourth point to create the tetrahedron
-    InputVertexPointer v4;
+    InputVertexPointer v4 = NULL;
     float distance = 0;
     float absDist = -1;
     for (vi = mesh.vert.begin(); vi != mesh.vert.end(); vi++)
@@ -220,6 +225,13 @@ public:
           for (int ii = 0; ii < 3; ii++)
           {
             CHFacePointer nextF = fp->FFp(ii);
+            // ravetools: with a tolerance at the level of rounding error,
+            // points on common planes (voxel grids) see faces inconsistently,
+            // the visible faces stop forming a disk, and the fan built on
+            // their border leaves face-face links NULL; dereferencing them
+            // crashed R. Stop with an error instead (also below).
+            if (nextF == NULL)
+              throw std::runtime_error("ConvexHull: the hull lost a face adjacency because its visibility tests were inconsistent under rounding; use a larger distance tolerance");
             if (!nextF->IsV())
             {
               int indexF = vcg::tri::Index(convexHull, nextF);
@@ -256,6 +268,8 @@ public:
           {
             if (f->IsB(j))
             {
+              if (f->FFp(j) == NULL)
+                throw std::runtime_error("ConvexHull: the hull lost a face adjacency because its visibility tests were inconsistent under rounding; use a larger distance tolerance");
               f->ClearB(j);
               //Add new face
               CHFaceIterator fi = vcg::tri::Allocator<CHMesh>::AddFace(convexHull, &convexHull.vert.back(), f->V1(j), f->V0(j));
