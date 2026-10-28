@@ -21,7 +21,7 @@ different sampling, orientation, or field of view are aligned correctly."></head
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,6 +90,8 @@ different sampling, orientation, or field of view are aligned correctly.</p>
 <span>  syn_grad_step <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  syn_total_sigma <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  syn_cc_radius <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  syn_convergence <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  syn_convergence_window <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -230,11 +232,12 @@ transform (fixed to moving) to start from</p></dd>
 
 <dt id="arg-syn-iterations-syn-sigma">syn_iterations, syn_sigma<a class="anchor" aria-label="anchor" href="#arg-syn-iterations-syn-sigma"></a></dt>
 <dd><p>deformable stage controls (only used when
-<code>type = "syn"</code> or <code>"syn_only"</code>): per-level iteration counts and the
-Gaussian regularization sigma (in voxels) applied to the update field. Both
-are recycled to the number of levels, so <code>syn_sigma</code> may be a vector to
-vary the regularization per stage (e.g. <code>c(3, 3, 1)</code> to relax it at the
-finest level for sharper detail)</p></dd>
+<code>type = "syn"</code> or <code>"syn_only"</code>): per-level iteration counts (the
+maxima: with <code>syn_convergence</code>, a level ends earlier once its cost stops
+decreasing) and the Gaussian regularization sigma (in voxels) applied to the
+update field. Both are recycled to the number of levels, so <code>syn_sigma</code>
+may be a vector to vary the regularization per stage (e.g. <code>c(3, 3, 1)</code>
+to relax it at the finest level for sharper detail)</p></dd>
 
 
 <dt id="arg-syn-grad-step">syn_grad_step<a class="anchor" aria-label="anchor" href="#arg-syn-grad-step"></a></dt>
@@ -256,11 +259,25 @@ deformable-stage cross-correlation metric; default <code>2L</code> (a
 \(5^3\) window; must be an integer of at least 1)</p></dd>
 
 
+<dt id="arg-syn-convergence-syn-convergence-window">syn_convergence, syn_convergence_window<a class="anchor" aria-label="anchor" href="#arg-syn-convergence-syn-convergence-window"></a></dt>
+<dd><p>convergence stop of each
+deformable level, with the rule of <span class="pkg">'ANTs'</span>
+(<code>--convergence [syn_iterations,syn_convergence,syn_convergence_window]</code>):
+the threshold, a single finite number (default <code>1e-6</code>), or <code>NULL</code>
+to run every iteration of <code>syn_iterations</code>; and the window, the number
+of recent iterations whose cost trend is tested (an integer of at least 2;
+default <code>10L</code>). The defaults are those of <code>antsRegistration</code>; the
+<code>"SyN"</code> transforms of <span class="pkg">'ANTsPy'</span> use <code>1e-7</code> and <code>8L</code>.
+See ‘Details’</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>logical; if <code>TRUE</code> (default) print per-level and
 per-iteration progress to the console, including the current stage, shrink
 factor, smoothing sigma, cost metric, and step size (linear) or maximum
-displacement (deformable); useful to monitor convergence on large volumes</p></dd>
+displacement (deformable), with the convergence stop also the convergence
+value and why each deformable level ended; useful to monitor convergence on
+large volumes</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -284,7 +301,14 @@ first element. For single-image input this is a length-1 list</p></dd>
 deformation fields on the target grid, see ‘Details’</p></dd>
 
 <dt><code>metric_trace</code></dt>
-<dd><p>the metric value across optimizer iterations</p></dd>
+<dd><p>the metric value across the optimizer iterations
+that ran (in the deformable stage, the weighted cost of all channels plus the
+landmark term, one value per iteration)</p></dd>
+
+<dt><code>syn_iterations_run</code></dt>
+<dd><p>(only for <code>"syn"</code> and
+<code>"syn_only"</code>) the number of deformable iterations each level ran; 0 for
+levels without a positive iteration count</p></dd>
 
 <dt><code>geometry</code></dt>
 <dd><p>the source and target grids (<code>source_dim</code>,
@@ -312,6 +336,26 @@ tolerates an inverted contrast (such as <code>'T2'</code> against <code>'T1'</co
 but not a non-monotonic relation (such as <code>FLAIR</code> or <code>'CT'</code>
 against <code>'T1'</code>), so give such channels a low weight in a multichannel
 call.</p>
+<p><strong>Convergence of the deformable stage.</strong> With <code>syn_convergence</code>
+set (the default), every deformable level ends as soon as its cost stops
+decreasing, by the rule of <span class="pkg">'ANTs'</span>: the cost of the first channel
+(without its weight and without the landmark term) is recorded at every
+iteration and divided by the sum of its absolute values since the level
+started; once <code>syn_convergence_window</code> values exist, a straight line
+is fitted through the most recent ones (the <code>B-spline</code> fit of
+<code>ITK</code>), and the level stops when the fitted decrease across the window
+falls below <code>syn_convergence</code>. A level therefore runs at least
+<code>syn_convergence_window</code> iterations (or all of them, if fewer), unless
+an update vanishes, after which the field cannot change anymore (only with
+<code>syn_total_sigma = 0</code>); the last update is kept. The window thus sets
+the minimum number of iterations of a level, and the threshold how flat the
+trend of the cost must be before the level stops: while the cost still
+decreases steadily, a level can run to its maximum. Every update has the
+same size (<code>syn_grad_step</code> times the voxel spacing), so once the
+deformation settles the cost tends to oscillate, and a level then usually
+ends a few iterations later. <code>syn_iterations_run</code> in the result gives
+the iterations each level ran. With <code>syn_convergence = NULL</code>, every
+iteration runs (the behavior before <span class="pkg">ravetools</span> 0.4.1).</p>
 <p><strong>Deformation fields.</strong> <code>forward_field</code> is the displacement
 \(u_f\) on the target grid such that <code>image</code> samples the source at
 \(A(r + u_f(r))\). <code>inverse_field</code> is its numerical inverse on the
@@ -959,37 +1003,38 @@ fixed-point approach to invert a deformation field. Medical Physics, 35(1),
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     7: cost = -0.944740  field_max = 5.59 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     8: cost = -0.950270  field_max = 6.36 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     9: cost = -0.955244  field_max = 7.06 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    10: cost = -0.960497  field_max = 7.67 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    11: cost = -0.963909  field_max = 8.39 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    12: cost = -0.966920  field_max = 9.12 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    13: cost = -0.970232  field_max = 9.83 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    14: cost = -0.973304  field_max = 10.40 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    15: cost = -0.975462  field_max = 10.85 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    16: cost = -0.978081  field_max = 11.08 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    17: cost = -0.979111  field_max = 11.27 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    18: cost = -0.979603  field_max = 11.43 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    19: cost = -0.980324  field_max = 11.56 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    20: cost = -0.981028  field_max = 11.67 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    21: cost = -0.981958  field_max = 11.81 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    22: cost = -0.982852  field_max = 11.94 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    23: cost = -0.984064  field_max = 12.05 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    24: cost = -0.984800  field_max = 12.20 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    25: cost = -0.985892  field_max = 12.33 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    26: cost = -0.986956  field_max = 12.50 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    27: cost = -0.987708  field_max = 12.57 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    28: cost = -0.988188  field_max = 12.64 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    29: cost = -0.988802  field_max = 12.70 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    30: cost = -0.989299  field_max = 12.75 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    31: cost = -0.989959  field_max = 12.77 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    32: cost = -0.990740  field_max = 12.79 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    33: cost = -0.991660  field_max = 12.98 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    34: cost = -0.992293  field_max = 13.15 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    35: cost = -0.992826  field_max = 13.32 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    36: cost = -0.993394  field_max = 13.49 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    37: cost = -0.993905  field_max = 13.70 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    38: cost = -0.994207  field_max = 14.00 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    39: cost = -0.994230  field_max = 14.16 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    40: cost = -0.993726  field_max = 14.30 mm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    10: cost = -0.960497  field_max = 7.67 mm  convergence = 5.597e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    11: cost = -0.963909  field_max = 8.39 mm  convergence = 4.489e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    12: cost = -0.966920  field_max = 9.12 mm  convergence = 3.602e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    13: cost = -0.970232  field_max = 9.83 mm  convergence = 2.882e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    14: cost = -0.973304  field_max = 10.40 mm  convergence = 2.343e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    15: cost = -0.975462  field_max = 10.85 mm  convergence = 1.898e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    16: cost = -0.978081  field_max = 11.08 mm  convergence = 1.545e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    17: cost = -0.979111  field_max = 11.27 mm  convergence = 1.236e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    18: cost = -0.979603  field_max = 11.43 mm  convergence = 9.701e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    19: cost = -0.980324  field_max = 11.56 mm  convergence = 7.419e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    20: cost = -0.981028  field_max = 11.67 mm  convergence = 5.764e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    21: cost = -0.981958  field_max = 11.81 mm  convergence = 4.289e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    22: cost = -0.982852  field_max = 11.94 mm  convergence = 3.052e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    23: cost = -0.984064  field_max = 12.05 mm  convergence = 2.123e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    24: cost = -0.984800  field_max = 12.20 mm  convergence = 1.513e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    25: cost = -0.985892  field_max = 12.33 mm  convergence = 1.137e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    26: cost = -0.986956  field_max = 12.50 mm  convergence = 9.804e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    27: cost = -0.987708  field_max = 12.57 mm  convergence = 9.051e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    28: cost = -0.988188  field_max = 12.64 mm  convergence = 8.300e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    29: cost = -0.988802  field_max = 12.70 mm  convergence = 7.482e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    30: cost = -0.989299  field_max = 12.75 mm  convergence = 6.537e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    31: cost = -0.989959  field_max = 12.77 mm  convergence = 5.561e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    32: cost = -0.990740  field_max = 12.79 mm  convergence = 4.750e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    33: cost = -0.991660  field_max = 12.98 mm  convergence = 4.287e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    34: cost = -0.992293  field_max = 13.15 mm  convergence = 3.853e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    35: cost = -0.992826  field_max = 13.32 mm  convergence = 3.499e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    36: cost = -0.993394  field_max = 13.49 mm  convergence = 3.216e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    37: cost = -0.993905  field_max = 13.70 mm  convergence = 2.968e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    38: cost = -0.994207  field_max = 14.00 mm  convergence = 2.554e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    39: cost = -0.994230  field_max = 14.16 mm  convergence = 1.903e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    40: cost = -0.993726  field_max = 14.30 mm  convergence = 9.361e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   =&gt; max iterations reached (40)  cost=-0.993726</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [SyN] level 2/3 (shrink=2, sigma=1.0, flow=3.0, channels=2): max 20 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     1: cost = -0.896596  field_max = 13.98 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     2: cost = -0.896885  field_max = 14.10 mm</span>
@@ -1000,19 +1045,10 @@ fixed-point approach to invert a deformation field. Medical Physics, 35(1),
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     7: cost = -0.892752  field_max = 14.61 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     8: cost = -0.891746  field_max = 14.68 mm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   it     9: cost = -0.890929  field_max = 14.75 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    10: cost = -0.890349  field_max = 14.80 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    11: cost = -0.889983  field_max = 14.84 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    12: cost = -0.889733  field_max = 14.90 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    13: cost = -0.889552  field_max = 14.94 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    14: cost = -0.889323  field_max = 15.00 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    15: cost = -0.889113  field_max = 15.05 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    16: cost = -0.888916  field_max = 15.10 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    17: cost = -0.888720  field_max = 15.15 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    18: cost = -0.888473  field_max = 15.20 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    19: cost = -0.888188  field_max = 15.25 mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   it    20: cost = -0.887909  field_max = 15.30 mm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it    10: cost = -0.890349  field_max = 14.80 mm  convergence = -5.153e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   =&gt; converged (convergence -5.153e-04 &lt; threshold 1.000e-06) after 10 of 20 iterations  cost=-0.890349</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [SyN] level 3/3 (shrink=1, sigma=0.0, flow=3.0, channels=2): max 0 iterations</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.65e-02, max = 1.58e+00 voxel</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.73e-04, max = 4.34e+00 voxel</span>
 <span class="r-in"><span><span class="va">res_mm</span><span class="op">$</span><span class="va">transform</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  2.0017331 -1.0002336  0.9990778</span>
 <span class="r-in"><span></span></span>

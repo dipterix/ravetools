@@ -66,8 +66,8 @@ microbenchmark::microbenchmark(
 )
 #> Unit: milliseconds
 #>         expr      min        lq      mean   median        uq      max neval
-#>  fast_median 0.078186 0.1110950 0.1253779 0.124885 0.1415955 0.175581   100
-#>  base_median 0.086969 0.0961425 0.1153962 0.109548 0.1281655 0.256211   100
+#>  fast_median 0.067931 0.0971250 0.1064999 0.107048 0.1178225 0.149378   100
+#>  base_median 0.112290 0.1232495 0.1323648 0.129127 0.1367630 0.245271   100
 
 # Multivariate cases
 # (5~7x faster than base R)
@@ -81,6 +81,6 @@ microbenchmark::microbenchmark(
 )
 #> Unit: milliseconds
 #>         expr      min       lq      mean   median       uq      max neval
-#>  fast_median 0.585419 0.613972 0.6586565 0.649271 0.671808 0.788171    10
-#>  base_median 2.311883 2.324892 2.4066258 2.350165 2.410800 2.850143    10
+#>  fast_median 0.600139 0.636385 0.6730626 0.666555 0.686953 0.812596    10
+#>  base_median 2.290377 2.343561 2.4223511 2.387882 2.426832 2.824811    10
 ```

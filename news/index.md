@@ -2,6 +2,27 @@
 
 ## ravetools 0.4.1
 
+- `register_volume3d` ends every deformable (`syn`, `syn_only`) level
+  once its cost stops decreasing, with the convergence rule of `ANTs`
+  (`--convergence [iterations,threshold,window]`): the new arguments
+  `syn_convergence` (the threshold, default `1e-6`) and
+  `syn_convergence_window` (default `10`) take the defaults of
+  `antsRegistration` (the `SyN` transforms of `ANTsPy` use `1e-7` and
+  `8`), only the cost of the first channel is watched, a level runs at
+  least `syn_convergence_window` iterations unless its update vanishes,
+  and the result gains `syn_iterations_run`, the iterations each level
+  ran. Every update has the same size, so without the stop the field
+  kept moving after the cost had stopped improving; with a target mask,
+  source tissue outside the mask made the brain grow at every iteration.
+  Default results change; `syn_convergence = NULL` runs every iteration
+  (fields, images and transforms identical to before). The cost of the
+  deformable stage is now summed in a fixed order, so for a given
+  starting transform its `metric_trace`, and the stop, are identical for
+  any thread count (the values differ from earlier versions in the last
+  digits; the `mattes` linear stages still sum in a thread-dependent
+  order), and `syn_cc_radius` and `syn_convergence_window` beyond the
+  integer range (such as `1e10`) stop with an error instead of becoming
+  `NA`
 - Added `mris_outer_surface` to compute the outer (envelope) surface of
   a `pial` surface, the `?h.pial-outer-smoothed` surface that
   `FreeSurfer` writes for the local `gyrification` index

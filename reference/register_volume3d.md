@@ -39,6 +39,8 @@ register_volume3d(
   syn_grad_step = 0.2,
   syn_total_sigma = 0,
   syn_cc_radius = 2L,
+  syn_convergence = 1e-06,
+  syn_convergence_window = 10L,
   verbose = TRUE
 )
 ```
@@ -175,11 +177,12 @@ register_volume3d(
 - syn_iterations, syn_sigma:
 
   deformable stage controls (only used when `type = "syn"` or
-  `"syn_only"`): per-level iteration counts and the Gaussian
-  regularization sigma (in voxels) applied to the update field. Both are
-  recycled to the number of levels, so `syn_sigma` may be a vector to
-  vary the regularization per stage (e.g. `c(3, 3, 1)` to relax it at
-  the finest level for sharper detail)
+  `"syn_only"`): per-level iteration counts (the maxima: with
+  `syn_convergence`, a level ends earlier once its cost stops
+  decreasing) and the Gaussian regularization sigma (in voxels) applied
+  to the update field. Both are recycled to the number of levels, so
+  `syn_sigma` may be a vector to vary the regularization per stage (e.g.
+  `c(3, 3, 1)` to relax it at the finest level for sharper detail)
 
 - syn_grad_step:
 
@@ -200,13 +203,24 @@ register_volume3d(
   cross-correlation metric; default `2L` (a \\5^3\\ window; must be an
   integer of at least 1)
 
+- syn_convergence, syn_convergence_window:
+
+  convergence stop of each deformable level, with the rule of 'ANTs'
+  (`--convergence [syn_iterations,syn_convergence,syn_convergence_window]`):
+  the threshold, a single finite number (default `1e-6`), or `NULL` to
+  run every iteration of `syn_iterations`; and the window, the number of
+  recent iterations whose cost trend is tested (an integer of at least
+  2; default `10L`). The defaults are those of `antsRegistration`; the
+  `"SyN"` transforms of 'ANTsPy' use `1e-7` and `8L`. See ‘Details’
+
 - verbose:
 
   logical; if `TRUE` (default) print per-level and per-iteration
   progress to the console, including the current stage, shrink factor,
   smoothing sigma, cost metric, and step size (linear) or maximum
-  displacement (deformable); useful to monitor convergence on large
-  volumes
+  displacement (deformable), with the convergence stop also the
+  convergence value and why each deformable level ended; useful to
+  monitor convergence on large volumes
 
 ## Value
 
@@ -234,7 +248,15 @@ A list of class `ravetools_register_volume3d` with:
 
 - `metric_trace`:
 
-  the metric value across optimizer iterations
+  the metric value across the optimizer iterations that ran (in the
+  deformable stage, the weighted cost of all channels plus the landmark
+  term, one value per iteration)
+
+- `syn_iterations_run`:
+
+  (only for `"syn"` and `"syn_only"`) the number of deformable
+  iterations each level ran; 0 for levels without a positive iteration
+  count
 
 - `geometry`:
 
@@ -261,6 +283,28 @@ correlation tolerates an inverted contrast (such as `'T2'` against
 `'T1'`) but not a non-monotonic relation (such as `FLAIR` or `'CT'`
 against `'T1'`), so give such channels a low weight in a multichannel
 call.
+
+**Convergence of the deformable stage.** With `syn_convergence` set (the
+default), every deformable level ends as soon as its cost stops
+decreasing, by the rule of 'ANTs': the cost of the first channel
+(without its weight and without the landmark term) is recorded at every
+iteration and divided by the sum of its absolute values since the level
+started; once `syn_convergence_window` values exist, a straight line is
+fitted through the most recent ones (the `B-spline` fit of `ITK`), and
+the level stops when the fitted decrease across the window falls below
+`syn_convergence`. A level therefore runs at least
+`syn_convergence_window` iterations (or all of them, if fewer), unless
+an update vanishes, after which the field cannot change anymore (only
+with `syn_total_sigma = 0`); the last update is kept. The window thus
+sets the minimum number of iterations of a level, and the threshold how
+flat the trend of the cost must be before the level stops: while the
+cost still decreases steadily, a level can run to its maximum. Every
+update has the same size (`syn_grad_step` times the voxel spacing), so
+once the deformation settles the cost tends to oscillate, and a level
+then usually ends a few iterations later. `syn_iterations_run` in the
+result gives the iterations each level ran. With
+`syn_convergence = NULL`, every iteration runs (the behavior before
+ravetools 0.4.1).
 
 **Deformation fields.** `forward_field` is the displacement \\u_f\\ on
 the target grid such that `image` samples the source at \\A(r +
@@ -912,37 +956,38 @@ res_mm <- register_volume3d(
 #>   it     7: cost = -0.944740  field_max = 5.59 mm
 #>   it     8: cost = -0.950270  field_max = 6.36 mm
 #>   it     9: cost = -0.955244  field_max = 7.06 mm
-#>   it    10: cost = -0.960497  field_max = 7.67 mm
-#>   it    11: cost = -0.963909  field_max = 8.39 mm
-#>   it    12: cost = -0.966920  field_max = 9.12 mm
-#>   it    13: cost = -0.970232  field_max = 9.83 mm
-#>   it    14: cost = -0.973304  field_max = 10.40 mm
-#>   it    15: cost = -0.975462  field_max = 10.85 mm
-#>   it    16: cost = -0.978081  field_max = 11.08 mm
-#>   it    17: cost = -0.979111  field_max = 11.27 mm
-#>   it    18: cost = -0.979603  field_max = 11.43 mm
-#>   it    19: cost = -0.980324  field_max = 11.56 mm
-#>   it    20: cost = -0.981028  field_max = 11.67 mm
-#>   it    21: cost = -0.981958  field_max = 11.81 mm
-#>   it    22: cost = -0.982852  field_max = 11.94 mm
-#>   it    23: cost = -0.984064  field_max = 12.05 mm
-#>   it    24: cost = -0.984800  field_max = 12.20 mm
-#>   it    25: cost = -0.985892  field_max = 12.33 mm
-#>   it    26: cost = -0.986956  field_max = 12.50 mm
-#>   it    27: cost = -0.987708  field_max = 12.57 mm
-#>   it    28: cost = -0.988188  field_max = 12.64 mm
-#>   it    29: cost = -0.988802  field_max = 12.70 mm
-#>   it    30: cost = -0.989299  field_max = 12.75 mm
-#>   it    31: cost = -0.989959  field_max = 12.77 mm
-#>   it    32: cost = -0.990740  field_max = 12.79 mm
-#>   it    33: cost = -0.991660  field_max = 12.98 mm
-#>   it    34: cost = -0.992293  field_max = 13.15 mm
-#>   it    35: cost = -0.992826  field_max = 13.32 mm
-#>   it    36: cost = -0.993394  field_max = 13.49 mm
-#>   it    37: cost = -0.993905  field_max = 13.70 mm
-#>   it    38: cost = -0.994207  field_max = 14.00 mm
-#>   it    39: cost = -0.994230  field_max = 14.16 mm
-#>   it    40: cost = -0.993726  field_max = 14.30 mm
+#>   it    10: cost = -0.960497  field_max = 7.67 mm  convergence = 5.597e-03
+#>   it    11: cost = -0.963909  field_max = 8.39 mm  convergence = 4.489e-03
+#>   it    12: cost = -0.966920  field_max = 9.12 mm  convergence = 3.602e-03
+#>   it    13: cost = -0.970232  field_max = 9.83 mm  convergence = 2.882e-03
+#>   it    14: cost = -0.973304  field_max = 10.40 mm  convergence = 2.343e-03
+#>   it    15: cost = -0.975462  field_max = 10.85 mm  convergence = 1.898e-03
+#>   it    16: cost = -0.978081  field_max = 11.08 mm  convergence = 1.545e-03
+#>   it    17: cost = -0.979111  field_max = 11.27 mm  convergence = 1.236e-03
+#>   it    18: cost = -0.979603  field_max = 11.43 mm  convergence = 9.701e-04
+#>   it    19: cost = -0.980324  field_max = 11.56 mm  convergence = 7.419e-04
+#>   it    20: cost = -0.981028  field_max = 11.67 mm  convergence = 5.764e-04
+#>   it    21: cost = -0.981958  field_max = 11.81 mm  convergence = 4.289e-04
+#>   it    22: cost = -0.982852  field_max = 11.94 mm  convergence = 3.052e-04
+#>   it    23: cost = -0.984064  field_max = 12.05 mm  convergence = 2.123e-04
+#>   it    24: cost = -0.984800  field_max = 12.20 mm  convergence = 1.513e-04
+#>   it    25: cost = -0.985892  field_max = 12.33 mm  convergence = 1.137e-04
+#>   it    26: cost = -0.986956  field_max = 12.50 mm  convergence = 9.804e-05
+#>   it    27: cost = -0.987708  field_max = 12.57 mm  convergence = 9.051e-05
+#>   it    28: cost = -0.988188  field_max = 12.64 mm  convergence = 8.300e-05
+#>   it    29: cost = -0.988802  field_max = 12.70 mm  convergence = 7.482e-05
+#>   it    30: cost = -0.989299  field_max = 12.75 mm  convergence = 6.537e-05
+#>   it    31: cost = -0.989959  field_max = 12.77 mm  convergence = 5.561e-05
+#>   it    32: cost = -0.990740  field_max = 12.79 mm  convergence = 4.750e-05
+#>   it    33: cost = -0.991660  field_max = 12.98 mm  convergence = 4.287e-05
+#>   it    34: cost = -0.992293  field_max = 13.15 mm  convergence = 3.853e-05
+#>   it    35: cost = -0.992826  field_max = 13.32 mm  convergence = 3.499e-05
+#>   it    36: cost = -0.993394  field_max = 13.49 mm  convergence = 3.216e-05
+#>   it    37: cost = -0.993905  field_max = 13.70 mm  convergence = 2.968e-05
+#>   it    38: cost = -0.994207  field_max = 14.00 mm  convergence = 2.554e-05
+#>   it    39: cost = -0.994230  field_max = 14.16 mm  convergence = 1.903e-05
+#>   it    40: cost = -0.993726  field_max = 14.30 mm  convergence = 9.361e-06
+#>   => max iterations reached (40)  cost=-0.993726
 #> [SyN] level 2/3 (shrink=2, sigma=1.0, flow=3.0, channels=2): max 20 iterations
 #>   it     1: cost = -0.896596  field_max = 13.98 mm
 #>   it     2: cost = -0.896885  field_max = 14.10 mm
@@ -953,19 +998,10 @@ res_mm <- register_volume3d(
 #>   it     7: cost = -0.892752  field_max = 14.61 mm
 #>   it     8: cost = -0.891746  field_max = 14.68 mm
 #>   it     9: cost = -0.890929  field_max = 14.75 mm
-#>   it    10: cost = -0.890349  field_max = 14.80 mm
-#>   it    11: cost = -0.889983  field_max = 14.84 mm
-#>   it    12: cost = -0.889733  field_max = 14.90 mm
-#>   it    13: cost = -0.889552  field_max = 14.94 mm
-#>   it    14: cost = -0.889323  field_max = 15.00 mm
-#>   it    15: cost = -0.889113  field_max = 15.05 mm
-#>   it    16: cost = -0.888916  field_max = 15.10 mm
-#>   it    17: cost = -0.888720  field_max = 15.15 mm
-#>   it    18: cost = -0.888473  field_max = 15.20 mm
-#>   it    19: cost = -0.888188  field_max = 15.25 mm
-#>   it    20: cost = -0.887909  field_max = 15.30 mm
+#>   it    10: cost = -0.890349  field_max = 14.80 mm  convergence = -5.153e-04
+#>   => converged (convergence -5.153e-04 < threshold 1.000e-06) after 10 of 20 iterations  cost=-0.890349
 #> [SyN] level 3/3 (shrink=1, sigma=0.0, flow=3.0, channels=2): max 0 iterations
-#> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.65e-02, max = 1.58e+00 voxel
+#> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.73e-04, max = 4.34e+00 voxel
 res_mm$transform[1:3, 4]
 #> [1]  2.0017331 -1.0002336  0.9990778
 
