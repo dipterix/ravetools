@@ -180,3 +180,27 @@ test_that("vcg_mesh_patch max_edge_length refines the output patches", {
   expect_true(all(p1$orig_vertex >= 1L))
   expect_true(all(p2$orig_vertex >= 1L))
 })
+
+# ---- vcg_isosurface ----------------------------------------------------
+
+test_that("vcg_isosurface returns closed meshes without cracks", {
+  # cube faces with two diagonal inside corners used to tie at level 0.5 and
+  # leave open edges (40 on this mask)
+  mesh <- vcg_isosurface(left_hippocampus_mask)
+  expect_true(vcg_count_edge_defects(mesh)$is_closed_manifold)
+
+  # a bar across the whole x axis is capped at both ends of the array
+  volume <- array(0, c(6, 6, 6))
+  volume[, 2:4, 2:4] <- 1
+  mesh <- vcg_isosurface(volume, threshold_lb = 0.5, vox_to_ras = diag(4))
+  expect_true(vcg_count_edge_defects(mesh)$is_closed_manifold)
+  # voxel indices 0..5; the surface sits half a voxel outside (plus 0.001)
+  expect_lt(max(abs(range(mesh$vb[1, ]) - c(-0.5, 5.5))), 0.01)
+
+  # the last slice of the array is not dropped
+  volume <- array(0, c(6, 6, 6))
+  volume[6, 2:4, 2:4] <- 1
+  mesh <- vcg_isosurface(volume, threshold_lb = 0.5, vox_to_ras = diag(4))
+  expect_true(vcg_count_edge_defects(mesh)$is_closed_manifold)
+  expect_lt(max(abs(range(mesh$vb[1, ]) - c(4.5, 5.5))), 0.01)
+})
