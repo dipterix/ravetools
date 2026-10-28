@@ -36,11 +36,10 @@
 #'   surface in millimeters. The mesh \strong{must} be closed, manifold, and
 #'   genus-0 (watertight, no boundary or non-manifold edges, single connected
 #'   component) - this is a hard precondition of the underlying algorithm. An
-#'   open or defective mesh (e.g. a raw surface extracted via
-#'   \code{\link{vcg_isosurface}}, which often contains small extraction
-#'   cracks) will silently inflate into a distorted, "sausage"-shaped result
-#'   rather than a smooth sphere-like surface, and \code{mris_inflate} will
-#'   raise an error if such defects are detected.
+#'   open or defective mesh (e.g. one with small holes; see
+#'   \code{\link{vcg_fix_defects}}) will silently inflate into a distorted,
+#'   "sausage"-shaped result rather than a smooth sphere-like surface, and
+#'   \code{mris_inflate} will raise an error if such defects are detected.
 #' @param n_averages starting number of gradient-averaging passes (outer loop);
 #'   halved each level down to 0. Default \code{16}.
 #' @param niterations number of inner iterations per averaging level.
