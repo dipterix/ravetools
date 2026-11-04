@@ -227,3 +227,67 @@ grow_volume <- function(volume, x, y = x, z = x, threshold = 0.5) {
   mode(sel) <- "integer"
   sel
 }
+
+#' Morphological operations on a volume mask
+#' @param volume volume mask array, must be 3-dimensional array; voxels above
+#' zero are the foreground and missing values are the background
+#' @param operation \code{'erode'} and \code{'dilate'} use a ball that holds
+#' the voxels closer than \code{radius + 0.5} voxels, or with three radii the
+#' ellipsoid whose semi-axes are \code{radius + 0.5} voxels (the voxels beyond
+#' the edge of the volume count as foreground for the erosion and as background
+#' for the dilation); \code{'largest_component'} keeps the largest component
+#' (all of them if several tie), connected through the faces of the voxels,
+#' and leaves its holes; \code{'fill_holes'} fills every background component
+#' except the largest one
+#' @param radius radius of the ball in voxels, ignored by the other operations;
+#' or three radii, one per axis of \code{volume}, so that a distance in
+#' millimeters can be honored on voxels that are longer along one axis
+#' @returns A binary volume mask: an integer array of the dimension of
+#' \code{volume}
+#' @examples
+#'
+#'
+#' mask <- array(0L, c(21, 21, 21))
+#' mask[6:16, 6:16, 6:16] <- 1L
+#' mask[11, 11, 11] <- 0L
+#'
+#' # a thin bridge to another object
+#' mask[17:20, 11, 11] <- 1L
+#'
+#' # the erosion cuts the bridge, the largest component drops what is left
+#' cleaned <- morph_volume(mask, "erode", radius = 1)
+#' cleaned <- morph_volume(cleaned, "largest_component")
+#' cleaned <- morph_volume(cleaned, "dilate", radius = 1)
+#' cleaned <- morph_volume(cleaned, "fill_holes")
+#'
+#' oldpar <- par(mfrow = c(1, 2), mar = c(0.1, 0.1, 3.1, 0.1))
+#' image(mask[, , 11], asp = 1, main = "Original mask", axes = FALSE)
+#' image(cleaned[, , 11], asp = 1, main = "Cleaned mask", axes = FALSE)
+#' par(oldpar)
+#'
+#'
+#' @export
+morph_volume <- function(volume,
+                         operation = c("erode", "dilate", "largest_component", "fill_holes"),
+                         radius = 1L) {
+  operation <- match.arg(operation)
+  dims <- dim(volume)
+  if (length(dims) != 3L) {
+    stop("`morph_volume`: `volume` must be a 3-dimensional array.")
+  }
+  radius <- suppressWarnings(as.integer(radius))
+  if (!length(radius) %in% c(1L, 3L) || anyNA(radius) || any(radius < 0L)) {
+    stop("`morph_volume`: `radius` must be a non-negative integer, or three of them (one per axis).")
+  }
+  radius <- rep_len(radius, 3L)
+  foreground <- as.vector(volume > 0)
+  foreground[is.na(foreground)] <- FALSE
+  re <- switch(
+    operation,
+    "erode" = n4_mask_morph(foreground, dims, radius, TRUE),
+    "dilate" = n4_mask_morph(foreground, dims, radius, FALSE),
+    "largest_component" = n4_mask_largest_component(foreground, dims),
+    "fill_holes" = n4_mask_cleanup(foreground, dims, 0L, FALSE, 0L)
+  )
+  array(as.integer(re), dim = dims)
+}

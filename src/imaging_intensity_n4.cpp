@@ -92,25 +92,32 @@ static double histogram_quantile(const std::vector<double>& H, double total,
 // ---------------------------------------------------------------------------
 // 2. Binary morphology on a 0/1 volume (ITK conventions)
 //
-// The structuring element is the ITK "ball": all integer offsets d with
-// |d|^2 <= (radius + 0.5)^2. Erosion treats the outside of the volume as
-// foreground (border voxels are not eroded by the image edge), dilation treats
-// it as background. Both parallelize over z slices (independent outputs).
+// The structuring element is the ITK "ball", with one radius per axis: all
+// integer offsets d with sum((d_i / (r_i + 0.5))^2) <= 1, which is
+// |d|^2 <= (radius + 0.5)^2 when the radii are equal. Erosion treats the
+// outside of the volume as foreground (border voxels are not eroded by the
+// image edge), dilation treats it as background. Both parallelize over z
+// slices (independent outputs).
 // ---------------------------------------------------------------------------
 struct BallOffsets {
   std::vector<int> dx, dy, dz;
 };
 
-static BallOffsets ball_offsets(int radius)
+static BallOffsets ball_offsets(int rx, int ry, int rz)
 {
   BallOffsets b;
-  const double r2 = (static_cast<double>(radius) + 0.5) * (static_cast<double>(radius) + 0.5);
-  for (int z = -radius; z <= radius; ++z)
-    for (int y = -radius; y <= radius; ++y)
-      for (int x = -radius; x <= radius; ++x) {
+  // squared semi-axes; the test is multiplied through by all three, which
+  // keeps it exact (quarter integers) and equal to the ball's for equal radii
+  const double ax = (static_cast<double>(rx) + 0.5) * (static_cast<double>(rx) + 0.5);
+  const double ay = (static_cast<double>(ry) + 0.5) * (static_cast<double>(ry) + 0.5);
+  const double az = (static_cast<double>(rz) + 0.5) * (static_cast<double>(rz) + 0.5);
+  for (int z = -rz; z <= rz; ++z)
+    for (int y = -ry; y <= ry; ++y)
+      for (int x = -rx; x <= rx; ++x) {
         if (x == 0 && y == 0 && z == 0) continue;
-        const double d2 = static_cast<double>(x * x + y * y + z * z);
-        if (d2 <= r2) { b.dx.push_back(x); b.dy.push_back(y); b.dz.push_back(z); }
+        const double d = static_cast<double>(x * x) * ay * az +
+          static_cast<double>(y * y) * ax * az + static_cast<double>(z * z) * ax * ay;
+        if (d <= ax * ay * az) { b.dx.push_back(x); b.dy.push_back(y); b.dz.push_back(z); }
       }
   return b;
 }
@@ -165,11 +172,12 @@ struct MorphWorker : public TinyParallel::Worker {
 };
 
 static std::vector<unsigned char> morph(const std::vector<unsigned char>& in,
-                                        int nx, int ny, int nz, int radius, bool erode)
+                                        int nx, int ny, int nz, int rx, int ry, int rz,
+                                        bool erode)
 {
   std::vector<unsigned char> out(in.size(), 0);
-  if (radius <= 0) { out = in; return out; }
-  const BallOffsets off = ball_offsets(radius);
+  if (rx <= 0 && ry <= 0 && rz <= 0) { out = in; return out; }
+  const BallOffsets off = ball_offsets(rx, ry, rz);
   MorphWorker w(in.data(), out.data(), nx, ny, nz, &off, erode);
   TinyParallel::parallelFor(0, static_cast<usize>(nz), w, 1);
   return out;
@@ -879,16 +887,23 @@ Rcpp::NumericVector n4_truncate_quantiles(const Rcpp::NumericVector& x, double l
   return out;
 }
 
-// Binary erosion (erode = TRUE) or dilation with the ITK ball of `radius`.
+// Binary erosion (erode = TRUE) or dilation with the ITK ball of `radius`:
+// one radius, or one per axis.
 // [[Rcpp::export]]
 Rcpp::LogicalVector n4_mask_morph(const Rcpp::LogicalVector& mask, const Rcpp::IntegerVector& dims,
-                                  int radius, bool erode)
+                                  const Rcpp::IntegerVector& radius, bool erode)
 {
   using namespace raven4;
   check_dims(dims, mask.size(), "`n4_mask_morph`");
-  if (radius < 0) Rcpp::stop("`n4_mask_morph`: `radius` must be >= 0.");
+  const R_xlen_t nr = radius.size();
+  if (nr != 1 && nr != 3) Rcpp::stop("`n4_mask_morph`: `radius` must have 1 or 3 elements.");
+  int r[3];
+  for (R_xlen_t i = 0; i < 3; ++i) {
+    r[i] = radius[nr == 1 ? 0 : i];
+    if (r[i] == NA_INTEGER || r[i] < 0) Rcpp::stop("`n4_mask_morph`: `radius` must be >= 0.");
+  }
   std::vector<unsigned char> m = logical_to_bytes(mask);
-  return bytes_to_logical(morph(m, dims[0], dims[1], dims[2], radius, erode));
+  return bytes_to_logical(morph(m, dims[0], dims[1], dims[2], r[0], r[1], r[2], erode));
 }
 
 // get_mask clean-up: erode(radius) -> [largest component] -> dilate(radius)
@@ -903,11 +918,22 @@ Rcpp::LogicalVector n4_mask_cleanup(const Rcpp::LogicalVector& mask, const Rcpp:
   if (min_size < 0) min_size = 0;
   const int nx = dims[0], ny = dims[1], nz = dims[2];
   std::vector<unsigned char> m = logical_to_bytes(mask);
-  if (radius > 0) m = morph(m, nx, ny, nz, radius, true);
+  if (radius > 0) m = morph(m, nx, ny, nz, radius, radius, radius, true);
   if (keep_largest) m = largest_component(m, nx, ny, nz, static_cast<usize>(min_size));
-  if (radius > 0) m = morph(m, nx, ny, nz, radius, false);
+  if (radius > 0) m = morph(m, nx, ny, nz, radius, radius, radius, false);
   m = fill_holes(m, nx, ny, nz);
   return bytes_to_logical(m);
+}
+
+// Largest component alone: `n4_mask_cleanup` always fills the holes.
+// [[Rcpp::export]]
+Rcpp::LogicalVector n4_mask_largest_component(const Rcpp::LogicalVector& mask,
+                                              const Rcpp::IntegerVector& dims)
+{
+  using namespace raven4;
+  check_dims(dims, mask.size(), "`n4_mask_largest_component`");
+  std::vector<unsigned char> m = logical_to_bytes(mask);
+  return bytes_to_logical(largest_component(m, dims[0], dims[1], dims[2], 0));
 }
 
 // Evaluate a control-point lattice on a regular grid covering its whole

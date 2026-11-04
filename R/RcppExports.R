@@ -577,6 +577,10 @@ n4_mask_cleanup <- function(mask, dims, radius, keep_largest, min_size) {
     .Call(`_ravetools_n4_mask_cleanup`, mask, dims, radius, keep_largest, min_size)
 }
 
+n4_mask_largest_component <- function(mask, dims) {
+    .Call(`_ravetools_n4_mask_largest_component`, mask, dims)
+}
+
 n4_bspline_evaluate <- function(lattice, ldims, order, grid) {
     .Call(`_ravetools_n4_bspline_evaluate`, lattice, ldims, order, grid)
 }

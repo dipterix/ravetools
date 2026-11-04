@@ -3430,14 +3430,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // n4_mask_morph
-Rcpp::LogicalVector n4_mask_morph(const Rcpp::LogicalVector& mask, const Rcpp::IntegerVector& dims, int radius, bool erode);
+Rcpp::LogicalVector n4_mask_morph(const Rcpp::LogicalVector& mask, const Rcpp::IntegerVector& dims, const Rcpp::IntegerVector& radius, bool erode);
 RcppExport SEXP _ravetools_n4_mask_morph(SEXP maskSEXP, SEXP dimsSEXP, SEXP radiusSEXP, SEXP erodeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::LogicalVector& >::type mask(maskSEXP);
     Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type dims(dimsSEXP);
-    Rcpp::traits::input_parameter< int >::type radius(radiusSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type radius(radiusSEXP);
     Rcpp::traits::input_parameter< bool >::type erode(erodeSEXP);
     rcpp_result_gen = Rcpp::wrap(n4_mask_morph(mask, dims, radius, erode));
     return rcpp_result_gen;
@@ -3455,6 +3455,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type keep_largest(keep_largestSEXP);
     Rcpp::traits::input_parameter< int >::type min_size(min_sizeSEXP);
     rcpp_result_gen = Rcpp::wrap(n4_mask_cleanup(mask, dims, radius, keep_largest, min_size));
+    return rcpp_result_gen;
+END_RCPP
+}
+// n4_mask_largest_component
+Rcpp::LogicalVector n4_mask_largest_component(const Rcpp::LogicalVector& mask, const Rcpp::IntegerVector& dims);
+RcppExport SEXP _ravetools_n4_mask_largest_component(SEXP maskSEXP, SEXP dimsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::LogicalVector& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type dims(dimsSEXP);
+    rcpp_result_gen = Rcpp::wrap(n4_mask_largest_component(mask, dims));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -4571,6 +4583,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_n4_truncate_quantiles", (DL_FUNC) &_ravetools_n4_truncate_quantiles, 4},
     {"_ravetools_n4_mask_morph", (DL_FUNC) &_ravetools_n4_mask_morph, 4},
     {"_ravetools_n4_mask_cleanup", (DL_FUNC) &_ravetools_n4_mask_cleanup, 5},
+    {"_ravetools_n4_mask_largest_component", (DL_FUNC) &_ravetools_n4_mask_largest_component, 2},
     {"_ravetools_n4_bspline_evaluate", (DL_FUNC) &_ravetools_n4_bspline_evaluate, 4},
     {"_ravetools_n4_bspline_refine", (DL_FUNC) &_ravetools_n4_bspline_refine, 3},
     {"_ravetools_n4_bias_field", (DL_FUNC) &_ravetools_n4_bias_field, 14},
