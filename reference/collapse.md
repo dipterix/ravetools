@@ -67,7 +67,7 @@ x = array(1:120, dim = c(2,3,4,5))
 result = collapse(x, keep = c(3,2))
 compare = apply(x, c(3,2), mean)
 sum(abs(result - compare)) # The same, yield 0 or very small number (1e-10)
-#> [1] 5.684342e-14
+#> [1] 1.421085e-14
 
 
 # \donttest{
@@ -87,8 +87,8 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>     expr     min      lq    mean  median      uq     max neval
-#>   result 382.901 382.901 382.901 382.901 382.901 382.901     1
-#>  compare 576.543 576.543 576.543 576.543 576.543 576.543     1
+#>   result 356.682 356.682 356.682 356.682 356.682 356.682     1
+#>  compare 192.958 192.958 192.958 192.958 192.958 192.958     1
 
 # large data big difference
 x = array(rnorm(prod(300,200,105)), c(300,200,105,1))
@@ -100,8 +100,8 @@ microbenchmark::microbenchmark(
   })
 #> Unit: milliseconds
 #>     expr      min       lq     mean   median       uq      max neval
-#>   result  18.7205  18.7205  18.7205  18.7205  18.7205  18.7205     1
-#>  compare 156.8632 156.8632 156.8632 156.8632 156.8632 156.8632     1
+#>   result  12.9713  12.9713  12.9713  12.9713  12.9713  12.9713     1
+#>  compare 139.2994 139.2994 139.2994 139.2994 139.2994 139.2994     1
 
 # }
 ```

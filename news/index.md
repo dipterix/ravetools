@@ -1,5 +1,13 @@
 # Changelog
 
+## ravetools 0.4.2
+
+- Added `morph_volume` for the erosion, dilation, largest connected
+  component and hole filling of a 3D mask; the erosion and dilation take
+  one radius (a ball) or one radius per axis (an ellipsoid, so that a
+  distance in millimeters holds on voxels that are longer along one
+  axis)
+
 ## ravetools 0.4.1
 
 - `register_volume3d` ends every deformable (`syn`, `syn_only`) level

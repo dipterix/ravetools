@@ -215,9 +215,9 @@ label_src <- apply_transform3d_volume(label, reg, direction = "inverse",
 p_src <- rbind(c(2, -1, 0.5), c(0, 0, 0))
 p_tgt <- apply_transform3d_points(p_src, reg, direction = "forward")
 apply_transform3d_points(p_tgt, reg, direction = "inverse")   # round trip
-#>      [,1]          [,2]          [,3]
-#> [1,]    2 -1.000000e+00  5.000000e-01
-#> [2,]    0 -1.110223e-16 -1.110223e-16
+#>               [,1]          [,2]          [,3]
+#> [1,]  2.000000e+00 -1.000000e+00  5.000000e-01
+#> [2,] -4.440892e-16 -2.220446e-16 -1.110223e-16
 
 # the same linear transform as an ANTs-style list (reference grid required)
 same <- apply_transform3d_volume(source, list(reg$transform), vox2ras = vox2ras,

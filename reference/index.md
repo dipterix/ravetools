@@ -170,6 +170,9 @@
 - [`mesh_from_volume()`](https://dipterix.org/ravetools/reference/mesh_from_volume.md)
   : Generate 3D mesh surface from volume data
 
+- [`morph_volume()`](https://dipterix.org/ravetools/reference/morph_volume.md)
+  : Morphological operations on a volume mask
+
 - [`mris_curvature()`](https://dipterix.org/ravetools/reference/mris_curvature.md)
   : Estimate per-node curvature of a surface mesh
 

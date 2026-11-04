@@ -81,9 +81,9 @@ head(cut$representation)
 #>   unit index    distance x_index
 #> 1  354     2 0.019227119     141
 #> 2  355     2 0.019227119     141
-#> 3  356     2 0.017633209     144
-#> 4  357     2 0.018250201     131
-#> 5  358     1 0.018250201     131
+#> 3  356     2 0.017633205     131
+#> 4  357     2 0.018250195     131
+#> 5  358     1 0.018250195     131
 #> 6  424     2 0.005326802     349
 ```
 
@@ -182,7 +182,7 @@ str(kd)
 #>  $ index   : int [1:1600, 1] 1843 1843 1843 1845 1845 1847 1847 1887 1887 1887 ...
 #>  $ distance: num [1:1600, 1] 0.972 0.923 0.877 0.832 0.786 ...
 range(kd$distance)
-#> [1] 0.007727357 0.972278178
+#> [1] 0.007727357 0.972278237
 ```
 
 Asking for more than one neighbor widens both matrices to `k` columns,
@@ -327,7 +327,7 @@ returning a number that means nothing:
 ``` r
 
 vcg_mesh_volume(raw_mesh)
-#> [1] 5523.685
+#> [1] 5523.686
 vcg_average_edge_length(raw_mesh)
 #> [1] 0.9966903
 vcg_max_edge_length(raw_mesh)
@@ -377,7 +377,7 @@ info[c("boundary_edges_before", "boundary_edges_after",
 
 # the same call that warned above, now on a closed surface
 vcg_mesh_volume(mesh)
-#> [1] 5523.685
+#> [1] 5523.686
 ```
 
 The mesh is a closed `manifold` now, so its volume is trustworthy and
@@ -437,7 +437,7 @@ implicit <- vcg_smooth_implicit(mesh, lambda = 0.2, degree = 2)
 fs_style <- mris_smooth(mesh, niterations = 20L)
 
 vapply(list(mesh, taubin, implicit, fs_style), vcg_mesh_volume, 0)
-#> [1] 5523.685 5535.036 5435.650 4523.452
+#> [1] 5523.686 5535.036 5435.650 4523.452
 ```
 
 `vcg_smooth_explicit` applies a per-vertex `Laplacian` step repeatedly;
@@ -457,7 +457,7 @@ inflated <- mris_inflate(fs_style, n_averages = 4L, niterations = 8L,
 names(inflated)
 #> [1] "mesh" "sulc"
 range(inflated$sulc)
-#> [1] -4.932590  3.978328
+#> [1] -4.932592  3.978329
 ```
 
 `mris_sphere` continues the deformation all the way onto a sphere of
@@ -470,8 +470,8 @@ spread in vertex radius is the honest measure of convergence:
 spherical <- mris_sphere(fs_style, target_radius = 100, verbose = FALSE)
 radius <- sqrt(colSums(spherical$vb[1:3, ]^2))
 c(min = min(radius), max = max(radius), cv = stats::sd(radius) / mean(radius))
-#>         min         max          cv 
-#>  90.3261054 112.5976581   0.0153544
+#>          min          max           cv 
+#>  90.32417573 112.59765965   0.01535483
 ```
 
 Under two percent here. Both `mris_inflate` and `mris_sphere` were
