@@ -2,6 +2,8 @@
 
 ## ravetools 0.4.2
 
+CRAN release: 2026-11-08
+
 - Added `morph_volume` for the erosion, dilation, largest connected
   component and hole filling of a 3D mask; the erosion and dilation take
   one radius (a ball) or one radius per axis (an ellipsoid, so that a
