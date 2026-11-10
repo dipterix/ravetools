@@ -35,7 +35,7 @@ contrast."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Calculate Contrasts of Arrays in Different Methods</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/master/R/baseline.R" class="external-link"><code>R/baseline.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.2/R/baseline.R" class="external-link"><code>R/baseline.R</code></a></small>
       <div class="d-none name"><code>baseline_array.Rd</code></div>
     </div>
 
@@ -230,9 +230,9 @@ $$</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1.818989e-12  2.273737e-12</span>
 <span class="r-in"><span><span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html" class="external-link">microbenchmark</a></span><span class="op">(</span><span class="fu">f1</span><span class="op">(</span><span class="op">)</span>, <span class="fu">f2</span><span class="op">(</span><span class="op">)</span>, times <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unit: milliseconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  expr       min        lq      mean   median        uq      max neval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  f1() 81.870665 86.243264 118.84403 88.83082 192.21328 193.8122    10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  f2()  5.463625  7.975093  20.59517 10.84405  12.75694 117.9536    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  expr      min        lq      mean   median        uq      max neval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  f1() 69.78502 82.151488 110.66316 88.39887 170.96101 174.6322    10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  f2()  5.31483  9.399511  22.22637 12.44749  12.58238 122.5116    10</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
