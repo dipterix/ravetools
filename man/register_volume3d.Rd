@@ -32,6 +32,11 @@ register_volume3d(
   syn_cc_radius = 2L,
   syn_convergence = 1e-06,
   syn_convergence_window = 10L,
+  syn_metric = NULL,
+  syn_mi_bins = 32L,
+  syn_mi_sampling = 0.25,
+  syn_channel_combination = c("sum", "normalized"),
+  syn_symmetric = FALSE,
   verbose = TRUE
 )
 }
@@ -96,12 +101,18 @@ by a \verb{SDR} - symmetric \verb{diffeomorphic} deformation), or
 estimated; \code{init_transform} is used directly as the starting
 \verb{affine}, useful when you already have a good linear alignment)}
 
-\item{metric}{similarity metric: \code{"mattes"} (Mattes mutual information,
-the default, best for cross-modal such as \code{'CT'}-\code{'MRI'}),
-\code{"cc"} (normalized cross-correlation, for same-modality), or
-\code{"meansquares"} (mean squared intensity difference). With multiple
-channels, supply either a single metric (used for every pair) or a vector
-with one metric per source/target pair}
+\item{metric}{similarity metric of the rigid and \verb{affine} stages:
+\code{"mattes"} (Mattes mutual information, the default, best for
+cross-modal such as \code{'CT'}-\code{'MRI'}), \code{"cc"} (normalized
+cross-correlation, for same-modality), or \code{"meansquares"} (mean squared
+intensity difference). Those stages use the first pair only, so with multiple
+channels only the first entry drives them; a single value is recycled to
+every pair, and one value per pair is accepted. In the deformable stage,
+while \code{syn_metric} is \code{NULL}, each entry only chooses between local
+cross-correlation (\code{"mattes"} or \code{"cc"}) and mean squares
+(\code{"meansquares"}) for its pair: \code{"mattes"} never gives mutual
+information there. Use \code{syn_metric} to set the deformable metric of
+each pair}
 
 \item{shrink_factors}{integer down-sampling factors, one per resolution level
 (coarsest first); default \code{c(4, 2, 1)}}
@@ -113,7 +124,9 @@ same length as \code{shrink_factors}; default \code{c(2, 1, 0)}}
 \code{c(1000, 500, 250)}}
 
 \item{sampling_rate}{fraction of fixed voxels sampled to evaluate the metric
-(speeds up large volumes); default \code{0.2}}
+of the rigid and \verb{affine} stages (speeds up large volumes); default
+\code{0.2}. The deformable stage does not use it: see
+\code{syn_mi_sampling} for its \code{"mattes"} channels}
 
 \item{interpolation}{output interpolation used when warping each modality
 onto the target grid: \code{'trilinear'} (default), \code{'nearest'} (keeps
@@ -124,8 +137,9 @@ affects only the returned warped images, never the optimization's internal
 sampling (always \code{'trilinear'}, so every channel still produces
 smooth gradients)}
 
-\item{number_of_bins}{number of histogram bins for the \code{"mattes"}
-metric; default \code{32}}
+\item{number_of_bins}{number of histogram bins of the \code{"mattes"}
+metric in the rigid and \verb{affine} stages; default \code{32}. The
+\code{"mattes"} channels of the deformable stage use \code{syn_mi_bins}}
 
 \item{seed}{random seed for the voxel sampler, for reproducibility}
 
@@ -162,6 +176,53 @@ of recent iterations whose cost trend is tested (an integer of at least 2;
 default \code{10L}). The defaults are those of \code{antsRegistration}; the
 \code{"SyN"} transforms of \pkg{'ANTsPy'} use \code{1e-7} and \code{8L}.
 See \sQuote{Details}}
+
+\item{syn_metric}{metric of each channel in the deformable stage:
+\code{"cc"} (local cross-correlation with radius \code{syn_cc_radius}),
+\code{"mattes"} (\verb{Mattes} mutual information, as the \code{MI}
+metric of \pkg{'ANTs'}) or \code{"meansquares"}; a single value is
+recycled to every channel. The default \code{NULL} keeps the behavior of
+\code{metric}: local cross-correlation, or mean squares where \code{metric}
+is \code{"meansquares"}. When given, it replaces that choice, and
+\code{metric} then only sets the rigid and \verb{affine} stages. The force
+of \code{"mattes"} differs from that of \verb{ITK} in one term: it takes the
+joint histogram relative to the target histogram (the gradient of the joint
+entropy), not the source histogram,
+as the exact derivative does; with the source histogram, the one-sided
+update kept moving aligned images}
+
+\item{syn_mi_bins, syn_mi_sampling}{histogram bins (an integer of at least
+8; default \code{32L}) and the fraction of the voxels of each level that are
+sampled at random (seeded by \code{seed}; greater than 0 and at most 1,
+default \code{0.25}) of the \code{"mattes"} channels of the deformable
+stage, as in \code{MI[fixed,moving,weight,32,Random,0.25]} of
+\pkg{'ANTs'}; only the sampled voxels drive the field, which the update
+smoothing spreads. They are independent of \code{number_of_bins} and
+\code{sampling_rate}, which set the same quantities for the rigid and
+\verb{affine} stages}
+
+\item{syn_channel_combination}{how the channels of the deformable stage are
+combined: \code{"sum"} (default) adds the weighted forces of the channels,
+so a channel whose derivative is larger (sharper edges, or mean squares on
+brighter images) counts more than its weight; \code{"normalized"} divides
+the force field of each channel by its norm before weighting, as the
+multi-metric of \verb{ITK} that \pkg{'ANTs'} uses, so only the weights set the
+share of each channel. Use \code{"normalized"} to combine \code{"mattes"}
+channels with others, as their derivative has another scale}
+
+\item{syn_symmetric}{whether the deformable stage is symmetric, as the
+\code{SyN} of \pkg{'ANTs'}: two displacement fields carry the target and
+the source to a middle space, each driven by the gradient of its own image,
+and every update is composed with the field (the maps stay one-to-one) instead
+of added to it; the result is the inverse of the target half composed with
+the source half; as in \pkg{'ANTs'}, the fields keep zero displacement on
+the outermost voxel layer, and only the voxels whose samples fall inside
+both images and both masks drive either half (a source sample outside
+\code{source_mask} is background, which pulls neither image). The default
+\code{FALSE} keeps the faster one-sided update,
+driven by the source gradient only, whose bias (for instance with
+\code{"mattes"}) is not canceled by the other side. Not available with
+landmarks (\code{source_points})}
 
 \item{verbose}{logical; if \code{TRUE} (default) print per-level and
 per-iteration progress to the console, including the current stage, shrink
@@ -214,12 +275,14 @@ metric only changes the linear stages). The \pkg{'ANTs'}-like
 \code{'T1'}-to-template preset is \code{syn_cc_radius = 4},
 \code{syn_grad_step = 0.15} and \code{syn_sigma = 3.5}; the defaults are a
 faster, lightly regularized variant. For cross-contrast pairs mutual
-information is the usual choice for the linear stages; the deformable stage
-has no mutual-information metric, and its squared local correlation
-tolerates an inverted contrast (such as \code{'T2'} against \code{'T1'})
-but not a non-monotonic relation (such as \verb{FLAIR} or \code{'CT'}
-against \code{'T1'}), so give such channels a low weight in a multichannel
-call.
+information is the usual choice for the linear stages. In the deformable
+stage, the squared local correlation tolerates an inverted contrast (such as
+\code{'T2'} against \code{'T1'}) but not a non-monotonic relation (such as
+\verb{FLAIR} or \code{'CT'} against \code{'T1'}); for such channels, or
+for probability maps whose edges differ in sharpness, set
+\code{syn_metric = "mattes"} for them with
+\code{syn_channel_combination = "normalized"}, as the \code{MI} channels of
+a multivariate \pkg{'ANTs'} \code{SyN}.
 
 \strong{Convergence of the deformable stage.} With \code{syn_convergence}
 set (the default), every deformable level ends as soon as its cost stops
@@ -280,9 +343,11 @@ res$transform[1:3, 4]                 # ~ c(3, -2, 1)
 
 # --- multimodal registration (several co-registered channels) ------------
 # Two aligned modalities (e.g. a T1 and a T2) jointly drive the deformable
-# stage. Each pair may use its own metric, and `weights` set their relative
-# influence (normalized internally to sum to 1). All source channels must
-# share a grid; likewise all target channels.
+# stage; the rigid and affine stages use the first pair only. `metric` sets
+# the metric of the rigid and affine stages, `syn_metric` the deformable
+# metric of each pair, and `weights` their relative influence (normalized
+# internally to sum to 1). All source channels must share a grid; likewise
+# all target channels.
 t1_target <- blob(25, 25, 25, s = 6)
 t2_target <- blob(25, 25, 25, s = 9)  # same anatomy, different contrast
 t1_source <- blob(27, 24, 26, s = 6)  # both channels share the same warp
@@ -293,7 +358,9 @@ res_mm <- register_volume3d(
   target = list(t1_target, t2_target),
   source_vox2ras = vox2ras, target_vox2ras = vox2ras,
   weights = c(2, 1),                  # T1 counts twice as much as T2
-  metric = c("mattes", "cc"),         # one metric per channel
+  metric = "mattes",                  # rigid and affine stages (first pair)
+  syn_metric = c("cc", "mattes"),     # deformable metric of each pair
+  syn_channel_combination = "normalized",  # so the weights alone set the shares
   type = "syn"
 )
 res_mm$transform[1:3, 4]

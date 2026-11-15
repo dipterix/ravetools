@@ -351,3 +351,282 @@ test_that("cortical landmark term pulls the SyN warp onto correspondences", {
                       source_points = ras_mov[1:4, ], verbose = FALSE),
     "same number of rows")
 })
+
+# helper: a moving image made by warping `vol` through a smooth sinusoidal
+# displacement (0-based voxel units), sampled trilinearly (0 outside)
+smooth_warp <- function(vol, amp = 1.4, L = 16) {
+  d <- dim(vol)
+  g <- expand.grid(x = 0:(d[1] - 1), y = 0:(d[2] - 1), z = 0:(d[3] - 1))
+  cx <- g$x + amp * sin(2 * pi * g$y / L)
+  cy <- g$y + amp * sin(2 * pi * g$z / L)
+  cz <- g$z + amp * sin(2 * pi * g$x / L)
+  inb <- cx >= 0 & cy >= 0 & cz >= 0 & cx <= d[1] - 1 & cy <= d[2] - 1 & cz <= d[3] - 1
+  cx <- pmin(pmax(cx, 0), d[1] - 1)
+  cy <- pmin(pmax(cy, 0), d[2] - 1)
+  cz <- pmin(pmax(cz, 0), d[3] - 1)
+  x0 <- floor(cx)
+  y0 <- floor(cy)
+  z0 <- floor(cz)
+  x1 <- pmin(x0 + 1, d[1] - 1)
+  y1 <- pmin(y0 + 1, d[2] - 1)
+  z1 <- pmin(z0 + 1, d[3] - 1)
+  fx <- cx - x0
+  fy <- cy - y0
+  fz <- cz - z0
+  v <- function(x, y, z) vol[x + d[1] * (y + d[2] * z) + 1]
+  c0 <- (v(x0, y0, z0) * (1 - fx) + v(x1, y0, z0) * fx) * (1 - fy) +
+    (v(x0, y1, z0) * (1 - fx) + v(x1, y1, z0) * fx) * fy
+  c1 <- (v(x0, y0, z1) * (1 - fx) + v(x1, y0, z1) * fx) * (1 - fy) +
+    (v(x0, y1, z1) * (1 - fx) + v(x1, y1, z1) * fx) * fy
+  out <- c0 * (1 - fz) + c1 * fz
+  out[!inb] <- 0
+  array(out, d)
+}
+
+test_that("deformable-stage options left at their defaults keep the results", {
+  skip_on_cran()
+  nd <- c(24L, 24L, 24L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -12
+  target <- phantom(nd, seed = 5, nblob = 6)
+  source <- smooth_warp(target)
+  args <- list(source, target, v2r, v2r, type = "syn_only", init_transform = diag(4),
+               shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0),
+               syn_iterations = c(15, 10), verbose = FALSE)
+  for (metric in c("mattes", "cc", "meansquares")) {
+    a <- do.call(register_volume3d, c(args, list(metric = metric)))
+    b <- do.call(register_volume3d, c(args, list(
+      metric = metric, syn_metric = NULL, syn_mi_bins = 32L, syn_mi_sampling = 0.25,
+      syn_channel_combination = "sum", syn_symmetric = FALSE)))
+    expect_identical(b$forward_field, a$forward_field)
+    expect_identical(b$metric_trace, a$metric_trace)
+  }
+})
+
+test_that("the normalized channel combination weighs channels whatever their derivative scale", {
+  skip_on_cran()
+  nd <- c(24L, 24L, 24L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -12
+  # channel 1 (local CC) asks for the deformation, channel 2 (mean squares,
+  # whose derivative grows with the square of the intensities) asks for none
+  t1 <- phantom(nd, seed = 3, nblob = 8)
+  t2 <- phantom(nd, seed = 4, nblob = 8)
+  s1 <- smooth_warp(t1)
+  run <- function(scale2, combination) {
+    register_volume3d(
+      list(s1, t2 * scale2), list(t1, t2 * scale2), v2r, v2r, type = "syn_only",
+      init_transform = diag(4), weights = c(1, 0.5), syn_metric = c("cc", "meansquares"),
+      syn_channel_combination = combination, shrink_factors = c(2, 1),
+      smoothing_sigmas = c(1, 0), syn_iterations = c(20, 10), syn_convergence = NULL,
+      verbose = FALSE)$forward_field
+  }
+  # as in the multi-metric of 'ITK': only the weights set a channel's share
+  expect_lt(max(abs(run(10, "normalized") - run(1, "normalized"))), 1e-3)
+  # the plain weighted sum follows the larger derivative of channel 2
+  sum1 <- run(1, "sum")
+  sum10 <- run(10, "sum")
+  expect_gt(max(abs(sum10 - sum1)), 0.05)
+  expect_lt(mean(abs(sum10)), mean(abs(sum1)))
+})
+
+test_that("the mattes deformable metric recovers a shift and keeps aligned images still", {
+  skip_on_cran()
+  nd <- c(28L, 28L, 28L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -14
+  target <- phantom(nd, seed = 9, nblob = 8)
+  inner <- target > 0.2 * max(target)
+  # moving(x) = target(x - 1.5 e_x): the forward field should point along +x
+  shift <- diag(4)
+  shift[1, 4] <- -1.5
+  moving <- apply_transform3d_volume(target, list(shift), vox2ras = v2r,
+                                     reference_dim = nd, reference_vox2ras = v2r)
+  run <- function(source, metric) {
+    register_volume3d(
+      source, target, v2r, v2r, type = "syn_only", init_transform = diag(4),
+      syn_metric = metric, syn_mi_sampling = 1, shrink_factors = c(2, 1),
+      smoothing_sigmas = c(1, 0), syn_iterations = c(40, 20), syn_sigma = sqrt(3),
+      syn_grad_step = 0.2, syn_convergence = 1e-7, syn_convergence_window = 8L,
+      verbose = FALSE)
+  }
+  # as local CC (and as 'ANTs' MI on this pair: mean 0.88, sd 0.36, mean
+  # transverse 0.20 when this test was written; ravetools gave 0.76, 0.45, 0.30)
+  res <- run(moving, "mattes")
+  ux <- res$forward_field[, , , 1][inner]
+  uy <- res$forward_field[, , , 2][inner]
+  expect_gt(mean(ux), 0.5)
+  expect_lt(sd(ux), 0.8)
+  expect_lt(mean(abs(uy)), 0.5)
+  # the cost is the negative mutual information
+  expect_true(all(res$metric_trace < 0))
+  # aligned images stay about where they are (0.31 voxel when this test was
+  # written; before the force took the ratio to the fixed marginal, as ITK
+  # does, it drifted by 2.3)
+  still <- run(target, "mattes")
+  norm <- sqrt(rowSums(matrix(still$forward_field, ncol = 3)^2))
+  expect_lt(mean(norm[inner]), 0.5)
+})
+
+# helper: share of the voxels of a mask where the map x -> x + u(x) folds
+# (Jacobian determinant <= 0), from central differences in voxel units
+folding_share <- function(field, mask) {
+  d <- dim(field)[1:3]
+  shift <- function(a, ax, s) {
+    idx <- lapply(d, seq_len)
+    idx[[ax]] <- pmin(pmax(idx[[ax]] + s, 1), d[ax])
+    do.call(`[`, c(list(a), idx))
+  }
+  J <- array(0, c(d, 3, 3))
+  for (cc in 1:3) {
+    for (ax in 1:3) {
+      J[, , , cc, ax] <- (shift(field[, , , cc], ax, 1) - shift(field[, , , cc], ax, -1)) / 2
+    }
+    J[, , , cc, cc] <- J[, , , cc, cc] + 1
+  }
+  det <- J[, , , 1, 1] * (J[, , , 2, 2] * J[, , , 3, 3] - J[, , , 2, 3] * J[, , , 3, 2]) -
+    J[, , , 1, 2] * (J[, , , 2, 1] * J[, , , 3, 3] - J[, , , 2, 3] * J[, , , 3, 1]) +
+    J[, , , 1, 3] * (J[, , , 2, 1] * J[, , , 3, 2] - J[, , , 2, 2] * J[, , , 3, 1])
+  mean(det[mask] <= 0)
+}
+
+test_that("symmetric SyN recovers a smooth deformation at least as well, without folding", {
+  skip_on_cran()
+  nd <- c(28L, 28L, 28L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -14
+  target <- phantom(nd, seed = 3, nblob = 8)
+  moving <- smooth_warp(target, amp = 2, L = 14)
+  run <- function(symmetric, sigma) {
+    register_volume3d(
+      moving, target, v2r, v2r, type = "syn_only", init_transform = diag(4), metric = "cc",
+      shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0), syn_iterations = c(40, 30),
+      syn_sigma = sigma, syn_grad_step = 0.2, syn_symmetric = symmetric, verbose = FALSE)
+  }
+  greedy <- run(FALSE, 2)
+  symmetric <- run(TRUE, 2)
+  mse <- function(r) mean((r$image - target)^2)
+  expect_lt(mse(symmetric), mse(greedy) * 1.1)
+  expect_lt(mse(symmetric), mean((moving - target)^2) / 2)
+  # compositional updates keep the map one-to-one, even with little smoothing
+  inside <- array(TRUE, nd)
+  expect_equal(folding_share(run(TRUE, 0.5)$forward_field, inside), 0)
+})
+
+test_that("symmetric SyN keeps aligned images still and aligns non-monotonic intensities by MI", {
+  skip_on_cran()
+  nd <- c(28L, 28L, 28L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -14
+  target <- phantom(nd, seed = 9, nblob = 8)
+  inner <- target > 0.2 * max(target)
+  run <- function(source) {
+    register_volume3d(
+      source, target, v2r, v2r, type = "syn_only", init_transform = diag(4),
+      syn_metric = "mattes", syn_mi_sampling = 1, syn_symmetric = TRUE,
+      shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0), syn_iterations = c(40, 20),
+      syn_sigma = sqrt(3), syn_grad_step = 0.2, syn_convergence = 1e-7,
+      syn_convergence_window = 8L, verbose = FALSE)
+  }
+  # the two half fields cancel the bias of the one-sided update ('ANTs' kept
+  # this pair within 0.004 voxel when this test was written)
+  still <- run(target)
+  norm <- sqrt(rowSums(matrix(still$forward_field, ncol = 3)^2))
+  expect_lt(mean(norm[inner]), 0.1)
+  # a non-monotonic intensity relation ('ANTs' MI took the correlation with
+  # the ideal from 0.947 to 0.984, its CC down to 0.880)
+  mid <- max(target) / 2
+  remap <- function(v) { (v - mid)^2 }
+  moving <- remap(smooth_warp(target))
+  ideal <- remap(target)
+  res <- run(moving)
+  base <- cor(as.vector(moving), as.vector(ideal))
+  expect_gt(cor(as.vector(res$image), as.vector(ideal)), base + 0.02)
+})
+
+test_that("symmetric SyN gives about inverse maps when the images swap", {
+  skip_on_cran()
+  nd <- c(28L, 28L, 28L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -14
+  a <- phantom(nd, seed = 3, nblob = 8)
+  b <- smooth_warp(a, amp = 1.5, L = 14)
+  run <- function(source, target, symmetric) {
+    register_volume3d(
+      source, target, v2r, v2r, type = "syn_only", init_transform = diag(4), metric = "cc",
+      shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0), syn_iterations = c(40, 30),
+      syn_sigma = 2, syn_symmetric = symmetric, verbose = FALSE)
+  }
+  # target points of the first registration, mapped to its source (the second
+  # registration's target) and back
+  g <- as.matrix(expand.grid(x = 8:19, y = 8:19, z = 8:19))
+  p <- t(v2r[1:3, 1:3] %*% t(g) + v2r[1:3, 4])
+  roundtrip <- function(symmetric) {
+    ab <- run(a, b, symmetric)
+    ba <- run(b, a, symmetric)
+    q <- apply_transform3d_points(p, ab, direction = "inverse")
+    back <- apply_transform3d_points(q, ba, direction = "inverse")
+    mean(sqrt(rowSums((back - p)^2)))
+  }
+  sym <- roundtrip(TRUE)
+  expect_lt(sym, 0.3)
+  expect_lt(sym, roundtrip(FALSE))
+})
+
+test_that("symmetric SyN drives neither half where the moving sample is outside the moving mask", {
+  skip_on_cran()
+  nd <- c(28L, 28L, 28L)
+  v2r <- diag(4)
+  v2r[1:3, 4] <- -14
+  target <- phantom(nd, seed = 9, nblob = 8)
+  # the same image on both sides, and a moving mask that leaves out a slab.
+  # There the moving sample counts as background (no value, no gradient); the
+  # one-sided path and 'ANTs' (samples inside both masks only) ignore it, so
+  # the aligned images stay still, but for the rounding differences that the
+  # step cap scales up (the one-sided path moved 0.10 mm when this test was
+  # written, the symmetric one 6 mm before it gated the fixed half too)
+  mask <- array(1, nd)
+  mask[, , 19:28] <- 0
+  expect_gt(sum(target[, , 19:28] > 0.2 * max(target)), 100)
+  run <- function(symmetric) {
+    register_volume3d(
+      target, target, v2r, v2r, source_mask = mask, type = "syn_only",
+      init_transform = diag(4), metric = "meansquares", syn_symmetric = symmetric,
+      shrink_factors = c(2, 1), smoothing_sigmas = c(1, 0), syn_iterations = c(40, 20),
+      syn_sigma = sqrt(3), syn_grad_step = 0.2, verbose = FALSE)
+  }
+  largest <- function(res) max(sqrt(rowSums(matrix(res$forward_field, ncol = 3)^2)))
+  expect_lt(largest(run(FALSE)), 0.25)
+  expect_lt(largest(run(TRUE)), 0.25)
+})
+
+test_that("symmetric SyN refuses landmarks", {
+  nd <- c(8L, 8L, 8L)
+  v <- array(seq_len(prod(nd)) / prod(nd), nd)
+  v2r <- diag(4)
+  pts <- matrix(c(1, 2, 3, 4, 5, 6), 2, 3)
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only", syn_symmetric = TRUE,
+                                 source_points = pts, target_points = pts, verbose = FALSE),
+               "not available with `syn_symmetric = TRUE`")
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only", syn_symmetric = NA,
+                                 verbose = FALSE), "`syn_symmetric` must")
+})
+
+test_that("deformable-stage options are validated", {
+  nd <- c(8L, 8L, 8L)
+  v <- array(seq_len(prod(nd)) / prod(nd), nd)
+  v2r <- diag(4)
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only", syn_metric = "nope",
+                                 verbose = FALSE), "`syn_metric` must")
+  expect_error(register_volume3d(list(v, v), list(v, v), v2r, v2r, type = "syn_only",
+                                 syn_metric = c("cc", "cc", "cc"), verbose = FALSE), "`syn_metric` must")
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only", syn_mi_bins = 4,
+                                 verbose = FALSE), "`syn_mi_bins` must")
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only", syn_mi_sampling = 0,
+                                 verbose = FALSE), "`syn_mi_sampling` must")
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only", syn_mi_sampling = 1.5,
+                                 verbose = FALSE), "`syn_mi_sampling` must")
+  expect_error(register_volume3d(v, v, v2r, v2r, type = "syn_only",
+                                 syn_channel_combination = "max", verbose = FALSE),
+               "should be one of")
+})

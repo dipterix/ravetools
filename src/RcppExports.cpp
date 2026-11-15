@@ -3881,8 +3881,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // register_syn_cpp
-Rcpp::List register_syn_cpp(const Rcpp::List& fixedList, const Rcpp::IntegerVector& fixedDim, const Rcpp::NumericMatrix& fixedVox2Ras, const Rcpp::List& movingList, const Rcpp::IntegerVector& movingDim, const Rcpp::NumericMatrix& movingVox2Ras, const Rcpp::NumericMatrix& affineTransform, const Rcpp::CharacterVector& metricNames, const Rcpp::NumericVector& weights, const Rcpp::IntegerVector& shrinkFactors, const Rcpp::NumericVector& smoothingSigmas, const Rcpp::IntegerVector& iterations, const double gradStep, const Rcpp::NumericVector& flowSigma, const double totalSigma, const int ccRadius, const Rcpp::IntegerVector& interpCodes, const Rcpp::Nullable<Rcpp::NumericVector>& fixedMask, const Rcpp::Nullable<Rcpp::NumericVector>& movingMask, const Rcpp::NumericMatrix& fixedPoints, const Rcpp::NumericMatrix& movingPoints, const double pointsWeight, const double convergenceThreshold, const int convergenceWindow, const bool verbose);
-RcppExport SEXP _ravetools_register_syn_cpp(SEXP fixedListSEXP, SEXP fixedDimSEXP, SEXP fixedVox2RasSEXP, SEXP movingListSEXP, SEXP movingDimSEXP, SEXP movingVox2RasSEXP, SEXP affineTransformSEXP, SEXP metricNamesSEXP, SEXP weightsSEXP, SEXP shrinkFactorsSEXP, SEXP smoothingSigmasSEXP, SEXP iterationsSEXP, SEXP gradStepSEXP, SEXP flowSigmaSEXP, SEXP totalSigmaSEXP, SEXP ccRadiusSEXP, SEXP interpCodesSEXP, SEXP fixedMaskSEXP, SEXP movingMaskSEXP, SEXP fixedPointsSEXP, SEXP movingPointsSEXP, SEXP pointsWeightSEXP, SEXP convergenceThresholdSEXP, SEXP convergenceWindowSEXP, SEXP verboseSEXP) {
+Rcpp::List register_syn_cpp(const Rcpp::List& fixedList, const Rcpp::IntegerVector& fixedDim, const Rcpp::NumericMatrix& fixedVox2Ras, const Rcpp::List& movingList, const Rcpp::IntegerVector& movingDim, const Rcpp::NumericMatrix& movingVox2Ras, const Rcpp::NumericMatrix& affineTransform, const Rcpp::CharacterVector& metricNames, const Rcpp::NumericVector& weights, const Rcpp::IntegerVector& shrinkFactors, const Rcpp::NumericVector& smoothingSigmas, const Rcpp::IntegerVector& iterations, const double gradStep, const Rcpp::NumericVector& flowSigma, const double totalSigma, const int ccRadius, const Rcpp::IntegerVector& interpCodes, const Rcpp::Nullable<Rcpp::NumericVector>& fixedMask, const Rcpp::Nullable<Rcpp::NumericVector>& movingMask, const Rcpp::NumericMatrix& fixedPoints, const Rcpp::NumericMatrix& movingPoints, const double pointsWeight, const double convergenceThreshold, const int convergenceWindow, const int miBins, const double miSampling, const bool normalizeChannels, const int seed, const bool symmetric, const bool verbose);
+RcppExport SEXP _ravetools_register_syn_cpp(SEXP fixedListSEXP, SEXP fixedDimSEXP, SEXP fixedVox2RasSEXP, SEXP movingListSEXP, SEXP movingDimSEXP, SEXP movingVox2RasSEXP, SEXP affineTransformSEXP, SEXP metricNamesSEXP, SEXP weightsSEXP, SEXP shrinkFactorsSEXP, SEXP smoothingSigmasSEXP, SEXP iterationsSEXP, SEXP gradStepSEXP, SEXP flowSigmaSEXP, SEXP totalSigmaSEXP, SEXP ccRadiusSEXP, SEXP interpCodesSEXP, SEXP fixedMaskSEXP, SEXP movingMaskSEXP, SEXP fixedPointsSEXP, SEXP movingPointsSEXP, SEXP pointsWeightSEXP, SEXP convergenceThresholdSEXP, SEXP convergenceWindowSEXP, SEXP miBinsSEXP, SEXP miSamplingSEXP, SEXP normalizeChannelsSEXP, SEXP seedSEXP, SEXP symmetricSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -3910,8 +3910,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type pointsWeight(pointsWeightSEXP);
     Rcpp::traits::input_parameter< const double >::type convergenceThreshold(convergenceThresholdSEXP);
     Rcpp::traits::input_parameter< const int >::type convergenceWindow(convergenceWindowSEXP);
+    Rcpp::traits::input_parameter< const int >::type miBins(miBinsSEXP);
+    Rcpp::traits::input_parameter< const double >::type miSampling(miSamplingSEXP);
+    Rcpp::traits::input_parameter< const bool >::type normalizeChannels(normalizeChannelsSEXP);
+    Rcpp::traits::input_parameter< const int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< const bool >::type symmetric(symmetricSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(register_syn_cpp(fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, fixedPoints, movingPoints, pointsWeight, convergenceThreshold, convergenceWindow, verbose));
+    rcpp_result_gen = Rcpp::wrap(register_syn_cpp(fixedList, fixedDim, fixedVox2Ras, movingList, movingDim, movingVox2Ras, affineTransform, metricNames, weights, shrinkFactors, smoothingSigmas, iterations, gradStep, flowSigma, totalSigma, ccRadius, interpCodes, fixedMask, movingMask, fixedPoints, movingPoints, pointsWeight, convergenceThreshold, convergenceWindow, miBins, miSampling, normalizeChannels, seed, symmetric, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -4611,7 +4616,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ravetools_apply_transform3d_points_cpp", (DL_FUNC) &_ravetools_apply_transform3d_points_cpp, 2},
     {"_ravetools_invert_displacement_field_cpp", (DL_FUNC) &_ravetools_invert_displacement_field_cpp, 6},
     {"_ravetools_register_linear_cpp", (DL_FUNC) &_ravetools_register_linear_cpp, 19},
-    {"_ravetools_register_syn_cpp", (DL_FUNC) &_ravetools_register_syn_cpp, 25},
+    {"_ravetools_register_syn_cpp", (DL_FUNC) &_ravetools_register_syn_cpp, 30},
     {"_ravetools_syn_convergence_values_cpp", (DL_FUNC) &_ravetools_syn_convergence_values_cpp, 2},
     {"_ravetools_resample3D", (DL_FUNC) &_ravetools_resample3D, 6},
     {"_ravetools_shiftArray", (DL_FUNC) &_ravetools_shiftArray, 4},

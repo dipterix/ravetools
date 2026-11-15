@@ -28,3 +28,4 @@ vignettes/*.html
 vignettes/*.R
 ravetools.Rcheck
 ravetools_*.tar.gz
+CRAN-SUBMISSION
