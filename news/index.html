@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravetools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,9 +33,14 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dipterix/ravetools/blob/v0.4.2/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dipterix/ravetools/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.3" id="ravetools-043">ravetools 0.4.3<a class="anchor" aria-label="anchor" href="#ravetools-043"></a></h2>
+<ul><li>
+<code>register_volume3d</code> gains three options of the deformable stage that follow <code>ANTs</code>; their defaults keep the results unchanged. <code>syn_metric</code> sets the metric of each channel: <code>"mattes"</code> gives <code>Mattes</code> mutual information (<code>syn_mi_bins</code> bins, a seeded <code>syn_mi_sampling</code> share of the voxels), as <code>MI[fixed,moving,weight,32,Random,0.25]</code> in <code>ANTs</code>, except that its force takes the ratio to the fixed marginal (the joint-entropy gradient) where <code>ITK</code> takes the moving marginal (with the latter, the one-sided update moved aligned images by 2 voxels). <code>syn_channel_combination = "normalized"</code> combines the channels as the multi-metric of <code>ITK</code>: each channel’s force is divided by its norm before weighting, so only the weights set its share (with <code>"sum"</code>, mean squares on brighter images or sharper edges count more); a force below 1e-6 of the channel’s own scale counts as rounding noise. <code>syn_symmetric = TRUE</code> runs a symmetric <code>SyN</code>: two half fields carry the target and the source to a middle space, each driven by its own image gradient, every update is composed with its field (the maps stay one-to-one), the border voxels do not move, only the samples inside both images and both masks drive either half, and the result is the inverse of the target half composed with the source half; registering the images the other way gives about the inverse map, and the bias of the one-sided update cancels (aligned images stay within 0.07 voxel with mutual information). On a 1 mm normalization benchmark (<code>CIT168</code> to <code>MNI152NLin2009bAsym</code>, <code>T1</code> with <code>CSF</code> and white-matter maps), <code>"mattes"</code> for the maps with <code>"normalized"</code> moved the template cortex at the vertex from +0.53 mm to +0.35 mm (<code>ANTs</code> <code>SyNOnly</code>: +0.45 mm), and adding <code>syn_symmetric</code> to +0.31 mm</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.2" id="ravetools-042">ravetools 0.4.2<a class="anchor" aria-label="anchor" href="#ravetools-042"></a></h2><p class="text-muted">CRAN release: 2026-11-08</p>
 <ul><li>Added <code>morph_volume</code> for the erosion, dilation, largest connected component and hole filling of a 3D mask; the erosion and dilation take one radius (a ball) or one radius per axis (an ellipsoid, so that a distance in millimeters holds on voxels that are longer along one axis)</li>

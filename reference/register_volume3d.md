@@ -41,6 +41,11 @@ register_volume3d(
   syn_cc_radius = 2L,
   syn_convergence = 1e-06,
   syn_convergence_window = 10L,
+  syn_metric = NULL,
+  syn_mi_bins = 32L,
+  syn_mi_sampling = 0.25,
+  syn_channel_combination = c("sum", "normalized"),
+  syn_symmetric = FALSE,
   verbose = TRUE
 )
 ```
@@ -124,12 +129,18 @@ register_volume3d(
 
 - metric:
 
-  similarity metric: `"mattes"` (Mattes mutual information, the default,
-  best for cross-modal such as `'CT'`-`'MRI'`), `"cc"` (normalized
-  cross-correlation, for same-modality), or `"meansquares"` (mean
-  squared intensity difference). With multiple channels, supply either a
-  single metric (used for every pair) or a vector with one metric per
-  source/target pair
+  similarity metric of the rigid and `affine` stages: `"mattes"` (Mattes
+  mutual information, the default, best for cross-modal such as
+  `'CT'`-`'MRI'`), `"cc"` (normalized cross-correlation, for
+  same-modality), or `"meansquares"` (mean squared intensity
+  difference). Those stages use the first pair only, so with multiple
+  channels only the first entry drives them; a single value is recycled
+  to every pair, and one value per pair is accepted. In the deformable
+  stage, while `syn_metric` is `NULL`, each entry only chooses between
+  local cross-correlation (`"mattes"` or `"cc"`) and mean squares
+  (`"meansquares"`) for its pair: `"mattes"` never gives mutual
+  information there. Use `syn_metric` to set the deformable metric of
+  each pair
 
 - shrink_factors:
 
@@ -147,8 +158,10 @@ register_volume3d(
 
 - sampling_rate:
 
-  fraction of fixed voxels sampled to evaluate the metric (speeds up
-  large volumes); default `0.2`
+  fraction of fixed voxels sampled to evaluate the metric of the rigid
+  and `affine` stages (speeds up large volumes); default `0.2`. The
+  deformable stage does not use it: see `syn_mi_sampling` for its
+  `"mattes"` channels
 
 - interpolation:
 
@@ -163,7 +176,9 @@ register_volume3d(
 
 - number_of_bins:
 
-  number of histogram bins for the `"mattes"` metric; default `32`
+  number of histogram bins of the `"mattes"` metric in the rigid and
+  `affine` stages; default `32`. The `"mattes"` channels of the
+  deformable stage use `syn_mi_bins`
 
 - seed:
 
@@ -212,6 +227,59 @@ register_volume3d(
   recent iterations whose cost trend is tested (an integer of at least
   2; default `10L`). The defaults are those of `antsRegistration`; the
   `"SyN"` transforms of 'ANTsPy' use `1e-7` and `8L`. See ‘Details’
+
+- syn_metric:
+
+  metric of each channel in the deformable stage: `"cc"` (local
+  cross-correlation with radius `syn_cc_radius`), `"mattes"` (`Mattes`
+  mutual information, as the `MI` metric of 'ANTs') or `"meansquares"`;
+  a single value is recycled to every channel. The default `NULL` keeps
+  the behavior of `metric`: local cross-correlation, or mean squares
+  where `metric` is `"meansquares"`. When given, it replaces that
+  choice, and `metric` then only sets the rigid and `affine` stages. The
+  force of `"mattes"` differs from that of `ITK` in one term: it takes
+  the joint histogram relative to the target histogram (the gradient of
+  the joint entropy), not the source histogram, as the exact derivative
+  does; with the source histogram, the one-sided update kept moving
+  aligned images
+
+- syn_mi_bins, syn_mi_sampling:
+
+  histogram bins (an integer of at least 8; default `32L`) and the
+  fraction of the voxels of each level that are sampled at random
+  (seeded by `seed`; greater than 0 and at most 1, default `0.25`) of
+  the `"mattes"` channels of the deformable stage, as in
+  `MI[fixed,moving,weight,32,Random,0.25]` of 'ANTs'; only the sampled
+  voxels drive the field, which the update smoothing spreads. They are
+  independent of `number_of_bins` and `sampling_rate`, which set the
+  same quantities for the rigid and `affine` stages
+
+- syn_channel_combination:
+
+  how the channels of the deformable stage are combined: `"sum"`
+  (default) adds the weighted forces of the channels, so a channel whose
+  derivative is larger (sharper edges, or mean squares on brighter
+  images) counts more than its weight; `"normalized"` divides the force
+  field of each channel by its norm before weighting, as the
+  multi-metric of `ITK` that 'ANTs' uses, so only the weights set the
+  share of each channel. Use `"normalized"` to combine `"mattes"`
+  channels with others, as their derivative has another scale
+
+- syn_symmetric:
+
+  whether the deformable stage is symmetric, as the `SyN` of 'ANTs': two
+  displacement fields carry the target and the source to a middle space,
+  each driven by the gradient of its own image, and every update is
+  composed with the field (the maps stay one-to-one) instead of added to
+  it; the result is the inverse of the target half composed with the
+  source half; as in 'ANTs', the fields keep zero displacement on the
+  outermost voxel layer, and only the voxels whose samples fall inside
+  both images and both masks drive either half (a source sample outside
+  `source_mask` is background, which pulls neither image). The default
+  `FALSE` keeps the faster one-sided update, driven by the source
+  gradient only, whose bias (for instance with `"mattes"`) is not
+  canceled by the other side. Not available with landmarks
+  (`source_points`)
 
 - verbose:
 
@@ -277,12 +345,14 @@ cross-correlation drives the deformable stage (the `"cc"` metric only
 changes the linear stages). The 'ANTs'-like `'T1'`-to-template preset is
 `syn_cc_radius = 4`, `syn_grad_step = 0.15` and `syn_sigma = 3.5`; the
 defaults are a faster, lightly regularized variant. For cross-contrast
-pairs mutual information is the usual choice for the linear stages; the
-deformable stage has no mutual-information metric, and its squared local
-correlation tolerates an inverted contrast (such as `'T2'` against
-`'T1'`) but not a non-monotonic relation (such as `FLAIR` or `'CT'`
-against `'T1'`), so give such channels a low weight in a multichannel
-call.
+pairs mutual information is the usual choice for the linear stages. In
+the deformable stage, the squared local correlation tolerates an
+inverted contrast (such as `'T2'` against `'T1'`) but not a
+non-monotonic relation (such as `FLAIR` or `'CT'` against `'T1'`); for
+such channels, or for probability maps whose edges differ in sharpness,
+set `syn_metric = "mattes"` for them with
+`syn_channel_combination = "normalized"`, as the `MI` channels of a
+multivariate 'ANTs' `SyN`.
 
 **Convergence of the deformable stage.** With `syn_convergence` set (the
 default), every deformable level ends as soon as its cost stops
@@ -418,9 +488,11 @@ res$transform[1:3, 4]                 # ~ c(3, -2, 1)
 
 # --- multimodal registration (several co-registered channels) ------------
 # Two aligned modalities (e.g. a T1 and a T2) jointly drive the deformable
-# stage. Each pair may use its own metric, and `weights` set their relative
-# influence (normalized internally to sum to 1). All source channels must
-# share a grid; likewise all target channels.
+# stage; the rigid and affine stages use the first pair only. `metric` sets
+# the metric of the rigid and affine stages, `syn_metric` the deformable
+# metric of each pair, and `weights` their relative influence (normalized
+# internally to sum to 1). All source channels must share a grid; likewise
+# all target channels.
 t1_target <- blob(25, 25, 25, s = 6)
 t2_target <- blob(25, 25, 25, s = 9)  # same anatomy, different contrast
 t1_source <- blob(27, 24, 26, s = 6)  # both channels share the same warp
@@ -431,7 +503,9 @@ res_mm <- register_volume3d(
   target = list(t1_target, t2_target),
   source_vox2ras = vox2ras, target_vox2ras = vox2ras,
   weights = c(2, 1),                  # T1 counts twice as much as T2
-  metric = c("mattes", "cc"),         # one metric per channel
+  metric = "mattes",                  # rigid and affine stages (first pair)
+  syn_metric = c("cc", "mattes"),     # deformable metric of each pair
+  syn_channel_combination = "normalized",  # so the weights alone set the shares
   type = "syn"
 )
 #> [rigid] level 1/3 (shrink=4, sigma=2.0): max 1000 iterations
@@ -947,61 +1021,71 @@ res_mm <- register_volume3d(
 #>   it   150  step = 0.001953: cost = -0.567929
 #>   => converged (step < minStep)  best cost=-0.567929
 #> [SyN] level 1/3 (shrink=4, sigma=2.0, flow=3.0, channels=2): max 40 iterations
-#>   it     1: cost = -0.892844  field_max = 0.80 mm
-#>   it     2: cost = -0.904248  field_max = 1.60 mm
-#>   it     3: cost = -0.914074  field_max = 2.40 mm
-#>   it     4: cost = -0.924056  field_max = 3.19 mm
-#>   it     5: cost = -0.931777  field_max = 3.99 mm
-#>   it     6: cost = -0.938930  field_max = 4.79 mm
-#>   it     7: cost = -0.944740  field_max = 5.59 mm
-#>   it     8: cost = -0.950270  field_max = 6.36 mm
-#>   it     9: cost = -0.955244  field_max = 7.06 mm
-#>   it    10: cost = -0.960497  field_max = 7.67 mm  convergence = 5.597e-03
-#>   it    11: cost = -0.963909  field_max = 8.39 mm  convergence = 4.489e-03
-#>   it    12: cost = -0.966920  field_max = 9.12 mm  convergence = 3.602e-03
-#>   it    13: cost = -0.970232  field_max = 9.83 mm  convergence = 2.882e-03
-#>   it    14: cost = -0.973304  field_max = 10.40 mm  convergence = 2.343e-03
-#>   it    15: cost = -0.975462  field_max = 10.85 mm  convergence = 1.898e-03
-#>   it    16: cost = -0.978081  field_max = 11.08 mm  convergence = 1.545e-03
-#>   it    17: cost = -0.979111  field_max = 11.27 mm  convergence = 1.236e-03
-#>   it    18: cost = -0.979603  field_max = 11.43 mm  convergence = 9.701e-04
-#>   it    19: cost = -0.980324  field_max = 11.56 mm  convergence = 7.419e-04
-#>   it    20: cost = -0.981028  field_max = 11.67 mm  convergence = 5.764e-04
-#>   it    21: cost = -0.981958  field_max = 11.81 mm  convergence = 4.289e-04
-#>   it    22: cost = -0.982852  field_max = 11.94 mm  convergence = 3.052e-04
-#>   it    23: cost = -0.984064  field_max = 12.05 mm  convergence = 2.123e-04
-#>   it    24: cost = -0.984800  field_max = 12.20 mm  convergence = 1.513e-04
-#>   it    25: cost = -0.985892  field_max = 12.33 mm  convergence = 1.137e-04
-#>   it    26: cost = -0.986956  field_max = 12.50 mm  convergence = 9.804e-05
-#>   it    27: cost = -0.987708  field_max = 12.57 mm  convergence = 9.051e-05
-#>   it    28: cost = -0.988188  field_max = 12.64 mm  convergence = 8.300e-05
-#>   it    29: cost = -0.988802  field_max = 12.70 mm  convergence = 7.482e-05
-#>   it    30: cost = -0.989299  field_max = 12.75 mm  convergence = 6.537e-05
-#>   it    31: cost = -0.989959  field_max = 12.77 mm  convergence = 5.561e-05
-#>   it    32: cost = -0.990740  field_max = 12.79 mm  convergence = 4.750e-05
-#>   it    33: cost = -0.991660  field_max = 12.98 mm  convergence = 4.287e-05
-#>   it    34: cost = -0.992293  field_max = 13.15 mm  convergence = 3.853e-05
-#>   it    35: cost = -0.992826  field_max = 13.32 mm  convergence = 3.499e-05
-#>   it    36: cost = -0.993394  field_max = 13.49 mm  convergence = 3.216e-05
-#>   it    37: cost = -0.993905  field_max = 13.70 mm  convergence = 2.968e-05
-#>   it    38: cost = -0.994207  field_max = 14.00 mm  convergence = 2.554e-05
-#>   it    39: cost = -0.994230  field_max = 14.16 mm  convergence = 1.903e-05
-#>   it    40: cost = -0.993726  field_max = 14.30 mm  convergence = 9.361e-06
-#>   => max iterations reached (40)  cost=-0.993726
+#>   it     1: cost = -1.030372  field_max = 0.80 mm
+#>   it     2: cost = -1.034843  field_max = 1.57 mm
+#>   it     3: cost = -1.036568  field_max = 2.35 mm
+#>   it     4: cost = -1.036627  field_max = 3.13 mm
+#>   it     5: cost = -1.033220  field_max = 3.92 mm
+#>   it     6: cost = -1.027368  field_max = 4.68 mm
+#>   it     7: cost = -1.018235  field_max = 5.47 mm
+#>   it     8: cost = -1.006129  field_max = 6.24 mm
+#>   it     9: cost = -0.992098  field_max = 6.86 mm
+#>   it    10: cost = -0.980977  field_max = 7.15 mm  convergence = 4.042e-03
+#>   it    11: cost = -0.975090  field_max = 7.34 mm  convergence = 2.896e-03
+#>   it    12: cost = -0.971668  field_max = 7.44 mm  convergence = 2.092e-03
+#>   it    13: cost = -0.970015  field_max = 7.48 mm  convergence = 1.547e-03
+#>   it    14: cost = -0.968913  field_max = 7.52 mm  convergence = 1.231e-03
+#>   it    15: cost = -0.968451  field_max = 7.49 mm  convergence = 1.048e-03
+#>   it    16: cost = -0.968144  field_max = 8.14 mm  convergence = 9.574e-04
+#>   it    17: cost = -0.968056  field_max = 8.80 mm  convergence = 8.918e-04
+#>   it    18: cost = -0.968023  field_max = 9.40 mm  convergence = 8.312e-04
+#>   it    19: cost = -0.968032  field_max = 9.91 mm  convergence = 7.517e-04
+#>   it    20: cost = -0.968013  field_max = 10.35 mm  convergence = 6.739e-04
+#>   it    21: cost = -0.968046  field_max = 11.02 mm  convergence = 6.037e-04
+#>   it    22: cost = -0.968042  field_max = 11.59 mm  convergence = 5.443e-04
+#>   it    23: cost = -0.968140  field_max = 12.00 mm  convergence = 4.961e-04
+#>   it    24: cost = -0.967964  field_max = 12.36 mm  convergence = 4.555e-04
+#>   it    25: cost = -0.967614  field_max = 12.57 mm  convergence = 4.185e-04
+#>   it    26: cost = -0.966332  field_max = 12.74 mm  convergence = 3.777e-04
+#>   it    27: cost = -0.966252  field_max = 12.82 mm  convergence = 3.300e-04
+#>   it    28: cost = -0.967190  field_max = 13.04 mm  convergence = 2.837e-04
+#>   it    29: cost = -0.965899  field_max = 13.10 mm  convergence = 2.305e-04
+#>   it    30: cost = -0.966601  field_max = 13.27 mm  convergence = 1.855e-04
+#>   it    31: cost = -0.966061  field_max = 13.34 mm  convergence = 1.413e-04
+#>   it    32: cost = -0.965841  field_max = 13.47 mm  convergence = 1.070e-04
+#>   it    33: cost = -0.965628  field_max = 13.53 mm  convergence = 7.937e-05
+#>   it    34: cost = -0.965258  field_max = 13.65 mm  convergence = 6.196e-05
+#>   it    35: cost = -0.965096  field_max = 13.71 mm  convergence = 4.934e-05
+#>   it    36: cost = -0.964454  field_max = 13.81 mm  convergence = 4.028e-05
+#>   it    37: cost = -0.964576  field_max = 13.88 mm  convergence = 2.893e-05
+#>   it    38: cost = -0.963737  field_max = 13.97 mm  convergence = 2.367e-05
+#>   it    39: cost = -0.963860  field_max = 14.04 mm  convergence = 1.399e-05
+#>   it    40: cost = -0.963157  field_max = 14.14 mm  convergence = 1.237e-05
+#>   => max iterations reached (40)  cost=-0.963157
 #> [SyN] level 2/3 (shrink=2, sigma=1.0, flow=3.0, channels=2): max 20 iterations
-#>   it     1: cost = -0.896596  field_max = 13.98 mm
-#>   it     2: cost = -0.896885  field_max = 14.10 mm
-#>   it     3: cost = -0.896447  field_max = 14.22 mm
-#>   it     4: cost = -0.895603  field_max = 14.33 mm
-#>   it     5: cost = -0.894657  field_max = 14.45 mm
-#>   it     6: cost = -0.893685  field_max = 14.55 mm
-#>   it     7: cost = -0.892752  field_max = 14.61 mm
-#>   it     8: cost = -0.891746  field_max = 14.68 mm
-#>   it     9: cost = -0.890929  field_max = 14.75 mm
-#>   it    10: cost = -0.890349  field_max = 14.80 mm  convergence = -5.153e-04
-#>   => converged (convergence -5.153e-04 < threshold 1.000e-06) after 10 of 20 iterations  cost=-0.890349
+#>   it     1: cost = -0.997933  field_max = 12.47 mm
+#>   it     2: cost = -0.994687  field_max = 12.49 mm
+#>   it     3: cost = -0.990199  field_max = 12.51 mm
+#>   it     4: cost = -0.985106  field_max = 12.52 mm
+#>   it     5: cost = -0.980346  field_max = 12.51 mm
+#>   it     6: cost = -0.978458  field_max = 12.48 mm
+#>   it     7: cost = -0.981804  field_max = 12.44 mm
+#>   it     8: cost = -0.988480  field_max = 12.35 mm
+#>   it     9: cost = -0.995855  field_max = 12.33 mm
+#>   it    10: cost = -0.993259  field_max = 12.30 mm  convergence = 8.790e-04
+#>   it    11: cost = -0.989656  field_max = 12.28 mm  convergence = 6.711e-04
+#>   it    12: cost = -0.990137  field_max = 12.27 mm  convergence = 4.934e-04
+#>   it    13: cost = -0.989980  field_max = 12.27 mm  convergence = 3.490e-04
+#>   it    14: cost = -0.990185  field_max = 12.26 mm  convergence = 2.364e-04
+#>   it    15: cost = -0.989463  field_max = 12.26 mm  convergence = 1.589e-04
+#>   it    16: cost = -0.989586  field_max = 12.26 mm  convergence = 1.053e-04
+#>   it    17: cost = -0.988753  field_max = 12.27 mm  convergence = 6.173e-05
+#>   it    18: cost = -0.988886  field_max = 12.28 mm  convergence = 2.915e-05
+#>   it    19: cost = -0.988025  field_max = 12.29 mm  convergence = 2.117e-05
+#>   it    20: cost = -0.988119  field_max = 12.30 mm  convergence = 1.504e-05
+#>   => max iterations reached (20)  cost=-0.988119
 #> [SyN] level 3/3 (shrink=1, sigma=0.0, flow=3.0, channels=2): max 0 iterations
-#> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.73e-04, max = 4.34e+00 voxel
+#> [SyN] inverse field: 20 fixed-point iterations, residual mean = 1.23e-01, max = 8.10e+00 voxel
 res_mm$transform[1:3, 4]
 #> [1]  2.0017331 -1.0002336  0.9990778
 
